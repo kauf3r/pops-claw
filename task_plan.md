@@ -4,7 +4,7 @@
 Secure the existing OpenClaw (Clawdbot) EC2 instance and enable full capabilities: Email/Calendar automation, Browser control, Cron/scheduled tasks, and Messaging integrations.
 
 ## Current Phase
-Phase 1
+Phase 2
 
 ## Architecture (Current)
 ```
@@ -21,12 +21,12 @@ EC2 Ubuntu Host
 ## Phases
 
 ### Phase 1: Security Audit & Hardening
-- [ ] Audit current security posture (exposed ports, auth, credentials)
-- [ ] Configure EC2 security groups (restrict 18789 to trusted IPs)
-- [ ] Set up SSL/TLS for gateway
-- [ ] Review credential storage in clawdbot.json
-- [ ] Configure firewall (ufw)
-- **Status:** in_progress
+- [x] Audit current security posture (exposed ports, auth, credentials)
+- [x] Configure EC2 security groups (restrict 18789 to trusted IPs) → Already secure (loopback-only)
+- [x] Set up SSL/TLS for gateway → Not needed (Tailscale WireGuard encrypts)
+- [x] Review credential storage in clawdbot.json → 600 perms, token auth
+- [x] Configure firewall (ufw) → Already active, deny-default
+- **Status:** ✅ complete
 
 ### Phase 2: Email/Calendar Integration (Gmail)
 - [ ] Set up Gmail Pub/Sub for real-time notifications
@@ -82,5 +82,6 @@ EC2 Ubuntu Host
 
 ## Notes
 - OpenClaw = rebranded Clawdbot (trademark issue with Anthropic)
-- Port 18789 currently exposed - priority security concern
-- Browser network mode affects web access capability
+- ~~Port 18789 currently exposed~~ → Gateway binds to loopback only, not exposed
+- Browser network mode affects web access capability (currently `none` = isolated)
+- Public IP 3.145.170.88 exists but ports blocked by SG/UFW

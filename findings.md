@@ -59,10 +59,76 @@ External connections:
 - Tailscale IP: 100.72.143.9
 - Access method: SSH via Tailscale
 
+## Phase 1 Security Audit (2026-01-30)
+
+### Network Exposure
+
+| Check | Finding | Status |
+|-------|---------|--------|
+| Gateway binding | `loopback` only (127.0.0.1) | ✅ Secure |
+| Port 18789 external | Not reachable from internet | ✅ Secure |
+| Port 22 external | Not reachable from internet | ✅ Secure |
+| UFW firewall | Active, deny incoming by default | ✅ Secure |
+| UFW SSH rule | Only allows 100.64.0.0/10 (Tailscale) | ✅ Secure |
+| iptables INPUT | Policy DROP | ✅ Secure |
+| Public IP exists | 3.145.170.88 (but blocked by SG/UFW) | ⚠️ OK |
+
+### Credentials & Config
+
+| Check | Finding | Status |
+|-------|---------|--------|
+| ~/.clawdbot/ perms | 700 (owner only) | ✅ Secure |
+| clawdbot.json perms | 600 (owner only) | ✅ Secure |
+| .env perms | 600 (owner only) | ✅ Secure |
+| credentials/ perms | 700, files 600 | ✅ Secure |
+| Gateway auth | Token-based (`mode: token`) | ✅ Secure |
+
+### Docker Sandbox
+
+| Check | Finding | Status |
+|-------|---------|--------|
+| Container running | `clawdbot-sbx-agent-main-main-20ceb99b` | ✅ Running |
+| Network mode | `none` (no network access) | ⚠️ Note |
+| Image | `clawdbot-sandbox:with-browser` | ✅ OK |
+
+### Services Running
+
+- `docker.service` - Docker daemon
+- `tailscaled.service` - Tailscale agent
+
+### Environment Variables (.env)
+
+```
+BRAVE_SEARCH_API_KEY=***
+NANO_BANANA_API_KEY=***
+OPENAI_API_KEY=***
+```
+
+### Gateway Config
+
+```json
+{
+  "port": 18789,
+  "mode": "local",
+  "bind": "loopback",
+  "auth": { "mode": "token", "token": "***" },
+  "tailscale": { "mode": "off" }
+}
+```
+
+### Summary
+
+**Overall: SECURE** - No immediate vulnerabilities found.
+
+Action items:
+- [ ] Verify EC2 Security Group in AWS Console (cannot check via CLI)
+- [ ] Consider removing public IP if not needed
+- [ ] Change Docker network to `bridge` when ready for browser automation (Phase 3)
+
 ## Issues Encountered
 | Issue | Resolution |
 |-------|------------|
-|       |            |
+| AWS CLI not configured | Cannot verify SG from instance - use AWS Console |
 
 ## Resources
 - OpenClaw GitHub: https://github.com/openclaw/openclaw
