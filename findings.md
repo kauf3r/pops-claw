@@ -125,10 +125,50 @@ Action items:
 - [ ] Consider removing public IP if not needed
 - [ ] Change Docker network to `bridge` when ready for browser automation (Phase 3)
 
+## Phase 2 Email/Calendar Integration (2026-01-30)
+
+### Configuration
+
+| Component | Value |
+|-----------|-------|
+| Google Account | andy@andykaufman.net |
+| GCP Project | pops-claw |
+| OAuth Client | Desktop app (client_secret.json) |
+| gog CLI | v0.9.0 installed |
+| Keyring | file-based (GOG_KEYRING_PASSWORD in .env) |
+| Scopes | gmail.modify, gmail.settings.*, calendar |
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| ~/.clawdbot/clawdbot.json | Added hooks.gmail config |
+| ~/.clawdbot/.env | Added GOG_KEYRING_PASSWORD |
+| ~/.config/gogcli/client_secret.json | OAuth credentials |
+| ~/.config/gogcli/config.json | keyring=file |
+
+### Capabilities Enabled
+
+- ✅ Read emails (gog gmail search)
+- ✅ Send emails (gog gmail send)
+- ✅ List calendars (gog calendar calendars)
+- ✅ Read calendar events (gog calendar events)
+- ✅ Create calendar events (gog calendar events create)
+
+### Limitations
+
+| Issue | Workaround |
+|-------|------------|
+| Pub/Sub IAM blocked by org policy | Use cron polling instead of push notifications |
+| Real-time email notifications | Poll via cron (Phase 4) or on-demand queries |
+
 ## Issues Encountered
 | Issue | Resolution |
 |-------|------------|
 | AWS CLI not configured | Cannot verify SG from instance - use AWS Console |
+| gog auth --manual stdin issues | Use ssh -t for TTY allocation |
+| Pub/Sub IAM org policy | Skip push, use pull/polling approach |
+| gog keyring on headless server | Switch to file backend with GOG_KEYRING_PASSWORD |
 
 ## Resources
 - OpenClaw GitHub: https://github.com/openclaw/openclaw
