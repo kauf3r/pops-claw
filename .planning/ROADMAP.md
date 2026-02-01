@@ -14,6 +14,13 @@
 
 **Requirements:** WS-01 to WS-11 (11 requirements)
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md - Create directory structure and shared files
+- [ ] 01-02-PLAN.md - Create SOUL.md persona files (4 agents)
+- [ ] 01-03-PLAN.md - Create HEARTBEAT.md task files (4 agents)
+
 **Success Criteria:**
 1. All 4 agent directories exist with correct permissions
 2. Each agent has SOUL.md and HEARTBEAT.md files
