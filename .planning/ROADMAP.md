@@ -38,6 +38,11 @@ Plans:
 
 **Requirements:** HE-01 to HE-05 (5 requirements)
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 02-01-PLAN.md — Create Oura skill, configure API access, set up health snapshot storage
+
 **Success Criteria:**
 1. Oura skill created and functional
 2. Sleep score, readiness, HRV, resting HR accessible
@@ -201,7 +206,7 @@ Plans:
 **Requirements:** DP-01 to DP-04 (4 requirements)
 
 **Success Criteria:**
-1. Photo → structured receipt data extraction
+1. Photo -> structured receipt data extraction
 2. Receipts stored in SQLite
 3. Monthly expense summary generated
 
@@ -215,50 +220,50 @@ Plans:
 
 | Phase | Requirements | Count |
 |-------|--------------|-------|
-| 1 | UF-01–05, ME-01–03, SE-01–04 | 12 |
-| 2 | HE-01–05 | 5 |
-| 3 | BR-01–08, RL-01–04 | 12 |
-| 4 | MC-01–06 | 6 |
-| 5 | GV-01–06, WY-01–03 | 9 |
-| 6 | MA-01–06 | 6 |
-| 7 | MS-01–05 | 5 |
-| 8 | AA-01–04 | 4 |
-| 9 | PP-01–03 | 3 |
-| 10 | CW-01–04 | 4 |
-| 11 | DP-01–04 | 4 |
+| 1 | UF-01-05, ME-01-03, SE-01-04 | 12 |
+| 2 | HE-01-05 | 5 |
+| 3 | BR-01-08, RL-01-04 | 12 |
+| 4 | MC-01-06 | 6 |
+| 5 | GV-01-06, WY-01-03 | 9 |
+| 6 | MA-01-06 | 6 |
+| 7 | MS-01-05 | 5 |
+| 8 | AA-01-04 | 4 |
+| 9 | PP-01-03 | 3 |
+| 10 | CW-01-04 | 4 |
+| 11 | DP-01-04 | 4 |
 | **Total** | | **70** |
 
 ## Dependencies
 
 ```
 Phase 1 (Update/Memory/Security)
-    │
-    ├───────────┬──────────────┐
-    ▼           ▼              ▼
+    |
+    +-----------.-------------+
+    v           v              v
 Phase 2      Phase 3       Phase 4
 (Oura)    (Briefing)     (MCP)
-    │          │              │
-    └────┬─────┘              │
-         ▼                    │
-    Phase 5 ◄─────────────────┘
+    |          |              |
+    +----+-----+              |
+         v                    |
+    Phase 5 <-----------------+
   (Govee/Wyze)
-         │
-         ▼
+         |
+         v
     Phase 6
   (Multi-Agent GW)
-         │
-    ┌────┴────┐
-    ▼         ▼
+         |
+    +----+----+
+    v         v
 Phase 7    Phase 8
 (Slack)  (Automation)
-    │         │
-    └────┬────┘
-         ▼
+    |         |
+    +----+----+
+         v
     Phase 9
   (Proactive)
-         │
-    ┌────┴────┐
-    ▼         ▼
+         |
+    +----+----+
+    v         v
 Phase 10   Phase 11
 (Coding)  (Receipts)
 ```
@@ -268,4 +273,4 @@ Phases 7, 8 can run in parallel after Phase 6.
 Phases 10, 11 can run in parallel after Phase 9.
 
 ---
-*Created: 2026-02-07 — v2 milestone*
+*Created: 2026-02-07 -- v2 milestone*
