@@ -182,6 +182,28 @@
 | Auth token | openclaw doctor | anthropic:manual | configured | ✅ Pass |
 | Web UI dashboard | localhost:3000 via SSH tunnel | Dashboard loads | Health OK, chat working | ✅ Pass |
 
+### ClawdStrike Security Audit
+- **Status:** ✅ complete
+- **Started:** 2026-02-07 06:33 UTC
+- Actions taken:
+  - Installed ClawdStrike skill: cloned from `cantinaxyz/clawdstrike` into `~/.openclaw/skills/`
+  - Ran initial audit: 0 critical, 5 warn, 6 info, 13 OK
+  - Applied 3 fixes:
+    - Disabled mDNS discovery (`discovery.mdns.mode: off`) — was leaking presence on UDP 5353
+    - Killed Next.js dev server on `*:3000` — bound to loopback in package.json
+    - Installed ripgrep (`apt install ripgrep`) — enables supply chain pattern scanning
+  - Re-ran audit to verify: 0 critical, 3 warn, 5 info, 16 OK
+  - Remaining warns are mitigated (SSH covered by SG, firewall needs root, version cosmetic)
+- Audit score: 16/25 OK — Network/Gateway/Discovery/Filesystem/Supply Chain/Channels all green
+
+| Test | Input | Expected | Actual | Status |
+|------|-------|----------|--------|--------|
+| ClawdStrike initial scan | collect_verified.sh | Report generated | 0 crit, 5 warn, 13 OK | ✅ Pass |
+| mDNS disabled | ss -ulnp grep 5353 | No listener | Gone | ✅ Pass |
+| Next.js killed | ss -tlnp grep 3000 | No listener | Gone | ✅ Pass |
+| ripgrep installed | skills pattern scan | Scan completes | No high-risk patterns | ✅ Pass |
+| ClawdStrike re-scan | collect_verified.sh | Improved | 0 crit, 3 warn, 16 OK | ✅ Pass |
+
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
 |-----------|-------|---------|------------|
