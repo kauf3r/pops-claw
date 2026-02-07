@@ -1,99 +1,213 @@
-# Roadmap: Mission Control Multi-Agent System
+# Roadmap: Proactive Daily Companion
 
 ## Overview
 
 | Phases | Requirements | Target |
 |--------|--------------|--------|
-| 4 | 26 | Multi-agent OpenClaw on EC2 |
+| 11 | 70 | Proactive Bob with health, coding, multi-agent |
 
 ## Phases
 
-### Phase 1: Workspace Setup
+### Phase 1: Update, Memory & Security
 
-**Goal:** Create the directory structure and agent persona files on EC2
+**Goal:** Update OpenClaw to v2026.2.6, enable hybrid memory, harden security
 
-**Requirements:** WS-01 to WS-11 (11 requirements)
+**Requirements:** UF-01 to UF-05, ME-01 to ME-03, SE-01 to SE-04 (12 requirements)
 
-**Plans:** 3 plans
+**Plans:** 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md - Create directory structure and shared files
-- [ ] 01-02-PLAN.md - Create SOUL.md persona files (4 agents)
-- [ ] 01-03-PLAN.md - Create HEARTBEAT.md task files (4 agents)
+- [ ] 01-01-PLAN.md — Update OpenClaw to v2026.2.6, run safety scanner and ClawdStrike audit
+- [ ] 01-02-PLAN.md — Configure sqlite-hybrid memory and apply security hardening
 
 **Success Criteria:**
-1. All 4 agent directories exist with correct permissions
-2. Each agent has SOUL.md and HEARTBEAT.md files
-3. Shared AGENTS.md is readable by all agents
-4. WORKING.md exists in shared memory
+1. OpenClaw v2026.2.6 running, gateway healthy
+2. Safety scanner passes on ClawdStrike skill
+3. Memory system active (sqlite-hybrid backend)
+4. Discovery disabled, dmScope set, token rotated
 
 **Deliverables:**
-- ~/clawd/agents/{main,landos,rangeos,ops}/
-- ~/clawd/shared/AGENTS.md
-- SOUL.md and HEARTBEAT.md per agent
-- Memory directories initialized
+- Updated ~/.openclaw/openclaw.json (memory + security)
+- Verified v2026.2.6 features (token dashboard, session capping)
 
 ---
 
-### Phase 2: Gateway & Database
+### Phase 2: Oura Ring Integration
 
-**Goal:** Configure multi-agent routing and create coordination database
+**Goal:** Pull health data from Oura Ring API into Bob's daily workflow
 
-**Requirements:** GW-01 to GW-05, DB-01 to DB-05 (10 requirements)
+**Requirements:** HE-01 to HE-05 (5 requirements)
 
 **Success Criteria:**
-1. clawdbot.json backed up and updated with 4 agent routes
-2. Gateway restarts successfully with new config
+1. Oura skill created and functional
+2. Sleep score, readiness, HRV, resting HR accessible
+3. Daily health snapshots stored in SQLite
+4. Health data available for briefing consumption
+
+**Deliverables:**
+- ~/.openclaw/skills/oura/SKILL.md
+- OURA_ACCESS_TOKEN in .env
+- Health snapshot storage
+
+---
+
+### Phase 3: Daily Briefing & Rate Limits
+
+**Goal:** Rich morning briefing, evening recap, weekly review, and model routing
+
+**Requirements:** BR-01 to BR-08, RL-01 to RL-04 (12 requirements)
+
+**Success Criteria:**
+1. Morning briefing fires at 7 AM PT with all 5 sections
+2. Evening recap fires at 7 PM PT
+3. Weekly review fires Sunday 8 AM PT
+4. Model routing configured (Haiku/Sonnet/Opus)
+5. Session history capping enabled
+
+**Deliverables:**
+- Updated ~/.openclaw/cron/jobs.json
+- Model routing in openclaw.json
+
+---
+
+### Phase 4: MCP Servers
+
+**Goal:** Install coding and data tools as MCP servers
+
+**Requirements:** MC-01 to MC-06 (6 requirements)
+
+**Success Criteria:**
+1. GitHub MCP operational (can list repos, PRs)
+2. SQLite MCP operational (can query databases)
+3. Brave Search MCP operational (can search web)
+4. Filesystem MCP operational (can read/write EC2 files)
+
+**Deliverables:**
+- ~/.openclaw/mcp_config.json
+- GITHUB_TOKEN in .env
+
+---
+
+### Phase 5: Govee & Wyze Integrations
+
+**Goal:** Device data (temp, humidity, lights, weight) accessible to Bob
+
+**Requirements:** GV-01 to GV-06, WY-01 to WY-03 (9 requirements)
+
+**Success Criteria:**
+1. Govee skill reads sensor data
+2. Govee skill controls lights
+3. Govee data in morning briefing
+4. Wyze emails parsed for weight data
+5. Weight trend in weekly summary
+
+**Deliverables:**
+- ~/.openclaw/skills/govee/SKILL.md
+- GOVEE_API_KEY in .env
+- Gmail filter for Wyze notifications
+
+---
+
+### Phase 6: Multi-Agent Gateway
+
+**Goal:** Configure 4-agent routing in OpenClaw gateway with coordination DB
+
+**Requirements:** MA-01 to MA-06 (6 requirements)
+
+**Success Criteria:**
+1. openclaw.json backed up and updated with 4 agent routes
+2. Gateway restarts with new config
 3. All 3 coordination tables created with indexes
 4. Database accessible from agent workspace
 
 **Deliverables:**
-- Updated ~/.clawdbot/clawdbot.json
+- Updated ~/.openclaw/openclaw.json
 - SQLite tables: agent_tasks, agent_messages, agent_activity
-- Verified gateway restart
 
 ---
 
-### Phase 3: Slack Integration
+### Phase 7: Multi-Agent Slack Channels
 
-**Goal:** Create domain channels and configure bot routing
+**Goal:** Create domain Slack channels and verify bot routing
 
-**Requirements:** SL-01 to SL-05 (5 requirements)
+**Requirements:** MS-01 to MS-05 (5 requirements)
 
 **Success Criteria:**
-1. Three new Slack channels exist (#land-ops, #range-ops, #ops)
+1. Three channels exist (#land-ops, #range-ops, #ops)
 2. Bot is member of all channels
-3. Messages in each channel route to correct agent
-4. Test messages receive appropriate responses
+3. Messages route to correct agent
 
 **Deliverables:**
-- #land-ops channel (Scout)
-- #range-ops channel (Vector)
-- #ops channel (Sentinel)
-- Verified routing
+- Slack channels created and verified
 
-**Note:** Slack channel creation is manual via Slack UI
+**Note:** Channel creation is manual via Slack UI
 
 ---
 
-### Phase 4: Automation & Verification
+### Phase 8: Multi-Agent Automation
 
-**Goal:** Configure heartbeat cron jobs, daily standup, and verify full system
+**Goal:** Heartbeat crons, daily standup, full system verification
 
-**Requirements:** AU-01 to AU-06, VF-01 to VF-04 (10 requirements)
+**Requirements:** AA-01 to AA-04 (4 requirements)
 
 **Success Criteria:**
 1. All 4 heartbeat jobs in cron config
-2. Daily standup job triggers at 8 AM EST
-3. One full heartbeat cycle completes (15 min)
-4. agent_activity table shows records from all agents
-5. Standup aggregates data correctly
+2. Daily standup triggers at 8 AM EST
+3. One full heartbeat cycle completes
+4. Standup posted to #ops with all agent summaries
 
 **Deliverables:**
-- Updated ~/.clawdbot/cron/jobs.json
+- Updated ~/.openclaw/cron/jobs.json
 - Verified heartbeat execution
-- Verified standup generation
-- System operational
+
+---
+
+### Phase 9: Proactive Agent Patterns
+
+**Goal:** Bob acts before being asked — pre-meeting prep, anomaly alerts, reminders
+
+**Requirements:** PP-01 to PP-03 (3 requirements)
+
+**Success Criteria:**
+1. Pre-meeting context sent 15min before events
+2. Anomaly alerts fire on metric deviations
+3. Context-aware reminders from calendar + memory
+
+**Deliverables:**
+- Cron jobs and skill definitions
+
+---
+
+### Phase 10: Agentic Coding Workflow
+
+**Goal:** Bob can review PRs, create issues, and assist with coding via Slack
+
+**Requirements:** CW-01 to CW-04 (4 requirements)
+
+**Success Criteria:**
+1. coding-assistant skill operational
+2. "Review PR #N" command works via Slack
+3. Open PR count in daily briefing
+
+**Deliverables:**
+- ~/.openclaw/skills/coding-assistant/SKILL.md
+
+---
+
+### Phase 11: Document Processing
+
+**Goal:** Receipt scanning, expense tracking, monthly summaries
+
+**Requirements:** DP-01 to DP-04 (4 requirements)
+
+**Success Criteria:**
+1. Photo → structured receipt data extraction
+2. Receipts stored in SQLite
+3. Monthly expense summary generated
+
+**Deliverables:**
+- ~/.openclaw/skills/receipt-scanner/SKILL.md
+- SQLite receipts table
 
 ---
 
@@ -101,31 +215,57 @@ Plans:
 
 | Phase | Requirements | Count |
 |-------|--------------|-------|
-| 1 | WS-01 to WS-11 | 11 |
-| 2 | GW-01 to GW-05, DB-01 to DB-05 | 10 |
-| 3 | SL-01 to SL-05 | 5 |
-| 4 | AU-01 to AU-06, VF-01 to VF-04 | 10 |
-| **Total** | | **26** |
+| 1 | UF-01–05, ME-01–03, SE-01–04 | 12 |
+| 2 | HE-01–05 | 5 |
+| 3 | BR-01–08, RL-01–04 | 12 |
+| 4 | MC-01–06 | 6 |
+| 5 | GV-01–06, WY-01–03 | 9 |
+| 6 | MA-01–06 | 6 |
+| 7 | MS-01–05 | 5 |
+| 8 | AA-01–04 | 4 |
+| 9 | PP-01–03 | 3 |
+| 10 | CW-01–04 | 4 |
+| 11 | DP-01–04 | 4 |
+| **Total** | | **70** |
 
 ## Dependencies
 
 ```
-Phase 1 (Workspace)
+Phase 1 (Update/Memory/Security)
     │
-    ▼
-Phase 2 (Gateway + Database)
-    │
-    ├──────────────┐
-    ▼              ▼
-Phase 3         Phase 4
-(Slack)      (Automation)
-    │              │
-    └──────┬───────┘
-           ▼
-      Verification
+    ├───────────┬──────────────┐
+    ▼           ▼              ▼
+Phase 2      Phase 3       Phase 4
+(Oura)    (Briefing)     (MCP)
+    │          │              │
+    └────┬─────┘              │
+         ▼                    │
+    Phase 5 ◄─────────────────┘
+  (Govee/Wyze)
+         │
+         ▼
+    Phase 6
+  (Multi-Agent GW)
+         │
+    ┌────┴────┐
+    ▼         ▼
+Phase 7    Phase 8
+(Slack)  (Automation)
+    │         │
+    └────┬────┘
+         ▼
+    Phase 9
+  (Proactive)
+         │
+    ┌────┴────┐
+    ▼         ▼
+Phase 10   Phase 11
+(Coding)  (Receipts)
 ```
 
-Phase 3 and Phase 4 can run in parallel after Phase 2 completes.
+Phases 2, 3, 4 can run in parallel after Phase 1.
+Phases 7, 8 can run in parallel after Phase 6.
+Phases 10, 11 can run in parallel after Phase 9.
 
 ---
-*Created: 2026-02-01*
+*Created: 2026-02-07 — v2 milestone*
