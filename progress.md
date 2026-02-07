@@ -388,5 +388,24 @@
 | Gateway health | openclaw gateway health | OK | OK (38ms), Slack ok (35ms) | PASS |
 | OAuth scopes listed | gog auth list --json | Scopes returned | 7 scopes documented | PASS |
 
+### Phase 2: Oura Ring Integration (02-01) - Task 1
+- **Status:** complete
+- **Started:** 2026-02-07 22:45 UTC
+- Actions taken:
+  - Added OURA_ACCESS_TOKEN to ~/.openclaw/.env via `echo | tee -a`
+  - Created ~/clawd/health.db with health_snapshots table (14 columns)
+  - Used CURRENT_TIMESTAMP instead of datetime('now') for created_at default (SQLite compatibility)
+  - Restarted gateway service to pick up new env var
+  - Verified all: token in .env, table schema correct, gateway active (running)
+- Files modified (on EC2):
+  - `~/.openclaw/.env` (added OURA_ACCESS_TOKEN)
+  - `~/clawd/health.db` (created with health_snapshots table)
+
+| Test | Input | Expected | Actual | Status |
+|------|-------|----------|--------|--------|
+| Token in .env | grep OURA_ACCESS_TOKEN | Present | OURA_ACCESS_TOKEN=050567 | PASS |
+| Table schema | SELECT sql FROM sqlite_master | All 14 columns | All columns present | PASS |
+| Gateway status | systemctl status | active (running) | active (running) v2026.2.6-3 | PASS |
+
 ---
 *Update after completing each phase or encountering errors*
