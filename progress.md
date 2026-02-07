@@ -349,5 +349,44 @@
 | Memory operational | openclaw memory status | Vector+FTS ready | Vector 1536d + FTS ready, 12 chunks | PASS |
 | Memory search | openclaw memory search | Returns results | Search completed (no errors) | PASS |
 
+### Memory & Security Configuration (01-02) - Task 2
+- **Status:** complete
+- **Started:** 2026-02-07 21:54 UTC
+- Actions taken:
+  - Rotated gateway auth token:
+    - No built-in rotation command in OpenClaw v2026.2.6-3
+    - Generated new token via `python3 -c "import secrets; print(secrets.token_urlsafe(32))"`
+    - Updated `gateway.auth.token` in openclaw.json via jq
+    - Old token: `***REMOVED***`
+    - New token: `***REMOVED***`
+  - Restarted gateway, verified healthy (Slack OK, 38ms response)
+  - Reviewed Gmail OAuth scopes for theandykaufman@gmail.com (client: pops-claw):
+    - **Current scopes (7):**
+      1. `email` (OpenID standard)
+      2. `https://www.googleapis.com/auth/calendar` (full read+write)
+      3. `https://www.googleapis.com/auth/gmail.modify` (read+write+delete+labels)
+      4. `https://www.googleapis.com/auth/gmail.settings.basic`
+      5. `https://www.googleapis.com/auth/gmail.settings.sharing`
+      6. `https://www.googleapis.com/auth/userinfo.email`
+      7. `openid`
+    - **Minimum needed:** gmail.modify (required for Pub/Sub watch) + gmail.send + calendar.readonly
+    - **Excess scopes identified:**
+      - `gmail.settings.basic` -- not needed for mail read/send/watch
+      - `gmail.settings.sharing` -- not needed
+      - `calendar` full -- could be `calendar.readonly` if no write needed
+    - **Note:** `gmail.modify` looks broad but is required for Gmail Pub/Sub watch (history sync, label tracking). Cannot safely downgrade to `gmail.readonly` without breaking webhook push notifications.
+    - **Scope reduction requires re-auth.** Recommended: remove `settings.basic` and `settings.sharing` during next gog re-auth cycle. Calendar scope can be narrowed to `calendar.readonly` if write access is not needed.
+    - Auth created: 2026-02-07T05:11:27Z
+- Files modified (on EC2):
+  - `~/.openclaw/openclaw.json` (gateway.auth.token rotated)
+
+| Test | Input | Expected | Actual | Status |
+|------|-------|----------|--------|--------|
+| Token differs | compare old vs new | Different | fi34y... vs tQnJM... | PASS |
+| JSON valid | python3 json.tool | Valid | Valid | PASS |
+| Gateway restart | systemctl status | active (running) | active (running) | PASS |
+| Gateway health | openclaw gateway health | OK | OK (38ms), Slack ok (35ms) | PASS |
+| OAuth scopes listed | gog auth list --json | Scopes returned | 7 scopes documented | PASS |
+
 ---
 *Update after completing each phase or encountering errors*
