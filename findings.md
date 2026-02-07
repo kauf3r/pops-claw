@@ -527,10 +527,90 @@ systemctl --user daemon-reload && systemctl --user restart openclaw-gateway.serv
 journalctl --user -u openclaw-gateway.service --since '1 min ago' | tail -20
 ```
 
+## ClawdStrike Security Audit (2026-02-07)
+
+### Skill Installation
+
+| Component | Value |
+|-----------|-------|
+| Source | https://github.com/cantinaxyz/clawdstrike |
+| Location | `~/.openclaw/skills/clawdstrike/` |
+| Type | Managed skill (SKILL.md + scripts + references) |
+| Mode | Verified (deterministic collection via `collect_verified.sh`) |
+
+### Initial Scan Results (06:33 UTC)
+
+| Metric | Count |
+|--------|-------|
+| Critical | 0 |
+| Warn | 5 |
+| Info | 6 |
+| OK | 13 |
+
+### Vulnerabilities Found
+
+| Check | Severity | Issue | Fix Applied |
+|-------|----------|-------|-------------|
+| discovery.mdns_leak | warn | UDP 5353 bound to 0.0.0.0, leaking presence | `discovery.mdns.mode: off` |
+| net.listening_ports | warn | mDNS + Next.js exposed on all interfaces | Killed Next.js, disabled mDNS |
+| supply_chain.skills_pattern_scan | warn | ripgrep not installed, scan skipped | `sudo apt install ripgrep` |
+| net.firewall | warn | Cannot verify (needs root) | Mitigated — UFW active per Phase 1 audit |
+| version.patch_level | warn | Collection script doesn't capture version | Cosmetic — v2026.2.3-1 confirmed manually |
+
+### Fixes Applied
+
+1. **mDNS disabled**: `openclaw config set discovery.mdns.mode off` — no more UDP 5353 listener
+2. **Next.js bound to loopback**: Updated `~/clawd/mission-control/package.json` dev/start scripts with `-H 127.0.0.1`
+3. **ripgrep installed**: `sudo apt install ripgrep` — supply chain pattern scan now functional
+
+### Re-scan Results (06:38 UTC)
+
+| Metric | Before | After | Delta |
+|--------|--------|-------|-------|
+| Critical | 0 | 0 | — |
+| Warn | 5 | 3 | -2 |
+| Info | 6 | 5 | -1 |
+| OK | 13 | 16 | +3 |
+
+### Category Scores (Post-fix)
+
+| Category | Score |
+|----------|-------|
+| Network Exposure | Good (SSH only, covered by SG) |
+| Gateway Security | Excellent (loopback + token auth) |
+| Discovery | Excellent (mDNS disabled) |
+| Filesystem | Excellent (all perms correct) |
+| Supply Chain | Excellent (scans clean) |
+| Channels | Excellent (allowlist policies) |
+
+### Remaining Items (Low Priority)
+
+| Item | Severity | Notes |
+|------|----------|-------|
+| Firewall verification | warn | Needs root; UFW confirmed active in Phase 1 |
+| SSH on 0.0.0.0:22 | warn | AWS SG restricts to Tailscale CGNAT `100.64.0.0/10` |
+| discovery.wideArea.enabled | info | Not explicitly set; consider adding to config |
+| session.dmScope | info | Not set; single-user deployment, low risk |
+| version.patch_level | warn | Collection script limitation; version confirmed manually |
+
+### Running ClawdStrike (for future reference)
+
+```bash
+# Collect data on host
+cd ~/.openclaw/skills/clawdstrike && bash scripts/collect_verified.sh
+
+# Copy bundle to agent workspace
+cp ~/.openclaw/skills/clawdstrike/verified-bundle.json ~/clawd/agents/main/
+
+# Ask agent to generate report
+openclaw agent --agent main --message 'Read verified-bundle.json and produce the ClawdStrike security audit report.'
+```
+
 ## Resources
 - OpenClaw GitHub: https://github.com/openclaw/openclaw
 - OpenClaw docs: https://openclaw.ai/
 - OpenClaw Updating Guide: https://docs.openclaw.ai/install/updating
+- ClawdStrike: https://github.com/cantinaxyz/clawdstrike
 - AWS EC2 Security Groups docs
 - Gmail API OAuth setup
 
