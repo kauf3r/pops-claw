@@ -484,9 +484,53 @@ INFO: config.secrets.hooks_token_in_config
 | EC2 Security Group verification | Low | Cannot verify from instance, use AWS Console |
 | Consider removing public IP | Low | Currently blocked by SG/UFW anyway |
 
+## Version Update: v2026.1.24-3 → v2026.2.3-1 (2026-02-06)
+
+### Migration Summary
+
+| Component | Before | After |
+|-----------|--------|-------|
+| Package | `clawdbot` | `openclaw` |
+| Binary | `clawdbot` | `openclaw` |
+| State dir | `~/.clawdbot/` | `~/.openclaw/` (symlinked from old) |
+| Config | `~/.clawdbot/clawdbot.json` | `~/.openclaw/openclaw.json` |
+| Service | `clawdbot-gateway.service` | `openclaw-gateway.service` |
+| Entrypoint | `dist/entry.js` | `dist/index.js` |
+| Auth | `anthropic:claude-cli` | `anthropic:manual` (setup-token) |
+| Logs | `/tmp/clawdbot/` | `/tmp/openclaw/` |
+| Public IP | 3.145.170.88 | Changed after stop/start (check AWS Console) |
+
+### Service File Changes
+
+Added `EnvironmentFile=/home/ubuntu/.openclaw/.env` to load API keys and `GOG_KEYRING_PASSWORD` automatically.
+
+### Update Procedure (for future reference)
+
+```bash
+# 1. Backup
+cp ~/.openclaw/openclaw.json ~/.openclaw/openclaw.json.bak
+
+# 2. Update
+npm install -g openclaw@latest
+
+# 3. Migrate
+openclaw doctor --fix
+
+# 4. Update service entrypoint if needed
+# Check: openclaw doctor (will flag mismatches)
+# Fix: sed -i 's|old-entry|new-entry|' ~/.config/systemd/user/openclaw-gateway.service
+
+# 5. Restart
+systemctl --user daemon-reload && systemctl --user restart openclaw-gateway.service
+
+# 6. Verify
+journalctl --user -u openclaw-gateway.service --since '1 min ago' | tail -20
+```
+
 ## Resources
 - OpenClaw GitHub: https://github.com/openclaw/openclaw
 - OpenClaw docs: https://openclaw.ai/
+- OpenClaw Updating Guide: https://docs.openclaw.ai/install/updating
 - AWS EC2 Security Groups docs
 - Gmail API OAuth setup
 

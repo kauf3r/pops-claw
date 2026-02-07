@@ -122,19 +122,77 @@
 | Logrotate config | logrotate -d | Parse OK | No errors | ✅ Pass |
 | Security audit | clawdbot security audit --deep | Pass | 0 critical, 1 warn (acceptable) | ✅ Pass |
 
+## Session: 2026-02-06
+
+### Version Update: clawdbot v2026.1.24-3 → openclaw v2026.2.3-1
+- **Status:** ✅ complete
+- **Started:** 2026-02-06 21:00 UTC
+- Actions taken:
+  - Backed up config: `~/.clawdbot/clawdbot.json` → `.bak`
+  - Updated via `npm install -g openclaw@latest`
+  - Ran `openclaw doctor` — migrated state dir `~/.clawdbot/` → `~/.openclaw/` (symlinked)
+  - Migrated config: `clawdbot.json` → `openclaw.json`
+  - Removed deprecated `anthropic:claude-cli` auth profile
+  - Installed shell completion for `openclaw`
+  - Created new `openclaw-gateway.service` (replaced `clawdbot-gateway.service`)
+  - Fixed service entrypoint: `entry.js` → `index.js` (flagged by doctor)
+  - Added `EnvironmentFile=~/.openclaw/.env` to service (was missing GOG_KEYRING_PASSWORD)
+  - Removed corrupted Gmail OAuth tokens (aes.KeyUnwrap integrity check failed)
+  - Re-authenticated Gmail via `gog auth add --manual` with `--services gmail,calendar`
+  - Set up new auth token via `openclaw models auth setup-token` (anthropic:manual)
+  - Ran `openclaw doctor --fix` — all clean
+  - Restricted EC2 security group SSH back to `100.64.0.0/10` (Tailscale only)
+- Issues encountered:
+  - Gmail `aes.KeyUnwrap` error — token corrupted during migration, required re-auth
+  - Tailscale connectivity lost mid-session — EC2 instance stop/start resolved it
+  - `openclaw` command not found via non-interactive SSH — needed full path `/home/ubuntu/.npm-global/bin/openclaw`
+  - EC2 Instance Connect failed (UFW blocks non-Tailscale SSH)
+- Files created/modified:
+  - `~/.openclaw/openclaw.json` (migrated from `~/.clawdbot/clawdbot.json`)
+  - `~/.config/systemd/user/openclaw-gateway.service` (created)
+  - `~/.config/systemd/user/clawdbot-gateway.service` (removed)
+  - `~/.config/gogcli/keyring/` (tokens removed and re-created)
+  - EC2 Security Group `sg-094f68d231ab6f6ba` (SSH restricted to Tailscale CGNAT)
+
+## Test Results
+| Test | Input | Expected | Actual | Status |
+|------|-------|----------|--------|--------|
+| SSH via Tailscale | 100.72.143.9 | Connect | Connected | ✅ Pass |
+| External port 22 | 3.145.170.88:22 | Blocked | Timeout | ✅ Pass |
+| External port 18789 | 3.145.170.88:18789 | Blocked | Timeout | ✅ Pass |
+| Gateway HTTP external | http://3.145.170.88:18789 | Blocked | No response | ✅ Pass |
+| Cron job fires | test-immediate-001 @ 18:21 UTC | Fire & log | "status":"ok" | ✅ Pass |
+| Cron service starts | gateway restart | jobs:2 in log | jobs:2 confirmed | ✅ Pass |
+| Browser network=none | curl example.com | Blocked | ERR_INTERNET_DISCONNECTED | ✅ Pass |
+| Browser network=bridge | Playwright example.com | Load page | Title="Example Domain" | ✅ Pass |
+| agent-browser snapshot | open+snapshot example.com | DOM tree | heading+links returned | ✅ Pass |
+| Slack channel status | clawdbot channels status | enabled, running | enabled, configured, running | ✅ Pass |
+| Slack DM send | message send to U0CUJ5CAF | Sent | Message ID returned | ✅ Pass |
+| Health check script | health-check.sh | All OK | gateway/disk/mem/slack OK | ✅ Pass |
+| Logrotate config | logrotate -d | Parse OK | No errors | ✅ Pass |
+| Security audit | clawdbot security audit --deep | Pass | 0 critical, 1 warn (acceptable) | ✅ Pass |
+| OpenClaw version | openclaw --version | 2026.2.3-1 | 2026.2.3-1 | ✅ Pass |
+| Gateway post-update | systemctl status | active (running) | active (running) | ✅ Pass |
+| Gmail watcher | journal logs | watch started | watch started (no KeyUnwrap) | ✅ Pass |
+| Slack post-update | journal logs | socket connected | socket mode connected | ✅ Pass |
+| Auth token | openclaw doctor | anthropic:manual | configured | ✅ Pass |
+
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
 |-----------|-------|---------|------------|
-|           |       | 1       |            |
+| 2026-02-06 21:07 | Gmail aes.KeyUnwrap integrity check failed | 1 | Added EnvironmentFile to service |
+| 2026-02-06 21:07 | Gmail aes.KeyUnwrap persisted after env fix | 2 | Removed corrupted tokens, re-authenticated via gog auth add --manual |
+| 2026-02-06 21:10 | Tailscale ping timeout to EC2 | 1 | Rebooted EC2 instance — still failed |
+| 2026-02-06 21:10 | Tailscale still unreachable after reboot | 2 | Stop/start instance — Tailscale reconnected |
 
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
-| Where am I? | Phase 6 complete - ALL PHASES DONE |
-| Where am I going? | All 6 phases complete: Security → Email/Calendar → Browser → Cron → Messaging → Production |
-| What's the goal? | Secure OpenClaw EC2 and enable full capabilities - ACHIEVED |
-| What have I learned? | systemd user service with auto-restart; logs in /tmp/clawdbot; no external monitoring needed for single instance |
-| What have I done? | Set up logrotate, health monitoring cron, recovery docs; verified security posture |
+| Where am I? | All phases complete, version update to v2026.2.3-1 done |
+| Where am I going? | Instance fully updated and operational |
+| What's the goal? | Secure OpenClaw EC2 with full capabilities - ACHIEVED and UPDATED |
+| What have I learned? | Non-interactive SSH lacks npm-global PATH; gog keyring tokens can corrupt during migration; EC2 stop/start fixes Tailscale when reboot doesn't |
+| What have I done? | Updated clawdbot→openclaw, migrated config/service/auth, re-authenticated Gmail, fixed entrypoint, restricted SG |
 
 ---
 *Update after completing each phase or encountering errors*
