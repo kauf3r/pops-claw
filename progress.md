@@ -142,6 +142,10 @@
   - Set up new auth token via `openclaw models auth setup-token` (anthropic:manual)
   - Ran `openclaw doctor --fix` — all clean
   - Restricted EC2 security group SSH back to `100.64.0.0/10` (Tailscale only)
+  - Verified Web UI dashboard (new in v2026.2.2) accessible via SSH tunnel
+  - Access: `ssh -L 3000:localhost:18789 -i ~/.ssh/clawdbot-key.pem ubuntu@100.72.143.9` → `http://localhost:3000?token=<gateway-token>`
+  - Dashboard features: Chat, Channels, Instances, Sessions, Cron Jobs, Agents, Skills, Nodes, Config, Debug, Logs
+  - Health status: OK
 - Issues encountered:
   - Gmail `aes.KeyUnwrap` error — token corrupted during migration, required re-auth
   - Tailscale connectivity lost mid-session — EC2 instance stop/start resolved it
@@ -176,6 +180,7 @@
 | Gmail watcher | journal logs | watch started | watch started (no KeyUnwrap) | ✅ Pass |
 | Slack post-update | journal logs | socket connected | socket mode connected | ✅ Pass |
 | Auth token | openclaw doctor | anthropic:manual | configured | ✅ Pass |
+| Web UI dashboard | localhost:3000 via SSH tunnel | Dashboard loads | Health OK, chat working | ✅ Pass |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
