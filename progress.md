@@ -212,6 +212,44 @@
 | 2026-02-06 21:10 | Tailscale ping timeout to EC2 | 1 | Rebooted EC2 instance — still failed |
 | 2026-02-06 21:10 | Tailscale still unreachable after reboot | 2 | Stop/start instance — Tailscale reconnected |
 
+## Session: 2026-02-07
+
+### Briefing Failure Diagnosis & Disk Cleanup
+- **Status:** ✅ complete
+- **Started:** 2026-02-07 15:41 UTC
+- Actions taken:
+  - Restarted gateway service (user request)
+  - Investigated why 7:00 AM calendar briefing failed to fire
+  - **Root cause found:** `GOG_KEYRING_PASSWORD` mismatch between `~/.openclaw/.env` (`pops-claw-gog-2026`) and `openclaw.json` Docker sandbox env (`gogpops`) — agent couldn't decrypt keyring tokens
+  - Fixed `openclaw.json` Docker sandbox env to use correct password
+  - Fixed `health-check.sh` — still referenced old `clawdbot-gateway` service name, updated to `openclaw-gateway`
+  - Restarted gateway to pick up config change
+  - Verified gog calendar access works with correct password
+  - Disk cleanup (was at 98% / 400MB free):
+    - Cleaned npm cache (`~/.npm/_cacache`): ~2.2G freed
+    - Pruned dangling Docker image: 1.5G freed
+    - Removed unused `google-cloud-sdk`: 1.2G freed
+    - Removed redundant host Playwright cache (`~/.cache/ms-playwright`): 622M freed (Docker image has its own Chromium at `/opt/browsers/chromium-1208`)
+    - Removed `airspace-operations-dashboard/node_modules`: 837M freed (project not running)
+  - Final disk: 64% / 6.7G free (from 98% / 400MB)
+- Files modified:
+  - `~/.openclaw/openclaw.json` (fixed GOG_KEYRING_PASSWORD in sandbox env)
+  - `~/clawd/scripts/health-check.sh` (clawdbot-gateway → openclaw-gateway)
+
+| Test | Input | Expected | Actual | Status |
+|------|-------|----------|--------|--------|
+| gog with wrong password | GOG_KEYRING_PASSWORD=gogpops | Fail | aes.KeyUnwrap integrity check failed | ✅ Confirmed bug |
+| gog with correct password | GOG_KEYRING_PASSWORD=pops-claw-gog-2026 | Calendar data | 3 events returned | ✅ Pass |
+| Health check post-fix | health-check.sh | Gateway OK | Gateway: OK | ✅ Pass |
+| Disk after cleanup | df -h / | <80% | 64% (6.7G free) | ✅ Pass |
+
+## Error Log (2026-02-07)
+| Timestamp | Error | Resolution |
+|-----------|-------|------------|
+| 2026-02-07 07:00 | Calendar briefing failed — gog aes.KeyUnwrap integrity check | GOG_KEYRING_PASSWORD mismatch between .env and openclaw.json Docker sandbox env; fixed to use correct password |
+| 2026-02-07 15:40 | Health check reporting gateway DOWN | Script still referenced old `clawdbot-gateway` service name; updated to `openclaw-gateway` |
+| 2026-02-07 15:40 | Disk at 98% (400MB free) | Cleaned npm cache, Docker images, gcloud, Playwright cache, unused node_modules — freed ~6.3G |
+
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
