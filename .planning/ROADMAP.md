@@ -17,7 +17,7 @@
 **Plans:** 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Update OpenClaw to v2026.2.6, run safety scanner and ClawdStrike audit
+- [x] 01-01-PLAN.md -- Update OpenClaw to v2026.2.6, run safety scanner and ClawdStrike audit
 - [ ] 01-02-PLAN.md — Configure sqlite-hybrid memory and apply security hardening
 
 **Success Criteria:**
