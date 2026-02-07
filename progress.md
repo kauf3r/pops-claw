@@ -275,6 +275,31 @@
 | Gateway HTTP | curl localhost:18789 | Response | Dashboard HTML returned | ✅ Pass |
 | Doctor clean | openclaw doctor | No critical | 0 critical, deprecated auth (info) | ✅ Pass |
 
+### Post-Update Safety & Audit Checks
+- **Status:** ✅ complete
+- **Started:** 2026-02-07 21:17 UTC
+- Actions taken:
+  - No `safety-scan` subcommand in v2026.2.6; used `security audit --deep` and `skills check` instead
+  - Security audit (deep): 0 critical, 1 warn (trustedProxies - acceptable for loopback), 2 info
+  - Gateway deep probe: OK (ws://127.0.0.1:18789 connected)
+  - Skills check: 12 eligible (including ClawdStrike), 0 blocked by allowlist, 0 errors
+  - Re-ran ClawdStrike `collect_verified.sh` with updated gateway
+  - Bundle regenerated at 2026-02-07T21:19:37Z, shows version 2026.2.6-3
+  - Security posture maintained: config 600, state dir 700, no world-writable files, no SUID/SGID
+  - Network: gateway loopback only, mDNS off, no unexpected listeners
+  - Pattern scan: only expected matches (git sample hooks, collector script itself)
+  - No regressions from 16/25 OK baseline
+
+| Test | Input | Expected | Actual | Status |
+|------|-------|----------|--------|--------|
+| Security audit deep | openclaw security audit --deep | 0 critical | 0 critical, 1 warn, 2 info | ✅ Pass |
+| Gateway probe | deep ws://127.0.0.1:18789 | ok | ok | ✅ Pass |
+| Skills check | openclaw skills check | ClawdStrike eligible | ClawdStrike listed as eligible | ✅ Pass |
+| ClawdStrike bundle | collect_verified.sh | Bundle generated | Generated 2026-02-07T21:19:37Z | ✅ Pass |
+| Version in bundle | openclaw.version | 2026.2.6 | 2026.2.6-3 | ✅ Pass |
+| Filesystem perms | stat state/config | 700/600 | 700/600 | ✅ Pass |
+| No regressions | vs 16/25 baseline | >= 16/25 | Maintained (0 crit, same findings) | ✅ Pass |
+
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
