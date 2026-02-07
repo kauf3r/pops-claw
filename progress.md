@@ -407,5 +407,27 @@
 | Table schema | SELECT sql FROM sqlite_master | All 14 columns | All columns present | PASS |
 | Gateway status | systemctl status | active (running) | active (running) v2026.2.6-3 | PASS |
 
+### Phase 2: Oura Ring Integration (02-01) - Task 2
+- **Status:** complete
+- **Started:** 2026-02-07 22:47 UTC
+- Actions taken:
+  - Created ~/.openclaw/skills/oura/ directory on EC2
+  - Wrote SKILL.md locally then scp'd to EC2 (avoids heredoc-over-SSH hangs)
+  - Initial upload missing YAML frontmatter (name/description) -- skill not detected
+  - Added frontmatter (Rule 1 auto-fix: matching ClawdStrike SKILL.md format), re-uploaded
+  - Restarted gateway to detect new skill
+  - Oura skill now showing as "ready" in `openclaw skills list`
+  - SKILL.md: 241 lines, 6 sections (Authentication, API Endpoints, Snapshot Workflow, Briefing Query, Error Handling, Tips)
+- Files created (on EC2):
+  - `~/.openclaw/skills/oura/SKILL.md` (241 lines)
+
+| Test | Input | Expected | Actual | Status |
+|------|-------|----------|--------|--------|
+| SKILL.md exists | ls ~/.openclaw/skills/oura/SKILL.md | File present | 241 lines | PASS |
+| Line count | wc -l | >80 lines | 241 lines | PASS |
+| All sections present | grep '^## ' | 6 sections | 6 sections | PASS |
+| Skill detected | openclaw skills list | oura listed | Oura Ring: ready, openclaw-managed | PASS |
+| Gateway active | systemctl status | active (running) | active (running) v2026.2.6-3 | PASS |
+
 ---
 *Update after completing each phase or encountering errors*
