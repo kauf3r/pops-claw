@@ -250,6 +250,31 @@
 | 2026-02-07 15:40 | Health check reporting gateway DOWN | Script still referenced old `clawdbot-gateway` service name; updated to `openclaw-gateway` |
 | 2026-02-07 15:40 | Disk at 98% (400MB free) | Cleaned npm cache, Docker images, gcloud, Playwright cache, unused node_modules — freed ~6.3G |
 
+### Version Update: openclaw v2026.2.3-1 → v2026.2.6-3
+- **Status:** ✅ complete
+- **Started:** 2026-02-07 21:13 UTC
+- Actions taken:
+  - Checked current version: v2026.2.3-1
+  - Updated via `npm install -g openclaw@latest` (added 10, removed 14, changed 662 packages)
+  - Verified new version: v2026.2.6-3
+  - Ran `openclaw doctor --fix` — updated openclaw.json, no critical issues
+  - Doctor findings: deprecated auth profile (informational), 12 eligible skills, 2 plugins loaded, 0 errors
+  - Updated service file version string: v2026.2.3-1 → v2026.2.6-3
+  - Restarted gateway service, verified active (running)
+  - Gateway responding on port 18789
+  - Ran clean `openclaw doctor` — no critical issues confirmed
+- Files modified:
+  - `/home/ubuntu/.npm-global/lib/node_modules/openclaw/` (npm update)
+  - `~/.config/systemd/user/openclaw-gateway.service` (version string updated)
+  - `~/.openclaw/openclaw.json` (doctor update)
+
+| Test | Input | Expected | Actual | Status |
+|------|-------|----------|--------|--------|
+| OpenClaw version | openclaw --version | 2026.2.6 | 2026.2.6-3 | ✅ Pass |
+| Gateway status | systemctl status | active (running) | active (running) v2026.2.6-3 | ✅ Pass |
+| Gateway HTTP | curl localhost:18789 | Response | Dashboard HTML returned | ✅ Pass |
+| Doctor clean | openclaw doctor | No critical | 0 critical, deprecated auth (info) | ✅ Pass |
+
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
