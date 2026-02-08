@@ -84,18 +84,23 @@ Plans:
 
 ### Phase 4: MCP Servers
 
-**Goal:** Install coding and data tools as MCP servers
+**Goal:** Make coding and data tools accessible from Bob's Docker sandbox (gh, sqlite3, web search, filesystem)
 
 **Requirements:** MC-01 to MC-06 (6 requirements)
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 04-01-PLAN.md -- Install gh+sqlite3 in sandbox, inject GitHub auth, enable elevated exec, verify all tools
+
 **Success Criteria:**
-1. GitHub MCP operational (can list repos, PRs)
-2. SQLite MCP operational (can query databases)
-3. Brave Search MCP operational (can search web)
-4. Filesystem MCP operational (can read/write EC2 files)
+1. GitHub CLI operational from sandbox (can list repos, PRs)
+2. SQLite CLI operational from sandbox (can query databases)
+3. Brave Search operational via built-in web_search tool
+4. Filesystem operational via built-in read/write/edit/exec tools
 
 **Deliverables:**
-- ~/.openclaw/mcp_config.json
+- Updated ~/.openclaw/openclaw.json (setupCommand, GITHUB_TOKEN, elevated exec)
 - GITHUB_TOKEN in .env
 
 ---
