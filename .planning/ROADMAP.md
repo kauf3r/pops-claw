@@ -137,6 +137,12 @@ Plans:
 
 **Requirements:** MA-01 to MA-06 (6 requirements)
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 06-01-PLAN.md -- Backup config, verify multi-agent infrastructure, fix coordination DB access and agent HEARTBEAT.md SQL
+- [ ] 06-02-PLAN.md -- Restart gateway, verify all 4 agents load and route Slack messages correctly
+
 **Success Criteria:**
 1. openclaw.json backed up and updated with 4 agent routes
 2. Gateway restarts with new config
