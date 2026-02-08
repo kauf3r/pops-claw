@@ -2,10 +2,10 @@
 
 ## Current Position
 
-Phase: 3 of 11 (Daily Briefing & Rate Limits) — COMPLETE
-Plan: 3 of 3 complete
-Status: Phase complete, all rate limit routing and cron scheduling done
-Last activity: 2026-02-08 - Completed 03-01-PLAN.md (model routing, compaction, heartbeat optimization)
+Phase: 4 of 11 (MCP Servers) — IN PROGRESS
+Plan: 1 of 6 in progress (Task 1 complete, awaiting human verification at Task 2)
+Status: 04-01 Task 1 done — sandbox config deployed, awaiting Slack verification
+Last activity: 2026-02-08 - Executing 04-01-PLAN.md (sandbox tooling: gh, sqlite3, elevated exec)
 Progress: [██████░░░░░░░░░░░░░░] 6/14 plans
 
 ## Current Status
@@ -15,7 +15,7 @@ Progress: [██████░░░░░░░░░░░░░░] 6/14 pl
 | 1. Update, Memory & Security | ✓ Complete | Plan 2/2 complete |
 | 2. Oura Ring Integration | ✓ Complete | Plan 1/1 complete |
 | 3. Daily Briefing & Rate Limits | ✓ Complete | 3/3 plans complete |
-| 4. MCP Servers | Not Started | 0/6 |
+| 4. MCP Servers | In Progress | 0/6 (04-01 Task 1 done) |
 | 5. Govee & Wyze Integrations | Not Started | 0/9 |
 | 6. Multi-Agent Gateway | Not Started | 0/6 |
 | 7. Multi-Agent Slack Channels | Not Started | 0/5 |
@@ -28,12 +28,13 @@ Progress: [██████░░░░░░░░░░░░░░] 6/14 pl
 
 ## Active Phase
 
-Phase 3 complete. All 3 plans executed: model routing (03-01), morning briefing (03-02), evening/weekly crons (03-03). Next: Phase 4 (MCP Servers) or Phase 5 (Govee & Wyze).
+Phase 4 started. Plan 04-01 Task 1 complete: gh + sqlite3 setupCommand added, GITHUB_TOKEN injected, elevated exec enabled, gh config bind-mounted. Awaiting human verification (Task 2) via Slack DM with Bob.
 
 ## Recent Activity
 
 | Date | Action | Details |
 |------|--------|---------|
+| 2026-02-08 | 04-01 Task 1 done | gh+sqlite3 setupCommand, GITHUB_TOKEN injected, elevated exec, gh bind mount, gateway restarted |
 | 2026-02-08 | Completed 03-01-PLAN | Model aliases (haiku/sonnet/opus), heartbeats to haiku, compaction safeguard, contextTokens=100k |
 | 2026-02-08 | Completed 03-02-PLAN | Morning briefing expanded to 5 sections (calendar, email, health, weather, tasks); email-digest-daily merged in |
 | 2026-02-08 | Completed 03-03-PLAN | Evening recap (7 PM PT daily) + weekly review (Sunday 8 AM PT) crons created, targeting Slack DM |
@@ -74,8 +75,8 @@ None
 ## Session Continuity
 
 - **Last session:** 2026-02-08
-- **Stopped at:** Completed 03-01-PLAN.md, Phase 3 complete
-- **Resume:** Phase 4 (MCP Servers) or Phase 5 (Govee & Wyze) — both unblocked
+- **Stopped at:** 04-01-PLAN.md Task 2 checkpoint (human-verify)
+- **Resume:** Verify Bob can use gh, sqlite3, web_search, filesystem via Slack DM, then continue 04-01
 
 ## Notes
 
@@ -89,4 +90,4 @@ None
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 
 ---
-*Last updated: 2026-02-08T18:37Z*
+*Last updated: 2026-02-08T19:06Z*
