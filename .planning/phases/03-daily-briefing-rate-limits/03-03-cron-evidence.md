@@ -18,4 +18,14 @@ Content: Summarizes today's activity, previews tomorrow's calendar via `gog cale
 
 ## Weekly Review (Task 2)
 
-*Pending*
+- **ID:** 058f0007-935b-4399-aae1-28f6735f09ce
+- **Name:** weekly-review
+- **Schedule:** `0 8 * * 0` (America/Los_Angeles) = Sunday 8 AM PT
+- **Session:** main
+- **Model:** sonnet
+- **Wake:** now
+- **Timeout:** 120s
+- **Target DM:** D0AARQR0Y4V
+- **Created:** 2026-02-08
+
+Content: 7-day health trends from health.db (sleep, readiness, HRV, resting HR, activity), week-in-review grouped by theme, upcoming week calendar via `gog calendar list`, actionable recommendations.
