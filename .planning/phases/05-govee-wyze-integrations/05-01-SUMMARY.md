@@ -41,7 +41,7 @@ patterns-established:
 
 duration: 5min
 completed: 2026-02-08
-status: checkpoint-pending
+status: complete
 ---
 
 # Phase 5 Plan 1: Govee Smart Home Summary
@@ -52,8 +52,8 @@ status: checkpoint-pending
 
 - **Duration:** ~5 min
 - **Started:** 2026-02-08T20:31:49Z
-- **Completed:** 2026-02-08T20:37:04Z (Tasks 1-2; Task 3 checkpoint pending)
-- **Tasks:** 2/3 complete (Task 3 is human-verify checkpoint)
+- **Completed:** 2026-02-08T20:37:04Z (Tasks 1-2 auto; Task 3 human-verified)
+- **Tasks:** 3/3 complete
 - **Files modified:** 4
 
 ## Accomplishments
@@ -70,7 +70,7 @@ status: checkpoint-pending
 
 1. **Task 1: Configure GOVEE_API_KEY and create govee_readings table** - `d4e88eb` (feat)
 2. **Task 2: Create Govee SKILL.md with light control and sensor docs** - `06f967f` (feat)
-3. **Task 3: Human verification** - PENDING (checkpoint:human-verify)
+3. **Task 3: Human verification** - APPROVED (device listing + light control confirmed via Slack)
 
 ## Files Created/Modified
 - `~/.openclaw/skills/govee/SKILL.md` - Full Govee API skill (435 lines, 10 sections)
@@ -109,7 +109,8 @@ status: checkpoint-pending
 **Impact on plan:** SKILL.md exceeds plan requirements for light control; sensor reading documented but untestable without sensors. govee_readings table ready for when sensors are added.
 
 ## Issues Encountered
-- No temperature/humidity sensors bound to account. Plan anticipated sensors for storage + anomaly detection testing. Table created and API documented for future use. Human verification will focus on light control.
+- No temperature/humidity sensors bound to account. Plan anticipated sensors for storage + anomaly detection testing. Table created and API documented for future use. Human verification focused on light control.
+- Sandbox env had `$GOVEE_API_KEY` (shell variable reference) instead of actual key value — fixed post-deploy by writing literal key to openclaw.json. Same lesson as Oura: sandbox doesn't do shell expansion.
 
 ## User Setup Required
 None - GOVEE_API_KEY was provided during execution.
@@ -148,4 +149,4 @@ None - GOVEE_API_KEY was provided during execution.
 
 ---
 *Phase: 05-govee-wyze-integrations*
-*Completed: 2026-02-08 (Tasks 1-2; Task 3 pending human verification)*
+*Completed: 2026-02-08 (all tasks complete, human-verified)*
