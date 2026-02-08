@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 4 of 11 (MCP Servers) — COMPLETE
-Plan: 1 of 1 complete
-Status: Phase complete, all sandbox tools verified
-Last activity: 2026-02-08 - Completed 04-01-PLAN.md (gh+sqlite3 bind-mounted, GitHub auth injected, elevated exec)
-Progress: [███████░░░░░░░░░░░░░] 7/14 plans
+Phase: 5 of 11 (Govee & Wyze Integrations) — IN PROGRESS
+Plan: 1 of 2 (checkpoint pending human verification)
+Status: 05-01 Tasks 1-2 complete, awaiting human-verify for Task 3
+Last activity: 2026-02-08 - Executing 05-01-PLAN.md (Govee skill deployed, 11 lights discovered, no sensors)
+Progress: [████████░░░░░░░░░░░░] 8/14 plans
 
 ## Current Status
 
@@ -16,7 +16,7 @@ Progress: [███████░░░░░░░░░░░░░] 7/14 pl
 | 2. Oura Ring Integration | ✓ Complete | Plan 1/1 complete |
 | 3. Daily Briefing & Rate Limits | ✓ Complete | 3/3 plans complete |
 | 4. MCP Servers | ✓ Complete | 1/1 plan complete |
-| 5. Govee & Wyze Integrations | Not Started | 0/9 |
+| 5. Govee & Wyze Integrations | In Progress | 1/2 plans (05-01 checkpoint pending) |
 | 6. Multi-Agent Gateway | Not Started | 0/6 |
 | 7. Multi-Agent Slack Channels | Not Started | 0/5 |
 | 8. Multi-Agent Automation | Not Started | 0/4 |
@@ -28,12 +28,13 @@ Progress: [███████░░░░░░░░░░░░░] 7/14 pl
 
 ## Active Phase
 
-Phase 4 complete. All sandbox tools verified: gh (bind-mounted, static binary), sqlite3 (bind-mounted, deps in image), web search (Brave, already working), filesystem (built-in, already working). Next: Phase 5 (Govee & Wyze) — now unblocked (needs phases 2+3+4, all done).
+Phase 5 in progress. 05-01 (Govee skill): GOVEE_API_KEY configured, 11 lights discovered (0 sensors), SKILL.md deployed (435 lines), govee_readings table created. Awaiting human verification of light control via Bob in Slack. Next: 05-01 Task 3 (human-verify), then 05-02 (Wyze via Gmail parsing).
 
 ## Recent Activity
 
 | Date | Action | Details |
 |------|--------|---------|
+| 2026-02-08 | 05-01 Tasks 1-2 done | Govee skill deployed (435 lines, 11 lights), GOVEE_API_KEY in sandbox env, govee_readings table, checkpoint pending |
 | 2026-02-08 | Completed 04-01-PLAN | gh+sqlite3 bind-mounted (setupCommand failed: read-only FS), GITHUB_TOKEN injected, elevated exec enabled, all 5 Slack tests passed |
 | 2026-02-08 | Completed 03-01-PLAN | Model aliases (haiku/sonnet/opus), heartbeats to haiku, compaction safeguard, contextTokens=100k |
 | 2026-02-08 | Completed 03-02-PLAN | Morning briefing expanded to 5 sections (calendar, email, health, weather, tasks); email-digest-daily merged in |
@@ -75,12 +76,15 @@ None
 | gh static + sqlite3 dynamic (deps in image) | Verified ldd: all sqlite3 deps pre-exist in sandbox image | 2026-02-08 |
 | Belt-and-suspenders GitHub auth | Both GITHUB_TOKEN env var AND gh config dir bind-mounted | 2026-02-08 |
 | Elevated exec restricted to Andy | allowFrom.slack limited to U0CUJ5CAF | 2026-02-08 |
+| Govee API v2 base URL confirmed | openapi.api.govee.com/router/api/v1 works, no fallback needed | 2026-02-08 |
+| No Govee sensors bound | All 11 devices are lights; sensor API documented for future use | 2026-02-08 |
+| GOVEE_API_KEY sandbox injection | Same pattern as OURA: openclaw.json agents.defaults.sandbox.docker.env | 2026-02-08 |
 
 ## Session Continuity
 
 - **Last session:** 2026-02-08
-- **Stopped at:** Completed Phase 4
-- **Resume:** Phase 5 (Govee & Wyze) — unblocked (phases 2+3+4 all done)
+- **Stopped at:** 05-01-PLAN.md Task 3 (checkpoint:human-verify)
+- **Resume:** Verify Govee light control via Bob in Slack, then approve or report issues
 
 ## Notes
 
@@ -95,4 +99,4 @@ None
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 
 ---
-*Last updated: 2026-02-08T19:15Z*
+*Last updated: 2026-02-08T20:38Z*
