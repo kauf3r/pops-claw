@@ -3,10 +3,10 @@
 ## Current Position
 
 Phase: 3 of 11 (Daily Briefing & Rate Limits) — IN PROGRESS
-Plan: 1 of 3 complete (03-03)
-Status: Executing Phase 3 plans (wave 1: 03-03 done)
-Last activity: 2026-02-08 - Completed 03-03-PLAN.md (evening recap + weekly review crons)
-Progress: [████░░░░░░░░░░░░░░░░] 4/14 plans
+Plan: 2 of 3 complete (03-02, 03-03)
+Status: Executing Phase 3 plans (wave 1: 03-02 + 03-03 done, 03-01 pending)
+Last activity: 2026-02-08 - Completed 03-02-PLAN.md (5-section morning briefing)
+Progress: [█████░░░░░░░░░░░░░░░] 5/14 plans
 
 ## Current Status
 
@@ -14,7 +14,7 @@ Progress: [████░░░░░░░░░░░░░░░░] 4/14 pl
 |-------|--------|----------|
 | 1. Update, Memory & Security | ✓ Complete | Plan 2/2 complete |
 | 2. Oura Ring Integration | ✓ Complete | Plan 1/1 complete |
-| 3. Daily Briefing & Rate Limits | In Progress | 1/3 plans complete |
+| 3. Daily Briefing & Rate Limits | In Progress | 2/3 plans complete |
 | 4. MCP Servers | Not Started | 0/6 |
 | 5. Govee & Wyze Integrations | Not Started | 0/9 |
 | 6. Multi-Agent Gateway | Not Started | 0/6 |
@@ -28,12 +28,13 @@ Progress: [████░░░░░░░░░░░░░░░░] 4/14 pl
 
 ## Active Phase
 
-Phase 3 in progress. Plan 03-03 (evening/weekly crons) complete. Plans 03-01 (morning briefing) and 03-02 (rate limits) pending.
+Phase 3 in progress. Plans 03-02 (morning briefing expansion) and 03-03 (evening/weekly crons) complete. Plan 03-01 (model routing/rate limits) pending.
 
 ## Recent Activity
 
 | Date | Action | Details |
 |------|--------|---------|
+| 2026-02-08 | Completed 03-02-PLAN | Morning briefing expanded to 5 sections (calendar, email, health, weather, tasks); email-digest-daily merged in |
 | 2026-02-08 | Completed 03-03-PLAN | Evening recap (7 PM PT daily) + weekly review (Sunday 8 AM PT) crons created, targeting Slack DM |
 | 2026-02-08 | Completed 02-01-PLAN | Oura skill deployed, health.db with real data (sleep=74, readiness=74, resting_hr=60), sandbox env configured |
 | 2026-02-07 | Completed 01-02-PLAN | Memory active (builtin sqlite-vec+FTS5), security hardened, token rotated, OAuth scopes audited |
@@ -64,12 +65,14 @@ None
 | Sandbox env injection pattern | API tokens must go in openclaw.json sandbox.docker.env, not just .env | 2026-02-08 |
 | Sonnet for cron jobs | Cost-effective for daily/weekly generation tasks | 2026-02-08 |
 | Cron timeouts: 90s recap, 120s weekly | Weekly needs more time for health DB + calendar queries | 2026-02-08 |
+| systemEvent ignores --model/--timeout | These flags are agentTurn-specific; agent uses default model | 2026-02-08 |
+| Wake mode "now" for morning briefing | Ensures immediate agent activation on cron trigger | 2026-02-08 |
 
 ## Session Continuity
 
 - **Last session:** 2026-02-08
-- **Stopped at:** Completed 03-03-PLAN.md (evening/weekly crons)
-- **Resume:** Phase 3 plans 03-01 (morning briefing) and 03-02 (rate limits) pending
+- **Stopped at:** Completed 03-02-PLAN.md (morning briefing expansion)
+- **Resume:** Phase 3 plan 03-01 (model routing/rate limits) pending
 
 ## Notes
 
@@ -83,4 +86,4 @@ None
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 
 ---
-*Last updated: 2026-02-08T18:28Z*
+*Last updated: 2026-02-08T18:30Z*
