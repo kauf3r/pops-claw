@@ -62,6 +62,13 @@ Plans:
 
 **Requirements:** BR-01 to BR-08, RL-01 to RL-04 (12 requirements)
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md -- Model routing (Haiku/Sonnet/Opus aliases), session history capping, heartbeat model assignment
+- [ ] 03-02-PLAN.md -- Expand morning briefing to 5 sections (calendar, email, health, weather, tasks), merge email digest
+- [ ] 03-03-PLAN.md -- Create evening recap and weekly review cron jobs
+
 **Success Criteria:**
 1. Morning briefing fires at 7 AM PT with all 5 sections
 2. Evening recap fires at 7 PM PT
