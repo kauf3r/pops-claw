@@ -56,7 +56,7 @@ Plans:
 
 ---
 
-### Phase 3: Daily Briefing & Rate Limits
+### Phase 3: Daily Briefing & Rate Limits ✓ (2026-02-08)
 
 **Goal:** Rich morning briefing, evening recap, weekly review, and model routing
 
@@ -65,9 +65,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Model routing (Haiku/Sonnet/Opus aliases), session history capping, heartbeat model assignment
-- [ ] 03-02-PLAN.md -- Expand morning briefing to 5 sections (calendar, email, health, weather, tasks), merge email digest
-- [ ] 03-03-PLAN.md -- Create evening recap and weekly review cron jobs
+- [x] 03-01-PLAN.md -- Model routing (Haiku/Sonnet/Opus aliases), session history capping, heartbeat model assignment (2026-02-08)
+- [x] 03-02-PLAN.md -- Expand morning briefing to 5 sections (calendar, email, health, weather, tasks), merge email digest (2026-02-08)
+- [x] 03-03-PLAN.md -- Create evening recap and weekly review cron jobs (2026-02-08)
 
 **Success Criteria:**
 1. Morning briefing fires at 7 AM PT with all 5 sections

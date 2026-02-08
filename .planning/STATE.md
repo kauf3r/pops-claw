@@ -14,7 +14,7 @@ Progress: [██████░░░░░░░░░░░░░░] 6/14 pl
 |-------|--------|----------|
 | 1. Update, Memory & Security | ✓ Complete | Plan 2/2 complete |
 | 2. Oura Ring Integration | ✓ Complete | Plan 1/1 complete |
-| 3. Daily Briefing & Rate Limits | Complete | 3/3 plans complete |
+| 3. Daily Briefing & Rate Limits | ✓ Complete | 3/3 plans complete |
 | 4. MCP Servers | Not Started | 0/6 |
 | 5. Govee & Wyze Integrations | Not Started | 0/9 |
 | 6. Multi-Agent Gateway | Not Started | 0/6 |
@@ -24,7 +24,7 @@ Progress: [██████░░░░░░░░░░░░░░] 6/14 pl
 | 10. Agentic Coding Workflow | Not Started | 0/4 |
 | 11. Document Processing | Not Started | 0/4 |
 
-**Overall:** 21/70 requirements complete (UF-01–05, ME-01–03, SE-01–04, HE-01–05, RL-01–04)
+**Overall:** 29/70 requirements complete (UF-01–05, ME-01–03, SE-01–04, HE-01–05, BR-01–08, RL-01–04)
 
 ## Active Phase
 
