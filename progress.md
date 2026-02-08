@@ -357,8 +357,8 @@
     - No built-in rotation command in OpenClaw v2026.2.6-3
     - Generated new token via `python3 -c "import secrets; print(secrets.token_urlsafe(32))"`
     - Updated `gateway.auth.token` in openclaw.json via jq
-    - Old token: `fi34y-N0uHjnAIEZ_2ijL-Frsj9pBO_TxkJXrWR7QWU`
-    - New token: `tQnJMkuYLVKuO6NdWDQJ_eaBZhA2S4qz8uJuFJpw5Iw`
+    - Old token: [REDACTED — rotated]
+    - New token: [REDACTED — stored on EC2 only]
   - Restarted gateway, verified healthy (Slack OK, 38ms response)
   - Reviewed Gmail OAuth scopes for theandykaufman@gmail.com (client: pops-claw):
     - **Current scopes (7):**
