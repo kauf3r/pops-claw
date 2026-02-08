@@ -32,7 +32,7 @@ Plans:
 
 ---
 
-### Phase 2: Oura Ring Integration
+### Phase 2: Oura Ring Integration ✓ (2026-02-08)
 
 **Goal:** Pull health data from Oura Ring API into Bob's daily workflow
 
@@ -41,7 +41,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md — Create Oura skill, configure API access, set up health snapshot storage
+- [x] 02-01-PLAN.md — Create Oura skill, configure API access, set up health snapshot storage (2026-02-08)
 
 **Success Criteria:**
 1. Oura skill created and functional
