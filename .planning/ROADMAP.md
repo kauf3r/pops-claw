@@ -111,6 +111,12 @@ Plans:
 
 **Requirements:** GV-01 to GV-06, WY-01 to WY-03 (9 requirements)
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md -- Govee skill (API config, sensor reading, light control, anomaly detection, SQLite storage)
+- [ ] 05-02-PLAN.md -- Briefing integration (Govee section in morning briefing, Wyze email parsing, weight trend in weekly review)
+
 **Success Criteria:**
 1. Govee skill reads sensor data
 2. Govee skill controls lights
@@ -121,7 +127,7 @@ Plans:
 **Deliverables:**
 - ~/.openclaw/skills/govee/SKILL.md
 - GOVEE_API_KEY in .env
-- Gmail filter for Wyze notifications
+- Wyze email parsing via existing Gmail integration
 
 ---
 
