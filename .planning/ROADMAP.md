@@ -82,7 +82,7 @@ Plans:
 
 ---
 
-### Phase 4: MCP Servers
+### Phase 4: MCP Servers ✓ (2026-02-08)
 
 **Goal:** Make coding and data tools accessible from Bob's Docker sandbox (gh, sqlite3, web search, filesystem)
 
@@ -91,7 +91,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 04-01-PLAN.md -- Install gh+sqlite3 in sandbox, inject GitHub auth, enable elevated exec, verify all tools
+- [x] 04-01-PLAN.md -- Bind-mount gh+sqlite3 into sandbox, inject GitHub auth, enable elevated exec, verify all tools (2026-02-08)
 
 **Success Criteria:**
 1. GitHub CLI operational from sandbox (can list repos, PRs)
@@ -100,7 +100,7 @@ Plans:
 4. Filesystem operational via built-in read/write/edit/exec tools
 
 **Deliverables:**
-- Updated ~/.openclaw/openclaw.json (setupCommand, GITHUB_TOKEN, elevated exec)
+- Updated ~/.openclaw/openclaw.json (bind-mounts, GITHUB_TOKEN, elevated exec)
 - GITHUB_TOKEN in .env
 
 ---

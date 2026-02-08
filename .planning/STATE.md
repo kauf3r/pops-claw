@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 4 of 11 (MCP Servers) — IN PROGRESS
-Plan: 1 of 6 in progress (Task 1 complete, awaiting human verification at Task 2)
-Status: 04-01 Task 1 done — sandbox config deployed, awaiting Slack verification
-Last activity: 2026-02-08 - Executing 04-01-PLAN.md (sandbox tooling: gh, sqlite3, elevated exec)
-Progress: [██████░░░░░░░░░░░░░░] 6/14 plans
+Phase: 4 of 11 (MCP Servers) — COMPLETE
+Plan: 1 of 1 complete
+Status: Phase complete, all sandbox tools verified
+Last activity: 2026-02-08 - Completed 04-01-PLAN.md (gh+sqlite3 bind-mounted, GitHub auth injected, elevated exec)
+Progress: [███████░░░░░░░░░░░░░] 7/14 plans
 
 ## Current Status
 
@@ -15,7 +15,7 @@ Progress: [██████░░░░░░░░░░░░░░] 6/14 pl
 | 1. Update, Memory & Security | ✓ Complete | Plan 2/2 complete |
 | 2. Oura Ring Integration | ✓ Complete | Plan 1/1 complete |
 | 3. Daily Briefing & Rate Limits | ✓ Complete | 3/3 plans complete |
-| 4. MCP Servers | In Progress | 0/6 (04-01 Task 1 done) |
+| 4. MCP Servers | ✓ Complete | 1/1 plan complete |
 | 5. Govee & Wyze Integrations | Not Started | 0/9 |
 | 6. Multi-Agent Gateway | Not Started | 0/6 |
 | 7. Multi-Agent Slack Channels | Not Started | 0/5 |
@@ -24,17 +24,17 @@ Progress: [██████░░░░░░░░░░░░░░] 6/14 pl
 | 10. Agentic Coding Workflow | Not Started | 0/4 |
 | 11. Document Processing | Not Started | 0/4 |
 
-**Overall:** 29/70 requirements complete (UF-01–05, ME-01–03, SE-01–04, HE-01–05, BR-01–08, RL-01–04)
+**Overall:** 35/70 requirements complete (UF-01–05, ME-01–03, SE-01–04, HE-01–05, BR-01–08, RL-01–04, MC-01–06)
 
 ## Active Phase
 
-Phase 4 started. Plan 04-01 Task 1 complete: gh + sqlite3 setupCommand added, GITHUB_TOKEN injected, elevated exec enabled, gh config bind-mounted. Awaiting human verification (Task 2) via Slack DM with Bob.
+Phase 4 complete. All sandbox tools verified: gh (bind-mounted, static binary), sqlite3 (bind-mounted, deps in image), web search (Brave, already working), filesystem (built-in, already working). Next: Phase 5 (Govee & Wyze) — now unblocked (needs phases 2+3+4, all done).
 
 ## Recent Activity
 
 | Date | Action | Details |
 |------|--------|---------|
-| 2026-02-08 | 04-01 Task 1 done | gh+sqlite3 setupCommand, GITHUB_TOKEN injected, elevated exec, gh bind mount, gateway restarted |
+| 2026-02-08 | Completed 04-01-PLAN | gh+sqlite3 bind-mounted (setupCommand failed: read-only FS), GITHUB_TOKEN injected, elevated exec enabled, all 5 Slack tests passed |
 | 2026-02-08 | Completed 03-01-PLAN | Model aliases (haiku/sonnet/opus), heartbeats to haiku, compaction safeguard, contextTokens=100k |
 | 2026-02-08 | Completed 03-02-PLAN | Morning briefing expanded to 5 sections (calendar, email, health, weather, tasks); email-digest-daily merged in |
 | 2026-02-08 | Completed 03-03-PLAN | Evening recap (7 PM PT daily) + weekly review (Sunday 8 AM PT) crons created, targeting Slack DM |
@@ -71,12 +71,16 @@ None
 | Wake mode "now" for morning briefing | Ensures immediate agent activation on cron trigger | 2026-02-08 |
 | contextTokens over historyLimit | session.historyLimit not valid in v2026.2.6; contextTokens=100k for capping | 2026-02-08 |
 | heartbeat-main-15m stays default model | systemEvent kind cannot take per-job model override | 2026-02-08 |
+| Bind-mount over setupCommand | Sandbox FS is read-only; apt-get fails; mount host binaries directly | 2026-02-08 |
+| gh static + sqlite3 dynamic (deps in image) | Verified ldd: all sqlite3 deps pre-exist in sandbox image | 2026-02-08 |
+| Belt-and-suspenders GitHub auth | Both GITHUB_TOKEN env var AND gh config dir bind-mounted | 2026-02-08 |
+| Elevated exec restricted to Andy | allowFrom.slack limited to U0CUJ5CAF | 2026-02-08 |
 
 ## Session Continuity
 
 - **Last session:** 2026-02-08
-- **Stopped at:** 04-01-PLAN.md Task 2 checkpoint (human-verify)
-- **Resume:** Verify Bob can use gh, sqlite3, web_search, filesystem via Slack DM, then continue 04-01
+- **Stopped at:** Completed Phase 4
+- **Resume:** Phase 5 (Govee & Wyze) — unblocked (phases 2+3+4 all done)
 
 ## Notes
 
@@ -87,7 +91,8 @@ None
 - Config: ~/.openclaw/openclaw.json
 - Cron: ~/.openclaw/cron/jobs.json
 - health.db: ~/clawd/agents/main/health.db (/workspace/health.db in sandbox)
+- Sandbox binds: gh, sqlite3, gog, gh-config all bind-mounted from host
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 
 ---
-*Last updated: 2026-02-08T19:06Z*
+*Last updated: 2026-02-08T19:15Z*
