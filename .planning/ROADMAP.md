@@ -105,7 +105,7 @@ Plans:
 
 ---
 
-### Phase 5: Govee & Wyze Integrations
+### Phase 5: Govee & Wyze Integrations ✓ (2026-02-08)
 
 **Goal:** Device data (temp, humidity, lights, weight) accessible to Bob
 
@@ -114,8 +114,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md -- Govee skill (API config, sensor reading, light control, anomaly detection, SQLite storage)
-- [ ] 05-02-PLAN.md -- Briefing integration (Govee section in morning briefing, Wyze email parsing, weight trend in weekly review)
+- [x] 05-01-PLAN.md -- Govee skill (API config, sensor reading, light control, anomaly detection, SQLite storage) (2026-02-08)
+- [x] 05-02-PLAN.md -- Briefing integration (Govee section in morning briefing, Wyze email parsing, weight trend in weekly review) (2026-02-08)
 
 **Success Criteria:**
 1. Govee skill reads sensor data
