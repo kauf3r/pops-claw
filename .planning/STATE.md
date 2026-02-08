@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 2 of 11 (Oura Ring Integration) — COMPLETE
-Plan: 1 of 1 complete
-Status: Phase complete, verified with real data
-Last activity: 2026-02-08 - Completed 02-01-PLAN.md (Oura skill + health snapshots)
-Progress: [███░░░░░░░░░░░░░░░░░] 3/14 plans
+Phase: 3 of 11 (Daily Briefing & Rate Limits) — IN PROGRESS
+Plan: 1 of 3 complete (03-03)
+Status: Executing Phase 3 plans (wave 1: 03-03 done)
+Last activity: 2026-02-08 - Completed 03-03-PLAN.md (evening recap + weekly review crons)
+Progress: [████░░░░░░░░░░░░░░░░] 4/14 plans
 
 ## Current Status
 
@@ -14,7 +14,7 @@ Progress: [███░░░░░░░░░░░░░░░░░] 3/14 pl
 |-------|--------|----------|
 | 1. Update, Memory & Security | ✓ Complete | Plan 2/2 complete |
 | 2. Oura Ring Integration | ✓ Complete | Plan 1/1 complete |
-| 3. Daily Briefing & Rate Limits | Not Started | 0/12 |
+| 3. Daily Briefing & Rate Limits | In Progress | 1/3 plans complete |
 | 4. MCP Servers | Not Started | 0/6 |
 | 5. Govee & Wyze Integrations | Not Started | 0/9 |
 | 6. Multi-Agent Gateway | Not Started | 0/6 |
@@ -28,12 +28,13 @@ Progress: [███░░░░░░░░░░░░░░░░░] 3/14 pl
 
 ## Active Phase
 
-Phase 2 complete. Next: Phases 3, 4 can run in parallel (Phase 2 was prerequisite for Phase 5).
+Phase 3 in progress. Plan 03-03 (evening/weekly crons) complete. Plans 03-01 (morning briefing) and 03-02 (rate limits) pending.
 
 ## Recent Activity
 
 | Date | Action | Details |
 |------|--------|---------|
+| 2026-02-08 | Completed 03-03-PLAN | Evening recap (7 PM PT daily) + weekly review (Sunday 8 AM PT) crons created, targeting Slack DM |
 | 2026-02-08 | Completed 02-01-PLAN | Oura skill deployed, health.db with real data (sleep=74, readiness=74, resting_hr=60), sandbox env configured |
 | 2026-02-07 | Completed 01-02-PLAN | Memory active (builtin sqlite-vec+FTS5), security hardened, token rotated, OAuth scopes audited |
 | 2026-02-07 | Completed 01-01-PLAN | OpenClaw v2026.2.6-3, security audit clean, ClawdStrike baseline maintained |
@@ -61,12 +62,14 @@ None
 | API base: api.ouraring.com | cloud.ouraring.com is auth/docs only; API lives at api.ouraring.com | 2026-02-08 |
 | health.db in agent workspace | Sandbox can't access parent dirs; /workspace/health.db inside container | 2026-02-08 |
 | Sandbox env injection pattern | API tokens must go in openclaw.json sandbox.docker.env, not just .env | 2026-02-08 |
+| Sonnet for cron jobs | Cost-effective for daily/weekly generation tasks | 2026-02-08 |
+| Cron timeouts: 90s recap, 120s weekly | Weekly needs more time for health DB + calendar queries | 2026-02-08 |
 
 ## Session Continuity
 
 - **Last session:** 2026-02-08
-- **Stopped at:** Completed 02-01-PLAN.md, Phase 2 complete
-- **Resume:** Plan Phase 3/4 (both unblocked)
+- **Stopped at:** Completed 03-03-PLAN.md (evening/weekly crons)
+- **Resume:** Phase 3 plans 03-01 (morning briefing) and 03-02 (rate limits) pending
 
 ## Notes
 
@@ -80,4 +83,4 @@ None
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 
 ---
-*Last updated: 2026-02-08*
+*Last updated: 2026-02-08T18:28Z*
