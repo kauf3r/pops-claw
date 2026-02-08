@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 5 of 11 (Govee & Wyze Integrations) — COMPLETE
-Plan: 2 of 2 (complete)
-Status: Phase 5 complete — all Govee + Wyze integration tasks done
-Last activity: 2026-02-08 - Completed 05-02-PLAN.md (Wyze integration, 6-section briefing, weight tracking)
-Progress: [█████████░░░░░░░░░░░] 9/14 plans
+Phase: 6 of 11 (Multi-Agent Gateway) — IN PROGRESS
+Plan: 1 of 2 (06-01 complete)
+Status: Plan 06-01 complete — gateway verified, coordination DB sandbox access fixed
+Last activity: 2026-02-08 - Completed 06-01-PLAN.md (gateway verification, HEARTBEAT.md fixes, bind-mount)
+Progress: [██████████░░░░░░░░░░] 10/14 plans
 
 ## Current Status
 
@@ -17,7 +17,7 @@ Progress: [█████████░░░░░░░░░░░] 9/14 pl
 | 3. Daily Briefing & Rate Limits | ✓ Complete | 3/3 plans complete |
 | 4. MCP Servers | ✓ Complete | 1/1 plan complete |
 | 5. Govee & Wyze Integrations | ✓ Complete | 2/2 plans complete |
-| 6. Multi-Agent Gateway | Not Started | 0/6 |
+| 6. Multi-Agent Gateway | In Progress | 1/2 plans complete |
 | 7. Multi-Agent Slack Channels | Not Started | 0/5 |
 | 8. Multi-Agent Automation | Not Started | 0/4 |
 | 9. Proactive Agent Patterns | Not Started | 0/3 |
@@ -28,12 +28,13 @@ Progress: [█████████░░░░░░░░░░░] 9/14 pl
 
 ## Active Phase
 
-Phase 5 complete. All 8 requirements (GV-01 through GV-05, WY-01 through WY-03) delivered. Govee skill (528 lines, 13 sections) with light control + Wyze email parsing + combined health dashboard. Morning briefing expanded to 6 sections, weekly review includes weight trends. Next: Phase 6 (Multi-Agent Gateway).
+Phase 6 in progress. Plan 06-01 (gateway verification) complete: 4-agent config verified with backup, coordination DB schema validated (3 tables, 6 indexes), HEARTBEAT.md schema references added, sandbox DB access fixed via bind-mount + Debian 12-compatible sqlite3. Next: Plan 06-02.
 
 ## Recent Activity
 
 | Date | Action | Details |
 |------|--------|---------|
+| 2026-02-08 | Completed 06-01-PLAN | Gateway verified (4 agents, 4 bindings, 5 crons), HEARTBEAT.md schema refs, coordination.db bind-mount + sqlite3-compat |
 | 2026-02-08 | Completed 05-02-PLAN | Wyze email parsing in SKILL.md (528 lines), wyze_weight table, morning briefing Section 6 (Govee), weekly review Weight Trend |
 | 2026-02-08 | Completed 05-01-PLAN | Govee skill deployed (435 lines, 11 lights), GOVEE_API_KEY in sandbox env, govee_readings table, human-verified |
 | 2026-02-08 | Completed 04-01-PLAN | gh+sqlite3 bind-mounted (setupCommand failed: read-only FS), GITHUB_TOKEN injected, elevated exec enabled, all 5 Slack tests passed |
@@ -82,12 +83,15 @@ None
 | GOVEE_API_KEY sandbox injection | Same pattern as OURA: openclaw.json agents.defaults.sandbox.docker.env | 2026-02-08 |
 | Wyze sections in Govee SKILL.md | One health-data skill, not separate micro-skills | 2026-02-08 |
 | Sections 11-13 (not 10-12) | Existing Section 10 in SKILL.md; renumbered to avoid collision | 2026-02-08 |
+| Coordination.db bind-mount over symlinks | Docker can't resolve symlinks pointing outside workspace mount | 2026-02-08 |
+| Debian 12-compatible sqlite3 binary | Host sqlite3 (glibc 2.39) crashes in sandbox (glibc 2.36) | 2026-02-08 |
+| Schema reference in HEARTBEAT.md | Prevents agents from guessing column names (body vs message) | 2026-02-08 |
 
 ## Session Continuity
 
 - **Last session:** 2026-02-08
-- **Stopped at:** Completed 05-02-PLAN.md (Phase 5 complete)
-- **Resume:** Phase 6 (Multi-Agent Gateway) when ready
+- **Stopped at:** Completed 06-01-PLAN.md (gateway verification + sandbox DB fix)
+- **Resume:** Phase 6 Plan 02 when ready
 
 ## Notes
 
@@ -98,8 +102,10 @@ None
 - Config: ~/.openclaw/openclaw.json
 - Cron: ~/.openclaw/cron/jobs.json
 - health.db: ~/clawd/agents/main/health.db (/workspace/health.db in sandbox)
-- Sandbox binds: gh, sqlite3, gog, gh-config all bind-mounted from host
+- Sandbox binds: gh, sqlite3-compat, gog, gh-config, coordination.db all bind-mounted
+- sqlite3-compat: ~/clawd/sqlite3-compat (Debian 12 build, replaces host binary for sandbox)
+- coordination.db: ~/clawd/coordination.db bind-mounted to /workspace/coordination.db:rw (symlinks removed)
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 
 ---
-*Last updated: 2026-02-08T21:17Z*
+*Last updated: 2026-02-08T21:49Z*
