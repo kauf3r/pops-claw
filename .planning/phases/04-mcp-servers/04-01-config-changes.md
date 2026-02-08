@@ -9,9 +9,12 @@ Applied 2026-02-08T19:04Z to EC2 (100.72.143.9)
 agents.defaults.sandbox.docker.env.GITHUB_TOKEN = "gho_***"
 ```
 
-### 2. setupCommand installs gh + sqlite3 in sandbox containers
+### 2. ~~setupCommand~~ → bind-mount host binaries (REVISED)
+setupCommand failed: sandbox has read-only filesystem (`/var/lib/apt/lists/partial` missing).
+Fix: removed setupCommand, bind-mounted statically-linked `gh` and dynamically-linked `sqlite3` (all deps already in image).
 ```
-agents.defaults.sandbox.docker.setupCommand = "apt-get update && apt-get install -y --no-install-recommends sqlite3 curl && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg && echo \"deb [arch=amd64 signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main\" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null && apt-get update && apt-get install -y --no-install-recommends gh && rm -rf /var/lib/apt/lists/*"
+agents.defaults.sandbox.docker.binds += "/usr/bin/gh:/usr/bin/gh:ro"
+agents.defaults.sandbox.docker.binds += "/usr/bin/sqlite3:/usr/bin/sqlite3:ro"
 ```
 
 ### 3. Elevated exec enabled (host-tool fallback)
@@ -34,3 +37,4 @@ Added `GITHUB_TOKEN=gho_***` for gateway process env.
 ## Gateway Status
 
 Restarted and verified active (running) at 19:04:02 UTC.
+Re-restarted at 19:08:37 UTC after bind-mount fix (setupCommand removed).
