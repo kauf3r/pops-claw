@@ -161,6 +161,11 @@ Plans:
 
 **Requirements:** MS-01 to MS-05 (5 requirements)
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 07-01-PLAN.md -- Create domain channels, invite bot, verify message routing to correct agents
+
 **Success Criteria:**
 1. Three channels exist (#land-ops, #range-ops, #ops)
 2. Bot is member of all channels
