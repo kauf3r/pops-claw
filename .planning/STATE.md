@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 5 of 11 (Govee & Wyze Integrations) — IN PROGRESS
-Plan: 1 of 2 (checkpoint pending human verification)
-Status: 05-01 Tasks 1-2 complete, awaiting human-verify for Task 3
-Last activity: 2026-02-08 - Executing 05-01-PLAN.md (Govee skill deployed, 11 lights discovered, no sensors)
-Progress: [████████░░░░░░░░░░░░] 8/14 plans
+Phase: 5 of 11 (Govee & Wyze Integrations) — COMPLETE
+Plan: 2 of 2 (complete)
+Status: Phase 5 complete — all Govee + Wyze integration tasks done
+Last activity: 2026-02-08 - Completed 05-02-PLAN.md (Wyze integration, 6-section briefing, weight tracking)
+Progress: [█████████░░░░░░░░░░░] 9/14 plans
 
 ## Current Status
 
@@ -16,7 +16,7 @@ Progress: [████████░░░░░░░░░░░░] 8/14 pl
 | 2. Oura Ring Integration | ✓ Complete | Plan 1/1 complete |
 | 3. Daily Briefing & Rate Limits | ✓ Complete | 3/3 plans complete |
 | 4. MCP Servers | ✓ Complete | 1/1 plan complete |
-| 5. Govee & Wyze Integrations | In Progress | 1/2 plans (05-01 checkpoint pending) |
+| 5. Govee & Wyze Integrations | ✓ Complete | 2/2 plans complete |
 | 6. Multi-Agent Gateway | Not Started | 0/6 |
 | 7. Multi-Agent Slack Channels | Not Started | 0/5 |
 | 8. Multi-Agent Automation | Not Started | 0/4 |
@@ -24,17 +24,18 @@ Progress: [████████░░░░░░░░░░░░] 8/14 pl
 | 10. Agentic Coding Workflow | Not Started | 0/4 |
 | 11. Document Processing | Not Started | 0/4 |
 
-**Overall:** 35/70 requirements complete (UF-01–05, ME-01–03, SE-01–04, HE-01–05, BR-01–08, RL-01–04, MC-01–06)
+**Overall:** 43/70 requirements complete (UF-01–05, ME-01–03, SE-01–04, HE-01–05, BR-01–08, RL-01–04, MC-01–06, GV-01–05, WY-01–03)
 
 ## Active Phase
 
-Phase 5 in progress. 05-01 (Govee skill): GOVEE_API_KEY configured, 11 lights discovered (0 sensors), SKILL.md deployed (435 lines), govee_readings table created. Awaiting human verification of light control via Bob in Slack. Next: 05-01 Task 3 (human-verify), then 05-02 (Wyze via Gmail parsing).
+Phase 5 complete. All 8 requirements (GV-01 through GV-05, WY-01 through WY-03) delivered. Govee skill (528 lines, 13 sections) with light control + Wyze email parsing + combined health dashboard. Morning briefing expanded to 6 sections, weekly review includes weight trends. Next: Phase 6 (Multi-Agent Gateway).
 
 ## Recent Activity
 
 | Date | Action | Details |
 |------|--------|---------|
-| 2026-02-08 | 05-01 Tasks 1-2 done | Govee skill deployed (435 lines, 11 lights), GOVEE_API_KEY in sandbox env, govee_readings table, checkpoint pending |
+| 2026-02-08 | Completed 05-02-PLAN | Wyze email parsing in SKILL.md (528 lines), wyze_weight table, morning briefing Section 6 (Govee), weekly review Weight Trend |
+| 2026-02-08 | Completed 05-01-PLAN | Govee skill deployed (435 lines, 11 lights), GOVEE_API_KEY in sandbox env, govee_readings table, human-verified |
 | 2026-02-08 | Completed 04-01-PLAN | gh+sqlite3 bind-mounted (setupCommand failed: read-only FS), GITHUB_TOKEN injected, elevated exec enabled, all 5 Slack tests passed |
 | 2026-02-08 | Completed 03-01-PLAN | Model aliases (haiku/sonnet/opus), heartbeats to haiku, compaction safeguard, contextTokens=100k |
 | 2026-02-08 | Completed 03-02-PLAN | Morning briefing expanded to 5 sections (calendar, email, health, weather, tasks); email-digest-daily merged in |
@@ -79,12 +80,14 @@ None
 | Govee API v2 base URL confirmed | openapi.api.govee.com/router/api/v1 works, no fallback needed | 2026-02-08 |
 | No Govee sensors bound | All 11 devices are lights; sensor API documented for future use | 2026-02-08 |
 | GOVEE_API_KEY sandbox injection | Same pattern as OURA: openclaw.json agents.defaults.sandbox.docker.env | 2026-02-08 |
+| Wyze sections in Govee SKILL.md | One health-data skill, not separate micro-skills | 2026-02-08 |
+| Sections 11-13 (not 10-12) | Existing Section 10 in SKILL.md; renumbered to avoid collision | 2026-02-08 |
 
 ## Session Continuity
 
 - **Last session:** 2026-02-08
-- **Stopped at:** 05-01-PLAN.md Task 3 (checkpoint:human-verify)
-- **Resume:** Verify Govee light control via Bob in Slack, then approve or report issues
+- **Stopped at:** Completed 05-02-PLAN.md (Phase 5 complete)
+- **Resume:** Phase 6 (Multi-Agent Gateway) when ready
 
 ## Notes
 
@@ -99,4 +102,4 @@ None
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 
 ---
-*Last updated: 2026-02-08T20:38Z*
+*Last updated: 2026-02-08T21:17Z*
