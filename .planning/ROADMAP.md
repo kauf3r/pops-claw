@@ -29,7 +29,9 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 ### v2.1 Content Marketing Pipeline
 
 - [x] Phase 12: Content DB + Agent Setup (3/3 plans) — completed 2026-02-09
-- [ ] Phase 13: Topic Research — TR-01..TR-04
+- [ ] Phase 13: Topic Research (2 plans) — TR-01..TR-04
+  - [ ] 13-01-PLAN.md — PRODUCT_CONTEXT.md for Vector + content-strategy skill
+  - [ ] 13-02-PLAN.md — TOPIC_RESEARCH.md reference doc + 2x/week cron job
 - [ ] Phase 14: Writing Pipeline — WR-01..WR-04
 - [ ] Phase 15: Review Pipeline — RV-01..RV-04
 - [ ] Phase 16: WordPress Publishing — WP-01..WP-05
@@ -52,7 +54,7 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 | 10. Agentic Coding Workflow | v2.0 | 2/2 | Complete | 2026-02-09 |
 | 11. Document Processing | v2.0 | 2/2 | Complete | 2026-02-09 |
 | 12. Content DB + Agent Setup | v2.1 | 3/3 | Complete | 2026-02-09 |
-| 13. Topic Research | v2.1 | 0/? | Not Started | — |
+| 13. Topic Research | v2.1 | 0/2 | Planned | — |
 | 14. Writing Pipeline | v2.1 | 0/? | Not Started | — |
 | 15. Review Pipeline | v2.1 | 0/? | Not Started | — |
 | 16. WordPress Publishing | v2.1 | 0/? | Not Started | — |
@@ -60,4 +62,4 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 | 18. Pipeline Monitoring | v2.1 | 0/? | Not Started | — |
 
 ---
-*Updated: 2026-02-09 — Phase 12 complete (3/3 plans)*
+*Updated: 2026-02-09 — Phase 13 planned (2 plans, 2 waves)*
