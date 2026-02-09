@@ -32,9 +32,7 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 - [x] Phase 13: Topic Research (2/2 plans) — completed 2026-02-09
 - [x] Phase 14: Writing Pipeline (2/2 plans) — completed 2026-02-09
 - [x] Phase 15: Review Pipeline (2/2 plans) — completed 2026-02-09
-- [ ] Phase 16: WordPress Publishing (2 plans) — WP credentials + publishing skill/cron
-  - [ ] 16-01-PLAN.md — WP Application Password + sandbox env config
-  - [ ] 16-02-PLAN.md — wordpress-publisher skill, PUBLISH_SESSION.md, publish-check cron
+- [x] Phase 16: WordPress Publishing (2/2 plans) — completed 2026-02-09
 - [ ] Phase 17: Social Promotion — SM-01..SM-04
 - [ ] Phase 18: Pipeline Monitoring — MN-01..MN-03, CP-07
 
@@ -57,9 +55,9 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 | 13. Topic Research | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 14. Writing Pipeline | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 15. Review Pipeline | v2.1 | 2/2 | Complete | 2026-02-09 |
-| 16. WordPress Publishing | v2.1 | 0/2 | Planned | — |
+| 16. WordPress Publishing | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 17. Social Promotion | v2.1 | 0/? | Not Started | — |
 | 18. Pipeline Monitoring | v2.1 | 0/? | Not Started | — |
 
 ---
-*Updated: 2026-02-09 — Phase 16 planned (2 plans: WP credentials + publishing workflow)*
+*Updated: 2026-02-09 — Phase 16 complete (WP credentials + publishing workflow deployed)*
