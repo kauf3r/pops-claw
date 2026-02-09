@@ -225,7 +225,7 @@ Plans:
 
 ---
 
-### Phase 10: Agentic Coding Workflow
+### Phase 10: Agentic Coding Workflow ✓ (2026-02-09)
 
 **Goal:** Bob can review PRs, create issues, and assist with coding via Slack
 
@@ -234,8 +234,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 10-01-PLAN.md -- Create coding-assistant SKILL.md and add open PR count to morning briefing
-- [ ] 10-02-PLAN.md -- End-to-end verification of PR review command and briefing GitHub section via Slack
+- [x] 10-01-PLAN.md -- Create coding-assistant SKILL.md and add open PR count to morning briefing (2026-02-09)
+- [x] 10-02-PLAN.md -- End-to-end verification of PR review command and briefing GitHub section via Slack (2026-02-09)
 
 **Success Criteria:**
 1. coding-assistant skill operational
