@@ -3,17 +3,17 @@
 ## Current Position
 
 Phase: 16 — WordPress Publishing
-Plan: 01 of 02 complete
-Status: IN PROGRESS
+Plan: 02 of 02 complete
+Status: PHASE COMPLETE
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-09 — Plan 16-01 complete (WP credentials configured in sandbox env, REST API verified)
+Last activity: 2026-02-09 — Plan 16-02 complete (wordpress-publisher skill, PUBLISH_SESSION.md, publish-check cron deployed)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Proactive daily companion with autonomous content marketing pipeline at $0 incremental cost.
-**Current focus:** Phase 16 in progress — WP API credentials configured, next: publishing skill + cron for Ezra
+**Current focus:** Phase 16 complete — full WordPress publishing pipeline operational (skill + cron + reference doc)
 
 ## Blockers
 
@@ -45,6 +45,8 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - Content agent cron pattern: sessionTarget=agent-name, kind=agentTurn, model=sonnet, no delivery config
 - Cron tz field with local time expression (not raw UTC) for DST-safe scheduling
 - WordPress REST API auth via Application Passwords (Basic auth over HTTPS, no OAuth needed)
+- WordPress draft-only publishing with human approval gate (WP-05) — Ezra never sets status to "publish"
+- Dual-purpose publish-check cron: creates new WP drafts AND confirms human-published articles via REST API polling
 
 ### Open Items
 
@@ -83,6 +85,10 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 - v2 milestone archived in .planning/milestones/
 - WordPress: airspaceintegration.com, WP_SITE_URL + WP_USERNAME + WP_APP_PASSWORD in sandbox env
+- wordpress-publisher skill: ~/.openclaw/skills/wordpress-publisher/SKILL.md (ready, all agents)
+- PUBLISH_SESSION.md: ~/clawd/agents/ezra/PUBLISH_SESSION.md (publishing session reference doc)
+- publish-check cron: daily 2 PM PT, sessionTarget=ezra, agentTurn, sonnet, 600s timeout
+- Total cron jobs: 16
 
 ---
-*Last updated: 2026-02-09 — Plan 16-01 complete (WP credentials in sandbox env, REST API verified)*
+*Last updated: 2026-02-09 — Plan 16-02 complete (wordpress-publisher skill + publish-check cron deployed)*
