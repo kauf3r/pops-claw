@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Transform Bob (OpenClaw) from a reactive assistant into a proactive daily companion with health awareness, coding assistance, multi-agent orchestration, and cost-efficient operation. Built on existing OpenClaw v2026.2.3-1 deployment on AWS EC2.
+A proactive AI companion (Bob) running on OpenClaw v2026.2.6-3, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, and coordinates a 4-agent multi-agent system — all proactively, before being asked.
 
 ## Core Value
 
@@ -12,31 +12,30 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ### Validated
 
-- OpenClaw v2026.2.3-1 deployed on AWS EC2 — existing
-- Slack Socket Mode integration — existing
-- Gmail/Calendar via gog CLI — existing
-- Browser automation with Chromium — existing
-- Cron/scheduled tasks operational — existing
-- Tailscale-only secure access — existing
-- Multi-agent workspace (Phase 1 of v1 milestone) — complete
+- ✓ OpenClaw v2026.2.6-3 deployed with security hardening — v2.0
+- ✓ SQLite hybrid memory (builtin sqlite-vec+FTS5, 12 chunks) — v2.0
+- ✓ Oura Ring health data integration (sleep, readiness, HRV, HR) — v2.0
+- ✓ 7-section morning briefing (calendar, email, health, weather, tasks, Govee, GitHub) — v2.0
+- ✓ Evening recap + weekly review automation — v2.0
+- ✓ Model routing (Haiku/Sonnet/Opus) with session capping — v2.0
+- ✓ GitHub CLI + SQLite CLI in Docker sandbox via bind-mounts — v2.0
+- ✓ Govee smart home control (11 lights, room grouping) — v2.0
+- ✓ Wyze scale data via Gmail parsing — v2.0
+- ✓ 4-agent system (Andy, Scout, Vector, Sentinel) with coordination DB — v2.0
+- ✓ Domain Slack channels (#land-ops, #range-ops, #ops) with routing — v2.0
+- ✓ Heartbeat crons (4 agents, staggered) + daily standup — v2.0
+- ✓ Proactive patterns (pre-meeting prep, anomaly alerts, reminders) — v2.0
+- ✓ Agentic coding workflow (PR review, GitHub activity in briefing) — v2.0
+- ✓ Receipt scanning + monthly expense summaries — v2.0
+- ✓ Slack Socket Mode integration — v1.0
+- ✓ Gmail/Calendar via gog CLI — v1.0
+- ✓ Browser automation with Chromium — v1.0
+- ✓ Cron/scheduled tasks operational — v1.0
+- ✓ Tailscale-only secure access — v1.0
 
 ### Active
 
-- [ ] Update to v2026.2.6 (Opus 4.6, token dashboard, safety scanner)
-- [ ] SQLite hybrid memory system enabled
-- [ ] Oura Ring health data integration
-- [ ] Rich morning briefing (calendar + email + health + weather + tasks)
-- [ ] Rate limit management via model routing
-- [ ] Security hardening (discovery, dmScope, token rotation)
-- [ ] MCP servers (GitHub, SQLite, Brave Search, Filesystem)
-- [ ] Govee device integration (sensors + lights)
-- [ ] Wyze scale via Gmail parsing
-- [ ] Multi-agent gateway config (4 agents)
-- [ ] Multi-agent Slack channels
-- [ ] Multi-agent heartbeats and standups
-- [ ] Proactive agent patterns (pre-meeting prep, anomaly alerts)
-- [ ] Agentic coding workflow skill
-- [ ] Document/receipt processing skill
+(None — start next milestone to define)
 
 ### Out of Scope
 
@@ -44,8 +43,13 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - Additional agents beyond 4
 - Public API exposure
 - EC2 instance upgrade
+- Offline mode — real-time connectivity is core
 
 ## Context
+
+**Shipped v2.0** with 9,347 lines across 83 files in 10 days.
+
+**Tech stack:** OpenClaw v2026.2.6-3, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation.
 
 **Infrastructure:**
 - AWS EC2 Ubuntu, Tailscale IP: 100.72.143.9
@@ -54,10 +58,9 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - Config: ~/.openclaw/openclaw.json
 - Service: openclaw-gateway.service (systemd user)
 
-**Cost Model:**
-- Claude Pro 200 ($200/mo flat, existing) — no per-token API costs
-- Model routing for rate limits, not cost
-- All new integrations: $0-8/mo incremental
+**Skills deployed:** oura, govee (includes Wyze), coding-assistant, receipt-scanner
+
+**Cron jobs:** morning-briefing (7 AM PT), evening-recap (7 PM PT), weekly-review (Sun 8 AM PT), meeting-prep-scan (*/15), anomaly-check (2x daily), daily-standup (8 AM EST), monthly-expense-summary (1st of month), 4 heartbeats (15min)
 
 **Agent Roster:**
 | Agent ID | Name | Domain | Heartbeat Offset |
@@ -66,6 +69,8 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | landos | Scout | Land Investing | :02 |
 | rangeos | Vector | UAS Operations | :04 |
 | ops | Sentinel | Infra + Coding | :06 |
+
+**Cost Model:** Claude Pro 200 ($200/mo flat) — no per-token API costs. Model routing for rate limits, not cost.
 
 ## Constraints
 
@@ -77,13 +82,18 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ## Key Decisions
 
-| Decision | Rationale |
-|----------|-----------|
-| 4 agents (Andy, Scout, Vector, Sentinel) | Match actual domains |
-| SQLite over Convex | Already exists, simpler |
-| Wyze via Gmail parsing (not SDK) | Official API doesn't exist, SDK may break |
-| Haiku for heartbeats | Rate limit management, not cost |
-| Sentinel covers infra + coding | Natural fit, infrastructure-adjacent |
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| 4 agents (Andy, Scout, Vector, Sentinel) | Match actual domains | ✓ Good — all 4 heartbeating |
+| SQLite over Convex | Already exists, simpler | ✓ Good — health.db + coordination.db |
+| Wyze via Gmail parsing (not SDK) | No official API | ✓ Good — works reliably |
+| Haiku for heartbeats | Rate limit management | ✓ Good — reduces Sonnet/Opus usage |
+| Sentinel covers infra + coding | Natural fit | ✓ Good — standup aggregation |
+| Bind-mount over setupCommand | Sandbox FS is read-only | ✓ Good — gh+sqlite3 working |
+| "builtin" memory backend | "sqlite-hybrid" not valid config value | ✓ Good — same sqlite-vec+FTS5 |
+| Reference doc pattern for crons | Keep systemEvent messages concise | ✓ Good — MEETING_PREP.md, STANDUP.md, etc. |
+| Vision-native receipt extraction | No external OCR API needed | ✓ Good — Claude vision handles it |
+| Gmail scope reduction deferred | Re-auth disruption not worth it | ⚠️ Revisit — 2 excess scopes remain |
 
 ---
-*Last updated: 2026-02-07 — v2 milestone*
+*Last updated: 2026-02-09 after v2.0 milestone*
