@@ -208,13 +208,20 @@ Plans:
 
 **Requirements:** PP-01 to PP-03 (3 requirements)
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Calendar-driven proactive patterns: pre-meeting prep cron (every 15min) + context-aware reminders
+- [ ] 09-02-PLAN.md — Anomaly alerts: health metric deviations (Oura) + Govee environment thresholds
+- [ ] 09-03-PLAN.md — End-to-end verification of all proactive patterns with human checkpoint
+
 **Success Criteria:**
 1. Pre-meeting context sent 15min before events
 2. Anomaly alerts fire on metric deviations
 3. Context-aware reminders from calendar + memory
 
 **Deliverables:**
-- Cron jobs and skill definitions
+- Cron jobs (meeting-prep-scan, anomaly-check) and reference docs (MEETING_PREP.md, ANOMALY_ALERTS.md)
 
 ---
 
