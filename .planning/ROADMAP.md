@@ -178,7 +178,7 @@ Plans:
 
 ---
 
-### Phase 8: Multi-Agent Automation
+### Phase 8: Multi-Agent Automation ✓ (2026-02-09)
 
 **Goal:** Heartbeat crons, daily standup, full system verification
 
@@ -187,8 +187,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md -- Verify heartbeat stagger offsets, create daily standup cron + STANDUP.md for Sentinel
-- [ ] 08-02-PLAN.md -- Verify full heartbeat cycle and standup posting to #ops
+- [x] 08-01-PLAN.md -- Verify heartbeat stagger offsets, create daily standup cron + STANDUP.md for Sentinel (2026-02-09)
+- [x] 08-02-PLAN.md -- Verify full heartbeat cycle and standup posting to #ops (2026-02-09)
 
 **Success Criteria:**
 1. All 4 heartbeat jobs in cron config
