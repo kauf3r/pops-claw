@@ -3,10 +3,10 @@
 ## Current Position
 
 Phase: 12 — Content DB + Agent Setup
-Plan: 01 of 03 complete
+Plan: 02 of 03 complete
 Status: IN PROGRESS
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-09 — Plan 01 complete (content.db schema + bind-mount)
+Last activity: 2026-02-09 — Plan 02 complete (3 content agents + PRODUCT_CONTEXT.md)
 
 ## Project Reference
 
@@ -39,6 +39,8 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - Human approval gate before WordPress publish
 - content.db bind-mounted to all agents (like coordination.db pattern)
 - Start slow: 1-2 articles/week
+- Content agents inherit all defaults — no per-agent overrides
+- PRODUCT_CONTEXT.md pattern for domain guardrails + pipeline protocols
 
 ### Open Items
 
@@ -61,9 +63,11 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - health.db: ~/clawd/agents/main/health.db (/workspace/health.db in sandbox)
 - coordination.db: ~/clawd/coordination.db bind-mounted to /workspace/coordination.db:rw
 - content.db (v2.1): ~/clawd/content.db bind-mounted to /workspace/content.db:rw
+- Content agents: quill (Quill), sage (Sage), ezra (Ezra) — workspaces at ~/clawd/agents/{quill,sage,ezra}/
+- PRODUCT_CONTEXT.md deployed to all 3 content agent workspaces (CP-04, CP-05, CP-06)
 - Exec-approvals allowlist: gh, sqlite3, curl, gog pre-approved for all agents
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 - v2 milestone archived in .planning/milestones/
 
 ---
-*Last updated: 2026-02-09 — Phase 12 Plan 01 complete*
+*Last updated: 2026-02-09 — Phase 12 Plan 02 complete*
