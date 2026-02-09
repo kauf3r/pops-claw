@@ -3,6 +3,7 @@
 ## Milestones
 
 - ✅ **v2.0 Proactive Daily Companion** — Phases 1-11 (shipped 2026-02-09)
+- 🔄 **v2.1 Content Marketing Pipeline** — Phases 12-18
 
 ## Phases
 
@@ -25,6 +26,16 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 
 </details>
 
+### v2.1 Content Marketing Pipeline
+
+- [ ] Phase 12: Content DB + Agent Setup — CP-01..CP-06
+- [ ] Phase 13: Topic Research — TR-01..TR-04
+- [ ] Phase 14: Writing Pipeline — WR-01..WR-04
+- [ ] Phase 15: Review Pipeline — RV-01..RV-04
+- [ ] Phase 16: WordPress Publishing — WP-01..WP-05
+- [ ] Phase 17: Social Promotion — SM-01..SM-04
+- [ ] Phase 18: Pipeline Monitoring — MN-01..MN-03, CP-07
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -40,6 +51,13 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 | 9. Proactive Agent Patterns | v2.0 | 3/3 | Complete | 2026-02-08 |
 | 10. Agentic Coding Workflow | v2.0 | 2/2 | Complete | 2026-02-09 |
 | 11. Document Processing | v2.0 | 2/2 | Complete | 2026-02-09 |
+| 12. Content DB + Agent Setup | v2.1 | 0/? | Not Started | — |
+| 13. Topic Research | v2.1 | 0/? | Not Started | — |
+| 14. Writing Pipeline | v2.1 | 0/? | Not Started | — |
+| 15. Review Pipeline | v2.1 | 0/? | Not Started | — |
+| 16. WordPress Publishing | v2.1 | 0/? | Not Started | — |
+| 17. Social Promotion | v2.1 | 0/? | Not Started | — |
+| 18. Pipeline Monitoring | v2.1 | 0/? | Not Started | — |
 
 ---
-*Updated: 2026-02-09 — v2.0 shipped*
+*Updated: 2026-02-09 — v2.1 milestone initialized*

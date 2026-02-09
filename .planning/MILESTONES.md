@@ -19,5 +19,13 @@
 
 **Archive:** [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md) | [milestones/v2.0-REQUIREMENTS.md](milestones/v2.0-REQUIREMENTS.md)
 
+## v2.1 Content Marketing Pipeline (In Progress)
+
+**Phases:** 12-18 (7 phases)
+**Goal:** Autonomous content pipeline — research topics, write SEO articles, review quality, publish to WordPress, promote on LinkedIn/Instagram. Human approves before publish.
+**Requirements:** 31 across 7 categories (CP, TR, WR, RV, WP, SM, MN)
+**New agents:** Quill (writer), Sage (editor), Ezra (publisher)
+**Started:** 2026-02-09
+
 ---
 

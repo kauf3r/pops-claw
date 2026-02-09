@@ -2,11 +2,11 @@
 
 ## What This Is
 
-A proactive AI companion (Bob) running on OpenClaw v2026.2.6-3, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, and coordinates a 4-agent multi-agent system — all proactively, before being asked.
+A proactive AI companion (Bob) running on OpenClaw v2026.2.6-3, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, and coordinates a 7-agent multi-agent system — all proactively, before being asked. v2.1 adds an autonomous content marketing pipeline for AirSpace Integration (UAS/drone services).
 
 ## Core Value
 
-Bob delivers a genuinely useful morning briefing, knows your health data, manages home devices, reviews code, and coordinates a multi-agent system — all for ~$0 incremental cost on existing Claude Pro 200.
+Bob delivers a genuinely useful morning briefing, knows your health data, manages home devices, reviews code, coordinates a multi-agent system, and runs an autonomous content marketing pipeline — all for ~$0 incremental cost on existing Claude Pro 200.
 
 ## Requirements
 
@@ -33,21 +33,26 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - ✓ Cron/scheduled tasks operational — v1.0
 - ✓ Tailscale-only secure access — v1.0
 
-### Active
+### Active (v2.1 Content Marketing Pipeline)
 
-(None — start next milestone to define)
+- CP-01..CP-07: Content pipeline infrastructure (content.db, 3 new agents, Slack channel, PRODUCT_CONTEXT.md)
+- TR-01..TR-04: Topic research (Vector content-strategy skill, cron 2x/week)
+- WR-01..WR-04: Writing pipeline (Quill seo-writer skill, daily cron)
+- RV-01..RV-04: Review pipeline (Sage content-editor skill, scoring rubric, 2x/day cron)
+- WP-01..WP-05: WordPress publishing (Ezra wordpress-publisher skill, human approval gate)
+- SM-01..SM-04: Social promotion (LinkedIn API, Instagram caption generation)
+- MN-01..MN-03: Pipeline monitoring (weekly report, stuck detection, Sentinel integration)
 
 ### Out of Scope
 
 - Voice input (evaluate at day 60)
-- Additional agents beyond 4
 - Public API exposure
 - EC2 instance upgrade
 - Offline mode — real-time connectivity is core
 
 ## Context
 
-**Shipped v2.0** with 9,347 lines across 83 files in 10 days.
+**Shipped v2.0** with 9,347 lines across 83 files in 10 days. **v2.1** adds autonomous content marketing for AirSpace Integration (UAS/drone services).
 
 **Tech stack:** OpenClaw v2026.2.6-3, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation.
 
@@ -59,6 +64,7 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - Service: openclaw-gateway.service (systemd user)
 
 **Skills deployed:** oura, govee (includes Wyze), coding-assistant, receipt-scanner
+**Content pipeline skills (v2.1):** content-strategy (Vector), seo-writer (Quill), content-editor (Sage), wordpress-publisher (Ezra), social-promoter (Ezra)
 
 **Cron jobs:** morning-briefing (7 AM PT), evening-recap (7 PM PT), weekly-review (Sun 8 AM PT), meeting-prep-scan (*/15), anomaly-check (2x daily), daily-standup (8 AM EST), monthly-expense-summary (1st of month), 4 heartbeats (15min)
 
@@ -67,8 +73,11 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 |----------|------|--------|------------------|
 | main | Andy | Coordinator | :00 |
 | landos | Scout | Land Investing | :02 |
-| rangeos | Vector | UAS Operations | :04 |
+| rangeos | Vector | UAS Operations + Content Strategy | :04 |
 | ops | Sentinel | Infra + Coding | :06 |
+| quill | Quill | SEO Writer | None (cron only) |
+| sage | Sage | Editor/QA | None (cron only) |
+| ezra | Ezra | Publisher/Promoter | None (cron only) |
 
 **Cost Model:** Claude Pro 200 ($200/mo flat) — no per-token API costs. Model routing for rate limits, not cost.
 
@@ -94,6 +103,11 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Reference doc pattern for crons | Keep systemEvent messages concise | ✓ Good — MEETING_PREP.md, STANDUP.md, etc. |
 | Vision-native receipt extraction | No external OCR API needed | ✓ Good — Claude vision handles it |
 | Gmail scope reduction deferred | Re-auth disruption not worth it | ⚠️ Revisit — 2 excess scopes remain |
+| SQLite for content pipeline (not Notion) | Real transactions, no race conditions | v2.1 — content.db |
+| 1 shared #content-pipeline channel | Simpler than 3 separate channels | v2.1 |
+| No heartbeats for content agents | Cron-only workers, reduce rate limit pressure | v2.1 |
+| Human approval gate before publish | Safety over full automation | v2.1 — path to automation later |
+| content.db all-agent bind-mount | Same pattern as coordination.db | v2.1 |
 
 ---
-*Last updated: 2026-02-09 after v2.0 milestone*
+*Last updated: 2026-02-09 — v2.1 milestone initialized*

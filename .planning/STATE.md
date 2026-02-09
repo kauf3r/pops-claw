@@ -2,20 +2,23 @@
 
 ## Current Position
 
-Phase: v2.0 milestone complete
-Status: SHIPPED — 11 phases, 22 plans, 70 requirements
-Last activity: 2026-02-09 — milestone archived
+Phase: 12 — Content DB + Agent Setup
+Status: NOT STARTED
+Milestone: v2.1 Content Marketing Pipeline
+Last activity: 2026-02-09 — milestone artifacts created
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-09)
 
-**Core value:** Proactive daily companion delivering briefings, health awareness, smart home control, coding assistance, and multi-agent coordination at $0 incremental cost.
-**Current focus:** Planning next milestone
+**Core value:** Proactive daily companion with autonomous content marketing pipeline at $0 incremental cost.
+**Current focus:** Phase 12 — content.db schema, 3 new agents, #content-pipeline Slack channel
 
 ## Blockers
 
-None
+- **Phase 12 human checkpoint:** Create #content-pipeline Slack channel, invite bot, provide channel ID
+- **Phase 16 human checkpoint:** Generate WordPress Application Password
+- **Phase 17 human checkpoint:** LinkedIn developer app + OAuth flow
 
 ## Accumulated Context
 
@@ -27,11 +30,24 @@ None
 - Vision-native receipt extraction (no external OCR)
 - Embedded mode for cron (host paths, not /workspace/)
 
+### Key Architecture Decisions (v2.1)
+
+- SQLite (not Notion) as coordination layer — real transactions, no race conditions
+- 1 shared Slack channel #content-pipeline (not 3 separate)
+- No idle heartbeats for content agents — cron-only workers
+- Human approval gate before WordPress publish
+- content.db bind-mounted to all agents (like coordination.db pattern)
+- Start slow: 1-2 articles/week
+
 ### Open Items
 
 - SE-04: Gmail OAuth scope reduction (2 excess scopes, deferred)
 - DP E2E: Receipt scanning human verification pending
 - GV-03: No Govee sensors bound (all 11 devices are lights)
+- UQ-1: LinkedIn Company Page vs personal posting
+- UQ-2: Instagram Facebook Business account status
+- UQ-3: WordPress existing UAS categories
+- UQ-4: content.db scope (all-agent default, flag if narrowing needed)
 
 ## Notes
 
@@ -43,9 +59,10 @@ None
 - Cron: ~/.openclaw/cron/jobs.json
 - health.db: ~/clawd/agents/main/health.db (/workspace/health.db in sandbox)
 - coordination.db: ~/clawd/coordination.db bind-mounted to /workspace/coordination.db:rw
+- content.db (v2.1): ~/clawd/content.db bind-mounted to /workspace/content.db:rw
 - Exec-approvals allowlist: gh, sqlite3, curl, gog pre-approved for all agents
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 - v2 milestone archived in .planning/milestones/
 
 ---
-*Last updated: 2026-02-09 — v2.0 milestone shipped*
+*Last updated: 2026-02-09 — v2.1 milestone initialized*
