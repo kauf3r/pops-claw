@@ -28,7 +28,10 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 
 ### v2.1 Content Marketing Pipeline
 
-- [ ] Phase 12: Content DB + Agent Setup — CP-01..CP-06
+- [ ] Phase 12: Content DB + Agent Setup — CP-01..CP-06 — **Plans:** 3 plans
+  - [ ] 12-01-PLAN.md — content.db schema + bind-mount
+  - [ ] 12-02-PLAN.md — 3 content agents + PRODUCT_CONTEXT.md
+  - [ ] 12-03-PLAN.md — #content-pipeline Slack channel binding
 - [ ] Phase 13: Topic Research — TR-01..TR-04
 - [ ] Phase 14: Writing Pipeline — WR-01..WR-04
 - [ ] Phase 15: Review Pipeline — RV-01..RV-04
@@ -51,7 +54,7 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 | 9. Proactive Agent Patterns | v2.0 | 3/3 | Complete | 2026-02-08 |
 | 10. Agentic Coding Workflow | v2.0 | 2/2 | Complete | 2026-02-09 |
 | 11. Document Processing | v2.0 | 2/2 | Complete | 2026-02-09 |
-| 12. Content DB + Agent Setup | v2.1 | 0/? | Not Started | — |
+| 12. Content DB + Agent Setup | v2.1 | 0/3 | Planned | — |
 | 13. Topic Research | v2.1 | 0/? | Not Started | — |
 | 14. Writing Pipeline | v2.1 | 0/? | Not Started | — |
 | 15. Review Pipeline | v2.1 | 0/? | Not Started | — |
@@ -60,4 +63,4 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 | 18. Pipeline Monitoring | v2.1 | 0/? | Not Started | — |
 
 ---
-*Updated: 2026-02-09 — v2.1 milestone initialized*
+*Updated: 2026-02-09 — Phase 12 planned (3 plans, 2 waves)*
