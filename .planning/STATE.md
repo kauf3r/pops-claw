@@ -3,10 +3,10 @@
 ## Current Position
 
 Phase: 12 — Content DB + Agent Setup
-Plan: 02 of 03 complete
-Status: IN PROGRESS
+Plan: 03 of 03 complete
+Status: PHASE COMPLETE
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-09 — Plan 02 complete (3 content agents + PRODUCT_CONTEXT.md)
+Last activity: 2026-02-09 — Phase 12 complete (#content-pipeline bound to quill, sage, ezra)
 
 ## Project Reference
 
@@ -17,7 +17,7 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 ## Blockers
 
-- **Phase 12 human checkpoint:** Create #content-pipeline Slack channel, invite bot, provide channel ID
+- ~~**Phase 12 human checkpoint:** Create #content-pipeline Slack channel~~ RESOLVED (C0ADWCMU5F0)
 - **Phase 16 human checkpoint:** Generate WordPress Application Password
 - **Phase 17 human checkpoint:** LinkedIn developer app + OAuth flow
 
@@ -41,6 +41,7 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - Start slow: 1-2 articles/week
 - Content agents inherit all defaults — no per-agent overrides
 - PRODUCT_CONTEXT.md pattern for domain guardrails + pipeline protocols
+- Multi-agent shared channel: first-match routing for DMs, cron bypasses via sessionTarget
 
 ### Open Items
 
@@ -65,9 +66,10 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - content.db (v2.1): ~/clawd/content.db bind-mounted to /workspace/content.db:rw
 - Content agents: quill (Quill), sage (Sage), ezra (Ezra) — workspaces at ~/clawd/agents/{quill,sage,ezra}/
 - PRODUCT_CONTEXT.md deployed to all 3 content agent workspaces (CP-04, CP-05, CP-06)
+- #content-pipeline Slack channel: C0ADWCMU5F0, bound to quill/sage/ezra
 - Exec-approvals allowlist: gh, sqlite3, curl, gog pre-approved for all agents
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 - v2 milestone archived in .planning/milestones/
 
 ---
-*Last updated: 2026-02-09 — Phase 12 Plan 02 complete*
+*Last updated: 2026-02-09 — Phase 12 complete (all 3 plans)*
