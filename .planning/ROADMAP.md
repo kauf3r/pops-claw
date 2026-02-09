@@ -33,8 +33,7 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 - [x] Phase 14: Writing Pipeline (2/2 plans) — completed 2026-02-09
 - [x] Phase 15: Review Pipeline (2/2 plans) — completed 2026-02-09
 - [x] Phase 16: WordPress Publishing (2/2 plans) — completed 2026-02-09
-- [ ] Phase 17: Social Promotion (1 plan)
-  - [ ] 17-01-PLAN.md — Social-promoter skill + publish session integration
+- [x] Phase 17: Social Promotion (1/1 plan) — completed 2026-02-09
 - [ ] Phase 18: Pipeline Monitoring — MN-01..MN-03, CP-07
 
 ## Progress
@@ -57,8 +56,8 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 | 14. Writing Pipeline | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 15. Review Pipeline | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 16. WordPress Publishing | v2.1 | 2/2 | Complete | 2026-02-09 |
-| 17. Social Promotion | v2.1 | 0/1 | Not Started | — |
+| 17. Social Promotion | v2.1 | 1/1 | Complete | 2026-02-09 |
 | 18. Pipeline Monitoring | v2.1 | 0/? | Not Started | — |
 
 ---
-*Updated: 2026-02-09 — Phase 17 planned (1 plan, social-promoter skill)*
+*Updated: 2026-02-09 — Phase 17 complete (social-promoter skill + publish session integration)*
