@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 10 of 11 (Agentic Coding Workflow) — COMPLETE
-Plan: 2 of 2 complete
-Status: Phase 10 complete -- all 4 CW requirements verified end-to-end via Slack; Phase 11 next
-Last activity: 2026-02-09 - 10-02 verification complete, exec-approvals allowlist fix
-Progress: [███████████████████░] 19/22 plans
+Phase: 11 of 11 (Document Processing) — IN PROGRESS
+Plan: 1 of 2 complete
+Status: 11-01 receipt-scanner skill deployed; receipts table in health.db; Plan 02 next
+Last activity: 2026-02-09 - 11-01 receipt scanner skill + SQLite receipts table
+Progress: [████████████████████] 20/22 plans
 
 ## Current Status
 
@@ -22,18 +22,19 @@ Progress: [███████████████████░] 19/22 p
 | 8. Multi-Agent Automation | ✓ Complete | 2/2 plans complete |
 | 9. Proactive Agent Patterns | ✓ Complete | 3/3 plans complete |
 | 10. Agentic Coding Workflow | ✓ Complete | 2/2 plans complete |
-| 11. Document Processing | Not Started | 0/4 |
+| 11. Document Processing | In Progress | 1/2 plans complete |
 
 **Overall:** 65/70 requirements complete (UF-01–05, ME-01–03, SE-01–04, HE-01–05, BR-01–08, RL-01–04, MC-01–06, GV-01–05, WY-01–03, MA-01–06, MS-01–05, AA-01–04, PP-01–03, CW-01–04)
 
 ## Active Phase
 
-Phase 10 complete. All 4 CW requirements verified: CW-01 (coding-assistant SKILL.md operational), CW-02 (GitHub CLI + structured review workflow), CW-03 (4 open PRs listed across repos), CW-04 (review PR command via Slack). Exec-approvals allowlist fix (gh, sqlite3, curl, gog) unblocked autonomous binary execution. Phase 11 (Document Processing) next.
+Phase 11 Plan 01 complete. Receipt-scanner SKILL.md deployed (261 lines, 9 sections) with vision-based extraction, SQLite storage, query templates, category inference, and manual entry fallback. Receipts table created in health.db with 3 indexes. Skill detected by OpenClaw. Plan 02 next.
 
 ## Recent Activity
 
 | Date | Action | Details |
 |------|--------|---------|
+| 2026-02-09 | Completed 11-01-PLAN | receipt-scanner SKILL.md (261 lines), receipts table in health.db, 3 indexes, skill detected by OpenClaw |
 | 2026-02-09 | Completed 10-02-PLAN | E2E verification: all 4 CW requirements verified via Slack, exec-approvals allowlist fix (gh/sqlite3/curl/gog) |
 | 2026-02-09 | Completed 10-01-PLAN | coding-assistant SKILL.md deployed (PR review, issues, repo browsing), morning briefing Section 7 (GitHub Activity) added |
 | 2026-02-09 | Completed 09-03-PLAN | E2E verification of proactive patterns: both crons status=ok, PP-01/02/03 verified, human-approved |
@@ -118,12 +119,15 @@ None
 | Direct jobs.json edit for cron | Consistent with phases 8-9 pattern; avoids CLI flag limitations | 2026-02-09 |
 | Section 7 for GitHub Activity | Preserves existing 6 sections; appended as new section | 2026-02-09 |
 | Exec-approvals allowlist for sandbox binaries | Empty allowlist caused approval wall; added gh, sqlite3, curl, gog | 2026-02-09 |
+| Reused health.db for receipts | Established Phase 2 pattern; no separate DB needed | 2026-02-09 |
+| Vision-native receipt extraction | No external OCR API; Claude vision handles receipt reading | 2026-02-09 |
+| Confirm-before-store pattern | Always present extracted data to user before INSERT | 2026-02-09 |
 
 ## Session Continuity
 
 - **Last session:** 2026-02-09
-- **Stopped at:** Completed 10-02-PLAN.md (phase 10 complete, all CW requirements verified)
-- **Resume:** Phase 11 (Document Processing) planning
+- **Stopped at:** Completed 11-01-PLAN.md (receipt scanner skill + receipts table)
+- **Resume:** Phase 11 Plan 02 (document processing verification)
 
 ## Notes
 
@@ -141,4 +145,4 @@ None
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 
 ---
-*Last updated: 2026-02-09T07:01Z (10-02 complete, phase 10 verified)*
+*Last updated: 2026-02-09T07:19Z (11-01 complete, receipt scanner deployed)*
