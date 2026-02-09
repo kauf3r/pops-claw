@@ -2,23 +2,23 @@
 
 ## Current Position
 
-Phase: 15 — Review Pipeline (COMPLETE)
-Plan: 02 of 02 complete
-Status: PHASE COMPLETE
+Phase: 16 — WordPress Publishing
+Plan: 01 of 02 complete
+Status: IN PROGRESS
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-09 — Phase 15 complete (review-check cron job deployed for Sage, 2x/day at 10 AM + 3 PM PT)
+Last activity: 2026-02-09 — Plan 16-01 complete (WP credentials configured in sandbox env, REST API verified)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Proactive daily companion with autonomous content marketing pipeline at $0 incremental cost.
-**Current focus:** Phase 15 complete — content-editor skill + REVIEW_SESSION.md deployed, review-check cron scheduled 2x/day for Sage. Next: Phase 16 (publishing pipeline)
+**Current focus:** Phase 16 in progress — WP API credentials configured, next: publishing skill + cron for Ezra
 
 ## Blockers
 
 - ~~**Phase 12 human checkpoint:** Create #content-pipeline Slack channel~~ RESOLVED (C0ADWCMU5F0)
-- **Phase 16 human checkpoint:** Generate WordPress Application Password
+- ~~**Phase 16 human checkpoint:** Generate WordPress Application Password~~ RESOLVED (App Password configured)
 - **Phase 17 human checkpoint:** LinkedIn developer app + OAuth flow
 
 ## Accumulated Context
@@ -44,6 +44,7 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - Multi-agent shared channel: first-match routing for DMs, cron bypasses via sessionTarget
 - Content agent cron pattern: sessionTarget=agent-name, kind=agentTurn, model=sonnet, no delivery config
 - Cron tz field with local time expression (not raw UTC) for DST-safe scheduling
+- WordPress REST API auth via Application Passwords (Basic auth over HTTPS, no OAuth needed)
 
 ### Open Items
 
@@ -81,6 +82,7 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - Exec-approvals allowlist: gh, sqlite3, curl, gog pre-approved for all agents
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 - v2 milestone archived in .planning/milestones/
+- WordPress: airspaceintegration.com, WP_SITE_URL + WP_USERNAME + WP_APP_PASSWORD in sandbox env
 
 ---
-*Last updated: 2026-02-09 — Phase 15 complete (review-check cron deployed for Sage, 2x/day editorial review sessions)*
+*Last updated: 2026-02-09 — Plan 16-01 complete (WP credentials in sandbox env, REST API verified)*
