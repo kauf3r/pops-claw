@@ -2,18 +2,18 @@
 
 ## Current Position
 
-Phase: 15 — Review Pipeline (IN PROGRESS)
-Plan: 01 of 02 complete
-Status: EXECUTING
+Phase: 15 — Review Pipeline (COMPLETE)
+Plan: 02 of 02 complete
+Status: PHASE COMPLETE
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-09 — Plan 15-01 complete (content-editor skill + REVIEW_SESSION.md deployed)
+Last activity: 2026-02-09 — Phase 15 complete (review-check cron job deployed for Sage, 2x/day at 10 AM + 3 PM PT)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Proactive daily companion with autonomous content marketing pipeline at $0 incremental cost.
-**Current focus:** Phase 15 in progress — content-editor skill deployed, review session reference doc ready. Next: Plan 15-02 (review cron scheduling for Sage)
+**Current focus:** Phase 15 complete — content-editor skill + REVIEW_SESSION.md deployed, review-check cron scheduled 2x/day for Sage. Next: Phase 16 (publishing pipeline)
 
 ## Blockers
 
@@ -72,6 +72,7 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - TOPIC_RESEARCH.md: ~/clawd/agents/rangeos/TOPIC_RESEARCH.md (research session reference doc)
 - topic-research cron: Tue+Fri 10 AM PT, sessionTarget=rangeos, agentTurn, sonnet, 300s timeout
 - writing-check cron: daily 11 AM PT, sessionTarget=quill, agentTurn, sonnet, 600s timeout
+- review-check cron: 2x/day 10 AM + 3 PM PT, sessionTarget=sage, agentTurn, sonnet, 600s timeout
 - seo-writer skill: ~/.openclaw/skills/seo-writer/SKILL.md (ready, all agents)
 - content-editor skill: ~/.openclaw/skills/content-editor/SKILL.md (ready, all agents)
 - WRITING_SESSION.md: ~/clawd/agents/quill/WRITING_SESSION.md (writing session reference doc)
@@ -82,4 +83,4 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - v2 milestone archived in .planning/milestones/
 
 ---
-*Last updated: 2026-02-09 — Plan 15-01 complete (content-editor skill + REVIEW_SESSION.md deployed for Sage)*
+*Last updated: 2026-02-09 — Phase 15 complete (review-check cron deployed for Sage, 2x/day editorial review sessions)*
