@@ -253,6 +253,12 @@ Plans:
 
 **Requirements:** DP-01 to DP-04 (4 requirements)
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 11-01-PLAN.md -- Create receipt-scanner skill and SQLite receipts table (DP-01, DP-02, DP-03)
+- [ ] 11-02-PLAN.md -- Monthly expense summary cron and end-to-end verification (DP-04)
+
 **Success Criteria:**
 1. Photo -> structured receipt data extraction
 2. Receipts stored in SQLite
