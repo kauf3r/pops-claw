@@ -2,18 +2,18 @@
 
 ## Current Position
 
-Phase: 14 — Writing Pipeline (COMPLETE)
-Plan: 02 of 02 complete
-Status: PHASE COMPLETE
+Phase: 15 — Review Pipeline (IN PROGRESS)
+Plan: 01 of 02 complete
+Status: EXECUTING
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-09 — Phase 14 complete (writing-check cron job deployed)
+Last activity: 2026-02-09 — Plan 15-01 complete (content-editor skill + REVIEW_SESSION.md deployed)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Proactive daily companion with autonomous content marketing pipeline at $0 incremental cost.
-**Current focus:** Phase 14 complete — writing pipeline automated (daily 11 AM PT cron for Quill). Next: Phase 15 (review/publish agent)
+**Current focus:** Phase 15 in progress — content-editor skill deployed, review session reference doc ready. Next: Plan 15-02 (review cron scheduling for Sage)
 
 ## Blockers
 
@@ -73,11 +73,13 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - topic-research cron: Tue+Fri 10 AM PT, sessionTarget=rangeos, agentTurn, sonnet, 300s timeout
 - writing-check cron: daily 11 AM PT, sessionTarget=quill, agentTurn, sonnet, 600s timeout
 - seo-writer skill: ~/.openclaw/skills/seo-writer/SKILL.md (ready, all agents)
+- content-editor skill: ~/.openclaw/skills/content-editor/SKILL.md (ready, all agents)
 - WRITING_SESSION.md: ~/clawd/agents/quill/WRITING_SESSION.md (writing session reference doc)
+- REVIEW_SESSION.md: ~/clawd/agents/sage/REVIEW_SESSION.md (review session reference doc)
 - #content-pipeline Slack channel: C0ADWCMU5F0, bound to quill/sage/ezra
 - Exec-approvals allowlist: gh, sqlite3, curl, gog pre-approved for all agents
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 - v2 milestone archived in .planning/milestones/
 
 ---
-*Last updated: 2026-02-09 — Phase 14 complete (writing-check cron deployed, writing pipeline fully automated)*
+*Last updated: 2026-02-09 — Plan 15-01 complete (content-editor skill + REVIEW_SESSION.md deployed for Sage)*
