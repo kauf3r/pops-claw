@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 8 of 11 (Multi-Agent Automation) — COMPLETE
-Plan: 2 of 2 complete
-Status: Phase 8 complete — all 4 AA requirements satisfied (AA-01 through AA-04)
-Last activity: 2026-02-09 - 08-02 heartbeat cycle + standup verification
-Progress: [██████████████░░░░░░] 14/14 plans (phases 1-8 complete)
+Phase: 9 of 11 (Proactive Agent Patterns) — IN PROGRESS
+Plan: 1 of 3 complete
+Status: 09-01 complete (meeting-prep-scan cron + MEETING_PREP.md); 09-02 and 09-03 remaining
+Last activity: 2026-02-09 - 09-01 meeting prep scanner deployed
+Progress: [███████████████░░░░░] 15/22 plans
 
 ## Current Status
 
@@ -20,7 +20,7 @@ Progress: [██████████████░░░░░░] 14/14 p
 | 6. Multi-Agent Gateway | ✓ Complete | 2/2 plans complete |
 | 7. Multi-Agent Slack Channels | ✓ Complete | 1/1 plan complete |
 | 8. Multi-Agent Automation | ✓ Complete | 2/2 plans complete |
-| 9. Proactive Agent Patterns | Not Started | 0/3 |
+| 9. Proactive Agent Patterns | In Progress | 1/3 plans complete |
 | 10. Agentic Coding Workflow | Not Started | 0/4 |
 | 11. Document Processing | Not Started | 0/4 |
 
@@ -28,12 +28,13 @@ Progress: [██████████████░░░░░░] 14/14 p
 
 ## Active Phase
 
-Phase 8 complete. All 4 AA requirements satisfied: AA-01 (heartbeat stagger), AA-02 (standup cron), AA-03 (heartbeat cycle verified for all 4 agents), AA-04 (standup posted to #ops with all agent summaries). Key learning: cron-triggered agent turns run in embedded mode (not Docker sandbox), requiring host paths instead of /workspace/ paths. Phase 9 (Proactive Agent Patterns) next.
+Phase 9 in progress. Plan 09-01 complete: meeting-prep-scan cron (*/15 * * * *) deployed with MEETING_PREP.md reference doc. Agent scans calendar for events 15-45 min out, assembles attendee context from memory + emails, sends to Slack DM. Also checks 1-2 hours ahead for events needing preparation. Plans 09-02 (anomaly alerts) and 09-03 remaining.
 
 ## Recent Activity
 
 | Date | Action | Details |
 |------|--------|---------|
+| 2026-02-09 | Completed 09-01-PLAN | meeting-prep-scan cron (*/15) + MEETING_PREP.md deployed, calendar scanning + context assembly + prep reminders |
 | 2026-02-09 | Completed 08-02-PLAN | All 4 heartbeat cycles verified (main=6, landos=26, rangeos=27, ops=15 in 24h), standup posted to #ops with 4 sections |
 | 2026-02-09 | Completed 08-01-PLAN | Heartbeat stagger verified (:00/:02/:04/:06), daily-standup cron at 13:00 UTC for Sentinel, STANDUP.md deployed |
 | 2026-02-09 | Completed 07-01-PLAN | 3 domain Slack channels verified (#land-ops, #range-ops, #ops), bot membership confirmed, MS-01–05 satisfied |
@@ -101,12 +102,15 @@ None
 | Cron embedded mode uses host paths | sessionTarget="isolated" runs outside Docker; /workspace/ paths invalid | 2026-02-09 |
 | Patch sessionTarget in jobs.json directly | CLI only supports main\|isolated; "ops" requires direct JSON edit | 2026-02-09 |
 | Cron IDs are CLI-generated UUIDs | No --id flag; must use UUID for trigger commands | 2026-02-09 |
+| Reference doc pattern for meeting prep | MEETING_PREP.md read by cron-triggered agent; keeps systemEvent concise | 2026-02-09 |
+| 15-45 min scan window for meetings | Gives 15 min prep time; avoids re-alerting for events already started | 2026-02-09 |
+| CLI uses --cron not --schedule | openclaw cron add uses --cron flag for 5-field cron expressions | 2026-02-09 |
 
 ## Session Continuity
 
 - **Last session:** 2026-02-09
-- **Stopped at:** Completed 08-02-PLAN.md (Phase 8 complete)
-- **Resume:** Phase 9 (Proactive Agent Patterns) next
+- **Stopped at:** Completed 09-01-PLAN.md (meeting prep scanner)
+- **Resume:** 09-02 (anomaly alerts) next
 
 ## Notes
 
@@ -123,4 +127,4 @@ None
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 
 ---
-*Last updated: 2026-02-09T05:33Z*
+*Last updated: 2026-02-09T05:37Z*
