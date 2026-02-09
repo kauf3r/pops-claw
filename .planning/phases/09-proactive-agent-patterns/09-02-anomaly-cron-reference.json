@@ -1,0 +1,17 @@
+{
+  "id": "d082072c-7f72-4f4e-9989-e507b40cf444",
+  "agentId": "main",
+  "name": "anomaly-check",
+  "enabled": true,
+  "schedule": {
+    "kind": "cron",
+    "expr": "0 14,22 * * *"
+  },
+  "sessionTarget": "main",
+  "wakeMode": "now",
+  "payload": {
+    "kind": "systemEvent",
+    "text": "Read /home/ubuntu/clawd/agents/main/ANOMALY_ALERTS.md and follow its instructions to check health metrics and environment data for anomalies."
+  },
+  "note": "Schedule: 14:00 UTC (6 AM PT) + 22:00 UTC (2 PM PT). Created 2026-02-09."
+}
