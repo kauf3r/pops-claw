@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 10 of 11 (Agentic Coding Workflow) — IN PROGRESS
-Plan: 1 of 2 complete
-Status: coding-assistant SKILL.md deployed, morning briefing GitHub section added; Plan 02 (verification) next
-Last activity: 2026-02-09 - 10-01 coding-assistant skill + briefing update
-Progress: [██████████████████░░] 18/22 plans
+Phase: 10 of 11 (Agentic Coding Workflow) — COMPLETE
+Plan: 2 of 2 complete
+Status: Phase 10 complete -- all 4 CW requirements verified end-to-end via Slack; Phase 11 next
+Last activity: 2026-02-09 - 10-02 verification complete, exec-approvals allowlist fix
+Progress: [███████████████████░] 19/22 plans
 
 ## Current Status
 
@@ -21,19 +21,20 @@ Progress: [██████████████████░░] 18/22 p
 | 7. Multi-Agent Slack Channels | ✓ Complete | 1/1 plan complete |
 | 8. Multi-Agent Automation | ✓ Complete | 2/2 plans complete |
 | 9. Proactive Agent Patterns | ✓ Complete | 3/3 plans complete |
-| 10. Agentic Coding Workflow | In Progress | 1/2 plans complete |
+| 10. Agentic Coding Workflow | ✓ Complete | 2/2 plans complete |
 | 11. Document Processing | Not Started | 0/4 |
 
-**Overall:** 61/70 requirements complete (UF-01–05, ME-01–03, SE-01–04, HE-01–05, BR-01–08, RL-01–04, MC-01–06, GV-01–05, WY-01–03, MA-01–06, MS-01–05, AA-01–04, PP-01–03)
+**Overall:** 65/70 requirements complete (UF-01–05, ME-01–03, SE-01–04, HE-01–05, BR-01–08, RL-01–04, MC-01–06, GV-01–05, WY-01–03, MA-01–06, MS-01–05, AA-01–04, PP-01–03, CW-01–04)
 
 ## Active Phase
 
-Phase 10 in progress. 10-01: coding-assistant SKILL.md deployed (169 lines, 6 sections: PR review, issues, repo browsing, PR listing, code suggestions, tracked repos). Morning briefing expanded to 7 sections (added GitHub Activity with open PR count). GitHub username discovered as kauf3r. Plan 02 (verification) next.
+Phase 10 complete. All 4 CW requirements verified: CW-01 (coding-assistant SKILL.md operational), CW-02 (GitHub CLI + structured review workflow), CW-03 (4 open PRs listed across repos), CW-04 (review PR command via Slack). Exec-approvals allowlist fix (gh, sqlite3, curl, gog) unblocked autonomous binary execution. Phase 11 (Document Processing) next.
 
 ## Recent Activity
 
 | Date | Action | Details |
 |------|--------|---------|
+| 2026-02-09 | Completed 10-02-PLAN | E2E verification: all 4 CW requirements verified via Slack, exec-approvals allowlist fix (gh/sqlite3/curl/gog) |
 | 2026-02-09 | Completed 10-01-PLAN | coding-assistant SKILL.md deployed (PR review, issues, repo browsing), morning briefing Section 7 (GitHub Activity) added |
 | 2026-02-09 | Completed 09-03-PLAN | E2E verification of proactive patterns: both crons status=ok, PP-01/02/03 verified, human-approved |
 | 2026-02-09 | Completed 09-02-PLAN | anomaly-check cron (0 14,22 * * *) + ANOMALY_ALERTS.md deployed, health threshold + Govee monitoring |
@@ -116,12 +117,13 @@ None
 | GitHub username is kauf3r | Discovered from gh repo list; plan had andykaufman | 2026-02-09 |
 | Direct jobs.json edit for cron | Consistent with phases 8-9 pattern; avoids CLI flag limitations | 2026-02-09 |
 | Section 7 for GitHub Activity | Preserves existing 6 sections; appended as new section | 2026-02-09 |
+| Exec-approvals allowlist for sandbox binaries | Empty allowlist caused approval wall; added gh, sqlite3, curl, gog | 2026-02-09 |
 
 ## Session Continuity
 
 - **Last session:** 2026-02-09
-- **Stopped at:** Completed 10-01-PLAN.md (coding-assistant skill deployed, briefing updated)
-- **Resume:** 10-02-PLAN.md (verification) next
+- **Stopped at:** Completed 10-02-PLAN.md (phase 10 complete, all CW requirements verified)
+- **Resume:** Phase 11 (Document Processing) planning
 
 ## Notes
 
@@ -135,7 +137,8 @@ None
 - Sandbox binds: gh, sqlite3-compat, gog, gh-config, coordination.db all bind-mounted
 - sqlite3-compat: ~/clawd/sqlite3-compat (Debian 12 build, replaces host binary for sandbox)
 - coordination.db: ~/clawd/coordination.db bind-mounted to /workspace/coordination.db:rw (symlinks removed)
+- Exec-approvals allowlist: gh, sqlite3, curl, gog pre-approved for all agents
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 
 ---
-*Last updated: 2026-02-09T06:44Z (10-01 complete, coding-assistant skill deployed)*
+*Last updated: 2026-02-09T07:01Z (10-02 complete, phase 10 verified)*
