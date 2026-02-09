@@ -231,6 +231,12 @@ Plans:
 
 **Requirements:** CW-01 to CW-04 (4 requirements)
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 10-01-PLAN.md -- Create coding-assistant SKILL.md and add open PR count to morning briefing
+- [ ] 10-02-PLAN.md -- End-to-end verification of PR review command and briefing GitHub section via Slack
+
 **Success Criteria:**
 1. coding-assistant skill operational
 2. "Review PR #N" command works via Slack
