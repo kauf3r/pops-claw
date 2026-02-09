@@ -3,17 +3,17 @@
 ## Current Position
 
 Phase: 13 — Topic Research
-Plan: 01 of 02 complete
-Status: IN PROGRESS
+Plan: 02 of 02 complete
+Status: PHASE COMPLETE
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-09 — Plan 13-01 complete (Vector domain context + content-strategy skill)
+Last activity: 2026-02-09 — Phase 13 complete (topic research cron + reference doc)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Proactive daily companion with autonomous content marketing pipeline at $0 incremental cost.
-**Current focus:** Phase 13 — Topic Research (Plan 01 done, Plan 02 next)
+**Current focus:** Phase 13 complete — ready for Phase 14 (Writing Agent)
 
 ## Blockers
 
@@ -42,6 +42,8 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - Content agents inherit all defaults — no per-agent overrides
 - PRODUCT_CONTEXT.md pattern for domain guardrails + pipeline protocols
 - Multi-agent shared channel: first-match routing for DMs, cron bypasses via sessionTarget
+- Content agent cron pattern: sessionTarget=agent-name, kind=agentTurn, model=sonnet, no delivery config
+- Cron tz field with local time expression (not raw UTC) for DST-safe scheduling
 
 ### Open Items
 
@@ -67,10 +69,12 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - Content agents: quill (Quill), sage (Sage), ezra (Ezra) — workspaces at ~/clawd/agents/{quill,sage,ezra}/
 - PRODUCT_CONTEXT.md deployed to all 4 content agent workspaces: quill, sage, ezra, rangeos (CP-04, CP-05, CP-06)
 - content-strategy skill: ~/.openclaw/skills/content-strategy/SKILL.md (ready, all agents)
+- TOPIC_RESEARCH.md: ~/clawd/agents/rangeos/TOPIC_RESEARCH.md (research session reference doc)
+- topic-research cron: Tue+Fri 10 AM PT, sessionTarget=rangeos, agentTurn, sonnet, 300s timeout
 - #content-pipeline Slack channel: C0ADWCMU5F0, bound to quill/sage/ezra
 - Exec-approvals allowlist: gh, sqlite3, curl, gog pre-approved for all agents
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 - v2 milestone archived in .planning/milestones/
 
 ---
-*Last updated: 2026-02-09 — Plan 13-01 complete (Vector domain context + content-strategy skill)*
+*Last updated: 2026-02-09 — Phase 13 complete (topic research cron + reference doc)*
