@@ -2,18 +2,18 @@
 
 ## Current Position
 
-Phase: 12 — Content DB + Agent Setup
-Plan: 03 of 03 complete
-Status: PHASE COMPLETE
+Phase: 13 — Topic Research
+Plan: 01 of 02 complete
+Status: IN PROGRESS
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-09 — Phase 12 complete (#content-pipeline bound to quill, sage, ezra)
+Last activity: 2026-02-09 — Plan 13-01 complete (Vector domain context + content-strategy skill)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Proactive daily companion with autonomous content marketing pipeline at $0 incremental cost.
-**Current focus:** Phase 13 — Topic Research (next phase to plan)
+**Current focus:** Phase 13 — Topic Research (Plan 01 done, Plan 02 next)
 
 ## Blockers
 
@@ -65,11 +65,12 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - coordination.db: ~/clawd/coordination.db bind-mounted to /workspace/coordination.db:rw
 - content.db (v2.1): ~/clawd/content.db bind-mounted to /workspace/content.db:rw
 - Content agents: quill (Quill), sage (Sage), ezra (Ezra) — workspaces at ~/clawd/agents/{quill,sage,ezra}/
-- PRODUCT_CONTEXT.md deployed to all 3 content agent workspaces (CP-04, CP-05, CP-06)
+- PRODUCT_CONTEXT.md deployed to all 4 content agent workspaces: quill, sage, ezra, rangeos (CP-04, CP-05, CP-06)
+- content-strategy skill: ~/.openclaw/skills/content-strategy/SKILL.md (ready, all agents)
 - #content-pipeline Slack channel: C0ADWCMU5F0, bound to quill/sage/ezra
 - Exec-approvals allowlist: gh, sqlite3, curl, gog pre-approved for all agents
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 - v2 milestone archived in .planning/milestones/
 
 ---
-*Last updated: 2026-02-09 — Phase 12 complete (all 3 plans)*
+*Last updated: 2026-02-09 — Plan 13-01 complete (Vector domain context + content-strategy skill)*
