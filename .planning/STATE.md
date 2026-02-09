@@ -2,24 +2,24 @@
 
 ## Current Position
 
-Phase: 16 — WordPress Publishing
-Plan: 02 of 02 complete
+Phase: 17 — Social Promotion
+Plan: 01 of 01 complete
 Status: PHASE COMPLETE
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-09 — Plan 16-02 complete (wordpress-publisher skill, PUBLISH_SESSION.md, publish-check cron deployed)
+Last activity: 2026-02-09 — Plan 17-01 complete (social-promoter skill, PUBLISH_SESSION.md updated with social step)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Proactive daily companion with autonomous content marketing pipeline at $0 incremental cost.
-**Current focus:** Phase 16 complete — full WordPress publishing pipeline operational (skill + cron + reference doc)
+**Current focus:** Phase 17 complete — social copy generation integrated into publish workflow (3 platforms, copy-only)
 
 ## Blockers
 
 - ~~**Phase 12 human checkpoint:** Create #content-pipeline Slack channel~~ RESOLVED (C0ADWCMU5F0)
 - ~~**Phase 16 human checkpoint:** Generate WordPress Application Password~~ RESOLVED (App Password configured)
-- **Phase 17 human checkpoint:** LinkedIn developer app + OAuth flow
+- ~~**Phase 17 human checkpoint:** LinkedIn developer app + OAuth flow~~ NOT NEEDED (copy-only approach, no API)
 
 ## Accumulated Context
 
@@ -47,6 +47,8 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - WordPress REST API auth via Application Passwords (Basic auth over HTTPS, no OAuth needed)
 - WordPress draft-only publishing with human approval gate (WP-05) — Ezra never sets status to "publish"
 - Dual-purpose publish-check cron: creates new WP drafts AND confirms human-published articles via REST API polling
+- Copy-only social promotion: generate platform copy (LinkedIn, X/Twitter, Instagram), human posts manually
+- Skill chaining in session reference docs: PUBLISH_SESSION.md invokes social-promoter skill after publication confirmation
 
 ### Open Items
 
@@ -88,7 +90,9 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - wordpress-publisher skill: ~/.openclaw/skills/wordpress-publisher/SKILL.md (ready, all agents)
 - PUBLISH_SESSION.md: ~/clawd/agents/ezra/PUBLISH_SESSION.md (publishing session reference doc)
 - publish-check cron: daily 2 PM PT, sessionTarget=ezra, agentTurn, sonnet, 600s timeout
-- Total cron jobs: 16
+- social-promoter skill: ~/.openclaw/skills/social-promoter/SKILL.md (ready, all agents)
+- PUBLISH_SESSION.md: updated with Step 5 (social promotion) and Step 6 (summary incl social post count)
+- Total cron jobs: 16 (no new job — social promotion integrated into existing publish-check)
 
 ---
-*Last updated: 2026-02-09 — Plan 16-02 complete (wordpress-publisher skill + publish-check cron deployed)*
+*Last updated: 2026-02-09 — Plan 17-01 complete (social-promoter skill + PUBLISH_SESSION social step deployed)*
