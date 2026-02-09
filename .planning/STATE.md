@@ -3,9 +3,10 @@
 ## Current Position
 
 Phase: 12 — Content DB + Agent Setup
-Status: NOT STARTED
+Plan: 01 of 03 complete
+Status: IN PROGRESS
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-09 — milestone artifacts created
+Last activity: 2026-02-09 — Plan 01 complete (content.db schema + bind-mount)
 
 ## Project Reference
 
@@ -47,7 +48,7 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - UQ-1: LinkedIn Company Page vs personal posting
 - UQ-2: Instagram Facebook Business account status
 - UQ-3: WordPress existing UAS categories
-- UQ-4: content.db scope (all-agent default, flag if narrowing needed)
+- UQ-4: content.db scope — RESOLVED: bind-mounted to all agents via defaults (Plan 12-01)
 
 ## Notes
 
@@ -65,4 +66,4 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - v2 milestone archived in .planning/milestones/
 
 ---
-*Last updated: 2026-02-09 — v2.1 milestone initialized*
+*Last updated: 2026-02-09 — Phase 12 Plan 01 complete*
