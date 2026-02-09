@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 7 of 11 (Multi-Agent Slack Channels) — COMPLETE
-Plan: 1 of 1 (all complete)
-Status: Phase 7 complete — all 5 MS requirements verified, 3 domain channels routing correctly
-Last activity: 2026-02-09 - Phase 7 verified and complete
-Progress: [████████████░░░░░░░░] 12/14 plans
+Phase: 8 of 11 (Multi-Agent Automation) — IN PROGRESS
+Plan: 1 of 2 complete
+Status: 08-01 complete — heartbeat stagger verified, daily standup cron created
+Last activity: 2026-02-09 - 08-01 heartbeat verification + daily standup cron
+Progress: [█████████████░░░░░░░] 13/14 plans
 
 ## Current Status
 
@@ -19,7 +19,7 @@ Progress: [████████████░░░░░░░░] 12/14 p
 | 5. Govee & Wyze Integrations | ✓ Complete | 2/2 plans complete |
 | 6. Multi-Agent Gateway | ✓ Complete | 2/2 plans complete |
 | 7. Multi-Agent Slack Channels | ✓ Complete | 1/1 plan complete |
-| 8. Multi-Agent Automation | Not Started | 0/4 |
+| 8. Multi-Agent Automation | In Progress | 1/2 plans complete |
 | 9. Proactive Agent Patterns | Not Started | 0/3 |
 | 10. Agentic Coding Workflow | Not Started | 0/4 |
 | 11. Document Processing | Not Started | 0/4 |
@@ -28,12 +28,13 @@ Progress: [████████████░░░░░░░░] 12/14 p
 
 ## Active Phase
 
-Phase 7 complete. All 3 domain Slack channels verified: #land-ops→Scout, #range-ops→Vector, #ops→Sentinel. Bot membership confirmed via gateway channel resolution. Message routing verified via delivery logs and coordination DB. All 5 MS requirements satisfied. Ready for Phase 8 (Multi-Agent Automation).
+Phase 8 in progress. Plan 08-01 complete: verified 4 heartbeat crons at staggered :00/:02/:04/:06 offsets, created daily-standup cron at 13:00 UTC targeting Sentinel (ops) with sonnet model, deployed STANDUP.md with coordination.db queries. AA-01 and AA-02 requirements satisfied. Plan 08-02 next.
 
 ## Recent Activity
 
 | Date | Action | Details |
 |------|--------|---------|
+| 2026-02-09 | Completed 08-01-PLAN | Heartbeat stagger verified (:00/:02/:04/:06), daily-standup cron at 13:00 UTC for Sentinel, STANDUP.md deployed |
 | 2026-02-09 | Completed 07-01-PLAN | 3 domain Slack channels verified (#land-ops, #range-ops, #ops), bot membership confirmed, MS-01–05 satisfied |
 | 2026-02-08 | Completed 06-02-PLAN | Smoke test: all 4 heartbeats "ok", coordination DB 30 records/3 agents, Scout verified in #land-ops |
 | 2026-02-08 | Completed 06-01-PLAN | Gateway verified (4 agents, 4 bindings, 5 crons), HEARTBEAT.md schema refs, coordination.db bind-mount + sqlite3-compat |
@@ -92,12 +93,16 @@ None
 | Main agent coordination.db gap is behavioral | Bob doesn't log heartbeats to coordination.db; agent behavior, not infra | 2026-02-08 |
 | No config changes for channel setup | Phase 6 bindings already had correct channel IDs; only needed channel creation + bot invite | 2026-02-09 |
 | Verify routing via logs, not manual messages | Gateway channel resolution + delivery logs + coordination DB sufficient proof | 2026-02-09 |
+| Sonnet for daily standup | Aggregation reasoning needs more than haiku; sonnet is cost-effective | 2026-02-09 |
+| Isolated session for standup cron | Clean context per run; no session bleed from previous triggers | 2026-02-09 |
+| 120s timeout for standup | DB queries + formatting + Slack post needs more than default 30s | 2026-02-09 |
+| Reference doc pattern (STANDUP.md) | Keep cron message concise; agent reads full instructions from workspace file | 2026-02-09 |
 
 ## Session Continuity
 
 - **Last session:** 2026-02-09
-- **Stopped at:** Phase 7 complete, verified
-- **Resume:** Phase 8 when ready
+- **Stopped at:** Completed 08-01-PLAN.md
+- **Resume:** 08-02-PLAN next
 
 ## Notes
 
@@ -114,4 +119,4 @@ None
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 
 ---
-*Last updated: 2026-02-09T04:24Z*
+*Last updated: 2026-02-09T04:42Z*
