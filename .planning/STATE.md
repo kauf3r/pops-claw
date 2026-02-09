@@ -2,18 +2,18 @@
 
 ## Current Position
 
-Phase: 13 — Topic Research
-Plan: 02 of 02 complete
-Status: PHASE COMPLETE
+Phase: 14 — Writing Pipeline
+Plan: 01 of 02 complete
+Status: IN PROGRESS
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-09 — Phase 13 complete (topic research cron + reference doc)
+Last activity: 2026-02-09 — Plan 14-01 complete (seo-writer skill + WRITING_SESSION.md)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Proactive daily companion with autonomous content marketing pipeline at $0 incremental cost.
-**Current focus:** Phase 13 complete — ready for Phase 14 (Writing Agent)
+**Current focus:** Phase 14 in progress — seo-writer skill deployed, cron scheduling next (Plan 14-02)
 
 ## Blockers
 
@@ -71,10 +71,12 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - content-strategy skill: ~/.openclaw/skills/content-strategy/SKILL.md (ready, all agents)
 - TOPIC_RESEARCH.md: ~/clawd/agents/rangeos/TOPIC_RESEARCH.md (research session reference doc)
 - topic-research cron: Tue+Fri 10 AM PT, sessionTarget=rangeos, agentTurn, sonnet, 300s timeout
+- seo-writer skill: ~/.openclaw/skills/seo-writer/SKILL.md (ready, all agents)
+- WRITING_SESSION.md: ~/clawd/agents/quill/WRITING_SESSION.md (writing session reference doc)
 - #content-pipeline Slack channel: C0ADWCMU5F0, bound to quill/sage/ezra
 - Exec-approvals allowlist: gh, sqlite3, curl, gog pre-approved for all agents
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 - v2 milestone archived in .planning/milestones/
 
 ---
-*Last updated: 2026-02-09 — Phase 13 complete (topic research cron + reference doc)*
+*Last updated: 2026-02-09 — Plan 14-01 complete (seo-writer skill + WRITING_SESSION.md)*
