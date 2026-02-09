@@ -184,6 +184,12 @@ Plans:
 
 **Requirements:** AA-01 to AA-04 (4 requirements)
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md -- Verify heartbeat stagger offsets, create daily standup cron + STANDUP.md for Sentinel
+- [ ] 08-02-PLAN.md -- Verify full heartbeat cycle and standup posting to #ops
+
 **Success Criteria:**
 1. All 4 heartbeat jobs in cron config
 2. Daily standup triggers at 8 AM EST
