@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 8 of 11 (Multi-Agent Automation) — IN PROGRESS
-Plan: 1 of 2 complete
-Status: 08-01 complete — heartbeat stagger verified, daily standup cron created
-Last activity: 2026-02-09 - 08-01 heartbeat verification + daily standup cron
-Progress: [█████████████░░░░░░░] 13/14 plans
+Phase: 8 of 11 (Multi-Agent Automation) — COMPLETE
+Plan: 2 of 2 complete
+Status: Phase 8 complete — all 4 AA requirements satisfied (AA-01 through AA-04)
+Last activity: 2026-02-09 - 08-02 heartbeat cycle + standup verification
+Progress: [██████████████░░░░░░] 14/14 plans (phases 1-8 complete)
 
 ## Current Status
 
@@ -19,21 +19,22 @@ Progress: [█████████████░░░░░░░] 13/14 p
 | 5. Govee & Wyze Integrations | ✓ Complete | 2/2 plans complete |
 | 6. Multi-Agent Gateway | ✓ Complete | 2/2 plans complete |
 | 7. Multi-Agent Slack Channels | ✓ Complete | 1/1 plan complete |
-| 8. Multi-Agent Automation | In Progress | 1/2 plans complete |
+| 8. Multi-Agent Automation | ✓ Complete | 2/2 plans complete |
 | 9. Proactive Agent Patterns | Not Started | 0/3 |
 | 10. Agentic Coding Workflow | Not Started | 0/4 |
 | 11. Document Processing | Not Started | 0/4 |
 
-**Overall:** 54/70 requirements complete (UF-01–05, ME-01–03, SE-01–04, HE-01–05, BR-01–08, RL-01–04, MC-01–06, GV-01–05, WY-01–03, MA-01–06, MS-01–05)
+**Overall:** 58/70 requirements complete (UF-01–05, ME-01–03, SE-01–04, HE-01–05, BR-01–08, RL-01–04, MC-01–06, GV-01–05, WY-01–03, MA-01–06, MS-01–05, AA-01–04)
 
 ## Active Phase
 
-Phase 8 in progress. Plan 08-01 complete: verified 4 heartbeat crons at staggered :00/:02/:04/:06 offsets, created daily-standup cron at 13:00 UTC targeting Sentinel (ops) with sonnet model, deployed STANDUP.md with coordination.db queries. AA-01 and AA-02 requirements satisfied. Plan 08-02 next.
+Phase 8 complete. All 4 AA requirements satisfied: AA-01 (heartbeat stagger), AA-02 (standup cron), AA-03 (heartbeat cycle verified for all 4 agents), AA-04 (standup posted to #ops with all agent summaries). Key learning: cron-triggered agent turns run in embedded mode (not Docker sandbox), requiring host paths instead of /workspace/ paths. Phase 9 (Proactive Agent Patterns) next.
 
 ## Recent Activity
 
 | Date | Action | Details |
 |------|--------|---------|
+| 2026-02-09 | Completed 08-02-PLAN | All 4 heartbeat cycles verified (main=6, landos=26, rangeos=27, ops=15 in 24h), standup posted to #ops with 4 sections |
 | 2026-02-09 | Completed 08-01-PLAN | Heartbeat stagger verified (:00/:02/:04/:06), daily-standup cron at 13:00 UTC for Sentinel, STANDUP.md deployed |
 | 2026-02-09 | Completed 07-01-PLAN | 3 domain Slack channels verified (#land-ops, #range-ops, #ops), bot membership confirmed, MS-01–05 satisfied |
 | 2026-02-08 | Completed 06-02-PLAN | Smoke test: all 4 heartbeats "ok", coordination DB 30 records/3 agents, Scout verified in #land-ops |
@@ -97,12 +98,15 @@ None
 | Isolated session for standup cron | Clean context per run; no session bleed from previous triggers | 2026-02-09 |
 | 120s timeout for standup | DB queries + formatting + Slack post needs more than default 30s | 2026-02-09 |
 | Reference doc pattern (STANDUP.md) | Keep cron message concise; agent reads full instructions from workspace file | 2026-02-09 |
+| Cron embedded mode uses host paths | sessionTarget="isolated" runs outside Docker; /workspace/ paths invalid | 2026-02-09 |
+| Patch sessionTarget in jobs.json directly | CLI only supports main\|isolated; "ops" requires direct JSON edit | 2026-02-09 |
+| Cron IDs are CLI-generated UUIDs | No --id flag; must use UUID for trigger commands | 2026-02-09 |
 
 ## Session Continuity
 
 - **Last session:** 2026-02-09
-- **Stopped at:** Completed 08-01-PLAN.md
-- **Resume:** 08-02-PLAN next
+- **Stopped at:** Completed 08-02-PLAN.md (Phase 8 complete)
+- **Resume:** Phase 9 (Proactive Agent Patterns) next
 
 ## Notes
 
@@ -119,4 +123,4 @@ None
 - v1 milestone archived in .planning/archive/v1-multi-agent-setup/
 
 ---
-*Last updated: 2026-02-09T04:42Z*
+*Last updated: 2026-02-09T05:33Z*
