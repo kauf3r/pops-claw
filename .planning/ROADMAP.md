@@ -31,9 +31,7 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 - [x] Phase 12: Content DB + Agent Setup (3/3 plans) — completed 2026-02-09
 - [x] Phase 13: Topic Research (2/2 plans) — completed 2026-02-09
 - [x] Phase 14: Writing Pipeline (2/2 plans) — completed 2026-02-09
-- [ ] Phase 15: Review Pipeline (2 plans)
-  - [ ] 15-01-PLAN.md — Sage content-editor skill + REVIEW_SESSION.md reference doc
-  - [ ] 15-02-PLAN.md — Review-check cron job (2x/day targeting Sage)
+- [x] Phase 15: Review Pipeline (2/2 plans) — completed 2026-02-09
 - [ ] Phase 16: WordPress Publishing — WP-01..WP-05
 - [ ] Phase 17: Social Promotion — SM-01..SM-04
 - [ ] Phase 18: Pipeline Monitoring — MN-01..MN-03, CP-07
@@ -56,10 +54,10 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 | 12. Content DB + Agent Setup | v2.1 | 3/3 | Complete | 2026-02-09 |
 | 13. Topic Research | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 14. Writing Pipeline | v2.1 | 2/2 | Complete | 2026-02-09 |
-| 15. Review Pipeline | v2.1 | 0/2 | Planned | — |
+| 15. Review Pipeline | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 16. WordPress Publishing | v2.1 | 0/? | Not Started | — |
 | 17. Social Promotion | v2.1 | 0/? | Not Started | — |
 | 18. Pipeline Monitoring | v2.1 | 0/? | Not Started | — |
 
 ---
-*Updated: 2026-02-09 — Phase 14 complete (writing pipeline, seo-writer skill + daily cron)*
+*Updated: 2026-02-09 — Phase 15 complete (review pipeline, content-editor skill + 2x/day review-check cron)*
