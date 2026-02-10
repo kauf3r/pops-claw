@@ -2,18 +2,18 @@
 
 ## Current Position
 
-Phase: 18 — Pipeline Monitoring
-Plan: 02 of 02 complete
-Status: PHASE COMPLETE
-Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-10 — Plan 18-02 complete (stuck detection: STUCK_DETECTION.md + daily cron targeting Sentinel ops)
+Phase: —
+Plan: —
+Status: MILESTONE COMPLETE
+Milestone: v2.1 Content Marketing Pipeline (shipped 2026-02-09)
+Last activity: 2026-02-09 — v2.1 milestone archived
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Proactive daily companion with autonomous content marketing pipeline at $0 incremental cost.
-**Current focus:** Phase 18 complete — pipeline monitoring (weekly report + daily stuck detection deployed)
+**Current focus:** v2.1 shipped — planning next milestone
 
 ## Blockers
 
@@ -101,4 +101,4 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - stuck-check cron: daily 9 AM PT, sessionTarget=ops, agentTurn, sonnet, 120s timeout
 
 ---
-*Last updated: 2026-02-10 — Plan 18-02 complete (stuck detection deployed to Sentinel ops agent)*
+*Last updated: 2026-02-09 — v2.1 Content Marketing Pipeline milestone archived*
