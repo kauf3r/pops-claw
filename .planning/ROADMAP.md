@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v2.0 Proactive Daily Companion** — Phases 1-11 (shipped 2026-02-09)
-- 🔄 **v2.1 Content Marketing Pipeline** — Phases 12-18
+- ✅ **v2.1 Content Marketing Pipeline** — Phases 12-18 (shipped 2026-02-09)
 
 ## Phases
 
@@ -34,9 +34,7 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 - [x] Phase 15: Review Pipeline (2/2 plans) — completed 2026-02-09
 - [x] Phase 16: WordPress Publishing (2/2 plans) — completed 2026-02-09
 - [x] Phase 17: Social Promotion (1/1 plan) — completed 2026-02-09
-- [ ] Phase 18: Pipeline Monitoring (2 plans) — MN-01..MN-03, CP-07
-  - [ ] 18-01-PLAN.md — Weekly pipeline report (Sentinel + cron)
-  - [ ] 18-02-PLAN.md — Daily stuck detection alerting (Sentinel + cron)
+- [x] Phase 18: Pipeline Monitoring (2/2 plans) — completed 2026-02-09
 
 ## Progress
 
@@ -59,7 +57,7 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 | 15. Review Pipeline | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 16. WordPress Publishing | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 17. Social Promotion | v2.1 | 1/1 | Complete | 2026-02-09 |
-| 18. Pipeline Monitoring | v2.1 | 0/2 | Not Started | — |
+| 18. Pipeline Monitoring | v2.1 | 2/2 | Complete | 2026-02-09 |
 
 ---
-*Updated: 2026-02-09 — Phase 18 planned (2 plans, 1 wave: pipeline report + stuck detection)*
+*Updated: 2026-02-09 — Phase 18 complete (pipeline monitoring: weekly report + daily stuck detection)*
