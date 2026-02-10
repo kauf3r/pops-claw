@@ -2,18 +2,18 @@
 
 ## Current Position
 
-Phase: 17 — Social Promotion
-Plan: 01 of 01 complete
-Status: PHASE COMPLETE
+Phase: 18 — Pipeline Monitoring
+Plan: 01 of 02 complete
+Status: IN PROGRESS
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-09 — Plan 17-01 complete (social-promoter skill, PUBLISH_SESSION.md updated with social step)
+Last activity: 2026-02-10 — Plan 18-01 complete (weekly pipeline report: PIPELINE_REPORT.md + cron targeting Sentinel ops)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Proactive daily companion with autonomous content marketing pipeline at $0 incremental cost.
-**Current focus:** Phase 17 complete — social copy generation integrated into publish workflow (3 platforms, copy-only)
+**Current focus:** Phase 18 in progress — pipeline monitoring (weekly report deployed, alerting next)
 
 ## Blockers
 
@@ -49,6 +49,7 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - Dual-purpose publish-check cron: creates new WP drafts AND confirms human-published articles via REST API polling
 - Copy-only social promotion: generate platform copy (LinkedIn, X/Twitter, Instagram), human posts manually
 - Skill chaining in session reference docs: PUBLISH_SESSION.md invokes social-promoter skill after publication confirmation
+- Ops reporting pattern: reference doc with SQL queries + cron trigger + embedded mode host paths
 
 ### Open Items
 
@@ -92,7 +93,9 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - publish-check cron: daily 2 PM PT, sessionTarget=ezra, agentTurn, sonnet, 600s timeout
 - social-promoter skill: ~/.openclaw/skills/social-promoter/SKILL.md (ready, all agents)
 - PUBLISH_SESSION.md: updated with Step 5 (social promotion) and Step 6 (summary incl social post count)
-- Total cron jobs: 16 (no new job — social promotion integrated into existing publish-check)
+- Total cron jobs: 17 (pipeline-report added for Sentinel ops)
+- PIPELINE_REPORT.md: ~/clawd/agents/ops/PIPELINE_REPORT.md (weekly report reference doc)
+- pipeline-report cron: Sunday 8 AM PT, sessionTarget=ops, agentTurn, sonnet, 120s timeout
 
 ---
-*Last updated: 2026-02-09 — Plan 17-01 complete (social-promoter skill + PUBLISH_SESSION social step deployed)*
+*Last updated: 2026-02-10 — Plan 18-01 complete (weekly pipeline report deployed to Sentinel ops agent)*
