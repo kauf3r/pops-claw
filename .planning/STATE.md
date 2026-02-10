@@ -3,17 +3,17 @@
 ## Current Position
 
 Phase: 18 — Pipeline Monitoring
-Plan: 01 of 02 complete
-Status: IN PROGRESS
+Plan: 02 of 02 complete
+Status: PHASE COMPLETE
 Milestone: v2.1 Content Marketing Pipeline
-Last activity: 2026-02-10 — Plan 18-01 complete (weekly pipeline report: PIPELINE_REPORT.md + cron targeting Sentinel ops)
+Last activity: 2026-02-10 — Plan 18-02 complete (stuck detection: STUCK_DETECTION.md + daily cron targeting Sentinel ops)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Proactive daily companion with autonomous content marketing pipeline at $0 incremental cost.
-**Current focus:** Phase 18 in progress — pipeline monitoring (weekly report deployed, alerting next)
+**Current focus:** Phase 18 complete — pipeline monitoring (weekly report + daily stuck detection deployed)
 
 ## Blockers
 
@@ -50,6 +50,7 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - Copy-only social promotion: generate platform copy (LinkedIn, X/Twitter, Instagram), human posts manually
 - Skill chaining in session reference docs: PUBLISH_SESSION.md invokes social-promoter skill after publication confirmation
 - Ops reporting pattern: reference doc with SQL queries + cron trigger + embedded mode host paths
+- Stuck detection pattern: SQL age-threshold queries + silent-skip alerting (no noise when healthy) + alerts to #content-pipeline (not #ops)
 
 ### Open Items
 
@@ -93,9 +94,11 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - publish-check cron: daily 2 PM PT, sessionTarget=ezra, agentTurn, sonnet, 600s timeout
 - social-promoter skill: ~/.openclaw/skills/social-promoter/SKILL.md (ready, all agents)
 - PUBLISH_SESSION.md: updated with Step 5 (social promotion) and Step 6 (summary incl social post count)
-- Total cron jobs: 17 (pipeline-report added for Sentinel ops)
+- Total cron jobs: 18 (stuck-check added for Sentinel ops)
 - PIPELINE_REPORT.md: ~/clawd/agents/ops/PIPELINE_REPORT.md (weekly report reference doc)
 - pipeline-report cron: Sunday 8 AM PT, sessionTarget=ops, agentTurn, sonnet, 120s timeout
+- STUCK_DETECTION.md: ~/clawd/agents/ops/STUCK_DETECTION.md (daily stuck detection reference doc)
+- stuck-check cron: daily 9 AM PT, sessionTarget=ops, agentTurn, sonnet, 120s timeout
 
 ---
-*Last updated: 2026-02-10 — Plan 18-01 complete (weekly pipeline report deployed to Sentinel ops agent)*
+*Last updated: 2026-02-10 — Plan 18-02 complete (stuck detection deployed to Sentinel ops agent)*
