@@ -6,7 +6,7 @@ Phase: —
 Plan: —
 Status: MILESTONE COMPLETE
 Milestone: v2.1 Content Marketing Pipeline (shipped 2026-02-09)
-Last activity: 2026-02-11 — Quick task 1: AirSpace Gmail monitoring added
+Last activity: 2026-02-11 — Quick task 2: AirSpace calendar added to briefing + meeting prep
 
 ## Project Reference
 
@@ -102,12 +102,17 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - gog accounts: theandykaufman@gmail.com + Kaufman@AirSpaceIntegration.com (OAuth, client: pops-claw)
 - airspace-email-monitor cron: every 30 min M-F 8-6 PT, isolated, agentTurn, sonnet, silent delivery
 - Morning briefing updated with AirSpace email section (2b) between Email and Health
+- Morning briefing updated with AirSpace calendar section (1b) between Calendar and Email
+- Evening recap Tomorrow Preview includes AirSpace calendar with [ASI] prefix
+- Weekly review Upcoming Week includes AirSpace calendar with conflict flagging
+- MEETING_PREP.md scans both personal + AirSpace calendars (dual-calendar stop condition)
 
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 1 | Add Gmail monitoring for Kaufman@AirSpaceIntegration.com with important email highlights | 2026-02-11 | f8190d2 | [1-add-gmail-monitoring-for-kaufman-airspac](./quick/1-add-gmail-monitoring-for-kaufman-airspac/) |
+| 2 | Add AirSpace calendar to morning briefing, evening recap, weekly review, and meeting prep | 2026-02-11 | 67d516e | [2-add-airspace-calendar-to-morning-briefin](./quick/2-add-airspace-calendar-to-morning-briefin/) |
 
 ---
-*Last updated: 2026-02-11 — Quick task 1: AirSpace Gmail monitoring added*
+*Last updated: 2026-02-11 — Quick task 2: AirSpace calendar added to briefing + meeting prep*
