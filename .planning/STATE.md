@@ -6,7 +6,7 @@ Phase: —
 Plan: —
 Status: MILESTONE COMPLETE
 Milestone: v2.1 Content Marketing Pipeline (shipped 2026-02-09)
-Last activity: 2026-02-09 — v2.1 milestone archived
+Last activity: 2026-02-11 — Quick task 1: AirSpace Gmail monitoring added
 
 ## Project Reference
 
@@ -94,11 +94,14 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 - publish-check cron: daily 2 PM PT, sessionTarget=ezra, agentTurn, sonnet, 600s timeout
 - social-promoter skill: ~/.openclaw/skills/social-promoter/SKILL.md (ready, all agents)
 - PUBLISH_SESSION.md: updated with Step 5 (social promotion) and Step 6 (summary incl social post count)
-- Total cron jobs: 18 (stuck-check added for Sentinel ops)
+- Total cron jobs: 19 (airspace-email-monitor added 2026-02-11)
 - PIPELINE_REPORT.md: ~/clawd/agents/ops/PIPELINE_REPORT.md (weekly report reference doc)
 - pipeline-report cron: Sunday 8 AM PT, sessionTarget=ops, agentTurn, sonnet, 120s timeout
 - STUCK_DETECTION.md: ~/clawd/agents/ops/STUCK_DETECTION.md (daily stuck detection reference doc)
 - stuck-check cron: daily 9 AM PT, sessionTarget=ops, agentTurn, sonnet, 120s timeout
+- gog accounts: theandykaufman@gmail.com + Kaufman@AirSpaceIntegration.com (OAuth, client: pops-claw)
+- airspace-email-monitor cron: every 30 min M-F 8-6 PT, isolated, agentTurn, sonnet, silent delivery
+- Morning briefing updated with AirSpace email section (2b) between Email and Health
 
 ---
-*Last updated: 2026-02-09 — v2.1 Content Marketing Pipeline milestone archived*
+*Last updated: 2026-02-11 — Quick task 1: AirSpace Gmail monitoring added*
