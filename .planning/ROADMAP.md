@@ -4,6 +4,7 @@
 
 - ✅ **v2.0 Proactive Daily Companion** — Phases 1-11 (shipped 2026-02-09)
 - ✅ **v2.1 Content Marketing Pipeline** — Phases 12-18 (shipped 2026-02-09)
+- 🔄 **v2.2 Resend Email Integration** — Phases 19-22 (in progress)
 
 ## Phases
 
@@ -41,6 +42,18 @@ Full details: [milestones/v2.1-ROADMAP.md](milestones/v2.1-ROADMAP.md)
 
 </details>
 
+<details>
+<summary>🔄 v2.2 Resend Email Integration (Phases 19-22) — IN PROGRESS</summary>
+
+- [ ] Phase 19: Outbound Email Foundation (0/~2 plans)
+- [ ] Phase 20: Inbound Email Infrastructure (0/~2 plans)
+- [ ] Phase 21: Inbound Email Processing (0/~2 plans)
+- [ ] Phase 22: Domain Warmup & Production Hardening (0/~1 plan)
+
+Full details: [milestones/v2.2-ROADMAP.md](milestones/v2.2-ROADMAP.md)
+
+</details>
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -63,6 +76,10 @@ Full details: [milestones/v2.1-ROADMAP.md](milestones/v2.1-ROADMAP.md)
 | 16. WordPress Publishing | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 17. Social Promotion | v2.1 | 1/1 | Complete | 2026-02-09 |
 | 18. Pipeline Monitoring | v2.1 | 2/2 | Complete | 2026-02-09 |
+| 19. Outbound Email Foundation | v2.2 | 0/~2 | Not Started | — |
+| 20. Inbound Email Infrastructure | v2.2 | 0/~2 | Not Started | — |
+| 21. Inbound Email Processing | v2.2 | 0/~2 | Not Started | — |
+| 22. Domain Warmup & Hardening | v2.2 | 0/~1 | Not Started | — |
 
 ---
-*Updated: 2026-02-09 — v2.1 Content Marketing Pipeline shipped*
+*Updated: 2026-02-16 — v2.2 Resend Email Integration started*
