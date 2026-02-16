@@ -3,10 +3,37 @@
 ## Current Position
 
 Phase: 20-inbound-email-infrastructure
-Plan: 20-01 complete (1/2)
+Plan: 20-02 in progress (Task 1 done, Task 2 checkpoint)
 Status: In Progress
 Milestone: v2.2 Resend Email Integration
-Last activity: 2026-02-16 — Plan 20-01 complete (gateway bind change, hooks endpoint, Caddy webhook route)
+Last activity: 2026-02-16 — Plan 20-02 Task 1 complete (n8n workflow built), Task 2 checkpoint active (Resend config + E2E test)
+
+### Plan 20-02 Resume Context
+
+**What's done:**
+- n8n workflow "Resend Inbound Email Relay" active (ID: 1XwpGnGro0NYtOjE) on VPS
+- 8 nodes: Webhook → Verify Svix → Extract Metadata → Fetch Body → Extract Preview → POST OpenClaw → Respond 200/401
+- Resend webhook endpoint configured, MX record added for mail.andykaufman.net
+- Pipeline proven E2E working (Bob posted to #popsclaw) when Svix verification skipped
+- Gateway Slack WebSocket was dead (pong timeouts) — restarted, working now
+
+**Blocking issue: Svix signature verification fails**
+- Root cause: n8n Code node sandbox has NO crypto access
+  - `require('crypto')` → "Cannot find module 'crypto'"
+  - `crypto.subtle` → "crypto is not defined"
+  - `await import('node:crypto')` → "Dynamic Import not supported"
+- Header casing was also wrong (fixed: case-insensitive lookup)
+- Raw body extraction from `item.binary.data.data` (base64) works correctly
+
+**Options for next session:**
+1. Use n8n's built-in Function node (not Code node) which may have crypto access
+2. Use n8n's HTTP Request node to call a verification microservice
+3. Move Svix verification to a pre-processing step in Caddy (custom middleware)
+4. Accept Caddy IP restriction as sufficient security and skip Svix verification
+5. Enable `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` + check if n8n has a crypto helper
+6. Try n8n's `$helpers` or built-in expression functions for HMAC
+
+**Temp state:** Currently deployed workflow is the debug/test version (returns HMAC debug JSON). Need to restore either working verification or pass-through before real emails flow.
 
 ## Project Reference
 
