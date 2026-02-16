@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
+Phase: 19-outbound-email-foundation
+Plan: 19-01 complete, executing 19-02
+Status: Executing
 Milestone: v2.2 Resend Email Integration
-Last activity: 2026-02-16 — Milestone v2.2 started
+Last activity: 2026-02-16 — Plan 19-01 complete (Resend account, domain, API key)
 
 ## Project Reference
 
@@ -113,4 +113,13 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 | 2 | Add AirSpace calendar to morning briefing, evening recap, weekly review, and meeting prep | 2026-02-11 | 67d516e | [2-add-airspace-calendar-to-morning-briefin](./quick/2-add-airspace-calendar-to-morning-briefin/) |
 
 ---
-*Last updated: 2026-02-16 — Milestone v2.2 Resend Email Integration started*
+### Key Architecture Decisions (v2.2)
+
+- Resend API for outbound email (free tier: 100/day, 3000/month)
+- Email from: bob@mail.andykaufman.net (subdomain isolation)
+- RESEND_API_KEY injected via sandbox env (same pattern as Oura, Govee)
+- DMARC p=none initially (permissive for testing)
+- No parent DMARC on andykaufman.net
+
+---
+*Last updated: 2026-02-16 — Plan 19-01 complete*
