@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 19-outbound-email-foundation (COMPLETE)
-Plan: 19-02 complete (2/2)
-Status: Phase Complete
+Phase: 20-inbound-email-infrastructure
+Plan: 20-01 complete (1/2)
+Status: In Progress
 Milestone: v2.2 Resend Email Integration
-Last activity: 2026-02-16 — Phase 19 complete (resend-email skill, template, briefing integration)
+Last activity: 2026-02-16 — Plan 20-01 complete (gateway bind change, hooks endpoint, Caddy webhook route)
 
 ## Project Reference
 
@@ -108,6 +108,10 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - email-template.html: ~/clawd/agents/main/email-template.html (/workspace/email-template.html in sandbox)
 - email-config.json: ~/clawd/agents/main/email-config.json (/workspace/email-config.json in sandbox)
 - Morning briefing Section 8: Email Briefing (sends via Resend API after Slack delivery)
+- Gateway bind: tailnet (100.72.143.9:18789, changed from loopback in Phase 20-01)
+- Hooks endpoint: http://100.72.143.9:18789/hooks/agent (token: 982cbc4b...)
+- VPS (165.22.139.214): Tailscale IP 100.105.251.99, Caddy+n8n in Docker
+- Webhook URL: https://n8n.andykaufman.net/webhooks/resend (Resend IP-restricted)
 
 ### Quick Tasks Completed
 
@@ -130,6 +134,12 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - resend-email skill: 7 sections covering curl pattern, composition, alerts, quotas
 - email-config.json tracks recipients + daily_send_count + alert_count_today
 - Morning briefing cron uses agentTurn (not systemEvent) with isolated session
+- Gateway bind: tailnet (100.72.143.9:18789) instead of loopback -- enables VPS webhook relay
+- Hooks token (982cbc4b...) shared between gmail hooks and inbound email hooks (single dedicated token, separate from gateway auth)
+- SSH tunnel dashboard: `ssh -L 3000:100.72.143.9:18789` (must use Tailscale IP after bind change)
+- VPS Tailscale IP: 100.105.251.99 (same tailnet as EC2)
+- Caddy Docker: n8n_caddy container, Caddyfile at /home/officernd/n8n-production/Caddyfile
+- Webhook URL: https://n8n.andykaufman.net/webhooks/resend (Caddy routes to n8n:5678 with Resend IP restriction)
 
 ---
-*Last updated: 2026-02-16 — Phase 19 complete*
+*Last updated: 2026-02-16 — Plan 20-01 complete (endpoint infrastructure)*
