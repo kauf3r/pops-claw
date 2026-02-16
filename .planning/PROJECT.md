@@ -43,7 +43,18 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ### Active
 
-(No active requirements — next milestone not yet planned)
+#### Current Milestone: v2.2 Resend Email Integration
+
+**Goal:** Give Bob a dedicated email API via Resend — send, receive, and reply to email autonomously with a verified subdomain.
+
+**Target features:**
+- Resend account + API key + DNS verification on subdomain of existing domain
+- Resend MCP server installed on OpenClaw
+- Resend skills installed on OpenClaw
+- Outbound email (briefings, alerts, notifications)
+- Inbound email via Resend webhook → n8n on VPS → forwarded to Bob over Tailscale
+- Email reply capability
+- API key securely in sandbox env, webhook signing verification
 
 ### Out of Scope
 
@@ -114,4 +125,4 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Silent-skip stuck detection | No noise when pipeline healthy | ✓ Good — alerts only when needed |
 
 ---
-*Last updated: 2026-02-09 after v2.1 milestone*
+*Last updated: 2026-02-16 after v2.2 milestone start*
