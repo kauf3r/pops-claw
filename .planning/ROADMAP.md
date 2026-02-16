@@ -48,7 +48,9 @@ Full details: [milestones/v2.1-ROADMAP.md](milestones/v2.1-ROADMAP.md)
 - [x] Phase 19: Outbound Email Foundation (0/2 plans) (completed 2026-02-16)
   - [ ] 19-01-PLAN.md — Resend account, domain DNS, API key injection, test send
   - [ ] 19-02-PLAN.md — resend-email SKILL.md, HTML template, briefing cron integration
-- [ ] Phase 20: Inbound Email Infrastructure (0/~2 plans)
+- [ ] Phase 20: Inbound Email Infrastructure (0/2 plans)
+  - [ ] 20-01-PLAN.md — Gateway bind change + hooks config + VPS Caddy route
+  - [ ] 20-02-PLAN.md — n8n webhook workflow + Resend webhook + MX record + E2E test
 - [ ] Phase 21: Inbound Email Processing (0/~2 plans)
 - [ ] Phase 22: Domain Warmup & Production Hardening (0/~1 plan)
 
@@ -79,9 +81,9 @@ Full details: [milestones/v2.2-ROADMAP.md](milestones/v2.2-ROADMAP.md)
 | 17. Social Promotion | v2.1 | 1/1 | Complete | 2026-02-09 |
 | 18. Pipeline Monitoring | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 19. Outbound Email Foundation | v2.2 | Complete    | 2026-02-16 | — |
-| 20. Inbound Email Infrastructure | v2.2 | 0/~2 | Not Started | — |
+| 20. Inbound Email Infrastructure | v2.2 | 0/2 | Not Started | — |
 | 21. Inbound Email Processing | v2.2 | 0/~2 | Not Started | — |
 | 22. Domain Warmup & Hardening | v2.2 | 0/~1 | Not Started | — |
 
 ---
-*Updated: 2026-02-16 — Phase 19 planned (2 plans, 2 waves)*
+*Updated: 2026-02-16 — Phase 20 planned (2 plans, 2 waves)*
