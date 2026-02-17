@@ -3,37 +3,28 @@
 ## Current Position
 
 Phase: 20-inbound-email-infrastructure
-Plan: 20-02 in progress (Task 1 done, Task 2 checkpoint)
+Plan: 20-02 in progress (Task 1 complete, Task 2 checkpoint:human-action)
 Status: In Progress
 Milestone: v2.2 Resend Email Integration
-Last activity: 2026-02-16 — Plan 20-02 Task 1 complete (n8n workflow built), Task 2 checkpoint active (Resend config + E2E test)
+Last activity: 2026-02-16 — Plan 20-02 Task 1 complete (Svix verification fixed + workflow updated), awaiting Task 2 (Resend config + MX + E2E test)
 
 ### Plan 20-02 Resume Context
 
-**What's done:**
+**What's done (Task 1 COMPLETE):**
+- Svix signature verification FIXED: added NODE_FUNCTION_ALLOW_BUILTIN=crypto to n8n .env
+- n8n workflow updated: proper require('crypto') code, correct node connections (Verify Svix → Extract Metadata, was broken → Respond 200)
 - n8n workflow "Resend Inbound Email Relay" active (ID: 1XwpGnGro0NYtOjE) on VPS
 - 8 nodes: Webhook → Verify Svix → Extract Metadata → Fetch Body → Extract Preview → POST OpenClaw → Respond 200/401
+- Test POST without Svix headers returns 401 (verification working)
 - Resend webhook endpoint configured, MX record added for mail.andykaufman.net
-- Pipeline proven E2E working (Bob posted to #popsclaw) when Svix verification skipped
-- Gateway Slack WebSocket was dead (pong timeouts) — restarted, working now
+- Pipeline proven E2E working (Bob posted to #popsclaw) when Svix verification was bypassed
+- RESEND_WEBHOOK_SECRET (whsec_...) already set in n8n .env
+- Actual webhook path: /webhook/resend (not /webhooks/resend)
 
-**Blocking issue: Svix signature verification fails**
-- Root cause: n8n Code node sandbox has NO crypto access
-  - `require('crypto')` → "Cannot find module 'crypto'"
-  - `crypto.subtle` → "crypto is not defined"
-  - `await import('node:crypto')` → "Dynamic Import not supported"
-- Header casing was also wrong (fixed: case-insensitive lookup)
-- Raw body extraction from `item.binary.data.data` (base64) works correctly
-
-**Options for next session:**
-1. Use n8n's built-in Function node (not Code node) which may have crypto access
-2. Use n8n's HTTP Request node to call a verification microservice
-3. Move Svix verification to a pre-processing step in Caddy (custom middleware)
-4. Accept Caddy IP restriction as sufficient security and skip Svix verification
-5. Enable `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` + check if n8n has a crypto helper
-6. Try n8n's `$helpers` or built-in expression functions for HMAC
-
-**Temp state:** Currently deployed workflow is the debug/test version (returns HMAC debug JSON). Need to restore either working verification or pass-through before real emails flow.
+**What's next (Task 2 — checkpoint:human-action):**
+- Verify Resend webhook URL points to https://n8n.andykaufman.net/webhook/resend (note: /webhook/ not /webhooks/)
+- Send test email to bob@mail.andykaufman.net
+- Verify E2E: Resend → n8n (Svix verified) → OpenClaw hooks → Bob → #popsclaw
 
 ## Project Reference
 
@@ -138,7 +129,7 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - Gateway bind: tailnet (100.72.143.9:18789, changed from loopback in Phase 20-01)
 - Hooks endpoint: http://100.72.143.9:18789/hooks/agent (token: 982cbc4b...)
 - VPS (165.22.139.214): Tailscale IP 100.105.251.99, Caddy+n8n in Docker
-- Webhook URL: https://n8n.andykaufman.net/webhooks/resend (Resend IP-restricted)
+- Webhook URL: https://n8n.andykaufman.net/webhook/resend (Resend IP-restricted)
 
 ### Quick Tasks Completed
 
@@ -166,7 +157,11 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - SSH tunnel dashboard: `ssh -L 3000:100.72.143.9:18789` (must use Tailscale IP after bind change)
 - VPS Tailscale IP: 100.105.251.99 (same tailnet as EC2)
 - Caddy Docker: n8n_caddy container, Caddyfile at /home/officernd/n8n-production/Caddyfile
-- Webhook URL: https://n8n.andykaufman.net/webhooks/resend (Caddy routes to n8n:5678 with Resend IP restriction)
+- Webhook URL: https://n8n.andykaufman.net/webhook/resend (Caddy routes to n8n:5678 with Resend IP restriction)
 
 ---
-*Last updated: 2026-02-16 — Plan 20-01 complete (endpoint infrastructure)*
+- NODE_FUNCTION_ALLOW_BUILTIN=crypto: added to n8n .env on VPS (enables require('crypto') in Code nodes)
+- Svix verification: working — rejects unsigned webhooks with 401
+
+---
+*Last updated: 2026-02-16 — Plan 20-02 Task 1 complete (Svix verification fixed)*
