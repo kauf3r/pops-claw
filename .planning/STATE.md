@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 21-inbound-email-processing — COMPLETE
-Plan: 2 of 2 complete (21-01, 21-02 done)
+Phase: 22-domain-warmup-hardening — COMPLETE
+Plan: 1 of 1 complete (22-01 done)
 Status: Phase complete — all plans executed
 Milestone: v2.2 Resend Email Integration
-Last activity: 2026-02-17 — Phase 21 Plan 02 complete (reply threading + delivery status)
+Last activity: 2026-02-17 — Phase 22 Plan 01 complete (domain warmup, quota enforcement, catch-up cron, email health monitoring)
 
 ## Project Reference
 
@@ -92,7 +92,7 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - publish-check cron: daily 2 PM PT, sessionTarget=ezra, agentTurn, sonnet, 600s timeout
 - social-promoter skill: ~/.openclaw/skills/social-promoter/SKILL.md (ready, all agents)
 - PUBLISH_SESSION.md: updated with Step 5 (social promotion) and Step 6 (summary incl social post count)
-- Total cron jobs: 19 (airspace-email-monitor added 2026-02-11)
+- Total cron jobs: 20 (email-catchup added 2026-02-17)
 - PIPELINE_REPORT.md: ~/clawd/agents/ops/PIPELINE_REPORT.md (weekly report reference doc)
 - pipeline-report cron: Sunday 8 AM PT, sessionTarget=ops, agentTurn, sonnet, 120s timeout
 - STUCK_DETECTION.md: ~/clawd/agents/ops/STUCK_DETECTION.md (daily stuck detection reference doc)
@@ -114,7 +114,7 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - Webhook URL: https://n8n.andykaufman.net/webhook/resend (Resend IP-restricted)
 - email.db: ~/clawd/agents/main/email.db (/workspace/email.db in sandbox) — email_conversations table with 5 indexes
 - email-config.json: sender_allowlist added (theandykaufman@gmail.com, kaufman@airspaceintegration.com)
-- resend-email skill: 13 sections (7 original + Section 8 Inbound Processing + Section 9 Rate Limiting + Section 10 Reply Threading + Section 11 Allowlist Management + Section 12 Conversation History + Section 13 Delivery Status)
+- resend-email skill: 13 sections (7 original + Section 8 Inbound Processing + Section 9 Rate Limiting & Quota Enforcement + Section 10 Reply Threading + Section 11 Allowlist Management + Section 12 Conversation History + Section 13 Delivery Status)
 - n8n workflow: 11 nodes (8 original + Route Events IF + POST Delivery Status + Respond 200 Delivery)
 - Resend webhook: 6 event types (received, sent, delivered, bounced, delivery_delayed, complained)
 - Reply threading: In-Reply-To + References headers via python3, Re: subject dedup, Auto-Submitted: auto-replied
@@ -165,5 +165,13 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - Delivery status POST includes notification instruction directly in hook message -- Bob handles Slack notification for bounces/complaints
 - Outbound replies: message_id='pending' (Resend generates RFC Message-ID server-side), fetchable via GET /emails/{id}
 
+- WARMUP.md: ~/clawd/agents/main/WARMUP.md (/workspace/WARMUP.md in sandbox) — 5-step domain warmup checklist (DNS, auth headers, inbox, 2-week monitor, DMARC escalation)
+- Quota enforcement: SKILL.md Section 9 Check 0 — daily 80 warn, 95 hard-block, monthly 2700 block (non-critical)
+- email-config.json: monthly_send_count + monthly_send_month fields added (resets on month boundary)
+- email-catchup cron: every 30 min at :15/:45, isolated/sonnet/agentTurn/silent, polls GET /emails/receiving, dedup via email.db
+- Morning briefing Section 9: Email Health Check — bounce/complaint rates + volume stats + threshold alerts
+- Total cron jobs: 20 (19 existing + email-catchup)
+- DMARC escalation (p=none -> p=quarantine) is manual — Andy updates DNS after 2 clean weeks
+
 ---
-*Last updated: 2026-02-17 — Phase 21 complete (reply threading + delivery status routing)*
+*Last updated: 2026-02-17 — Phase 22 complete (domain warmup, quota enforcement, catch-up cron, email health monitoring)*
