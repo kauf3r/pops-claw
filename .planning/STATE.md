@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 22-domain-warmup-hardening — COMPLETE
-Plan: 1 of 1 complete (22-01 done)
+Phase: 23-email-integration-gap-closure — COMPLETE
+Plan: 1 of 1 complete (23-01 done)
 Status: Phase complete — all plans executed
 Milestone: v2.2 Resend Email Integration
-Last activity: 2026-02-17 — Phase 22 Plan 01 complete (domain warmup, quota enforcement, catch-up cron, email health monitoring)
+Last activity: 2026-02-17 — Phase 23 Plan 01 complete (counter double-increment fix, n8n workflow backup update, catch-up cron API verified)
 
 ## Project Reference
 
@@ -172,6 +172,11 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - Morning briefing Section 9: Email Health Check — bounce/complaint rates + volume stats + threshold alerts
 - Total cron jobs: 20 (19 existing + email-catchup)
 - DMARC escalation (p=none -> p=quarantine) is manual — Andy updates DNS after 2 clean weeks
+- SKILL.md Section 6 counter fix: removed Step 8 (duplicate daily_send_count increment), Section 9 is sole increment location for all outbound emails
+- n8n workflow backup: export via --output flag to container file + docker cp (avoids stderr contamination)
+- n8n on-disk backup: /home/officernd/n8n-production/workflows/resend-inbound-relay.json — 11 nodes, matches live workflow
+- Catch-up cron API endpoint (GET /emails/receiving) verified working against live Resend API — no code change needed
+- All 3 v2.2 milestone audit gaps closed (Phase 23)
 
 ---
-*Last updated: 2026-02-17 — Phase 22 complete (domain warmup, quota enforcement, catch-up cron, email health monitoring)*
+*Last updated: 2026-02-17 — Phase 23 complete (counter double-increment fix, n8n workflow backup update, catch-up cron API verified)*
