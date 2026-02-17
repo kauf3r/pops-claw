@@ -2,29 +2,11 @@
 
 ## Current Position
 
-Phase: 20-inbound-email-infrastructure
-Plan: 20-02 in progress (Task 1 complete, Task 2 checkpoint:human-action)
-Status: In Progress
+Phase: 20-inbound-email-infrastructure — COMPLETE
+Plan: All plans complete (20-01, 20-02)
+Status: Complete — pending verification
 Milestone: v2.2 Resend Email Integration
-Last activity: 2026-02-16 — Plan 20-02 Task 1 complete (Svix verification fixed + workflow updated), awaiting Task 2 (Resend config + MX + E2E test)
-
-### Plan 20-02 Resume Context
-
-**What's done (Task 1 COMPLETE):**
-- Svix signature verification FIXED: added NODE_FUNCTION_ALLOW_BUILTIN=crypto to n8n .env
-- n8n workflow updated: proper require('crypto') code, correct node connections (Verify Svix → Extract Metadata, was broken → Respond 200)
-- n8n workflow "Resend Inbound Email Relay" active (ID: 1XwpGnGro0NYtOjE) on VPS
-- 8 nodes: Webhook → Verify Svix → Extract Metadata → Fetch Body → Extract Preview → POST OpenClaw → Respond 200/401
-- Test POST without Svix headers returns 401 (verification working)
-- Resend webhook endpoint configured, MX record added for mail.andykaufman.net
-- Pipeline proven E2E working (Bob posted to #popsclaw) when Svix verification was bypassed
-- RESEND_WEBHOOK_SECRET (whsec_...) already set in n8n .env
-- Actual webhook path: /webhook/resend (not /webhooks/resend)
-
-**What's next (Task 2 — checkpoint:human-action):**
-- Verify Resend webhook URL points to https://n8n.andykaufman.net/webhook/resend (note: /webhook/ not /webhooks/)
-- Send test email to bob@mail.andykaufman.net
-- Verify E2E: Resend → n8n (Svix verified) → OpenClaw hooks → Bob → #popsclaw
+Last activity: 2026-02-17 — Phase 20 execution complete, E2E verified
 
 ## Project Reference
 
@@ -159,9 +141,13 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - Caddy Docker: n8n_caddy container, Caddyfile at /home/officernd/n8n-production/Caddyfile
 - Webhook URL: https://n8n.andykaufman.net/webhook/resend (Caddy routes to n8n:5678 with Resend IP restriction)
 
----
 - NODE_FUNCTION_ALLOW_BUILTIN=crypto: added to n8n .env on VPS (enables require('crypto') in Code nodes)
-- Svix verification: working — rejects unsigned webhooks with 401
+- n8n container must be RECREATED (not restarted) for new env vars: `docker compose up -d --force-recreate n8n`
+- Svix verification: working — rejects unsigned webhooks with 401, passes valid Resend webhooks
+- Resend API key: full_access scope (re_8mFo...) — required for Received Emails API
+- n8n workflow ID: 1XwpGnGro0NYtOjE (Resend Inbound Email Relay)
+- Caddy IP restriction: /webhook/resend (singular, not /webhooks/ plural)
+- Inbound email pipeline E2E verified: Gmail → Resend → n8n → OpenClaw → Bob → #popsclaw
 
 ---
-*Last updated: 2026-02-16 — Plan 20-02 Task 1 complete (Svix verification fixed)*
+*Last updated: 2026-02-17 — Phase 20 complete (inbound email infrastructure)*
