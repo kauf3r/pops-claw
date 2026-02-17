@@ -2,11 +2,11 @@
 
 ## What This Is
 
-A proactive AI companion (Bob) running on OpenClaw v2026.2.6-3, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, and coordinates a 7-agent multi-agent system — all proactively, before being asked. An autonomous content marketing pipeline (v2.1) researches UAS/drone topics, writes SEO articles, reviews quality, publishes to WordPress, generates social copy, and monitors pipeline health — all with human approval gates.
+A proactive AI companion (Bob) running on OpenClaw v2026.2.6-3, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, and sends/receives email autonomously via Resend API — all proactively, before being asked.
 
 ## Core Value
 
-Bob delivers a genuinely useful morning briefing, knows your health data, manages home devices, reviews code, coordinates a 7-agent multi-agent system, and runs an autonomous content marketing pipeline with self-monitoring — all for ~$0 incremental cost on existing Claude Pro 200.
+Bob delivers a genuinely useful morning briefing, knows your health data, manages home devices, reviews code, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, and now communicates via email with a verified domain — all for ~$0 incremental cost on existing Claude Pro 200.
 
 ## Requirements
 
@@ -41,20 +41,17 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - ✓ Social promotion — Copy generation for LinkedIn, X/Twitter, Instagram (human-posted) — v2.1
 - ✓ Pipeline monitoring — Sentinel weekly report + daily stuck detection with silent-skip — v2.1
 
+- ✓ Outbound email via Resend API — verified subdomain (bob@mail.andykaufman.net), SPF/DKIM/DMARC, HTML template — v2.2
+- ✓ Dual-delivery briefing — Slack then email with health metrics section — v2.2
+- ✓ Inbound email pipeline — Resend webhook → n8n (Svix verified) → VPS Caddy → OpenClaw hooks → Bob — v2.2
+- ✓ Email processing — email.db (SQLite), sender allowlist, 8-check auto-reply filter (RFC 3834), rate limiting — v2.2
+- ✓ Reply threading — In-Reply-To/References headers, delivery status tracking, conversation history — v2.2
+- ✓ Domain warmup & hardening — WARMUP.md checklist, quota enforcement (daily 80/95, monthly 2700), catch-up cron — v2.2
+- ✓ Email health monitoring — bounce/complaint rates, volume stats, threshold alerts in morning briefing — v2.2
+
 ### Active
 
-#### Current Milestone: v2.2 Resend Email Integration
-
-**Goal:** Give Bob a dedicated email API via Resend — send, receive, and reply to email autonomously with a verified subdomain.
-
-**Target features:**
-- Resend account + API key + DNS verification on subdomain of existing domain
-- Resend MCP server installed on OpenClaw
-- Resend skills installed on OpenClaw
-- Outbound email (briefings, alerts, notifications)
-- Inbound email via Resend webhook → n8n on VPS → forwarded to Bob over Tailscale
-- Email reply capability
-- API key securely in sandbox env, webhook signing verification
+(No active requirements — ready for next milestone planning)
 
 ### Out of Scope
 
@@ -65,20 +62,21 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ## Context
 
-**Shipped v2.0** (10 days) + **v2.1** (1 day) = full proactive companion + autonomous content pipeline.
+**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) = full proactive companion + autonomous content pipeline + email integration.
 
-**Tech stack:** OpenClaw v2026.2.6-3, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API.
+**Tech stack:** OpenClaw v2026.2.6-3, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean).
 
 **Infrastructure:**
 - AWS EC2 Ubuntu, Tailscale IP: 100.72.143.9
-- Gateway port: 18789 (loopback only)
+- Gateway port: 18789 (tailnet bind)
+- VPS (165.22.139.214): Tailscale IP 100.105.251.99, Caddy + n8n in Docker
 - Workspace: ~/clawd/ on EC2
 - Config: ~/.openclaw/openclaw.json
 - Service: openclaw-gateway.service (systemd user)
 
-**Skills deployed:** oura, govee (includes Wyze), coding-assistant, receipt-scanner, content-strategy, seo-writer, content-editor, wordpress-publisher, social-promoter
+**Skills deployed:** oura, govee, coding-assistant, receipt-scanner, content-strategy, seo-writer, content-editor, wordpress-publisher, social-promoter, resend-email
 
-**Cron jobs (18 total):** morning-briefing (7 AM PT), evening-recap (7 PM PT), weekly-review (Sun 8 AM PT), meeting-prep-scan (*/15), anomaly-check (2x daily), daily-standup (8 AM EST), monthly-expense-summary (1st of month), 4 heartbeats (15min), topic-research (Tue+Fri 10 AM PT), writing-check (daily 11 AM PT), review-check (2x/day 10 AM + 3 PM PT), publish-check (daily 2 PM PT), pipeline-report (Sun 8 AM PT), stuck-check (daily 9 AM PT)
+**Cron jobs (20 total):** morning-briefing, evening-recap, weekly-review, meeting-prep-scan, anomaly-check (2x), daily-standup, monthly-expense-summary, 4 heartbeats, topic-research, writing-check, review-check, publish-check, pipeline-report, stuck-check, airspace-email-monitor, email-catchup
 
 **Agent Roster:**
 | Agent ID | Name | Domain | Heartbeat Offset |
@@ -96,10 +94,11 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 ## Constraints
 
 - **Platform**: OpenClaw on existing AWS EC2
-- **Database**: SQLite (coordination + health + receipts)
-- **Security**: Tailscale-only, no public exposure
+- **Database**: SQLite (coordination + health + receipts + content + email)
+- **Security**: Tailscale-only, no public exposure (except VPS webhook endpoint)
 - **Budget**: $0 incremental (except optional Superwhisper $8/mo)
 - **Rate Limits**: Haiku for heartbeats to avoid hitting Sonnet/Opus limits
+- **Email**: Resend free tier (100/day, 3000/month)
 
 ## Key Decisions
 
@@ -123,6 +122,14 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Copy-only social promotion | No API auth needed, human posts | ✓ Good — reduces complexity |
 | Ops reporting via reference docs | Same pattern as cron instructions | ✓ Good — PIPELINE_REPORT.md + STUCK_DETECTION.md |
 | Silent-skip stuck detection | No noise when pipeline healthy | ✓ Good — alerts only when needed |
+| Resend API for email (not SES/Mailgun) | Free tier, simple API, webhook support | ✓ Good — 100/day sufficient |
+| Subdomain isolation (mail.andykaufman.net) | Protect parent domain reputation | ✓ Good — SPF/DKIM/DMARC clean |
+| Gateway tailnet bind (not loopback) | Enable VPS webhook delivery over Tailscale | ✓ Good — inbound pipeline works |
+| n8n on VPS as webhook relay | Caddy TLS + IP restriction + Svix verification | ✓ Good — E2E verified |
+| email.db for conversation tracking | Same SQLite pattern as other DBs | ✓ Good — threading + rate limits |
+| No auto-reply policy | Human approval for all email replies | ✓ Good — prevents runaway replies |
+| Dual-delivery briefing (Slack + email) | Email as backup channel | ✓ Good — Section 8 in briefing |
+| Catch-up cron as webhook fallback | Resend list API + dedup via email.db | ✓ Good — secondary safety net |
 
 ---
-*Last updated: 2026-02-16 after v2.2 milestone start*
+*Last updated: 2026-02-17 after v2.2 milestone*

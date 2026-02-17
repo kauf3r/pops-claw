@@ -4,7 +4,7 @@
 
 - ✅ **v2.0 Proactive Daily Companion** — Phases 1-11 (shipped 2026-02-09)
 - ✅ **v2.1 Content Marketing Pipeline** — Phases 12-18 (shipped 2026-02-09)
-- 🔄 **v2.2 Resend Email Integration** — Phases 19-23 (in progress)
+- ✅ **v2.2 Resend Email Integration** — Phases 19-23 (shipped 2026-02-17)
 
 ## Phases
 
@@ -43,22 +43,13 @@ Full details: [milestones/v2.1-ROADMAP.md](milestones/v2.1-ROADMAP.md)
 </details>
 
 <details>
-<summary>🔄 v2.2 Resend Email Integration (Phases 19-22) — IN PROGRESS</summary>
+<summary>✅ v2.2 Resend Email Integration (Phases 19-23) — SHIPPED 2026-02-17</summary>
 
-- [x] Phase 19: Outbound Email Foundation (0/2 plans) (completed 2026-02-16)
-  - [ ] 19-01-PLAN.md — Resend account, domain DNS, API key injection, test send
-  - [ ] 19-02-PLAN.md — resend-email SKILL.md, HTML template, briefing cron integration
-- [x] Phase 20: Inbound Email Infrastructure (0/2 plans) (completed 2026-02-17)
-  - [ ] 20-01-PLAN.md — Gateway bind change + hooks config + VPS Caddy route
-  - [ ] 20-02-PLAN.md — n8n webhook workflow + Resend webhook + MX record + E2E test
-- [x] Phase 21: Inbound Email Processing (0/2 plans) (completed 2026-02-17)
-  - [ ] 21-01-PLAN.md — email.db + allowlist + auto-reply filter + inbound processing in SKILL.md
-  - [ ] 21-02-PLAN.md — Reply threading + delivery status webhooks + allowlist management + conversation queries
-- [x] Phase 22: Domain Warmup & Production Hardening (0/1 plan) (completed 2026-02-17)
-  - [ ] 22-01-PLAN.md — WARMUP.md checklist + quota thresholds + catch-up cron + email health monitoring
-
-- [x] Phase 23: Email Integration Gap Closure (0/1 plan) (completed 2026-02-17)
-  - [ ] 23-01-PLAN.md — Verify catch-up cron API endpoint, fix counter double-increment, fix n8n hardcoded token
+- [x] Phase 19: Outbound Email Foundation (2/2 plans) — completed 2026-02-16
+- [x] Phase 20: Inbound Email Infrastructure (2/2 plans) — completed 2026-02-17
+- [x] Phase 21: Inbound Email Processing (2/2 plans) — completed 2026-02-17
+- [x] Phase 22: Domain Warmup & Production Hardening (1/1 plan) — completed 2026-02-17
+- [x] Phase 23: Email Integration Gap Closure (1/1 plan) — completed 2026-02-17
 
 Full details: [milestones/v2.2-ROADMAP.md](milestones/v2.2-ROADMAP.md)
 
@@ -86,11 +77,11 @@ Full details: [milestones/v2.2-ROADMAP.md](milestones/v2.2-ROADMAP.md)
 | 16. WordPress Publishing | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 17. Social Promotion | v2.1 | 1/1 | Complete | 2026-02-09 |
 | 18. Pipeline Monitoring | v2.1 | 2/2 | Complete | 2026-02-09 |
-| 19. Outbound Email Foundation | v2.2 | Complete    | 2026-02-16 | — |
-| 20. Inbound Email Infrastructure | v2.2 | Complete    | 2026-02-17 | — |
-| 21. Inbound Email Processing | v2.2 | Complete    | 2026-02-17 | — |
-| 22. Domain Warmup & Hardening | v2.2 | Complete    | 2026-02-17 | — |
-| 23. Email Integration Gap Closure | v2.2 | Complete    | 2026-02-17 | — |
+| 19. Outbound Email Foundation | v2.2 | 2/2 | Complete | 2026-02-16 |
+| 20. Inbound Email Infrastructure | v2.2 | 2/2 | Complete | 2026-02-17 |
+| 21. Inbound Email Processing | v2.2 | 2/2 | Complete | 2026-02-17 |
+| 22. Domain Warmup & Hardening | v2.2 | 1/1 | Complete | 2026-02-17 |
+| 23. Email Integration Gap Closure | v2.2 | 1/1 | Complete | 2026-02-17 |
 
 ---
-*Updated: 2026-02-17 — Phase 23 added (gap closure from milestone audit)*
+*Updated: 2026-02-17 — v2.2 Resend Email Integration shipped*
