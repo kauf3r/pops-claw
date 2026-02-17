@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 21-inbound-email-processing — IN PROGRESS
-Plan: 1 of 2 complete (21-01 done)
-Status: Executing — Plan 01 complete, Plan 02 pending
+Phase: 21-inbound-email-processing — COMPLETE
+Plan: 2 of 2 complete (21-01, 21-02 done)
+Status: Phase complete — all plans executed
 Milestone: v2.2 Resend Email Integration
-Last activity: 2026-02-17 — Phase 21 Plan 01 complete (inbound email processing logic)
+Last activity: 2026-02-17 — Phase 21 Plan 02 complete (reply threading + delivery status)
 
 ## Project Reference
 
@@ -114,7 +114,11 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - Webhook URL: https://n8n.andykaufman.net/webhook/resend (Resend IP-restricted)
 - email.db: ~/clawd/agents/main/email.db (/workspace/email.db in sandbox) — email_conversations table with 5 indexes
 - email-config.json: sender_allowlist added (theandykaufman@gmail.com, kaufman@airspaceintegration.com)
-- resend-email skill: 9 sections (7 original + Section 8 Inbound Processing + Section 9 Rate Limiting)
+- resend-email skill: 13 sections (7 original + Section 8 Inbound Processing + Section 9 Rate Limiting + Section 10 Reply Threading + Section 11 Allowlist Management + Section 12 Conversation History + Section 13 Delivery Status)
+- n8n workflow: 11 nodes (8 original + Route Events IF + POST Delivery Status + Respond 200 Delivery)
+- Resend webhook: 6 event types (received, sent, delivered, bounced, delivery_delayed, complained)
+- Reply threading: In-Reply-To + References headers via python3, Re: subject dedup, Auto-Submitted: auto-replied
+- Delivery status pipeline: Resend -> n8n (verify+route) -> OpenClaw hooks -> Bob (DB update + bounce/complaint notification)
 
 ### Quick Tasks Completed
 
@@ -156,6 +160,10 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - Rate limiting: 1 reply/sender/hour + 10 outbound/5min hard cap, both via SQLite rolling window queries on email_conversations
 - email.db bind-mounted + /workspace/ symlink (same pattern as coordination.db, content.db)
 - Bob NEVER auto-replies to any email — always waits for Andy's instruction
+- Reply threading: python3 subprocess builds In-Reply-To + References headers safely (avoids shell escaping with angle brackets)
+- n8n event routing: IF node after Extract Metadata splits inbound vs delivery_status pipelines by 'route' field
+- Delivery status POST includes notification instruction directly in hook message -- Bob handles Slack notification for bounces/complaints
+- Outbound replies: message_id='pending' (Resend generates RFC Message-ID server-side), fetchable via GET /emails/{id}
 
 ---
-*Last updated: 2026-02-17 — Phase 21 Plan 01 complete (inbound email processing logic)*
+*Last updated: 2026-02-17 — Phase 21 complete (reply threading + delivery status routing)*
