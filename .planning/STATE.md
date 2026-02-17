@@ -2,11 +2,11 @@
 
 ## Current Position
 
-Phase: 20-inbound-email-infrastructure — COMPLETE
-Plan: All plans complete (20-01, 20-02)
-Status: Complete — pending verification
+Phase: 21-inbound-email-processing — IN PROGRESS
+Plan: 1 of 2 complete (21-01 done)
+Status: Executing — Plan 01 complete, Plan 02 pending
 Milestone: v2.2 Resend Email Integration
-Last activity: 2026-02-17 — Phase 20 execution complete, E2E verified
+Last activity: 2026-02-17 — Phase 21 Plan 01 complete (inbound email processing logic)
 
 ## Project Reference
 
@@ -112,6 +112,9 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - Hooks endpoint: http://100.72.143.9:18789/hooks/agent (token: 982cbc4b...)
 - VPS (165.22.139.214): Tailscale IP 100.105.251.99, Caddy+n8n in Docker
 - Webhook URL: https://n8n.andykaufman.net/webhook/resend (Resend IP-restricted)
+- email.db: ~/clawd/agents/main/email.db (/workspace/email.db in sandbox) — email_conversations table with 5 indexes
+- email-config.json: sender_allowlist added (theandykaufman@gmail.com, kaufman@airspaceintegration.com)
+- resend-email skill: 9 sections (7 original + Section 8 Inbound Processing + Section 9 Rate Limiting)
 
 ### Quick Tasks Completed
 
@@ -148,6 +151,11 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 - n8n workflow ID: 1XwpGnGro0NYtOjE (Resend Inbound Email Relay)
 - Caddy IP restriction: /webhook/resend (singular, not /webhooks/ plural)
 - Inbound email pipeline E2E verified: Gmail → Resend → n8n → OpenClaw → Bob → #popsclaw
+- Auto-reply detection: 8-check cascade (RFC 3834 Auto-Submitted, X-Auto-Response-Suppress, Precedence, X-Autoreply, X-Autorespond, X-Loop, From patterns, Return-Path null sender)
+- Sender allowlist: closed list in email-config.json, Bob checks before processing, unknown senders get [Unknown Sender] prefix notification
+- Rate limiting: 1 reply/sender/hour + 10 outbound/5min hard cap, both via SQLite rolling window queries on email_conversations
+- email.db bind-mounted + /workspace/ symlink (same pattern as coordination.db, content.db)
+- Bob NEVER auto-replies to any email — always waits for Andy's instruction
 
 ---
-*Last updated: 2026-02-17 — Phase 20 complete (inbound email infrastructure)*
+*Last updated: 2026-02-17 — Phase 21 Plan 01 complete (inbound email processing logic)*
