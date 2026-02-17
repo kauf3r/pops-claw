@@ -51,7 +51,7 @@ Full details: [milestones/v2.1-ROADMAP.md](milestones/v2.1-ROADMAP.md)
 - [x] Phase 20: Inbound Email Infrastructure (0/2 plans) (completed 2026-02-17)
   - [ ] 20-01-PLAN.md — Gateway bind change + hooks config + VPS Caddy route
   - [ ] 20-02-PLAN.md — n8n webhook workflow + Resend webhook + MX record + E2E test
-- [ ] Phase 21: Inbound Email Processing (0/2 plans)
+- [x] Phase 21: Inbound Email Processing (0/2 plans) (completed 2026-02-17)
   - [ ] 21-01-PLAN.md — email.db + allowlist + auto-reply filter + inbound processing in SKILL.md
   - [ ] 21-02-PLAN.md — Reply threading + delivery status webhooks + allowlist management + conversation queries
 - [ ] Phase 22: Domain Warmup & Production Hardening (0/~1 plan)
@@ -84,7 +84,7 @@ Full details: [milestones/v2.2-ROADMAP.md](milestones/v2.2-ROADMAP.md)
 | 18. Pipeline Monitoring | v2.1 | 2/2 | Complete | 2026-02-09 |
 | 19. Outbound Email Foundation | v2.2 | Complete    | 2026-02-16 | — |
 | 20. Inbound Email Infrastructure | v2.2 | Complete    | 2026-02-17 | — |
-| 21. Inbound Email Processing | v2.2 | 0/2 | Not Started | — |
+| 21. Inbound Email Processing | v2.2 | Complete    | 2026-02-17 | — |
 | 22. Domain Warmup & Hardening | v2.2 | 0/~1 | Not Started | — |
 
 ---
