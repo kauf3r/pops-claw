@@ -61,7 +61,7 @@ Full details: [milestones/v2.2-ROADMAP.md](milestones/v2.2-ROADMAP.md)
 
 **Milestone Goal:** Turn the content pipeline into a distribution engine -- auto-send weekly digests to subscribers via Resend -- while folding in deferred security hardening, observability, email domain hardening, and platform cleanup from v2.3.
 
-- [ ] **Phase 24: Critical Security Update** — Update OpenClaw to v2026.2.17 and install SecureClaw security plugin
+- [x] **Phase 24: Critical Security Update** — Update OpenClaw to v2026.2.17 and install SecureClaw security plugin (completed 2026-02-18)
 - [ ] **Phase 25: Post-Update Audit** — Verify all crons, skills, agents, and injection protections survived the update
 - [ ] **Phase 26: Agent Observability** — Add LLM hooks, activity summaries, and observability briefing section
 - [ ] **Phase 27: Email Domain Hardening** — Escalate DMARC, execute warmup checklist, verify health metrics
@@ -187,7 +187,7 @@ Note: Phases 26, 27, 28 depend only on Phase 24 (not each other) but execute seq
 | 21. Inbound Email Processing | v2.2 | 2/2 | Complete | 2026-02-17 |
 | 22. Domain Warmup & Hardening | v2.2 | 1/1 | Complete | 2026-02-17 |
 | 23. Email Integration Gap Closure | v2.2 | 1/1 | Complete | 2026-02-17 |
-| 24. Critical Security Update | 1/2 | In Progress|  | - |
+| 24. Critical Security Update | 2/2 | Complete   | 2026-02-18 | - |
 | 25. Post-Update Audit | v2.4 | 0/? | Not started | - |
 | 26. Agent Observability | v2.4 | 0/? | Not started | - |
 | 27. Email Domain Hardening | v2.4 | 0/? | Not started | - |
