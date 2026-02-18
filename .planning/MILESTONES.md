@@ -66,3 +66,14 @@
 
 ---
 
+## v2.3 Security & Platform Hardening (Merged into v2.4)
+
+**Phases:** 24-28 (defined, 0 executed)
+**Timeline:** Defined 2026-02-17, never shipped
+**Status:** All 18 requirements merged into v2.4
+
+**Why merged:** Content distribution milestone (v2.4) started before v2.3 execution. Security/hardening requirements carried forward in full.
+
+**Archive:** [milestones/v2.3-ROADMAP.md](milestones/v2.3-ROADMAP.md) | [milestones/v2.3-REQUIREMENTS.md](milestones/v2.3-REQUIREMENTS.md)
+
+---

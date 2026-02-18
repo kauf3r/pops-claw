@@ -51,17 +51,19 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ### Active
 
-## Current Milestone: v2.3 Security & Platform Hardening
+## Current Milestone: v2.4 Content Distribution & Platform Hardening
 
-**Goal:** Patch critical security vulnerabilities, add runtime security monitoring, complete email domain hardening, and clear deferred maintenance backlog.
+**Goal:** Turn the content pipeline into a distribution engine — auto-notify subscribers on publish, send weekly digests, generate pitch copy — while folding in deferred security hardening from v2.3.
 
 **Target features:**
-- Update OpenClaw v2026.2.6-3 → v2026.2.17 (CVE-2026-25253 RCE patch + 40 fixes)
-- Install SecureClaw OWASP-aligned security plugin
-- Post-update audit of all 20 crons, 10 skills, 7 agents
-- Agent observability via llm_input/llm_output hooks
-- DMARC escalation (p=none → p=quarantine) + warmup checklist
-- Gmail OAuth scope reduction + doctor warning cleanup
+- Subscriber notifications via Resend audience (seed list, auto-email after human-approved publish)
+- Weekly content digest compilation and send to mailing list
+- Pitch copy generation for published articles (human sends manually)
+- OpenClaw update v2026.2.17 + SecureClaw plugin (from v2.3)
+- Post-update audit of all 20 crons, 10 skills, 7 agents (from v2.3)
+- Agent observability via llm_input/llm_output hooks (from v2.3)
+- DMARC escalation + warmup checklist completion (from v2.3)
+- Gmail OAuth scope reduction + doctor warning cleanup (from v2.3)
 
 ### Out of Scope
 
@@ -142,4 +144,4 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Catch-up cron as webhook fallback | Resend list API + dedup via email.db | ✓ Good — secondary safety net |
 
 ---
-*Last updated: 2026-02-17 after v2.3 milestone start*
+*Last updated: 2026-02-17 after v2.4 milestone start (v2.3 merged forward)*
