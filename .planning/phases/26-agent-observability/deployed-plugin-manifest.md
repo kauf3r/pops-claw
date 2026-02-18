@@ -29,3 +29,17 @@
 - `idx_llm_model` (model)
 - `idx_runs_agent_time` (agent_id, created_at)
 - `idx_runs_errors` (agent_id, success)
+
+## Config Changes (openclaw.json)
+
+- `plugins.load.paths`: added `/home/ubuntu/.openclaw/plugins/observability-hooks`
+- `plugins.entries.observability-hooks`: `{ "enabled": true }`
+- `plugins.installs.observability-hooks`: source=path, version=1.0.0
+- `agents.defaults.sandbox.docker.binds`: added `observability.db:/workspace/observability.db:ro`
+
+## Verification (2026-02-18)
+
+- Gateway: active (running)
+- llm_calls: 1 row (heartbeat-main-15m, claude-sonnet-4-5, $0.004185)
+- agent_runs: 1 row (main, success=1, duration=9295ms)
+- Hooks firing on every LLM call and agent run
