@@ -66,8 +66,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: v2.3 roadmap created, ready to plan Phase 24
-Resume file: None
+Stopped at: Phase 24 context gathered
+Resume file: .planning/phases/24-critical-security-update/24-CONTEXT.md
 
 ---
-*Last updated: 2026-02-17 -- v2.3 roadmap created*
+*Last updated: 2026-02-17 -- Phase 24 context gathered*
