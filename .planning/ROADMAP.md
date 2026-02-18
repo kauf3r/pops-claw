@@ -108,10 +108,11 @@ Plans:
   1. LLM hook payloads are configured and firing (verified by log output after at least one agent turn)
   2. Bob can report per-agent token usage, model distribution (Haiku/Sonnet/Opus), and turn counts for the last 24 hours
   3. Morning briefing includes an "Agent Observability" section that flags anomalous usage spikes, errors, or rate limit proximity
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 26-01: TBD
+- [ ] 26-01-PLAN.md -- Build and install observability-hooks plugin (llm_output + agent_end hooks, SQLite storage, cost estimation)
+- [ ] 26-02-PLAN.md -- Backfill baseline from cron JSONL, create OBSERVABILITY.md, add Section 10 to morning briefing
 
 ### Phase 27: Email Domain Hardening
 **Goal**: Email domain reputation is production-grade with enforced DMARC and verified deliverability -- prerequisite for subscriber sends in Phase 29
@@ -189,7 +190,7 @@ Note: Phases 26, 27, 28 depend only on Phase 24 (not each other) but execute seq
 | 23. Email Integration Gap Closure | v2.2 | 1/1 | Complete | 2026-02-17 |
 | 24. Critical Security Update | v2.4 | 2/2 | Complete | 2026-02-18 |
 | 25. Post-Update Audit | v2.4 | Complete    | 2026-02-18 | 2026-02-18 |
-| 26. Agent Observability | v2.4 | 0/? | Not started | - |
+| 26. Agent Observability | v2.4 | 0/2 | Planned | - |
 | 27. Email Domain Hardening | v2.4 | 0/? | Not started | - |
 | 28. Platform Cleanup | v2.4 | 0/? | Not started | - |
 | 29. Content Distribution | v2.4 | 0/? | Not started | - |
