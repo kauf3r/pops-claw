@@ -94,11 +94,11 @@ Plans:
   2. All 10 skills appear in `openclaw skill list` and Bob can invoke each without "skill not found"
   3. All 7 agents respond to a heartbeat or direct message (main, landos, rangeos, ops, quill, sage, ezra)
   4. Browser/web content fetched by Bob is treated as untrusted -- SecureClaw injection protections block embedded prompt injection payloads
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 25-01: TBD
-- [ ] 25-02: TBD
+- [ ] 25-01-PLAN.md -- Manifest verification audit (20 crons, 13 skills, 7 agents) with inline fixes
+- [ ] 25-02-PLAN.md -- Prompt injection protection verification (browser + email vectors, 8 payloads)
 
 ### Phase 26: Agent Observability
 **Goal**: Bob can see how all agents are using LLM resources and surfaces anomalies in the morning briefing
