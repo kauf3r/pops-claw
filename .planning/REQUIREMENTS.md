@@ -1,9 +1,20 @@
-# Requirements: Pops-Claw v2.3
+# Requirements: Pops-Claw v2.4
 
 **Defined:** 2026-02-17
-**Core Value:** Proactive daily companion — secure, observable, and hardened.
+**Core Value:** Proactive daily companion — distribute content to subscribers, harden security, and gain observability.
 
-## v2.3 Requirements
+## v2.4 Requirements
+
+### Subscriber Management
+
+- [ ] **DIST-01**: Resend Audience created with initial seed list of industry contacts
+- [ ] **DIST-02**: Bob can add and remove contacts from subscriber list via skill command
+
+### Weekly Digest
+
+- [ ] **DIST-03**: Weekly cron compiles articles published in the last 7 days from content.db
+- [ ] **DIST-04**: Digest email includes article titles, summaries, and links to airspaceintegration.com
+- [ ] **DIST-05**: Digest sent via Resend Broadcasts API to subscriber audience on a consistent weekly schedule
 
 ### Security Update
 
@@ -37,8 +48,11 @@
 
 ## Future Requirements
 
-### Deferred from v2.3
+### Deferred from v2.4
 
+- **DIST-06**: Per-article subscriber notification email on publish (after human approval)
+- **DIST-07**: Pitch copy generation for published articles (human sends manually)
+- **DIST-08**: WordPress signup form for organic subscriber growth
 - **MSG-01**: `message_sending` hooks for outbound message gating/filtering
 - **DISC-01**: Discord Components v2 (buttons, selects, modals)
 - **TEL-01**: Telegram poll support
@@ -48,38 +62,49 @@
 
 | Feature | Reason |
 |---------|--------|
+| Per-article notifications | Digest-only for now; avoids double-sending |
+| Pitch copy generation | Human handles outreach manually for now |
+| Public subscriber signup form | Seed list only; no organic growth mechanism yet |
+| Full automation (no human gate) | Safety over speed; human approves publish |
+| Social media API integration | Copy-only promotion continues from v2.1 |
 | ClawHub skills | Not used; ClawHavoc risk not applicable |
 | vLLM provider | No local model hosting planned |
-| Discord voice messaging | No Discord integration currently |
 | Multi-node distributed deployment | Single EC2 sufficient |
+| External observability SaaS | Privacy risk, overkill for single-user deployment |
+| Full LLM prompt/response logging | PII risk; metadata only |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | Phase 24 | Pending |
-| SEC-02 | Phase 24 | Pending |
-| SEC-03 | Phase 24 | Pending |
-| SEC-04 | Phase 25 | Pending |
-| SEC-05 | Phase 25 | Pending |
-| SEC-06 | Phase 25 | Pending |
-| SEC-07 | Phase 25 | Pending |
-| OBS-01 | Phase 26 | Pending |
-| OBS-02 | Phase 26 | Pending |
-| OBS-03 | Phase 26 | Pending |
-| EML-01 | Phase 27 | Pending |
-| EML-02 | Phase 27 | Pending |
-| EML-03 | Phase 27 | Pending |
-| CLN-01 | Phase 28 | Pending |
-| CLN-02 | Phase 28 | Pending |
-| CLN-03 | Phase 28 | Pending |
-| CLN-04 | Phase 28 | Pending |
-| CLN-05 | Phase 28 | Pending |
+| SEC-01 | TBD | Pending |
+| SEC-02 | TBD | Pending |
+| SEC-03 | TBD | Pending |
+| SEC-04 | TBD | Pending |
+| SEC-05 | TBD | Pending |
+| SEC-06 | TBD | Pending |
+| SEC-07 | TBD | Pending |
+| OBS-01 | TBD | Pending |
+| OBS-02 | TBD | Pending |
+| OBS-03 | TBD | Pending |
+| EML-01 | TBD | Pending |
+| EML-02 | TBD | Pending |
+| EML-03 | TBD | Pending |
+| CLN-01 | TBD | Pending |
+| CLN-02 | TBD | Pending |
+| CLN-03 | TBD | Pending |
+| CLN-04 | TBD | Pending |
+| CLN-05 | TBD | Pending |
+| DIST-01 | TBD | Pending |
+| DIST-02 | TBD | Pending |
+| DIST-03 | TBD | Pending |
+| DIST-04 | TBD | Pending |
+| DIST-05 | TBD | Pending |
 
 **Coverage:**
-- v2.3 requirements: 18 total
-- Mapped to phases: 18
-- Unmapped: 0
+- v2.4 requirements: 23 total
+- Mapped to phases: 0
+- Unmapped: 23
 
 ---
 *Requirements defined: 2026-02-17*
