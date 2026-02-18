@@ -28,8 +28,8 @@
 
 ### Observability
 
-- [ ] **OBS-01**: `llm_input`/`llm_output` hook payloads configured for agent monitoring
-- [ ] **OBS-02**: Agent activity summary (token usage, model distribution, turn counts) available to Bob
+- [x] **OBS-01**: `llm_input`/`llm_output` hook payloads configured for agent monitoring
+- [x] **OBS-02**: Agent activity summary (token usage, model distribution, turn counts) available to Bob
 - [ ] **OBS-03**: Morning briefing includes agent observability section (anomalous usage, errors, rate limit proximity)
 
 ### Email Hardening
@@ -84,8 +84,8 @@
 | SEC-05 | Phase 25 | Complete |
 | SEC-06 | Phase 25 | Complete |
 | SEC-07 | Phase 25 | Complete |
-| OBS-01 | Phase 26 | Pending |
-| OBS-02 | Phase 26 | Pending |
+| OBS-01 | Phase 26 | Complete |
+| OBS-02 | Phase 26 | Complete |
 | OBS-03 | Phase 26 | Pending |
 | EML-01 | Phase 27 | Pending |
 | EML-02 | Phase 27 | Pending |
