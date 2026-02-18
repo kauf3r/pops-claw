@@ -1,259 +1,196 @@
 # Project Research Summary
 
-**Project:** Resend email integration for OpenClaw/Bob (pops-claw)
-**Domain:** Email API integration for AI agent system
-**Researched:** 2026-02-16
-**Confidence:** HIGH
+**Project:** pops-claw v2.3 — Security & Platform Hardening
+**Domain:** AI companion hardening, LLM observability, email domain hardening, and platform cleanup for existing OpenClaw/EC2 deployment
+**Researched:** 2026-02-17
+**Confidence:** HIGH (SecureClaw, DMARC), MEDIUM-HIGH (architecture), LOW (llm hook API names)
 
 ## Executive Summary
 
-This project integrates Resend email capabilities into an existing OpenClaw AI agent deployment. The research reveals a straightforward outbound path (agent sends via Resend REST API) but a more complex inbound path requiring webhook relay infrastructure. The recommended approach avoids MCP servers (which OpenClaw silently ignores) in favor of custom skills using direct `curl` API calls from the sandbox. This matches the established pattern used for Oura, GitHub, and other integrations in this deployment.
+This is a hardening and observability milestone for an established personal AI companion deployment, not a greenfield build. The existing stack (OpenClaw v2026.2.6-3, 7 agents, 20 crons, 10 skills, Resend transactional email, Tailscale-only access) is fully operational. v2.3 adds security layers and visibility tooling on top without disrupting the live system. The recommended approach is to execute phases sequentially in dependency order: update the platform binary first (Phase 24), verify nothing broke (Phase 25), then add observability (Phase 26), harden email domain (Phase 27), and clean up platform config (Phase 28).
 
-The critical architectural constraint is that the EC2 instance has no public IP (Tailscale-only access), which blocks direct webhook reception. The solution is to use the existing n8n instance on the VPS (165.22.139.214) as a webhook relay: Resend POSTs to the VPS, n8n verifies the Svix signature and transforms the payload, then forwards to OpenClaw over Tailscale. The key risk is the multi-hop integration chain (7 potential failure points), mitigated by careful attention to webhook signature verification, auto-reply loop prevention, and proper DNS subdomain configuration.
+The single highest-risk action in this milestone is the OpenClaw binary update (v2026.2.6-3 to v2026.2.17). This deployment has non-default config values (`gateway.remote.url`, `docker.network: bridge`, `discovery.mdns.mode: off`) that `doctor --fix` has historically silently overwritten during major upgrades. SecureClaw installation immediately follows — its 15 runtime behavioral rules can silently break existing cron payloads by flagging legitimate self-authored instructions as prompt injection. Both risks are manageable with explicit backup-diff-verify steps documented in the plans.
 
-Sending capability delivers immediate value (morning briefings via email, alert backup channel) with minimal risk. Receiving capability requires more infrastructure work but unlocks two-way email conversations and external party integration. The phased approach prioritizes sending first, then receiving, then threading/conversation features.
+Content distribution features (subscriber notifications, weekly digest, pitch copy) are scoped to a future v2.4 milestone. They are architecturally well-understood and depend on Phase 27 (DMARC hardening) completing cleanly before subscriber sends begin. The research for those features is complete and captured in FEATURES.md and ARCHITECTURE.md so the v2.4 roadmap can start without additional research.
 
 ## Key Findings
 
 ### Recommended Stack
 
-**Outbound emails:** Use Resend REST API directly via `curl` from the Docker sandbox. No npm packages needed, avoiding the read-only filesystem constraint. A custom SKILL.md teaches Bob to construct API calls using the `exec` tool with `curl -X POST`. This is the same proven pattern used for Oura, Govee, and receipt-scanner integrations.
-
-**Inbound emails:** Use n8n (existing VPS) as webhook relay. Resend sends webhooks to public HTTPS endpoint on VPS, n8n verifies Svix signatures and fetches full email content (webhooks contain only metadata), then forwards complete payload to OpenClaw hooks endpoint over Tailscale. This solves the "no public IP on EC2" problem without exposing the gateway to the internet.
+The v2.3 stack additions are minimal and targeted. The v2.2 proven stack (Resend transactional API via curl, SQLite databases, n8n webhook relay, Tailscale networking) remains entirely unchanged. Three additions are required: (1) OpenClaw binary update to v2026.2.17 to patch CVE-2026-25253 and 40+ vulnerabilities from the v2026.2.12 security release; (2) SecureClaw v2.1 plugin installed via git clone and `openclaw plugins install -l .` (not npm registry — git clone only); and (3) LLM observability via native OpenClaw hooks writing to `~/clawd/logs/llm-usage.jsonl`. External observability SaaS (Langfuse, Helicone, Datadog) is explicitly excluded — privacy risk and overkill for a single-user personal deployment.
 
 **Core technologies:**
-- Resend REST API v1 (https://api.resend.com) — transactional email with receiving capability, 100/day free tier sufficient for personal use
-- `curl` (already in sandbox) — HTTP client for API calls, no installation needed
-- n8n webhook node (existing VPS) — public HTTPS endpoint for Resend webhooks, already deployed with Caddy TLS
-- `svix` npm package in n8n — verify webhook signatures (Resend uses Svix for signing), prevents forged email injection
+- `openclaw` v2026.2.17: Platform runtime update — patches 40+ CVEs including CVE-2026-25253; required before SecureClaw install
+- `secureclaw` v2.1 (adversa-ai/secureclaw): OWASP-aligned security plugin — 51-check audit + 15 behavioral runtime rules + 70+ injection patterns; git clone install only
+- OpenClaw `llm_input`/`llm_output` hooks + JSONL log: LLM observability — native platform hooks, zero new infrastructure, Bob aggregates from log file in morning briefing
+- Resend Audiences/Broadcasts API: Documented for future v2.4 — separate marketing quota from transactional, automatic unsubscribe handling
 
-**What NOT to use:**
-- **Resend MCP Server:** OpenClaw's ACP layer silently ignores `mcpServers` config. The mcporter workaround adds 2.4s cold-start per call. Direct REST API calls are faster and proven.
-- **Resend Node.js SDK:** Sandbox filesystem is read-only, `npm install` fails. The REST API is simple enough that SDK overhead isn't justified.
-- **Direct webhooks to EC2:** Gateway binds to loopback (127.0.0.1), no public IP. Exposing it would violate the Tailscale-only security model.
+**Critical version constraint:** SecureClaw v2.1 targets OpenClaw v2026.2.17 released the same week. Install SecureClaw AFTER updating OpenClaw, not before.
+
+**Unresolved stack item (LOW confidence):** Hook names `llm_input`/`llm_output` appear in requirements and community discussions (GitHub #16724, changelog reference) but are not confirmed in official OpenClaw docs. Must run `openclaw hooks list` after v2026.2.17 update to verify. Fallback: `diagnostics-otel` plugin with local file exporter.
 
 ### Expected Features
 
-**Must have (table stakes):**
-- Send plain text and HTML email — core capability, max 40MB per email
-- Domain verification (SPF/DKIM/DMARC) — without it, emails go to spam or get rejected
-- Webhook signature verification — prevents anyone from POSTing fake emails to the endpoint
-- Inbound email receiving — two-way communication is expected for an email-enabled agent
-- Delivery status tracking — must know if emails bounced, failed, or were delivered
-- Reply threading with In-Reply-To headers — replies appear in same thread, not separate emails
-- API key management — secure credential handling via openclaw.json sandbox env
+The v2.3 feature set is security and observability only. Content distribution features are deferred to v2.4 pending email domain hardening. Research identified 5 feature clusters (SecureClaw, LLM observability, subscriber notifications, weekly digest, pitch copy) — only the first two are in scope for v2.3.
 
-**Should have (competitive):**
-- Morning briefing via email — reuse existing briefing content, deliver via email in addition to Slack (most impactful quick win)
-- Alert/notification emails — critical alerts sent via email as backup channel when Slack is muted
-- Email-to-Slack bridging — forward important inbound emails to Slack for visibility
-- Scheduled email sends — schedule up to 72 hours in advance using Resend's `scheduled_at` param
-- Conversation history tracking — store message_id and thread relationships in local DB for context
+**Must have (v2.3 table stakes):**
+- OpenClaw update to v2026.2.17 — CVE-2026-25253 is unpatched; security obligation
+- SecureClaw 51-check automated audit — produces structured JSON report; run before hardening
+- SecureClaw 15 behavioral runtime rules — active prompt injection defense; ~1,230 tokens context cost (acceptable on Sonnet)
+- llm_input/llm_output hook configuration — no observability data without hooks; all downstream analysis depends on this
+- Per-agent token usage aggregation in morning briefing — daily operational visibility without manual querying
+- DMARC escalation from p=none to p=quarantine — blocks domain spoofing; prerequisite for v2.4 subscriber sends
+- Post-update audit of all 20 crons, 10 skills, 7 agents — `doctor` passing is not sufficient; must verify operational stack
 
-**Defer (v2+):**
-- Inbound email command processing — "email Bob a question, get email response" requires sender verification, intent parsing, high complexity
-- Attachment sending/receiving — adds significant complexity, wait for specific use case
-- Email templates (React Email) — start with simple HTML, formalize templates later
-- Batch sends — only relevant at scale, free tier makes this nearly irrelevant
-- Email analytics/tagging — add organically as patterns emerge
+**Should have (v2.3 differentiators):**
+- Anomaly detection with thresholds in observability section — "Landos ran 120 turns vs usual 8" is actionable; simple algorithm, high value
+- Email health metrics (bounce/complaint rate) in morning briefing — early warning for domain reputation
+- Gmail OAuth scope reduction to minimal required set — reduce attack surface without breaking existing operations
+
+**Defer to v2.4:**
+- Subscriber notification emails — requires DMARC hardening first; p=none domain sending to subscribers risks reputation damage
+- Weekly digest email — same dependency; requires p=quarantine before activating subscriber sends
+- Pitch copy generation workflow — no urgency; well-understood implementation, no blocking dependencies
+- OpenTelemetry export — no external backend configured; overkill for single-user deployment
+
+**Anti-features confirmed (do not build):**
+- SecureClaw as a real-time intercepting firewall — OpenClaw has no request interception API; runtime rules work via Bob's judgment
+- Full LLM prompt/response logging — PII risk; log metadata only (token counts, model, agentId, duration)
+- Running SecureClaw audit inside Docker sandbox — needs host-level data (iptables, systemd, file perms); must run on host
+- Automated SecureClaw hardening without human review — could break Bob's identity (SOUL.md) or gateway config
 
 ### Architecture Approach
 
-The architecture splits into two independent paths: outbound (agent sends emails) and inbound (agent receives and processes emails). Outbound is self-contained within the EC2/sandbox boundary. Inbound requires the VPS as a public-facing relay because the EC2 instance has no public IP. The webhook relay pattern follows defense-in-depth: verify signatures at the edge (n8n), transform payloads to match OpenClaw hooks format, forward over Tailscale with dedicated auth token.
+The architecture is additive to an existing proven system. The existing 7-agent content pipeline (Vector researches → Quill writes → Sage reviews → [human approves] → Ezra publishes) is unchanged. Three integration points are added as layers: SecureClaw plugin runs at the gateway level (no individual agent config changes needed), LLM hooks write to a JSONL log that Bob reads on morning briefing schedule (same pattern as the ClawdStrike verified-bundle.json), and DMARC escalation is a DNS record change with no code involved.
 
-**Major components:**
-1. **Resend REST API** — external service providing send/receive/webhooks. Direct HTTP calls via curl from sandbox. Auth: `Authorization: Bearer re_xxxxx` header
-2. **Custom skill (resend-email)** — SKILL.md at `~/.openclaw/skills/resend-email/` teaching Bob to construct curl commands for send, get received email, list emails. Uses `RESEND_API_KEY` from sandbox env
-3. **n8n webhook workflow** — receives Resend webhooks at public HTTPS endpoint, verifies Svix signature (HMAC-SHA256), calls Received Emails API to fetch full body (webhook only has metadata), forwards complete payload to OpenClaw hooks endpoint over Tailscale
-4. **OpenClaw hooks endpoint** — receives formatted email notifications from n8n, wakes Bob in isolated session per email_id, delivers notification to Slack
-5. **DNS records** — subdomain MX records for receiving (avoids conflicting with existing email on root domain), SPF/DKIM/DMARC for sending reputation
+**Major components (v2.3):**
+1. OpenClaw gateway v2026.2.17 — updated binary with CVE patches + correct tailnet-binding TUI fix
+2. SecureClaw plugin (gateway-level) — 51-check audit runner + 15 behavioral rules in agent context; installed at `~/.openclaw/extensions/secureclaw/`
+3. LLM observability hook + JSONL log — hook script appends per-call metadata to `~/clawd/logs/llm-usage.jsonl` (chmod 600)
+4. Morning briefing cron (modified) — gains "Agent Observability" section aggregating llm-usage.jsonl; 24h rolling per-agent stats + anomaly flags
+5. DNS DMARC record (_dmarc.mail.andykaufman.net) — p=none → p=quarantine after confirming 14-day aggregate report health
 
-**Critical architectural constraint:** Gateway currently binds to loopback (127.0.0.1:18789). For n8n on VPS to reach hooks endpoint over Tailscale, gateway must also listen on Tailscale interface. Recommendation: change `bind` from `"loopback"` to `"tailscale"` in openclaw.json. This is secure because Tailscale network only has 2 nodes (EC2 + VPS), both controlled by same user, and gateway already has token auth.
+**Key patterns to follow:**
+- Plugin Enforces / Skill Audits: SecureClaw plugin = always-on runtime. ClawdStrike skill = periodic on-demand audit. No conflict, different layers.
+- JSONL Hook Log → Bob Aggregates: zero new infrastructure; proven pattern from ClawdStrike verified-bundle.json consumption
+- Backup / Update / Diff / Verify: mandatory config backup before update, diff after `doctor --fix`, verify non-default values checklist before restart
+
+**Architecture open questions (must verify during Phase 26 planning):**
+- Are `llm_input`/`llm_output` valid hook event names in v2026.2.17? Run `openclaw hooks list` post-update.
+- Does SecureClaw `configPatch` auto-merge into openclaw.json on install, or require manual JSON editing?
+- Does `gateway.remote.url` survive the version jump to v2026.2.17 (or does `doctor --fix` strip it)?
 
 ### Critical Pitfalls
 
-1. **MX record on root domain nukes existing email** — Adding Resend's MX to root domain intercepts ALL email for the domain, breaking existing Gmail/Workspace. ALWAYS use a subdomain (e.g., `mail.yourdomain.com` or `bot.yourdomain.com`) for Resend receiving. Verify existing MX with `dig MX yourdomain.com` before adding anything.
+1. **`doctor --fix` silently overwrites non-default config values** — Back up `~/.openclaw/openclaw.json` before update. After `doctor --fix`, diff against backup. Verify `gateway.remote.url`, `docker.network: bridge`, and `discovery.mdns.mode: off` are preserved before restarting. Recovery: restore from backup, apply only the changes doctor flagged.
 
-2. **Agent email loop from auto-replies** — Bob receives out-of-office auto-reply, treats it as real email, replies, triggers another auto-reply, burns through 100/day quota in minutes. Prevention: check headers (`Auto-Submitted`, `X-Auto-Response-Suppress`, `Precedence`) before processing ANY inbound email. Add rate limiting (max 1 reply per sender per hour). Hard cap: halt all sending if >10 emails in 5 minutes. Add `Auto-Submitted: auto-generated` to all Bob's outbound emails.
+2. **SecureClaw runtime rules block existing cron payloads as injection** — Audit ALL 20 cron job payloads against the 15 behavioral rules before enabling. Crons that deliver role-assumption language, file paths, or external URLs are highest risk. Enable rules in categories with cron verification between each; rewrite high-risk payloads to use short trigger words pointing to workspace instruction files.
 
-3. **Webhook body is metadata-only** — Resend inbound webhook contains NO email body, NO headers, NO attachment content. Only from/to/subject/email_id. The n8n workflow MUST make a second API call to `GET /received-emails/{id}` to fetch actual email content. Cache the full email in n8n payload before forwarding to OpenClaw. The agent cannot operate on webhook metadata alone.
+3. **DM sessions lost after gateway restart** — After ANY gateway restart (including the v2026.2.17 update), immediately DM Bob in Slack and wait for a response before the next cron fires. Lost before DM re-establishment = not recoverable.
 
-4. **OpenClaw ignores mcpServers config** — The `mcpServers` section in openclaw.json is silently ignored. ACP layer explicitly disables MCP. This means resend-mcp won't load via standard config. Solution: use custom SKILL.md with direct curl calls (matches existing project patterns). Alternative: openclaw-mcp-adapter plugin, but it's community-maintained and adds complexity.
+4. **`doctor` zero warnings is not a correctness signal** — Doctor validates config schema, not operational stack. Phase 25 post-update audit (20 crons listed, 10 skills present, 7 agents responding) is the real correctness test. Do not collapse Phase 25 into Phase 24.
 
-5. **Webhook signature verification skipped in n8n** — n8n's generic Webhook node doesn't natively verify Svix signatures. Must add Code node after webhook trigger to manually verify `svix-id`, `svix-timestamp`, `svix-signature` headers with HMAC-SHA256. Without this, anyone discovering the webhook URL can inject forged emails. Use raw request body for verification (signature is whitespace-sensitive, parsed JSON breaks it).
+5. **Observability hooks capture sensitive PII** — LLM hooks will capture email content, calendar details, Oura biometrics, and AirSpace business data. Hook scripts must log metadata only (timestamp, agentId, model, token counts, session_key). Log file must be `chmod 600`. Never log raw `llm_input` payloads.
+
+6. **DMARC escalation before warmup complete burns domain reputation** — Read 14 days of DMARC aggregate reports (rua) before escalating. Any `dkim=fail` or `spf=fail` rows = do not escalate yet. Escalate only subdomain record, not parent domain. Target p=quarantine, not p=reject.
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure:
+The v2.3 roadmap has a clear dependency chain that dictates phase order. The existing 5-phase structure (Phases 24-28) from the requirements document is validated by research and should be preserved as-is.
 
-### Phase 1: Outbound Email Foundation
-**Rationale:** Sending is dramatically simpler than receiving (no webhook infrastructure needed) and delivers immediate value. Proven to work: every API integration in this project uses the same pattern (custom skill + curl + sandbox env var). Zero external dependencies beyond Resend account setup.
+### Phase 24: Critical Security Update (OpenClaw + SecureClaw)
+**Rationale:** Platform binary must be updated before any other work — CVE-2026-25253 is unpatched, and SecureClaw requires v2026.2.17. This is the highest-risk phase because the update can silently break 20 crons, browser automation, and CLI connectivity.
+**Delivers:** Patched gateway + SecureClaw audit report + 15 behavioral rules active
+**Addresses:** OpenClaw update, SecureClaw Layer 1 audit, Layer 2 hardening, Layer 3 behavioral rules
+**Avoids:** Pitfall 1 (config overwrite), Pitfall 2 (service entrypoint mismatch), Pitfall 3 (cron blocking by runtime rules), Pitfall 9 (DM session loss after restart)
+**Must include:** config backup step, post-`doctor` diff, DM re-establishment verification, cron payload pre-audit before SecureClaw rules activate
 
-**Delivers:** Bob can send emails via custom skill. Morning briefings delivered to email. Alert notifications have email backup channel.
+### Phase 25: Post-Update Audit
+**Rationale:** Separate from Phase 24 because `doctor` passing is not sufficient. Operational verification (all 20 crons, 10 skills, 7 agents, browser automation, SecureClaw injection test) requires dedicated focus and must not be rushed inside the update phase.
+**Delivers:** Confirmed operational stack with SecureClaw active and verified
+**Avoids:** Pitfall 10 (`doctor` false pass), Pitfall 4 (SecureClaw blocking browser workflows)
+**Must include:** explicit cron count check (`openclaw cron list | wc -l` — expect 20+), prompt injection test with known payload, browser workflow smoke test
 
-**Addresses features:**
-- Send plain text and HTML email (table stakes)
-- Domain verification for sending (table stakes)
-- API key management (table stakes)
-- Morning briefing via email (differentiator)
-- Alert/notification emails (differentiator)
+### Phase 26: Agent Observability
+**Rationale:** Depends on Phase 24 (hooks require v2026.2.17). Independent of Phases 27-28. Delivers daily visibility into the 7-agent system before adding more capability in v2.4.
+**Delivers:** LLM hook configured, llm-usage.jsonl populating, morning briefing gains observability section with per-agent stats and anomaly flags
+**Uses:** OpenClaw native hooks + JSONL log + existing morning briefing cron (proven pattern)
+**Avoids:** Pitfall 5 (PII in logs), Pitfall 6 (synchronous hook latency)
+**Must verify first:** Run `openclaw hooks list` to confirm hook names before implementing; measure latency before/after hook enable
 
-**Avoids pitfalls:**
-- Uses custom skill (not MCP) — avoids Pitfall 4 (mcpServers ignored)
-- Adds `Auto-Submitted: auto-generated` to outbound — prevents other bots from creating loops
+### Phase 27: Email Domain Hardening
+**Rationale:** Independent of Phases 25-26. Must complete before v2.4 subscriber sends begin. DMARC escalation is a DNS change with meaningful risk if done before warmup is confirmed.
+**Delivers:** DMARC at p=quarantine, email health metrics in morning briefing
+**Avoids:** Pitfall 7 (premature DMARC escalation)
+**Must include:** 14-day DMARC aggregate report review as mandatory first step, test email inbox confirmation post-escalation, Saturday timing for low-volume window
 
-**Research flag:** No research needed. This is the exact pattern used for Oura, Govee, receipt-scanner. Well-documented REST API, HIGH confidence sources.
-
-### Phase 2: Inbound Email Infrastructure
-**Rationale:** Receiving requires multi-component setup (DNS MX records, n8n webhook relay, hooks configuration, gateway bind change). These are prerequisites for any inbound email processing. Must be completed as a unit because partial setup doesn't deliver value. This phase establishes the plumbing; next phase adds the processing logic.
-
-**Delivers:** Email sent to `bob@subdomain.yourdomain.com` triggers webhook → n8n relay → OpenClaw hook → Bob receives notification in Slack with email metadata and full content.
-
-**Addresses features:**
-- Inbound email receiving (table stakes)
-- Webhook signature verification (table stakes)
-- Email-to-Slack bridging (differentiator)
-
-**Avoids pitfalls:**
-- Uses subdomain for MX (not root domain) — avoids Pitfall 1 (nuking existing email)
-- Two-step email read (metadata in webhook, body via API call) — addresses Pitfall 3 (webhook body is metadata-only)
-- Svix signature verification in n8n Code node — avoids Pitfall 5 (forged email injection)
-- Gateway binds to Tailscale (not just loopback) — enables webhook forwarding over Tailscale without exposing to internet
-
-**Stack elements:**
-- n8n webhook workflow on VPS (relay pattern)
-- svix verification in Code node
-- Resend Received Emails API for fetching full content
-- OpenClaw hooks endpoint (new config in openclaw.json)
-
-**Research flag:** LIGHT research during phase planning. Need to verify:
-- Exact n8n Code node syntax for Svix HMAC-SHA256 verification
-- OpenClaw hooks config format (documented but untested in this deployment)
-- Whether `bind: "tailscale"` is valid in openclaw.json (may need to be IP address like `bind: "100.72.143.9"`)
-
-### Phase 3: Inbound Email Processing
-**Rationale:** With receiving infrastructure stable (Phase 2), this phase adds intelligence: header checking for auto-replies, rate limiting, reply logic, conversation threading. These features require the inbound path to be reliable before testing edge cases like loops.
-
-**Delivers:** Bob intelligently processes inbound emails: filters auto-replies, replies to recognized senders, tracks conversation threads, bridges important emails to Slack.
-
-**Addresses features:**
-- Delivery status tracking via webhooks (table stakes)
-- Reply threading with In-Reply-To (table stakes)
-- Conversation history tracking (differentiator)
-- Scheduled email sends (differentiator)
-
-**Avoids pitfalls:**
-- Header checking for auto-replies — prevents Pitfall 2 (email loops)
-- Rate limiting (max 1 reply per sender per hour) — secondary loop prevention
-- Hard cap (halt if >10 sends in 5 min) — circuit breaker for loop scenarios
-- API key scope split (full_access in n8n, sending_access in sandbox) — limits blast radius if key leaks
-
-**Implements architecture component:** Session key per email pattern (`hook:email:<email_id>`) for isolated processing, thread detection via In-Reply-To/References headers.
-
-**Research flag:** MEDIUM research needed during phase planning:
-- Exact header names/values for auto-reply detection (RFC 3834 lists several variants, need comprehensive list)
-- Resend API pagination for conversation history lookups
-- Testing strategy for loop scenarios (can't test with real email, need simulation approach)
-
-### Phase 4: Domain Warmup and Production Hardening
-**Rationale:** New domains have zero sending reputation. Emails from cold domains land in spam regardless of technical correctness (SPF/DKIM/DMARC). This phase executes the 2-4 week warmup schedule and adds operational monitoring. Must come after basic sending works (Phase 1) but before relying on email delivery for critical functions.
-
-**Delivers:** Domain reputation established through gradual volume increase. Monitoring confirms emails reach inboxes (not spam). Daily quota tracking prevents hitting free tier limits.
-
-**Addresses features:**
-- None directly (this is operational hardening, not feature work)
-
-**Avoids pitfalls:**
-- Gradual warmup (5-10/day week 1, 20-30/day week 2, target volume week 3-4) — prevents Pitfall 9 (first emails land in spam)
-- Daily send count tracking — prevents Pitfall 11 (hitting 100/day limit unexpectedly)
-- Catch-up cron polling Received Emails API — mitigates Pitfall 12 (n8n downtime loses webhooks beyond 27.5hr retry window)
-- Test emails to own addresses only during warmup — avoids polluting domain reputation with dev noise
-
-**Research flag:** No research needed. Resend docs explicitly recommend 30-60 day warmup. Standard operational patterns.
+### Phase 28: Platform Cleanup
+**Rationale:** Independent of Phases 25-27. Lowest risk phase. Gmail scope reduction requires careful operation-to-scope mapping before re-auth — this is the main risk in this phase.
+**Delivers:** Reduced OAuth scope, resolved doctor warnings, config alias adoption
+**Avoids:** Pitfall 8 (scope reduction breaking crons)
+**Must include:** Enumerate all `gog gmail` operations across crons/skills BEFORE re-authing (correct minimum scope is likely `gmail.readonly` + `gmail.send` + `gmail.modify` + `calendar.readonly`, not readonly-only)
 
 ### Phase Ordering Rationale
 
-**Phase 1 → 2 → 3 sequencing:** Outbound is independent and simple (proven pattern). Inbound requires infrastructure setup (Phase 2) before intelligence (Phase 3). Can't test auto-reply loop prevention until basic receiving works. Phase 4 runs parallel with Phase 1-3 (warmup starts after first send, takes weeks).
-
-**Why Phase 2 before Phase 3:** The webhook relay chain (Resend → n8n → OpenClaw hooks) has 7 potential failure points. Must verify end-to-end before adding complexity (reply logic, threading, rate limiting). "Make it work, then make it smart."
-
-**Why Phase 4 is parallel:** Domain warmup is time-based (2-4 weeks), not work-based. Start sending low-volume emails to own addresses immediately after Phase 1, increase gradually while building Phase 2-3. By the time Phase 3 is complete, domain reputation is established.
-
-**Dependency chain confirmed by research:**
-- Phase 1 needs: Resend account + API key + DNS for sending
-- Phase 2 needs: Phase 1 stable + DNS for receiving + n8n + hooks config
-- Phase 3 needs: Phase 2 stable + conversation tracking DB schema
-- Phase 4 needs: Phase 1 complete (start warmup)
+- Phase 24 is a prerequisite for all others: binary update required for SecureClaw (version dependency) and observability hooks (new API in v2026.2.17)
+- Phase 25 must follow Phase 24 immediately: operational verification before layering more changes; a broken cron is harder to diagnose with 3 more changes on top
+- Phases 26-28 are independent of each other; current ordering (observability → email hardening → cleanup) reflects risk priority, not strict dependency
+- Content distribution (v2.4) hard dependency on Phase 27: sending subscriber emails from a p=none domain risks domain reputation before the list is established
 
 ### Research Flags
 
-Phases needing deeper research during planning:
+Phases needing deeper research or verification during planning:
+- **Phase 26:** llm hook API names are LOW confidence. Do not write Phase 26 plan until `openclaw hooks list` is verified post-Phase 24. If `llm_input`/`llm_output` don't exist, pivot to `diagnostics-otel` plugin with local file exporter as documented in ARCHITECTURE.md.
+- **Phase 24 (SecureClaw configPatch):** Whether `openclaw plugins install` auto-merges plugin config into openclaw.json is unconfirmed (GitHub issue #6792 — proposed, not verified released). Check during Phase 24 execution.
 
-- **Phase 2 (Inbound Infrastructure):** LIGHT research needed for n8n Code node Svix verification syntax and OpenClaw hooks config format. Both are documented but untested in this specific deployment. Budget 30-60 min for verification.
-
-- **Phase 3 (Inbound Processing):** MEDIUM research needed for comprehensive auto-reply header detection (RFC 3834 lists several variants, plus vendor-specific headers from Microsoft/Google). Also need testing strategy for loop scenarios. Budget 1-2 hours for research-phase.
-
-Phases with standard patterns (skip research-phase):
-
-- **Phase 1 (Outbound Foundation):** Exact same pattern as Oura/Govee/receipt-scanner integrations. Resend REST API is well-documented (official docs, HIGH confidence). No unknowns.
-
-- **Phase 4 (Domain Warmup):** Operational task, not technical implementation. Resend docs provide explicit warmup schedule. No research needed, just execution discipline.
+Phases with well-documented standard patterns (skip additional research):
+- **Phase 25:** Verification checklist is fully known; no research needed — explicit count checks and smoke tests.
+- **Phase 27 (DMARC):** DNS record change with established escalation path; process is well-documented from multiple authoritative sources.
+- **Phase 28 (Gmail scopes):** gog auth re-auth procedure is confirmed from MEMORY.md. Risk is operational mapping, not technical unknowns.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Resend REST API is official, well-documented. Custom skill pattern proven in 4+ existing integrations. n8n webhook relay is established (used for ClawdStrike, other workflows). |
-| Features | HIGH | Feature landscape derived from official Resend docs (API reference, receiving docs, webhook docs). Free tier constraints (100/day, 3K/month) confirmed on pricing page. MVP recommendation aligns with dependency chain. |
-| Architecture | MEDIUM-HIGH | Outbound path is HIGH confidence (proven pattern). Inbound path is MEDIUM confidence (documented components but untested full integration chain). Hooks endpoint config format is documented but not yet tested in this deployment. Gateway bind change to Tailscale is inferred (need to verify exact config syntax). |
-| Pitfalls | HIGH | MX record, DMARC, webhook metadata-only, and mcpServers pitfalls are directly confirmed by official docs. Email loop prevention (RFC 3834, auto-reply headers) is industry-standard practice. Warmup requirement confirmed by Resend blog post. |
+| Stack | HIGH (SecureClaw, Resend) / LOW (llm hooks) | SecureClaw verified via PR Newswire + GitHub + official blog. llm hook names `llm_input`/`llm_output` not confirmed in official OpenClaw docs — only requirements and community discussion |
+| Features | HIGH | v2.3 scope is well-defined. Anti-features and deferral decisions are clear. v2.4 content distribution cluster is well-researched for future roadmap. |
+| Architecture | MEDIUM-HIGH | Resend Broadcasts/Audiences patterns confirmed. SecureClaw plugin install pattern confirmed. JSONL hook log pattern fits deployment. Two open questions remain (hook names, configPatch). |
+| Pitfalls | HIGH | 6 of 10 pitfalls derived directly from project MEMORY.md (confirmed operational history). 4 from official docs and security research. |
 
-**Overall confidence:** HIGH
+**Overall confidence:** MEDIUM-HIGH
 
 ### Gaps to Address
 
-- **OpenClaw hooks config format:** Documentation shows structure but exact field names (especially for `deliver` and `channel` routing) need verification. Plan: review openclaw.json schema or test with minimal config in Phase 2 planning.
-
-- **Gateway bind syntax:** Need to confirm whether `bind: "tailscale"` is magic string that OpenClaw resolves, or if it requires explicit IP address like `bind: "100.72.143.9"`. Plan: check OpenClaw configuration docs or `openclaw doctor` output during Phase 2 planning.
-
-- **Auto-reply header coverage:** RFC 3834 defines standard headers but vendors (Microsoft, Google, Apple) use additional X-headers. Need comprehensive list to avoid false negatives. Plan: research-phase in Phase 3 to compile full header checklist from RFCs + vendor docs.
-
-- **Resend webhook event payload format for delivery status:** Research confirmed `email.sent`, `email.delivered`, `email.bounced`, `email.failed` events exist but didn't capture exact JSON schema. Plan: reference Resend webhook event types docs during Phase 2-3 implementation.
-
-- **n8n Svix verification implementation:** Concept is clear (HMAC-SHA256 with raw body) but exact JavaScript syntax in n8n Code node needs verification. Svix docs provide examples but n8n's request object format may differ. Plan: test minimal verification Code node during Phase 2 implementation.
+- **llm hook API names (Phase 26 blocker):** Cannot finalize Phase 26 plan until verified. Action: immediately after Phase 24 update, run `openclaw hooks list` before writing any Phase 26 implementation plan.
+- **SecureClaw configPatch behavior (Phase 24):** Check during Phase 24 execution whether `openclaw plugins install` auto-merges config. If not, manual `openclaw.json` editing steps must be added to the plan.
+- **Ezra's current instructions (pre-v2.4):** Before v2.4 roadmap creation, read Ezra's existing WORKING.md/SOUL.md to understand what triggers the current publish step. Distribution hook must insert after WordPress confirm, not before.
+- **DMARC rua mailbox (Phase 27 prerequisite):** Verify where DMARC aggregate reports are being delivered and whether 14+ days of reports have accumulated. Phase 27 requires this data before escalating.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- [Resend API Reference](https://resend.com/docs/api-reference/introduction) — All API endpoints, request/response formats, auth
-- [Resend Receiving Emails](https://resend.com/docs/dashboard/receiving/introduction) — Inbound email setup, MX records, two-step fetch pattern
-- [Resend Webhook Verification](https://resend.com/docs/dashboard/webhooks/verify-webhooks-requests) — Svix signature verification, headers, HMAC-SHA256
-- [Resend Webhook Event Types](https://resend.com/docs/dashboard/webhooks/event-types) — All 17 webhook event types, payload schemas
-- [Resend Custom Receiving Domains](https://resend.com/docs/dashboard/receiving/custom-domains) — Subdomain MX setup, catch-all addresses
-- [Resend Account Quotas and Limits](https://resend.com/docs/knowledge-base/account-quotas-and-limits) — Free tier: 3K/month, 100/day, 2 req/sec
-- [Resend Domain Management](https://resend.com/docs/dashboard/domains/introduction) — SPF, DKIM, DMARC DNS records
-- [Resend Pricing](https://resend.com/pricing) — Free tier confirmed: 3K emails/month, 100/day
-- [Resend How DMARC Applies to Subdomains](https://resend.com/blog/how-dmarc-applies-to-subdomains) — Inheritance rules, sp= tag
-- [Resend How to Warm Up a New Domain](https://resend.com/blog/how-to-warm-up-a-new-domain) — 30-60 day schedule, gradual volume
-- [RFC 3834 - Automatic Responses to Electronic Mail](https://datatracker.ietf.org/doc/html/rfc3834) — Auto-reply headers standard
-- [Svix Webhook Verification](https://docs.svix.com/receiving/verifying-payloads/how) — HMAC-SHA256 verification algorithm
-- [Svix Retry Schedule](https://docs.svix.com/retries) — Retry timing: 5s, 5m, 30m, 2h, 5h, 10h (27.5hr total)
-- [OpenClaw Skills Documentation](https://docs.openclaw.ai/tools/skills) — Skill format, env vars, exec tool usage
-- [OpenClaw Webhooks Documentation](https://docs.openclaw.ai/automation/webhook) — Hooks endpoint config, sessionKey, mappings
-- [n8n Webhook Node](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/) — Webhook trigger config
-- [n8n Configure Webhook URLs with Reverse Proxy](https://docs.n8n.io/hosting/configuration/configuration-examples/webhook-url/) — WEBHOOK_URL env var requirement
+- [SecureClaw GitHub — adversa-ai/secureclaw](https://github.com/adversa-ai/secureclaw) — install procedure, audit check count (51), behavioral rule count (15), OWASP coverage
+- [SecureClaw PR Newswire](https://www.prnewswire.com/news-releases/secureclaw-by-adversa-ai-launches-as-the-first-owasp-aligned-open-source-security-plugin-and-skill-for-openclaw-ai-agents-302688674.html) — feature counts, context cost (~1,230 tokens), layer breakdown confirmed
+- [OpenClaw npm package](https://www.npmjs.com/package/openclaw) — v2026.2.17 as latest, update procedure
+- [OpenClaw v2026.2.12 security coverage](https://cybersecuritynews.com/openclaw-2026-2-12-released/) — 40+ CVEs patched
+- [Resend Broadcast API docs](https://resend.com/docs/api-reference/broadcasts/create-broadcast) — Broadcasts API endpoints confirmed
+- [Resend Contacts API docs](https://resend.com/docs/api-reference/contacts/create-contact) — global contacts, CRUD endpoints
+- [DMARC Policy Options — MxToolbox](https://mxtoolbox.com/dmarc/details/dmarc-tags/dmarc-policy-options) — p=quarantine behavior, escalation path
+- Project MEMORY.md — gateway.remote.url requirement, DM session loss, service entrypoint migration, sandbox bind-mount patterns (all confirmed from project history)
 
 ### Secondary (MEDIUM confidence)
-- [n8n-nodes-resend GitHub](https://github.com/jonathanferreyra/n8n-nodes-resend) — Community node, API coverage (alternative to HTTP Request node)
-- [OpenClaw MCP Limitations Gist](https://gist.github.com/Rapha-btc/527d08acc523d6dcdb2c224fe54f3f39) — mcpServers silently ignored
-- [OpenClaw MCP Feature Request #13248](https://github.com/openclaw/openclaw/issues/13248) — Native MCP support tracked as feature request
-- [Detecting Auto-Reply Emails (arp242.net)](https://www.arp242.net/autoreply.html) — Comprehensive header list, vendor-specific X-headers
-- [OpenClaw MCP Adapter Plugin](https://github.com/androidStern-personal/openclaw-mcp-adapter) — Community plugin bridging MCP to native tools
+- [OpenClaw v2026.2.17 feature summary — NeuralStackly](https://www.neuralstackly.com/blog/openclaw-2026-2-6-update) — specific v2.17 features (WebSearch summaries only, no official changelog)
+- [OpenClaw Changelog February 2026](https://www.gradually.ai/en/changelogs/openclaw/) — PR #16724 llm_input/llm_output hook mention
+- [Resend New Contacts Experience](https://resend.com/blog/new-contacts-experience) — Audiences renamed to Segments in 2025
+- [diagnostics-otel plugin config — deepwiki](https://deepwiki.com/openclaw/openclaw/10-extensions-and-plugins) — OTEL fallback fields and config structure
+- [LLM Observability Best Practices 2025 — Maxim](https://www.getmaxim.ai/articles/llm-observability-best-practices-for-2025/) — async processing, PII handling guidance
+- [AI Runtime Security False Positives — Acuvity](https://acuvity.ai/ai-runtime-security/) — intent-based vs. pattern-matching tradeoffs (SecureClaw cron blocking risk)
 
-### Tertiary (LOW confidence, needs validation)
-- [react-email-skills ClawHub](https://playbooks.com/skills/openclaw/skills/react-email-skills) — Published skill for React Email templates (not verified for sandbox compatibility)
-- Phase 4 MCP verification (internal, 2026-02-08) — Confirmed sandbox read-only filesystem, bind-mount pattern for gh/sqlite3 (referenced in architecture findings)
+### Tertiary (LOW confidence — needs validation during implementation)
+- [OpenClaw hooks discussion — GitHub #7724](https://github.com/openclaw/openclaw/issues/7724) — hook payload structure (community discussion, not official docs)
+- [OpenClaw usage logging — GitHub #14377](https://github.com/openclaw/openclaw/issues/14377) — per-agent token logging (feature in progress, not released)
+- [configPatch plugin manifest — OpenClaw Issue #6792](https://github.com/openclaw/openclaw/issues/6792) — auto-merge config on install (proposed, not confirmed released)
 
 ---
-*Research completed: 2026-02-16*
+*Research completed: 2026-02-17*
 *Ready for roadmap: yes*
