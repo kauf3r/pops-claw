@@ -21,9 +21,9 @@
 - [ ] **SEC-01**: OpenClaw updated from v2026.2.6-3 to v2026.2.17 (CVE-2026-25253 patched)
 - [ ] **SEC-02**: SecureClaw plugin installed and 51-check audit passes with no critical findings
 - [ ] **SEC-03**: SecureClaw runtime behavioral rules active (15 rules governing external content, credentials, destructive commands)
-- [ ] **SEC-04**: Post-update audit confirms all 20 cron jobs firing on schedule
-- [ ] **SEC-05**: Post-update audit confirms all 10 skills detected and functional
-- [ ] **SEC-06**: Post-update audit confirms all 7 agents heartbeating/responding
+- [x] **SEC-04**: Post-update audit confirms all 20 cron jobs firing on schedule
+- [x] **SEC-05**: Post-update audit confirms all 10 skills detected and functional
+- [x] **SEC-06**: Post-update audit confirms all 7 agents heartbeating/responding
 - [ ] **SEC-07**: New prompt injection protections verified (browser/web content "untrusted by default")
 
 ### Observability
@@ -80,9 +80,9 @@
 | SEC-01 | Phase 24 | Pending |
 | SEC-02 | Phase 24 | Pending |
 | SEC-03 | Phase 24 | Pending |
-| SEC-04 | Phase 25 | Pending |
-| SEC-05 | Phase 25 | Pending |
-| SEC-06 | Phase 25 | Pending |
+| SEC-04 | Phase 25 | Complete |
+| SEC-05 | Phase 25 | Complete |
+| SEC-06 | Phase 25 | Complete |
 | SEC-07 | Phase 25 | Pending |
 | OBS-01 | Phase 26 | Pending |
 | OBS-02 | Phase 26 | Pending |
