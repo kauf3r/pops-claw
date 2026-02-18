@@ -77,35 +77,35 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | TBD | Pending |
-| SEC-02 | TBD | Pending |
-| SEC-03 | TBD | Pending |
-| SEC-04 | TBD | Pending |
-| SEC-05 | TBD | Pending |
-| SEC-06 | TBD | Pending |
-| SEC-07 | TBD | Pending |
-| OBS-01 | TBD | Pending |
-| OBS-02 | TBD | Pending |
-| OBS-03 | TBD | Pending |
-| EML-01 | TBD | Pending |
-| EML-02 | TBD | Pending |
-| EML-03 | TBD | Pending |
-| CLN-01 | TBD | Pending |
-| CLN-02 | TBD | Pending |
-| CLN-03 | TBD | Pending |
-| CLN-04 | TBD | Pending |
-| CLN-05 | TBD | Pending |
-| DIST-01 | TBD | Pending |
-| DIST-02 | TBD | Pending |
-| DIST-03 | TBD | Pending |
-| DIST-04 | TBD | Pending |
-| DIST-05 | TBD | Pending |
+| SEC-01 | Phase 24 | Pending |
+| SEC-02 | Phase 24 | Pending |
+| SEC-03 | Phase 24 | Pending |
+| SEC-04 | Phase 25 | Pending |
+| SEC-05 | Phase 25 | Pending |
+| SEC-06 | Phase 25 | Pending |
+| SEC-07 | Phase 25 | Pending |
+| OBS-01 | Phase 26 | Pending |
+| OBS-02 | Phase 26 | Pending |
+| OBS-03 | Phase 26 | Pending |
+| EML-01 | Phase 27 | Pending |
+| EML-02 | Phase 27 | Pending |
+| EML-03 | Phase 27 | Pending |
+| CLN-01 | Phase 28 | Pending |
+| CLN-02 | Phase 28 | Pending |
+| CLN-03 | Phase 28 | Pending |
+| CLN-04 | Phase 28 | Pending |
+| CLN-05 | Phase 28 | Pending |
+| DIST-01 | Phase 29 | Pending |
+| DIST-02 | Phase 29 | Pending |
+| DIST-03 | Phase 29 | Pending |
+| DIST-04 | Phase 29 | Pending |
+| DIST-05 | Phase 29 | Pending |
 
 **Coverage:**
 - v2.4 requirements: 23 total
-- Mapped to phases: 0
-- Unmapped: 23
+- Mapped to phases: 23
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-17*
-*Last updated: 2026-02-17 after initial definition*
+*Last updated: 2026-02-17 after roadmap creation (traceability complete)*

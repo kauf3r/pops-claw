@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-17)
 
 **Core value:** Proactive daily companion with content distribution, email, and security hardening at $0 incremental cost.
-**Current focus:** v2.4 Content Distribution & Platform Hardening
+**Current focus:** Phase 24 -- Critical Security Update
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
+Phase: 24 of 29 (Critical Security Update)
+Plan: 0 of ? in current phase
+Status: Ready to plan
 Milestone: v2.4 Content Distribution & Platform Hardening
-Last activity: 2026-02-17 — Milestone v2.4 started (v2.3 merged forward)
+Last activity: 2026-02-17 -- Roadmap created (6 phases, 23 requirements mapped)
 
-Progress: [##########################..........] 23/? phases (prior milestones complete)
+Progress: [##########################..........] 23/29 phases (prior milestones complete)
 
 ## Performance Metrics
 
@@ -31,7 +31,7 @@ Progress: [##########################..........] 23/? phases (prior milestones c
 | v2.1 | 7 | 14 | 1 day |
 | v2.2 | 5 | 8 | 2 days |
 | v2.3 | 0 | 0 | Merged into v2.4 |
-| v2.4 | TBD | TBD | In progress |
+| v2.4 | 0/6 | 0/? | In progress |
 
 ## Accumulated Context
 
@@ -40,19 +40,17 @@ Progress: [##########################..........] 23/? phases (prior milestones c
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- v2.3 merged into v2.4 (0 phases executed, all 18 requirements carried forward)
-- v2.4 scope: content distribution (subscribers, digest, pitch copy) + security/hardening from v2.3
-- Subscriber notifications trigger after human-approved publish (not fully automated)
-- Seed list only for subscribers (no public signup form yet)
-- Pitch copy is human-sent (Bob drafts only)
+- v2.3 merged into v2.4 (0 phases executed, all 18 requirements carried forward + 5 new DIST reqs)
+- v2.4 scope: content distribution (subscribers, digest) + security/hardening from v2.3
+- Phase 29 (content distribution) hard-depends on Phase 27 (DMARC at p=quarantine)
+- Subscriber notifications (DIST-06) and pitch copy (DIST-07) deferred from v2.4
 
 ### Open Items
 
-- Gmail OAuth scope reduction (CLN-01 from v2.3)
-- WARMUP.md: 5-step domain warmup checklist (EML-02 from v2.3)
-- DMARC escalation: p=none to p=quarantine (EML-01 from v2.3)
-- DP E2E: Receipt scanning human verification pending
-- GV-03: No Govee sensors bound (all 11 devices are lights)
+- LLM hook names (OBS-01) are LOW confidence -- verify `openclaw hooks list` after Phase 24 update
+- SecureClaw configPatch auto-merge behavior unknown -- check during Phase 24 execution
+- DMARC rua mailbox: verify 14+ days of aggregate reports exist before Phase 27 escalation
+- Gmail OAuth scope reduction (CLN-01): enumerate all gog operations before re-auth
 
 ### Blockers
 
@@ -70,8 +68,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: v2.4 milestone initialization
-Resume file: —
+Stopped at: v2.4 roadmap created -- ready for `/gsd:plan-phase 24`
+Resume file: --
 
 ---
-*Last updated: 2026-02-17 — Milestone v2.4 started*
+*Last updated: 2026-02-17 -- v2.4 roadmap created*

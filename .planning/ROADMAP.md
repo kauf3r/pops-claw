@@ -5,7 +5,8 @@
 - ✅ **v2.0 Proactive Daily Companion** — Phases 1-11 (shipped 2026-02-09)
 - ✅ **v2.1 Content Marketing Pipeline** — Phases 12-18 (shipped 2026-02-09)
 - ✅ **v2.2 Resend Email Integration** — Phases 19-23 (shipped 2026-02-17)
-- 🚧 **v2.3 Security & Platform Hardening** — Phases 24-28 (in progress)
+- ✅ **v2.3 Security & Platform Hardening** — Merged into v2.4 (0 phases executed)
+- 🚧 **v2.4 Content Distribution & Platform Hardening** — Phases 24-29 (in progress)
 
 ## Phases
 
@@ -56,43 +57,43 @@ Full details: [milestones/v2.2-ROADMAP.md](milestones/v2.2-ROADMAP.md)
 
 </details>
 
-### 🚧 v2.3 Security & Platform Hardening (In Progress)
+### 🚧 v2.4 Content Distribution & Platform Hardening (In Progress)
 
-**Milestone Goal:** Patch critical security vulnerabilities, add runtime security monitoring, complete email domain hardening, and clear deferred maintenance backlog.
+**Milestone Goal:** Turn the content pipeline into a distribution engine -- auto-send weekly digests to subscribers via Resend -- while folding in deferred security hardening, observability, email domain hardening, and platform cleanup from v2.3.
 
 - [ ] **Phase 24: Critical Security Update** — Update OpenClaw to v2026.2.17 and install SecureClaw security plugin
 - [ ] **Phase 25: Post-Update Audit** — Verify all crons, skills, agents, and injection protections survived the update
-- [ ] **Phase 26: Agent Observability** — Add llm hooks, activity summaries, and observability briefing section
+- [ ] **Phase 26: Agent Observability** — Add LLM hooks, activity summaries, and observability briefing section
 - [ ] **Phase 27: Email Domain Hardening** — Escalate DMARC, execute warmup checklist, verify health metrics
 - [ ] **Phase 28: Platform Cleanup** — Reduce Gmail scope, resolve doctor warnings, adopt config aliases
+- [ ] **Phase 29: Content Distribution** — Subscriber audience, weekly digest compilation and send via Resend Broadcasts
 
 ## Phase Details
 
 ### Phase 24: Critical Security Update
-**Goal**: Bob is running on a patched, security-audited OpenClaw with runtime behavioral protections
-**Depends on**: Nothing (first phase of v2.3)
+**Goal**: Bob is running on a patched, security-audited OpenClaw with runtime behavioral protections active
+**Depends on**: Nothing (first phase of v2.4)
 **Requirements**: SEC-01, SEC-02, SEC-03
 **Success Criteria** (what must be TRUE):
   1. `openclaw --version` reports v2026.2.17 on EC2
-  2. `openclaw doctor` passes with no critical findings
-  3. SecureClaw plugin is installed and its 51-check audit completes with zero critical failures
-  4. SecureClaw's 15 runtime behavioral rules are active (external content sandboxed, credential access blocked, destructive commands gated)
-  5. Gateway service is running and Bob responds to a Slack message
-**Plans**: 2 plans
+  2. SecureClaw plugin is installed and its 51-check audit completes with zero critical failures
+  3. SecureClaw's 15 runtime behavioral rules are active (external content sandboxed, credential access blocked, destructive commands gated)
+  4. Gateway service is running and Bob responds to a Slack DM
+**Plans**: TBD
 
 Plans:
-- [ ] 24-01-PLAN.md — Pre-update baseline & backup + OpenClaw update to v2026.2.17
-- [ ] 24-02-PLAN.md — SecureClaw plugin install, audit, behavioral rules, and smoke test
+- [ ] 24-01: TBD
+- [ ] 24-02: TBD
 
 ### Phase 25: Post-Update Audit
-**Goal**: Every existing automation (crons, skills, agents) is confirmed functional after the major version jump, and new prompt injection protections are verified
+**Goal**: Every existing automation is confirmed functional after the major version jump, and new prompt injection protections are verified
 **Depends on**: Phase 24
 **Requirements**: SEC-04, SEC-05, SEC-06, SEC-07
 **Success Criteria** (what must be TRUE):
   1. All 20 cron jobs appear in `openclaw cron list` and fire on their next scheduled run without errors
   2. All 10 skills appear in `openclaw skill list` and Bob can invoke each without "skill not found"
   3. All 7 agents respond to a heartbeat or direct message (main, landos, rangeos, ops, quill, sage, ezra)
-  4. Browser/web content fetched by Bob is treated as untrusted (SecureClaw injection protections block embedded prompt injection payloads)
+  4. Browser/web content fetched by Bob is treated as untrusted -- SecureClaw injection protections block embedded prompt injection payloads
 **Plans**: TBD
 
 Plans:
@@ -101,10 +102,10 @@ Plans:
 
 ### Phase 26: Agent Observability
 **Goal**: Bob can see how all agents are using LLM resources and surfaces anomalies in the morning briefing
-**Depends on**: Phase 25
+**Depends on**: Phase 24 (hooks require v2026.2.17; independent of phases 25, 27, 28)
 **Requirements**: OBS-01, OBS-02, OBS-03
 **Success Criteria** (what must be TRUE):
-  1. `llm_input` and `llm_output` hooks are configured in openclaw.json and firing (verified by log output or hook endpoint receiving payloads)
+  1. LLM hook payloads are configured and firing (verified by log output after at least one agent turn)
   2. Bob can report per-agent token usage, model distribution (Haiku/Sonnet/Opus), and turn counts for the last 24 hours
   3. Morning briefing includes an "Agent Observability" section that flags anomalous usage spikes, errors, or rate limit proximity
 **Plans**: TBD
@@ -113,8 +114,8 @@ Plans:
 - [ ] 26-01: TBD
 
 ### Phase 27: Email Domain Hardening
-**Goal**: Email domain reputation is production-grade with enforced DMARC and verified deliverability
-**Depends on**: Phase 24 (gateway must be running; independent of phases 25-26)
+**Goal**: Email domain reputation is production-grade with enforced DMARC and verified deliverability -- prerequisite for subscriber sends in Phase 29
+**Depends on**: Phase 24 (gateway must be running; independent of phases 25, 26, 28)
 **Requirements**: EML-01, EML-02, EML-03
 **Success Criteria** (what must be TRUE):
   1. DMARC DNS record for mail.andykaufman.net shows `p=quarantine` (verified via `dig TXT _dmarc.mail.andykaufman.net`)
@@ -127,24 +128,39 @@ Plans:
 
 ### Phase 28: Platform Cleanup
 **Goal**: All deferred maintenance items resolved -- clean doctor output, minimal OAuth scopes, modern config patterns
-**Depends on**: Phase 24 (gateway must be running; independent of phases 25-27)
+**Depends on**: Phase 24 (gateway must be running; independent of phases 25, 26, 27)
 **Requirements**: CLN-01, CLN-02, CLN-03, CLN-04, CLN-05
 **Success Criteria** (what must be TRUE):
-  1. `gog auth list` shows Gmail OAuth with only required scopes (gmail.readonly, calendar.readonly -- excess scopes removed)
+  1. `gog auth list` shows Gmail OAuth with only required scopes (excess scopes removed; minimum: gmail.readonly + gmail.send + gmail.modify + calendar.readonly)
   2. `openclaw doctor` outputs zero warnings (deprecated auth profile migrated, legacy session key resolved)
   3. `openclaw.json` uses `dmPolicy`/`allowFrom` config aliases where applicable to current setup
-  4. `gateway.remote.url` is documented in openclaw.json comments or PROJECT.md and verified reachable from VPS
+  4. `gateway.remote.url` is documented in PROJECT.md and verified reachable from VPS after update
 **Plans**: TBD
 
 Plans:
 - [ ] 28-01: TBD
 - [ ] 28-02: TBD
 
+### Phase 29: Content Distribution
+**Goal**: Published articles reach subscribers automatically via weekly digest emails sent through Resend Broadcasts
+**Depends on**: Phase 27 (DMARC must be at p=quarantine before subscriber sends begin)
+**Requirements**: DIST-01, DIST-02, DIST-03, DIST-04, DIST-05
+**Success Criteria** (what must be TRUE):
+  1. Resend Audience exists with a seed list of industry contacts, and Bob can add/remove contacts via skill command
+  2. Weekly cron fires and compiles all articles published in the last 7 days from content.db into a digest
+  3. Digest email includes article titles, summaries, and links to airspaceintegration.com -- formatted with the existing HTML email template
+  4. Digest is sent via Resend Broadcasts API to the subscriber audience on a consistent weekly schedule
+**Plans**: TBD
+
+Plans:
+- [ ] 29-01: TBD
+- [ ] 29-02: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 24 → 25 → 26 → 27 → 28
-Note: Phases 26, 27, 28 depend only on 24 (not each other) but execute sequentially for simplicity.
+Phases execute in numeric order: 24 -> 25 -> 26 -> 27 -> 28 -> 29
+Note: Phases 26, 27, 28 depend only on Phase 24 (not each other) but execute sequentially for simplicity. Phase 29 hard-depends on Phase 27.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -171,11 +187,12 @@ Note: Phases 26, 27, 28 depend only on 24 (not each other) but execute sequentia
 | 21. Inbound Email Processing | v2.2 | 2/2 | Complete | 2026-02-17 |
 | 22. Domain Warmup & Hardening | v2.2 | 1/1 | Complete | 2026-02-17 |
 | 23. Email Integration Gap Closure | v2.2 | 1/1 | Complete | 2026-02-17 |
-| 24. Critical Security Update | v2.3 | 0/? | Not started | - |
-| 25. Post-Update Audit | v2.3 | 0/? | Not started | - |
-| 26. Agent Observability | v2.3 | 0/? | Not started | - |
-| 27. Email Domain Hardening | v2.3 | 0/? | Not started | - |
-| 28. Platform Cleanup | v2.3 | 0/? | Not started | - |
+| 24. Critical Security Update | v2.4 | 0/? | Not started | - |
+| 25. Post-Update Audit | v2.4 | 0/? | Not started | - |
+| 26. Agent Observability | v2.4 | 0/? | Not started | - |
+| 27. Email Domain Hardening | v2.4 | 0/? | Not started | - |
+| 28. Platform Cleanup | v2.4 | 0/? | Not started | - |
+| 29. Content Distribution | v2.4 | 0/? | Not started | - |
 
 ---
-*Updated: 2026-02-17 — v2.3 Security & Platform Hardening roadmap created*
+*Updated: 2026-02-17 -- v2.4 Content Distribution & Platform Hardening roadmap created*
