@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-17)
 ## Current Position
 
 Phase: 24 of 29 (Critical Security Update)
-Plan: 0 of 2 in current phase
-Status: Planned -- ready to execute
+Plan: 1 of 2 in current phase
+Status: Executing -- Plan 24-01 complete, Plan 24-02 next
 Milestone: v2.4 Content Distribution & Platform Hardening
-Last activity: 2026-02-17 -- Roadmap created (6 phases, 23 requirements mapped)
+Last activity: 2026-02-18 -- Plan 24-01 complete (OpenClaw updated to v2026.2.17)
 
 Progress: [##########################..........] 23/29 phases (prior milestones complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 44 (across v2.0 + v2.1 + v2.2)
-- v2.4 plans: 0 completed
+- Total plans completed: 45 (across v2.0 + v2.1 + v2.2 + v2.4)
+- v2.4 plans: 1 completed
 
 **By Milestone:**
 
@@ -31,7 +31,7 @@ Progress: [##########################..........] 23/29 phases (prior milestones 
 | v2.1 | 7 | 14 | 1 day |
 | v2.2 | 5 | 8 | 2 days |
 | v2.3 | 0 | 0 | Merged into v2.4 |
-| v2.4 | 0/6 | 0/? | In progress |
+| v2.4 | 0/6 | 1/? | In progress |
 
 ## Accumulated Context
 
@@ -44,6 +44,8 @@ Recent decisions affecting current work:
 - v2.4 scope: content distribution (subscribers, digest) + security/hardening from v2.3
 - Phase 29 (content distribution) hard-depends on Phase 27 (DMARC at p=quarantine)
 - Subscriber notifications (DIST-06) and pitch copy (DIST-07) deferred from v2.4
+- Gateway token aligned: CLAWDBOT_GATEWAY_TOKEN in service file matched to gateway.auth.token (Phase 24-01)
+- Config schema migrated: dm.policy -> dmPolicy, dm.allowFrom -> allowFrom (v2026.2.14+ format, Phase 24-01)
 
 ### Open Items
 
@@ -59,7 +61,7 @@ Recent decisions affecting current work:
 ## Notes
 
 - EC2 access via Tailscale: 100.72.143.9
-- OpenClaw version: v2026.2.6-3 (target: v2026.2.17)
+- OpenClaw version: v2026.2.17 (updated from v2026.2.6-3, CVE-2026-25253 patched)
 - Gateway bind: tailnet (100.72.143.9:18789)
 - Total cron jobs: 20 | Skills: 10 | Agents: 7
 - Databases: health.db, coordination.db, content.db, email.db
@@ -67,9 +69,9 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-17
-Stopped at: Phase 24 planned (2 plans, 2 waves) -- ready for `/gsd:execute-phase 24`
-Resume file: .planning/phases/24-critical-security-update/24-01-PLAN.md
+Last session: 2026-02-18
+Stopped at: Completed 24-01-PLAN.md -- ready for 24-02-PLAN.md (SecureClaw plugin install)
+Resume file: .planning/phases/24-critical-security-update/24-02-PLAN.md
 
 ---
-*Last updated: 2026-02-17 -- Phase 24 planned*
+*Last updated: 2026-02-18 -- Plan 24-01 complete (OpenClaw v2026.2.17)*
