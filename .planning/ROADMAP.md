@@ -79,11 +79,11 @@ Full details: [milestones/v2.2-ROADMAP.md](milestones/v2.2-ROADMAP.md)
   2. SecureClaw plugin is installed and its 51-check audit completes with zero critical failures
   3. SecureClaw's 15 runtime behavioral rules are active (external content sandboxed, credential access blocked, destructive commands gated)
   4. Gateway service is running and Bob responds to a Slack DM
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 24-01: TBD
-- [ ] 24-02: TBD
+- [ ] 24-01-PLAN.md -- Baseline, backup & OpenClaw update to v2026.2.17
+- [ ] 24-02-PLAN.md -- SecureClaw plugin install, audit, behavioral rules & smoke test
 
 ### Phase 25: Post-Update Audit
 **Goal**: Every existing automation is confirmed functional after the major version jump, and new prompt injection protections are verified
