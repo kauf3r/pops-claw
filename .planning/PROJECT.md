@@ -51,7 +51,17 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ### Active
 
-(No active requirements — ready for next milestone planning)
+## Current Milestone: v2.3 Security & Platform Hardening
+
+**Goal:** Patch critical security vulnerabilities, add runtime security monitoring, complete email domain hardening, and clear deferred maintenance backlog.
+
+**Target features:**
+- Update OpenClaw v2026.2.6-3 → v2026.2.17 (CVE-2026-25253 RCE patch + 40 fixes)
+- Install SecureClaw OWASP-aligned security plugin
+- Post-update audit of all 20 crons, 10 skills, 7 agents
+- Agent observability via llm_input/llm_output hooks
+- DMARC escalation (p=none → p=quarantine) + warmup checklist
+- Gmail OAuth scope reduction + doctor warning cleanup
 
 ### Out of Scope
 
@@ -64,7 +74,7 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 **Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) = full proactive companion + autonomous content pipeline + email integration.
 
-**Tech stack:** OpenClaw v2026.2.6-3, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean).
+**Tech stack:** OpenClaw v2026.2.17, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean).
 
 **Infrastructure:**
 - AWS EC2 Ubuntu, Tailscale IP: 100.72.143.9
@@ -132,4 +142,4 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Catch-up cron as webhook fallback | Resend list API + dedup via email.db | ✓ Good — secondary safety net |
 
 ---
-*Last updated: 2026-02-17 after v2.2 milestone*
+*Last updated: 2026-02-17 after v2.3 milestone start*
