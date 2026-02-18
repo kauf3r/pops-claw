@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-17)
 
 **Core value:** Proactive daily companion with content distribution, email, and security hardening at $0 incremental cost.
-**Current focus:** Phase 25 -- Post-Update Audit
+**Current focus:** Phase 26 -- Agent Observability
 
 ## Current Position
 
-Phase: 25 of 29 (Post-Update Audit)
-Plan: 1 of 2 in current phase
-Status: In progress -- Plan 01 (manifest audit) complete, Plan 02 (injection testing) next
+Phase: 26 of 29 (Agent Observability)
+Plan: 0 of ? in current phase
+Status: Phase 25 complete -- ready to plan Phase 26
 Milestone: v2.4 Content Distribution & Platform Hardening
-Last activity: 2026-02-18 -- Phase 25 Plan 01 complete (manifest audit: 20/20 crons, 13/13 skills, 7/7 agents)
+Last activity: 2026-02-18 -- Phase 25 complete (manifest audit + injection testing: 8/8 payloads blocked, SEC-04 through SEC-07 satisfied)
 
-Progress: [###########################.........] 24/29 phases (prior milestones complete)
+Progress: [############################........] 25/29 phases (prior milestones complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 46 (across v2.0 + v2.1 + v2.2 + v2.4)
-- v2.4 plans: 2 completed
+- Total plans completed: 48 (across v2.0 + v2.1 + v2.2 + v2.4)
+- v2.4 plans: 4 completed
 
 **By Milestone:**
 
@@ -31,13 +31,14 @@ Progress: [###########################.........] 24/29 phases (prior milestones 
 | v2.1 | 7 | 14 | 1 day |
 | v2.2 | 5 | 8 | 2 days |
 | v2.3 | 0 | 0 | Merged into v2.4 |
-| v2.4 | 1/6 | 3/? | In progress |
+| v2.4 | 2/6 | 4/? | In progress |
 
 **Recent plan metrics:**
 
 | Phase-Plan | Duration | Tasks | Files |
 |------------|----------|-------|-------|
 | 25-01 | 3min | 2 | 2 |
+| 25-02 | 6min | 3 | 3 |
 
 ## Accumulated Context
 
@@ -59,6 +60,9 @@ Recent decisions affecting current work:
 - Post-update audit: 20/20 crons, 13/13 skills, 7/7 agents confirmed intact after v2026.2.17 (Phase 25-01)
 - airspace-email-monitor error self-resolved after gateway restart -- no manual fix needed (Phase 25-01)
 - Skill count corrected: 13 openclaw-managed (was 11 in STATE.md) -- includes ClawdStrike, secureclaw, save-voice-notes (Phase 25-01)
+- 8/8 injection payloads blocked: SecureClaw behavioral rules verified across all 7 pattern categories (Phase 25-02)
+- Email payloads tested via direct agent injection (stronger than pipeline delivery) due to inbound pipeline not routing to sandbox (Phase 25-02)
+- Email-catchup cron delivery target error discovered -- infrastructure bug, deferred to Phase 28 (Phase 25-02)
 
 ### Open Items
 
@@ -66,6 +70,7 @@ Recent decisions affecting current work:
 - SecureClaw configPatch: plugin install adds plugins.load.paths and plugins.state entries to config (verified, Phase 24-02)
 - DMARC rua mailbox: verify 14+ days of aggregate reports exist before Phase 27 escalation
 - Gmail OAuth scope reduction (CLN-01): enumerate all gog operations before re-auth
+- Email-catchup cron delivery target error: "Action send requires a target" -- investigate in Phase 28
 
 ### Blockers
 
@@ -84,8 +89,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 25-01-PLAN.md (manifest audit) -- ready for 25-02 (injection testing)
-Resume file: .planning/phases/25-post-update-audit/25-02-PLAN.md
+Stopped at: Completed 25-02-PLAN.md -- Phase 25 fully complete. Ready for Phase 26 (Agent Observability).
+Resume file: Phase 26 planning needed
 
 ---
-*Last updated: 2026-02-18 -- Phase 25 Plan 01 complete (manifest audit: 20/20 crons, 13/13 skills, 7/7 agents)*
+*Last updated: 2026-02-18 -- Phase 25 complete (post-update audit: manifest + injection testing, SEC-04 through SEC-07 satisfied)*

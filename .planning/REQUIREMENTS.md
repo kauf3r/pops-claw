@@ -24,7 +24,7 @@
 - [x] **SEC-04**: Post-update audit confirms all 20 cron jobs firing on schedule
 - [x] **SEC-05**: Post-update audit confirms all 10 skills detected and functional
 - [x] **SEC-06**: Post-update audit confirms all 7 agents heartbeating/responding
-- [ ] **SEC-07**: New prompt injection protections verified (browser/web content "untrusted by default")
+- [x] **SEC-07**: New prompt injection protections verified (browser/web content "untrusted by default")
 
 ### Observability
 
@@ -83,7 +83,7 @@
 | SEC-04 | Phase 25 | Complete |
 | SEC-05 | Phase 25 | Complete |
 | SEC-06 | Phase 25 | Complete |
-| SEC-07 | Phase 25 | Pending |
+| SEC-07 | Phase 25 | Complete |
 | OBS-01 | Phase 26 | Pending |
 | OBS-02 | Phase 26 | Pending |
 | OBS-03 | Phase 26 | Pending |
@@ -108,4 +108,4 @@
 
 ---
 *Requirements defined: 2026-02-17*
-*Last updated: 2026-02-17 after roadmap creation (traceability complete)*
+*Last updated: 2026-02-18 -- SEC-07 marked complete (Phase 25-02 injection testing)*
