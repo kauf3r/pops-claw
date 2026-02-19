@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-17)
 
 ## Current Position
 
-Phase: 26 of 29 (Agent Observability)
-Plan: 1 of 2 in current phase
-Status: Plan 26-01 complete -- observability-hooks plugin installed and verified
+Phase: 26 of 29 (Agent Observability) -- COMPLETE
+Plan: 2 of 2 in current phase (all complete)
+Status: Phase 26 complete -- observability pipeline operational (plugin + reporting + morning briefing)
 Milestone: v2.4 Content Distribution & Platform Hardening
-Last activity: 2026-02-18 -- Plan 26-01 complete (observability-hooks plugin capturing LLM usage + agent lifecycle to SQLite)
+Last activity: 2026-02-19 -- Phase 26 complete (backfill + OBSERVABILITY.md + morning briefing Section 10)
 
-Progress: [############################........] 25/29 phases (prior milestones complete)
+Progress: [##############################......] 26/29 phases
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 49 (across v2.0 + v2.1 + v2.2 + v2.4)
-- v2.4 plans: 5 completed
+- Total plans completed: 51 (across v2.0 + v2.1 + v2.2 + v2.4)
+- v2.4 plans: 7 completed
 
 **By Milestone:**
 
@@ -31,7 +31,7 @@ Progress: [############################........] 25/29 phases (prior milestones 
 | v2.1 | 7 | 14 | 1 day |
 | v2.2 | 5 | 8 | 2 days |
 | v2.3 | 0 | 0 | Merged into v2.4 |
-| v2.4 | 2/6 | 5/? | In progress |
+| v2.4 | 3/6 | 7/? | In progress |
 
 **Recent plan metrics:**
 
@@ -40,6 +40,7 @@ Progress: [############################........] 25/29 phases (prior milestones 
 | 25-01 | 3min | 2 | 2 |
 | 25-02 | 6min | 3 | 3 |
 | 26-01 | 8min | 2 | 8 |
+| 26-02 | 11min | 2 | 3 |
 
 ## Accumulated Context
 
@@ -67,6 +68,9 @@ Recent decisions affecting current work:
 - observability-hooks plugin: child_process.execSync for SQLite writes (no npm deps, proven on host) (Phase 26-01)
 - Plugin manifest requires configSchema field -- gateway rejects without it (Phase 26-01)
 - Plugin registration needs load.paths + entries + installs in openclaw.json (Phase 26-01)
+- Backfilled from cron JSONL only (not DM sessions) -- heartbeats lack usage data (Phase 26-02)
+- Rate limit proximity uses token volume estimation, not API headers (unavailable in hook events) (Phase 26-02)
+- OBSERVABILITY.md deployed as workspace reference doc (same pattern as MEETING_PREP.md) (Phase 26-02)
 
 ### Open Items
 
@@ -92,9 +96,9 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-18
-Stopped at: Completed 26-01-PLAN.md -- observability-hooks plugin installed and verified. Ready for 26-02 (morning briefing integration).
-Resume file: .planning/phases/26-agent-observability/26-02-PLAN.md
+Last session: 2026-02-19
+Stopped at: Completed Phase 26 (Agent Observability) -- all plans complete (OBS-01, OBS-02, OBS-03 satisfied). Ready for next phase.
+Resume file: Next phase planning
 
 ---
-*Last updated: 2026-02-18 -- Plan 26-01 complete (observability-hooks plugin: LLM usage + agent lifecycle to SQLite, OBS-01 + OBS-02 satisfied)*
+*Last updated: 2026-02-19 -- Phase 26 complete (observability pipeline: plugin + backfill + OBSERVABILITY.md + morning briefing Section 10)*

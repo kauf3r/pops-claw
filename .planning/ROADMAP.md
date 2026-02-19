@@ -63,7 +63,7 @@ Full details: [milestones/v2.2-ROADMAP.md](milestones/v2.2-ROADMAP.md)
 
 - [x] **Phase 24: Critical Security Update** — Update OpenClaw to v2026.2.17 and install SecureClaw security plugin (completed 2026-02-18)
 - [x] **Phase 25: Post-Update Audit** — Verify all crons, skills, agents, and injection protections survived the update (completed 2026-02-18)
-- [ ] **Phase 26: Agent Observability** — Add LLM hooks, activity summaries, and observability briefing section
+- [x] **Phase 26: Agent Observability** — Add LLM hooks, activity summaries, and observability briefing section (completed 2026-02-19)
 - [ ] **Phase 27: Email Domain Hardening** — Escalate DMARC, execute warmup checklist, verify health metrics
 - [ ] **Phase 28: Platform Cleanup** — Reduce Gmail scope, resolve doctor warnings, adopt config aliases
 - [ ] **Phase 29: Content Distribution** — Subscriber audience, weekly digest compilation and send via Resend Broadcasts
@@ -190,7 +190,7 @@ Note: Phases 26, 27, 28 depend only on Phase 24 (not each other) but execute seq
 | 23. Email Integration Gap Closure | v2.2 | 1/1 | Complete | 2026-02-17 |
 | 24. Critical Security Update | v2.4 | 2/2 | Complete | 2026-02-18 |
 | 25. Post-Update Audit | v2.4 | Complete    | 2026-02-18 | 2026-02-18 |
-| 26. Agent Observability | 1/2 | In Progress|  | - |
+| 26. Agent Observability | 2/2 | Complete   | 2026-02-19 | - |
 | 27. Email Domain Hardening | v2.4 | 0/? | Not started | - |
 | 28. Platform Cleanup | v2.4 | 0/? | Not started | - |
 | 29. Content Distribution | v2.4 | 0/? | Not started | - |
