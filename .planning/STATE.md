@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-17)
 
 **Core value:** Proactive daily companion with content distribution, email, and security hardening at $0 incremental cost.
-**Current focus:** Phase 26 -- Agent Observability
+**Current focus:** Phase 27 -- Email Domain Hardening
 
 ## Current Position
 
-Phase: 26 of 29 (Agent Observability) -- COMPLETE
-Plan: 2 of 2 in current phase (all complete)
-Status: Phase 26 complete -- observability pipeline operational (plugin + reporting + morning briefing)
+Phase: 27 of 29 (Email Domain Hardening) -- Tasks 1-3 COMPLETE, Task 4 deferred (48h rua checkpoint)
+Plan: 1 of 1 in current phase (Tasks 1-3 done, Task 4 pending 48h)
+Status: DMARC escalated to p=quarantine, readiness gate active -- awaiting 48h rua aggregate report confirmation
 Milestone: v2.4 Content Distribution & Platform Hardening
-Last activity: 2026-02-19 -- Phase 26 complete (backfill + OBSERVABILITY.md + morning briefing Section 10)
+Last activity: 2026-02-19 -- Phase 27 Plan 01 Tasks 1-3 executed (DMARC escalation + readiness gate)
 
-Progress: [##############################......] 26/29 phases
+Progress: [###############################.....] 27/29 phases
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 51 (across v2.0 + v2.1 + v2.2 + v2.4)
-- v2.4 plans: 7 completed
+- Total plans completed: 52 (across v2.0 + v2.1 + v2.2 + v2.4)
+- v2.4 plans: 8 completed
 
 **By Milestone:**
 
@@ -31,7 +31,7 @@ Progress: [##############################......] 26/29 phases
 | v2.1 | 7 | 14 | 1 day |
 | v2.2 | 5 | 8 | 2 days |
 | v2.3 | 0 | 0 | Merged into v2.4 |
-| v2.4 | 3/6 | 7/? | In progress |
+| v2.4 | 4/6 | 8/? | In progress |
 
 **Recent plan metrics:**
 
@@ -41,6 +41,7 @@ Progress: [##############################......] 26/29 phases
 | 25-02 | 6min | 3 | 3 |
 | 26-01 | 8min | 2 | 8 |
 | 26-02 | 11min | 2 | 3 |
+| 27-01 | 2min | 3 | 3 |
 
 ## Accumulated Context
 
@@ -71,12 +72,16 @@ Recent decisions affecting current work:
 - Backfilled from cron JSONL only (not DM sessions) -- heartbeats lack usage data (Phase 26-02)
 - Rate limit proximity uses token volume estimation, not API headers (unavailable in hook events) (Phase 26-02)
 - OBSERVABILITY.md deployed as workspace reference doc (same pattern as MEETING_PREP.md) (Phase 26-02)
+- DMARC escalated to p=quarantine with rua=theandykaufman@gmail.com (simpler than cross-domain) (Phase 27-01)
+- Readiness gate: email-config.json dmarc_escalated_at + morning briefing Phase 29 gate countdown (Phase 27-01)
+- Two-tier email health thresholds: WARNING (2%/0.08%) vs CRITICAL (5%/0.1%) (Phase 27-01)
+- 48h rua confirmation required before WARMUP.md Step 5 finalized -- deferred checkpoint (Phase 27-01)
 
 ### Open Items
 
 - LLM hook names (OBS-01) are HIGH confidence -- verified llm_output and agent_end fire correctly (resolved Phase 26-01)
 - SecureClaw configPatch: plugin install adds plugins.load.paths and plugins.state entries to config (verified, Phase 24-02)
-- DMARC rua mailbox: verify 14+ days of aggregate reports exist before Phase 27 escalation
+- DMARC rua at theandykaufman@gmail.com: 48h rua aggregate report expected by 2026-02-21T20:13Z (Phase 27-01 Task 4 checkpoint)
 - Gmail OAuth scope reduction (CLN-01): enumerate all gog operations before re-auth
 - Email-catchup cron delivery target error: "Action send requires a target" -- investigate in Phase 28
 
@@ -97,8 +102,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Phase 27 context gathered -- DMARC escalation strategy, warmup execution, health monitoring, readiness gate decisions captured
-Resume file: .planning/phases/27-email-domain-hardening/27-CONTEXT.md
+Stopped at: Phase 27-01 Tasks 1-3 complete -- Task 4 deferred checkpoint (48h rua confirmation, earliest 2026-02-21T20:13Z)
+Resume file: .planning/phases/27-email-domain-hardening/27-01-SUMMARY.md
 
 ---
-*Last updated: 2026-02-19 -- Phase 27 context gathered (email domain hardening decisions)*
+*Last updated: 2026-02-19 -- Phase 27-01 executed (DMARC escalation, readiness gate, Task 4 deferred 48h)*

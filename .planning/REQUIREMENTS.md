@@ -34,9 +34,9 @@
 
 ### Email Hardening
 
-- [ ] **EML-01**: DMARC policy escalated from p=none to p=quarantine after confirming 2 clean weeks
-- [ ] **EML-02**: WARMUP.md 5-step checklist executed (DNS verified, auth tested, inbox placement confirmed, monitoring active)
-- [ ] **EML-03**: Email health metrics (bounce/complaint rates) trending clean in morning briefing
+- [x] **EML-01**: DMARC policy escalated from p=none to p=quarantine after confirming 2 clean weeks
+- [x] **EML-02**: WARMUP.md 5-step checklist executed (DNS verified, auth tested, inbox placement confirmed, monitoring active)
+- [x] **EML-03**: Email health metrics (bounce/complaint rates) trending clean in morning briefing
 
 ### Platform Cleanup
 
@@ -87,9 +87,9 @@
 | OBS-01 | Phase 26 | Complete |
 | OBS-02 | Phase 26 | Complete |
 | OBS-03 | Phase 26 | Complete |
-| EML-01 | Phase 27 | Pending |
-| EML-02 | Phase 27 | Pending |
-| EML-03 | Phase 27 | Pending |
+| EML-01 | Phase 27 | Complete |
+| EML-02 | Phase 27 | Complete |
+| EML-03 | Phase 27 | Complete |
 | CLN-01 | Phase 28 | Pending |
 | CLN-02 | Phase 28 | Pending |
 | CLN-03 | Phase 28 | Pending |
@@ -108,4 +108,4 @@
 
 ---
 *Requirements defined: 2026-02-17*
-*Last updated: 2026-02-18 -- SEC-07 marked complete (Phase 25-02 injection testing)*
+*Last updated: 2026-02-19 -- EML-01/02/03 marked complete (Phase 27-01 DMARC escalation + warmup)*

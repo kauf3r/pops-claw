@@ -64,7 +64,7 @@ Full details: [milestones/v2.2-ROADMAP.md](milestones/v2.2-ROADMAP.md)
 - [x] **Phase 24: Critical Security Update** — Update OpenClaw to v2026.2.17 and install SecureClaw security plugin (completed 2026-02-18)
 - [x] **Phase 25: Post-Update Audit** — Verify all crons, skills, agents, and injection protections survived the update (completed 2026-02-18)
 - [x] **Phase 26: Agent Observability** — Add LLM hooks, activity summaries, and observability briefing section (completed 2026-02-19)
-- [ ] **Phase 27: Email Domain Hardening** — Escalate DMARC, execute warmup checklist, verify health metrics
+- [x] **Phase 27: Email Domain Hardening** — Escalate DMARC, execute warmup checklist, verify health metrics (completed 2026-02-19, Task 4 deferred 48h)
 - [ ] **Phase 28: Platform Cleanup** — Reduce Gmail scope, resolve doctor warnings, adopt config aliases
 - [ ] **Phase 29: Content Distribution** — Subscriber audience, weekly digest compilation and send via Resend Broadcasts
 
@@ -125,7 +125,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 27-01-PLAN.md -- DNS verification, DMARC escalation to p=quarantine, warmup checklist execution, monitoring threshold update with readiness gate
+- [x] 27-01-PLAN.md -- DNS verification, DMARC escalation to p=quarantine, warmup checklist execution, monitoring threshold update with readiness gate
 
 ### Phase 28: Platform Cleanup
 **Goal**: All deferred maintenance items resolved -- clean doctor output, minimal OAuth scopes, modern config patterns
@@ -191,9 +191,9 @@ Note: Phases 26, 27, 28 depend only on Phase 24 (not each other) but execute seq
 | 24. Critical Security Update | v2.4 | 2/2 | Complete | 2026-02-18 |
 | 25. Post-Update Audit | v2.4 | Complete    | 2026-02-18 | 2026-02-18 |
 | 26. Agent Observability | 2/2 | Complete    | 2026-02-19 | - |
-| 27. Email Domain Hardening | v2.4 | 0/? | Not started | - |
+| 27. Email Domain Hardening | v2.4 | 1/1 | Complete (Task 4 deferred 48h) | 2026-02-19 |
 | 28. Platform Cleanup | v2.4 | 0/? | Not started | - |
 | 29. Content Distribution | v2.4 | 0/? | Not started | - |
 
 ---
-*Updated: 2026-02-18 -- Phase 25 complete (post-update audit: manifest + injection testing)*
+*Updated: 2026-02-19 -- Phase 27 complete (DMARC escalation, warmup checklist, readiness gate; Task 4 deferred 48h)*
