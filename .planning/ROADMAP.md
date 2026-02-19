@@ -136,11 +136,11 @@ Plans:
   2. `openclaw doctor` outputs zero warnings (deprecated auth profile migrated, legacy session key resolved)
   3. `openclaw.json` uses `dmPolicy`/`allowFrom` config aliases where applicable to current setup
   4. `gateway.remote.url` is documented in PROJECT.md and verified reachable from VPS after update
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 28-01: TBD
-- [ ] 28-02: TBD
+- [ ] 28-01-PLAN.md -- Fix doctor warnings (deprecated auth profile, legacy session keys) and verify dmPolicy/allowFrom migration
+- [ ] 28-02-PLAN.md -- Re-auth Gmail OAuth with trimmed scopes (both accounts) and document gateway.remote.url in PROJECT.md
 
 ### Phase 29: Content Distribution
 **Goal**: Published articles reach subscribers automatically via weekly digest emails sent through Resend Broadcasts
