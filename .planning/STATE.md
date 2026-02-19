@@ -97,8 +97,8 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed Phase 26 (Agent Observability) -- all plans complete (OBS-01, OBS-02, OBS-03 satisfied). Ready for next phase.
-Resume file: Next phase planning
+Stopped at: Phase 27 context gathered -- DMARC escalation strategy, warmup execution, health monitoring, readiness gate decisions captured
+Resume file: .planning/phases/27-email-domain-hardening/27-CONTEXT.md
 
 ---
-*Last updated: 2026-02-19 -- Phase 26 complete (observability pipeline: plugin + backfill + OBSERVABILITY.md + morning briefing Section 10)*
+*Last updated: 2026-02-19 -- Phase 27 context gathered (email domain hardening decisions)*
