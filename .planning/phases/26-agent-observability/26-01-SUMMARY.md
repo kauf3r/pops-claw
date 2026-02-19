@@ -71,7 +71,7 @@ Each task was committed atomically:
 1. **Task 1: Create observability-hooks plugin source files** - `8889d18` (feat)
 2. **Task 2: Register plugin, add bind mount, restart gateway, verify hooks** - `35b51d4` (feat)
 
-**Plan metadata:** [pending] (docs: complete plan)
+**Plan metadata:** `c5d8f9b` (docs: complete plan)
 
 ## Files Created/Modified
 - `~/.openclaw/plugins/observability-hooks/package.json` - npm package definition (ESM, tsc build)
