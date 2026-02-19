@@ -122,10 +122,10 @@ Plans:
   1. DMARC DNS record for mail.andykaufman.net shows `p=quarantine` (verified via `dig TXT _dmarc.mail.andykaufman.net`)
   2. WARMUP.md 5-step checklist is fully executed: DNS verified, authentication tested, inbox placement confirmed, monitoring active, escalation complete
   3. Email health metrics in morning briefing show bounce rate < 5% and complaint rate < 0.1% over the most recent 7-day window
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 27-01: TBD
+- [ ] 27-01-PLAN.md -- DNS verification, DMARC escalation to p=quarantine, warmup checklist execution, monitoring threshold update with readiness gate
 
 ### Phase 28: Platform Cleanup
 **Goal**: All deferred maintenance items resolved -- clean doctor output, minimal OAuth scopes, modern config patterns
