@@ -70,7 +70,7 @@ Each task was committed atomically:
 1. **Task 1: Backfill baseline from cron JSONL and create OBSERVABILITY.md** - `963d8be` (feat)
 2. **Task 2: Add Agent Observability section to morning briefing cron** - `639afbb` (feat)
 
-**Plan metadata:** [pending] (docs: complete plan)
+**Plan metadata:** `84478e2` (docs: complete plan)
 
 ## Files Created/Modified
 - `~/clawd/agents/main/OBSERVABILITY.md` - Reference doc with SQL queries for 6 reporting sections (summary, anomaly, errors, latency, rate limit, retention)
