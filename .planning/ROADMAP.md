@@ -139,7 +139,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 28-01-PLAN.md -- Fix doctor warnings (deprecated auth profile, legacy session keys) and verify dmPolicy/allowFrom migration
+- [x] 28-01-PLAN.md -- Fix doctor warnings (deprecated auth profile, legacy session keys) and verify dmPolicy/allowFrom migration
 - [ ] 28-02-PLAN.md -- Re-auth Gmail OAuth with trimmed scopes (both accounts) and document gateway.remote.url in PROJECT.md
 
 ### Phase 29: Content Distribution
@@ -192,8 +192,8 @@ Note: Phases 26, 27, 28 depend only on Phase 24 (not each other) but execute seq
 | 25. Post-Update Audit | v2.4 | Complete    | 2026-02-18 | 2026-02-18 |
 | 26. Agent Observability | 2/2 | Complete    | 2026-02-19 | - |
 | 27. Email Domain Hardening | v2.4 | 1/1 | Complete (Task 4 deferred 48h) | 2026-02-19 |
-| 28. Platform Cleanup | v2.4 | 0/? | Not started | - |
+| 28. Platform Cleanup | v2.4 | 1/2 | In progress | - |
 | 29. Content Distribution | v2.4 | 0/? | Not started | - |
 
 ---
-*Updated: 2026-02-19 -- Phase 27 complete (DMARC escalation, warmup checklist, readiness gate; Task 4 deferred 48h)*
+*Updated: 2026-02-20 -- Phase 28 Plan 01 complete (doctor warnings resolved, config migration verified)*

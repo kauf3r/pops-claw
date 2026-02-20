@@ -41,9 +41,9 @@
 ### Platform Cleanup
 
 - [ ] **CLN-01**: Gmail OAuth scope reduction (remove 2 excess scopes, re-auth gog)
-- [ ] **CLN-02**: Doctor warnings resolved — deprecated auth profile migrated to setup-token
-- [ ] **CLN-03**: Doctor warnings resolved — legacy session key canonicalization
-- [ ] **CLN-04**: `dmPolicy`/`allowFrom` config aliases adopted (if applicable to current setup)
+- [x] **CLN-02**: Doctor warnings resolved — deprecated auth profile migrated to setup-token
+- [x] **CLN-03**: Doctor warnings resolved — legacy session key canonicalization
+- [x] **CLN-04**: `dmPolicy`/`allowFrom` config aliases adopted (if applicable to current setup)
 - [ ] **CLN-05**: `gateway.remote.url` config documented and verified post-update
 
 ## Future Requirements
@@ -91,9 +91,9 @@
 | EML-02 | Phase 27 | Complete |
 | EML-03 | Phase 27 | Complete |
 | CLN-01 | Phase 28 | Pending |
-| CLN-02 | Phase 28 | Pending |
-| CLN-03 | Phase 28 | Pending |
-| CLN-04 | Phase 28 | Pending |
+| CLN-02 | Phase 28 | Complete |
+| CLN-03 | Phase 28 | Complete |
+| CLN-04 | Phase 28 | Complete |
 | CLN-05 | Phase 28 | Pending |
 | DIST-01 | Phase 29 | Pending |
 | DIST-02 | Phase 29 | Pending |
@@ -108,4 +108,4 @@
 
 ---
 *Requirements defined: 2026-02-17*
-*Last updated: 2026-02-19 -- EML-01/02/03 marked complete (Phase 27-01 DMARC escalation + warmup)*
+*Last updated: 2026-02-20 -- CLN-02/03/04 marked complete (Phase 28-01 doctor warnings + config verification)*

@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-17)
 
 **Core value:** Proactive daily companion with content distribution, email, and security hardening at $0 incremental cost.
-**Current focus:** Phase 27 -- Email Domain Hardening
+**Current focus:** Phase 28 -- Platform Cleanup
 
 ## Current Position
 
-Phase: 27 of 29 (Email Domain Hardening) -- Tasks 1-3 COMPLETE, Task 4 deferred (48h rua checkpoint)
-Plan: 1 of 1 in current phase (Tasks 1-3 done, Task 4 pending 48h)
-Status: DMARC escalated to p=quarantine, readiness gate active -- awaiting 48h rua aggregate report confirmation
+Phase: 28 of 29 (Platform Cleanup) -- Plan 01 complete, Plan 02 pending
+Plan: 1 of 2 in current phase
+Status: Doctor warnings resolved, config migration verified. Plan 02 (OAuth re-auth + gateway docs) pending.
 Milestone: v2.4 Content Distribution & Platform Hardening
-Last activity: 2026-02-19 -- Phase 27 Plan 01 Tasks 1-3 executed (DMARC escalation + readiness gate)
+Last activity: 2026-02-20 -- Phase 28 Plan 01 executed (doctor warnings + config verification)
 
-Progress: [###############################.....] 27/29 phases
+Progress: [################################....] 28/29 phases
 
 ## Performance Metrics
 
@@ -31,7 +31,7 @@ Progress: [###############################.....] 27/29 phases
 | v2.1 | 7 | 14 | 1 day |
 | v2.2 | 5 | 8 | 2 days |
 | v2.3 | 0 | 0 | Merged into v2.4 |
-| v2.4 | 4/6 | 8/? | In progress |
+| v2.4 | 4/6 | 9/? | In progress |
 
 **Recent plan metrics:**
 
@@ -42,6 +42,7 @@ Progress: [###############################.....] 27/29 phases
 | 26-01 | 8min | 2 | 8 |
 | 26-02 | 11min | 2 | 3 |
 | 27-01 | 2min | 3 | 3 |
+| 28-01 | 7min | 2 | 2 |
 
 ## Accumulated Context
 
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - Readiness gate: email-config.json dmarc_escalated_at + morning briefing Phase 29 gate countdown (Phase 27-01)
 - Two-tier email health thresholds: WARNING (2%/0.08%) vs CRITICAL (5%/0.1%) (Phase 27-01)
 - 48h rua confirmation required before WARMUP.md Step 5 finalized -- deferred checkpoint (Phase 27-01)
+- Removed deprecated anthropic:claude-cli auth profile (redundant -- anthropic:manual and anthropic:clawdbot already present) (Phase 28-01)
+- doctor --fix only modifies openclaw.json, not session state files -- manual cleanup needed for session key canonicalization (Phase 28-01)
+- dmPolicy/allowFrom migration verified complete from Phase 24-01 -- 3 modern keys, 0 legacy (Phase 28-01)
 
 ### Open Items
 
@@ -101,9 +105,9 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-19
-Stopped at: Phase 27-01 Tasks 1-3 complete -- Task 4 deferred checkpoint (48h rua confirmation, earliest 2026-02-21T20:13Z)
-Resume file: .planning/phases/27-email-domain-hardening/27-01-SUMMARY.md
+Last session: 2026-02-20
+Stopped at: Phase 28-01 complete -- Plan 02 (OAuth re-auth + gateway docs) pending
+Resume file: .planning/phases/28-platform-cleanup/28-01-SUMMARY.md
 
 ---
-*Last updated: 2026-02-19 -- Phase 27-01 executed (DMARC escalation, readiness gate, Task 4 deferred 48h)*
+*Last updated: 2026-02-20 -- Phase 28-01 executed (doctor warnings resolved, config migration verified)*
