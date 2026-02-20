@@ -65,7 +65,7 @@ Full details: [milestones/v2.2-ROADMAP.md](milestones/v2.2-ROADMAP.md)
 - [x] **Phase 25: Post-Update Audit** — Verify all crons, skills, agents, and injection protections survived the update (completed 2026-02-18)
 - [x] **Phase 26: Agent Observability** — Add LLM hooks, activity summaries, and observability briefing section (completed 2026-02-19)
 - [x] **Phase 27: Email Domain Hardening** — Escalate DMARC, execute warmup checklist, verify health metrics (completed 2026-02-19, Task 4 deferred 48h)
-- [ ] **Phase 28: Platform Cleanup** — Reduce Gmail scope, resolve doctor warnings, adopt config aliases
+- [x] **Phase 28: Platform Cleanup** — OAuth re-auth, doctor warnings resolved, gateway.remote.url documented (completed 2026-02-21)
 - [ ] **Phase 29: Content Distribution** — Subscriber audience, weekly digest compilation and send via Resend Broadcasts
 
 ## Phase Details
@@ -140,7 +140,7 @@ Plans:
 
 Plans:
 - [x] 28-01-PLAN.md -- Fix doctor warnings (deprecated auth profile, legacy session keys) and verify dmPolicy/allowFrom migration
-- [ ] 28-02-PLAN.md -- Re-auth Gmail OAuth with trimmed scopes (both accounts) and document gateway.remote.url in PROJECT.md
+- [x] 28-02-PLAN.md -- Re-auth Gmail OAuth (both accounts, calendar added to AirSpace) and document gateway.remote.url in PROJECT.md
 
 ### Phase 29: Content Distribution
 **Goal**: Published articles reach subscribers automatically via weekly digest emails sent through Resend Broadcasts
@@ -192,7 +192,7 @@ Note: Phases 26, 27, 28 depend only on Phase 24 (not each other) but execute seq
 | 25. Post-Update Audit | v2.4 | Complete    | 2026-02-18 | 2026-02-18 |
 | 26. Agent Observability | 2/2 | Complete    | 2026-02-19 | - |
 | 27. Email Domain Hardening | v2.4 | 1/1 | Complete (Task 4 deferred 48h) | 2026-02-19 |
-| 28. Platform Cleanup | v2.4 | 1/2 | In progress | - |
+| 28. Platform Cleanup | v2.4 | 2/2 | Complete | 2026-02-21 |
 | 29. Content Distribution | v2.4 | 0/? | Not started | - |
 
 ---

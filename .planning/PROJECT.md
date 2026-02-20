@@ -85,6 +85,7 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - Workspace: ~/clawd/ on EC2
 - Config: ~/.openclaw/openclaw.json
 - Service: openclaw-gateway.service (systemd user)
+- Gateway remote URL: `gateway.remote.url: ws://100.72.143.9:18789` in openclaw.json — required because gateway binds to tailnet IP (not loopback), so CLI commands fail with 1006 abnormal closure without it. Added Phase 20 when inbound email required tailnet bind.
 
 **Skills deployed:** oura, govee, coding-assistant, receipt-scanner, content-strategy, seo-writer, content-editor, wordpress-publisher, social-promoter, resend-email
 
@@ -125,7 +126,8 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | "builtin" memory backend | "sqlite-hybrid" not valid config value | ✓ Good — same sqlite-vec+FTS5 |
 | Reference doc pattern for crons | Keep systemEvent messages concise | ✓ Good — MEETING_PREP.md, STANDUP.md, etc. |
 | Vision-native receipt extraction | No external OCR API needed | ✓ Good — Claude vision handles it |
-| Gmail scope reduction deferred | Re-auth disruption not worth it | ⚠️ Revisit — 2 excess scopes remain |
+| Gmail OAuth scopes accepted as-is | gog CLI hardcodes gmail.settings.basic + gmail.settings.sharing into --services gmail — cannot be removed without switching tools. Unused, no security risk behind Tailscale | Done — documented as gog limitation |
+| Gateway remote URL for tailnet bind | CLI needs explicit gateway URL when not on loopback | Done — ws://100.72.143.9:18789 |
 | SQLite for content pipeline (not Notion) | Real transactions, no race conditions | ✓ Good — content.db working |
 | 1 shared #content-pipeline channel | Simpler than 3 separate channels | ✓ Good — C0ADWCMU5F0 |
 | No heartbeats for content agents | Cron-only workers, reduce rate limit pressure | ✓ Good — 6 crons sufficient |

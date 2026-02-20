@@ -9,11 +9,11 @@ See: .planning/PROJECT.md (updated 2026-02-17)
 
 ## Current Position
 
-Phase: 28 of 29 (Platform Cleanup) -- Plan 01 complete, Plan 02 pending
-Plan: 1 of 2 in current phase
-Status: Doctor warnings resolved, config migration verified. Plan 02 (OAuth re-auth + gateway docs) pending.
+Phase: 28 of 29 (Platform Cleanup) -- Complete (2/2 plans)
+Plan: 2 of 2 in current phase
+Status: Phase 28 complete. OAuth re-authed for both accounts (calendar added to AirSpace), gateway.remote.url documented. Phase 29 next.
 Milestone: v2.4 Content Distribution & Platform Hardening
-Last activity: 2026-02-20 -- Phase 28 Plan 01 executed (doctor warnings + config verification)
+Last activity: 2026-02-21 -- Phase 28 Plan 02 executed (OAuth re-auth + gateway docs)
 
 Progress: [################################....] 28/29 phases
 
@@ -43,6 +43,7 @@ Progress: [################################....] 28/29 phases
 | 26-02 | 11min | 2 | 3 |
 | 27-01 | 2min | 3 | 3 |
 | 28-01 | 7min | 2 | 2 |
+| 28-02 | 15min | 3 | 1 |
 
 ## Accumulated Context
 
@@ -80,14 +81,17 @@ Recent decisions affecting current work:
 - Removed deprecated anthropic:claude-cli auth profile (redundant -- anthropic:manual and anthropic:clawdbot already present) (Phase 28-01)
 - doctor --fix only modifies openclaw.json, not session state files -- manual cleanup needed for session key canonicalization (Phase 28-01)
 - dmPolicy/allowFrom migration verified complete from Phase 24-01 -- 3 modern keys, 0 legacy (Phase 28-01)
+- Gmail OAuth scopes accepted as gog CLI limitation -- gmail.settings.basic and gmail.settings.sharing hardcoded into --services gmail, cannot be removed (Phase 28-02)
+- Both accounts re-authed via curl token exchange (gog auth add --manual has context deadline bug) + gog auth tokens import (Phase 28-02)
+- AirSpace account now has calendar service (was gmail-only since 2026-02-19) (Phase 28-02)
+- gateway.remote.url documented in PROJECT.md Infrastructure section (Phase 28-02)
 
 ### Open Items
 
 - LLM hook names (OBS-01) are HIGH confidence -- verified llm_output and agent_end fire correctly (resolved Phase 26-01)
 - SecureClaw configPatch: plugin install adds plugins.load.paths and plugins.state entries to config (verified, Phase 24-02)
 - DMARC rua at theandykaufman@gmail.com: 48h rua aggregate report expected by 2026-02-21T20:13Z (Phase 27-01 Task 4 checkpoint)
-- Gmail OAuth scope reduction (CLN-01): enumerate all gog operations before re-auth
-- Email-catchup cron delivery target error: "Action send requires a target" -- investigate in Phase 28
+- Email-catchup cron delivery target error: "Action send requires a target" -- deferred (not in Phase 28 scope)
 
 ### Blockers
 
@@ -105,9 +109,9 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-20
-Stopped at: Phase 28-01 complete -- Plan 02 (OAuth re-auth + gateway docs) pending
-Resume file: .planning/phases/28-platform-cleanup/28-01-SUMMARY.md
+Last session: 2026-02-21
+Stopped at: Phase 28 complete -- Phase 29 (Content Distribution) next
+Resume file: .planning/phases/28-platform-cleanup/28-02-SUMMARY.md
 
 ---
-*Last updated: 2026-02-20 -- Phase 28-01 executed (doctor warnings resolved, config migration verified)*
+*Last updated: 2026-02-21 -- Phase 28 complete (OAuth re-auth + gateway docs)*
