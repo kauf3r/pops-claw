@@ -1,111 +1,107 @@
-# Requirements: Pops-Claw v2.4
+# Requirements: Pops-Claw v2.5
 
-**Defined:** 2026-02-17
-**Core Value:** Proactive daily companion — distribute content to subscribers, harden security, and gain observability.
+**Defined:** 2026-02-20
+**Core Value:** Mission Control Dashboard as single pane of glass for the entire pops-claw system.
 
-## v2.4 Requirements
+## v2.5 Requirements
 
-### Subscriber Management
+### Infrastructure
 
-- [ ] **DIST-01**: Resend Audience created with initial seed list of industry contacts
-- [ ] **DIST-02**: Bob can add and remove contacts from subscriber list via skill command
+- [ ] **INFRA-01**: All 5 SQLite databases accessible via read-only WAL connections with busy_timeout
+- [ ] **INFRA-02**: Mission Control accessible directly via Tailscale (http://100.72.143.9:3001, no SSH tunnel)
+- [ ] **INFRA-03**: Mission Control runs as systemd service that auto-starts on boot with memory limits and OOMScoreAdjust
+- [ ] **INFRA-04**: Convex dependency fully removed and replaced with SQLite data layer
+- [ ] **INFRA-05**: shadcn/ui component library initialized with dashboard primitives (card, table, badge, chart)
+- [ ] **INFRA-06**: All timestamps render correctly without hydration mismatches (shared RelativeTime component)
 
-### Weekly Digest
+### Dashboard
 
-- [ ] **DIST-03**: Weekly cron compiles articles published in the last 7 days from content.db
-- [ ] **DIST-04**: Digest email includes article titles, summaries, and links to airspaceintegration.com
-- [ ] **DIST-05**: Digest sent via Resend Broadcasts API to subscriber audience on a consistent weekly schedule
+- [ ] **DASH-01**: Dashboard shows status cards for agent health summary, cron success rates, content pipeline counts, and email quota/bounce stats
+- [ ] **DASH-02**: Dashboard shows chronological activity stream from coordination.db replacing Convex feed
+- [ ] **DASH-03**: Dashboard auto-refreshes data every 30 seconds via SWR polling with freshness indicator
 
-### Security Update
+### Agent Board
 
-- [ ] **SEC-01**: OpenClaw updated from v2026.2.6-3 to v2026.2.17 (CVE-2026-25253 patched)
-- [ ] **SEC-02**: SecureClaw plugin installed and 51-check audit passes with no critical findings
-- [ ] **SEC-03**: SecureClaw runtime behavioral rules active (15 rules governing external content, credentials, destructive commands)
-- [x] **SEC-04**: Post-update audit confirms all 20 cron jobs firing on schedule
-- [x] **SEC-05**: Post-update audit confirms all 10 skills detected and functional
-- [x] **SEC-06**: Post-update audit confirms all 7 agents heartbeating/responding
-- [x] **SEC-07**: New prompt injection protections verified (browser/web content "untrusted by default")
+- [ ] **AGNT-01**: Agent board page displays a card for each of the 7 agents
+- [ ] **AGNT-02**: Each agent card shows heartbeat status (alive/down, last seen timestamp)
+- [ ] **AGNT-03**: Each agent card shows token usage and model distribution (Haiku/Sonnet/Opus) from observability.db
+- [ ] **AGNT-04**: Each agent card shows recent error count
 
-### Observability
+### Pipeline Metrics
 
-- [x] **OBS-01**: `llm_input`/`llm_output` hook payloads configured for agent monitoring
-- [x] **OBS-02**: Agent activity summary (token usage, model distribution, turn counts) available to Bob
-- [x] **OBS-03**: Morning briefing includes agent observability section (anomalous usage, errors, rate limit proximity)
+- [ ] **PIPE-01**: Content pipeline section shows article counts by status (researched, written, reviewed, published)
+- [ ] **PIPE-02**: Email metrics section shows sent/received counts, bounce rate, and quota usage from email.db
 
-### Email Hardening
+### Visualization
 
-- [x] **EML-01**: DMARC policy escalated from p=none to p=quarantine after confirming 2 clean weeks
-- [x] **EML-02**: WARMUP.md 5-step checklist executed (DNS verified, auth tested, inbox placement confirmed, monitoring active)
-- [x] **EML-03**: Email health metrics (bounce/complaint rates) trending clean in morning briefing
-
-### Platform Cleanup
-
-- [ ] **CLN-01**: Gmail OAuth scope reduction (remove 2 excess scopes, re-auth gog)
-- [x] **CLN-02**: Doctor warnings resolved — deprecated auth profile migrated to setup-token
-- [x] **CLN-03**: Doctor warnings resolved — legacy session key canonicalization
-- [x] **CLN-04**: `dmPolicy`/`allowFrom` config aliases adopted (if applicable to current setup)
-- [ ] **CLN-05**: `gateway.remote.url` config documented and verified post-update
+- [ ] **VIZ-01**: Token usage displayed as area charts per agent via Recharts
+- [ ] **VIZ-02**: Content pipeline displayed as bar chart by status
+- [ ] **VIZ-03**: Email volume displayed as line chart over time
+- [ ] **VIZ-04**: Cron success/failure displayed as donut chart
 
 ## Future Requirements
 
 ### Deferred from v2.4
 
-- **DIST-06**: Per-article subscriber notification email on publish (after human approval)
-- **DIST-07**: Pitch copy generation for published articles (human sends manually)
-- **DIST-08**: WordPress signup form for organic subscriber growth
-- **MSG-01**: `message_sending` hooks for outbound message gating/filtering
-- **DISC-01**: Discord Components v2 (buttons, selects, modals)
-- **TEL-01**: Telegram poll support
-- **IOS-01**: iOS alpha node app integration
+- **DIST-01**: Resend Audience created with initial seed list of industry contacts
+- **DIST-02**: Bob can add and remove contacts from subscriber list via skill command
+- **DIST-03**: Weekly cron compiles articles published in the last 7 days from content.db
+- **DIST-04**: Digest email includes article titles, summaries, and links to airspaceintegration.com
+- **DIST-05**: Digest sent via Resend Broadcasts API to subscriber audience on a consistent weekly schedule
+
+### Potential v2.6+
+
+- **MC-01**: Cron detail page with execution history and log viewer
+- **MC-02**: Content pipeline kanban view (drag-and-drop article status changes)
+- **MC-03**: Time range selector for all metric views (24h, 7d, 30d)
+- **MC-04**: Agent detail drill-down page with full session history
+- **MC-05**: Anomaly highlighting (auto-flag unusual patterns in metrics)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Per-article notifications | Digest-only for now; avoids double-sending |
-| Pitch copy generation | Human handles outreach manually for now |
-| Public subscriber signup form | Seed list only; no organic growth mechanism yet |
-| Full automation (no human gate) | Safety over speed; human approves publish |
-| Social media API integration | Copy-only promotion continues from v2.1 |
-| ClawHub skills | Not used; ClawHavoc risk not applicable |
-| vLLM provider | No local model hosting planned |
-| Multi-node distributed deployment | Single EC2 sufficient |
-| External observability SaaS | Privacy risk, overkill for single-user deployment |
-| Full LLM prompt/response logging | PII risk; metadata only |
+| WebSocket real-time push | Polling sufficient for single user; avoids infrastructure complexity |
+| Interactive agent control | Dashboard is read-only monitoring; control stays in Slack |
+| User authentication | Tailscale IS the auth layer; no login page needed |
+| Multi-user views | Single user (Andy); no role-based access needed |
+| Notification system | Slack already handles all notifications |
+| Historical data beyond 90 days | Unnecessary for operational monitoring |
+| Dark mode toggle | Ship dark-only; no toggle complexity |
+| External monitoring services | Privacy risk, overkill for single-user deployment |
+| Drag-and-drop customization | Over-engineering for single-user dashboard |
+| AI-powered dashboard insights | Bob already does this in morning briefing |
+| OpenClaw gateway WebSocket connection | Dashboard reads SQLite directly; gateway is for agent communication |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | Phase 24 | Pending |
-| SEC-02 | Phase 24 | Pending |
-| SEC-03 | Phase 24 | Pending |
-| SEC-04 | Phase 25 | Complete |
-| SEC-05 | Phase 25 | Complete |
-| SEC-06 | Phase 25 | Complete |
-| SEC-07 | Phase 25 | Complete |
-| OBS-01 | Phase 26 | Complete |
-| OBS-02 | Phase 26 | Complete |
-| OBS-03 | Phase 26 | Complete |
-| EML-01 | Phase 27 | Complete |
-| EML-02 | Phase 27 | Complete |
-| EML-03 | Phase 27 | Complete |
-| CLN-01 | Phase 28 | Pending |
-| CLN-02 | Phase 28 | Complete |
-| CLN-03 | Phase 28 | Complete |
-| CLN-04 | Phase 28 | Complete |
-| CLN-05 | Phase 28 | Pending |
-| DIST-01 | Phase 29 | Pending |
-| DIST-02 | Phase 29 | Pending |
-| DIST-03 | Phase 29 | Pending |
-| DIST-04 | Phase 29 | Pending |
-| DIST-05 | Phase 29 | Pending |
+| INFRA-01 | TBD | Pending |
+| INFRA-02 | TBD | Pending |
+| INFRA-03 | TBD | Pending |
+| INFRA-04 | TBD | Pending |
+| INFRA-05 | TBD | Pending |
+| INFRA-06 | TBD | Pending |
+| DASH-01 | TBD | Pending |
+| DASH-02 | TBD | Pending |
+| DASH-03 | TBD | Pending |
+| AGNT-01 | TBD | Pending |
+| AGNT-02 | TBD | Pending |
+| AGNT-03 | TBD | Pending |
+| AGNT-04 | TBD | Pending |
+| PIPE-01 | TBD | Pending |
+| PIPE-02 | TBD | Pending |
+| VIZ-01 | TBD | Pending |
+| VIZ-02 | TBD | Pending |
+| VIZ-03 | TBD | Pending |
+| VIZ-04 | TBD | Pending |
 
 **Coverage:**
-- v2.4 requirements: 23 total
-- Mapped to phases: 23
-- Unmapped: 0
+- v2.5 requirements: 20 total
+- Mapped to phases: 0
+- Unmapped: 20
 
 ---
-*Requirements defined: 2026-02-17*
-*Last updated: 2026-02-20 -- CLN-02/03/04 marked complete (Phase 28-01 doctor warnings + config verification)*
+*Requirements defined: 2026-02-20*
+*Last updated: 2026-02-20 after initial definition*
