@@ -76,6 +76,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ### Roadmap Evolution
 
 - Phase 31.1 inserted after Phase 31: Context Usage Indicators (URGENT)
+- Phase 31.2 inserted after Phase 31: Agent Board Polish (URGENT)
 
 ### Open Items
 
