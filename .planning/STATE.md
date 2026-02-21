@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 29 (1 of 4 in v2.5) — Infrastructure & Database Foundation
-Plan: —
-Status: Ready to plan
+Plan: 02 of 2 in phase
+Status: Executing
 Milestone: v2.5 Mission Control Dashboard
-Last activity: 2026-02-20 — Roadmap created for v2.5
+Last activity: 2026-02-21 — Completed 29-01 (Convex removal, SWR/shadcn/palette/RelativeTime)
 
-Progress: [░░░░░░░░░░] 0% (0/9 plans)
+Progress: [█░░░░░░░░░] 11% (1/9 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 54 (across v2.0 + v2.1 + v2.2 + v2.4)
+- Total plans completed: 55 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
 
 **By Milestone:**
 
@@ -33,11 +33,21 @@ Progress: [░░░░░░░░░░] 0% (0/9 plans)
 | v2.4 | 5 | 9 | 4 days |
 | v2.5 | 4 | 9 | In progress |
 
+**v2.5 Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| 29-01 | 6min | 2 | 15 |
+
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
+
+- Phase 29-01: Removed Convex entirely rather than leaving dead code -- clean break for SQLite migration
+- Phase 29-01: Kept date-fns for RelativeTime (already installed) rather than adding new library
+- Phase 29-01: Stubbed activity-feed/global-search to placeholders for Phase 30 reimplementation
 
 ### Research Flags
 
@@ -63,4 +73,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Current access: SSH tunnel (-L 3001:127.0.0.1:3001), target: direct Tailscale binding
 
 ---
-*Last updated: 2026-02-20 -- v2.5 roadmap created*
+*Last updated: 2026-02-21 -- Completed 29-01 infrastructure foundation*
