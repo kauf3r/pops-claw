@@ -92,11 +92,11 @@ Full details: [milestones/v2.4-ROADMAP.md](milestones/v2.4-ROADMAP.md)
   3. Convex is fully gone -- no Convex imports, no @convex/ packages in node_modules, no ConvexProvider in the component tree
   4. shadcn/ui components (card, table, badge, chart) are installed and a test card renders on the landing page
   5. Mission Control auto-starts on boot via systemd, restarts on crash, has OOMScoreAdjust=500 so the gateway survives if memory runs low
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 29-01: Schema discovery (SSH to EC2, inspect all 5 DB schemas), Convex removal, shadcn/ui init, date-fns + SWR install
-- [ ] 29-02: Database connection layer (5 WAL singletons, fileMustExist, busy_timeout), RelativeTime component, systemd service, Tailscale bind + UFW rule
+- [ ] 29-01-PLAN.md -- Convex removal, SWR install, shadcn table/chart, zinc+blue CSS palette, RelativeTime component
+- [ ] 29-02-PLAN.md -- Database connection layer (5 WAL singletons), landing page with DB status cards, systemd service, Tailscale bind + UFW rule
 
 ### Phase 30: Dashboard & Metrics
 **Goal**: The landing page answers "is everything OK?" at a glance -- status cards for all major subsystems, a live activity feed replacing Convex, pipeline and email metrics, all auto-refreshing
