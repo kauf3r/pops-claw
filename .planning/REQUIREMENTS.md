@@ -7,9 +7,9 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: All 5 SQLite databases accessible via read-only WAL connections with busy_timeout
-- [ ] **INFRA-02**: Mission Control accessible directly via Tailscale (http://100.72.143.9:3001, no SSH tunnel)
-- [ ] **INFRA-03**: Mission Control runs as systemd service that auto-starts on boot with memory limits and OOMScoreAdjust
+- [x] **INFRA-01**: All 5 SQLite databases accessible via read-only WAL connections with busy_timeout
+- [x] **INFRA-02**: Mission Control accessible directly via Tailscale (http://100.72.143.9:3001, no SSH tunnel)
+- [x] **INFRA-03**: Mission Control runs as systemd service that auto-starts on boot with memory limits and OOMScoreAdjust
 - [x] **INFRA-04**: Convex dependency fully removed and replaced with SQLite data layer
 - [x] **INFRA-05**: shadcn/ui component library initialized with dashboard primitives (card, table, badge, chart)
 - [x] **INFRA-06**: All timestamps render correctly without hydration mismatches (shared RelativeTime component)
@@ -87,9 +87,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 29 | Pending |
-| INFRA-02 | Phase 29 | Pending |
-| INFRA-03 | Phase 29 | Pending |
+| INFRA-01 | Phase 29 | Complete |
+| INFRA-02 | Phase 29 | Complete |
+| INFRA-03 | Phase 29 | Complete |
 | INFRA-04 | Phase 29 | Complete |
 | INFRA-05 | Phase 29 | Complete |
 | INFRA-06 | Phase 29 | Complete |

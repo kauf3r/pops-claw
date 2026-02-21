@@ -75,7 +75,7 @@ Full details: [milestones/v2.4-ROADMAP.md](milestones/v2.4-ROADMAP.md)
 
 **Milestone Goal:** Build Mission Control into the single pane of glass for the entire pops-claw system -- live data feeds from all 5 SQLite databases, agent health/work/usage oversight, content pipeline and email metrics, memory browsing, office visualization, and charts -- accessible directly via Tailscale.
 
-- [ ] **Phase 29: Infrastructure & Database Foundation** - WAL-mode database layer, Convex removal, shadcn/ui, systemd service, Tailscale binding
+- [x] **Phase 29: Infrastructure & Database Foundation** - WAL-mode database layer, Convex removal, shadcn/ui, systemd service, Tailscale binding
 - [ ] **Phase 30: Dashboard & Metrics** - Status cards, activity feed, pipeline counts, email stats, auto-refresh polling
 - [ ] **Phase 31: Agent Board** - Per-agent cards with heartbeat status, token usage, model distribution, errors
 - [ ] **Phase 32: Memory, Office & Visualization** - Memory browser, office view, Recharts area/bar/line/donut charts
@@ -95,8 +95,8 @@ Full details: [milestones/v2.4-ROADMAP.md](milestones/v2.4-ROADMAP.md)
 **Plans**: 2 plans
 
 Plans:
-- [ ] 29-01-PLAN.md -- Convex removal, SWR install, shadcn table/chart, zinc+blue CSS palette, RelativeTime component
-- [ ] 29-02-PLAN.md -- Database connection layer (5 WAL singletons), landing page with DB status cards, systemd service, Tailscale bind + UFW rule
+- [x] 29-01-PLAN.md -- Convex removal, SWR install, shadcn table/chart, zinc+blue CSS palette, RelativeTime component
+- [x] 29-02-PLAN.md -- Database connection layer (5 WAL singletons), landing page with DB status cards, systemd service, Tailscale bind + UFW rule
 
 ### Phase 30: Dashboard & Metrics
 **Goal**: The landing page answers "is everything OK?" at a glance -- status cards for all major subsystems, a live activity feed replacing Convex, pipeline and email metrics, all auto-refreshing
@@ -180,10 +180,10 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32
 | 26. Agent Observability | v2.4 | 2/2 | Complete | 2026-02-19 |
 | 27. Email Domain Hardening | v2.4 | 1/1 | Complete | 2026-02-19 |
 | 28. Platform Cleanup | v2.4 | 2/2 | Complete | 2026-02-21 |
-| 29. Infrastructure & Database Foundation | 1/2 | In Progress|  | - |
+| 29. Infrastructure & Database Foundation | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 30. Dashboard & Metrics | v2.5 | 0/2 | Not started | - |
 | 31. Agent Board | v2.5 | 0/2 | Not started | - |
 | 32. Memory, Office & Visualization | v2.5 | 0/3 | Not started | - |
 
 ---
-*Updated: 2026-02-20 -- v2.5 roadmap created (4 phases, 9 plans, 24 requirements)*
+*Updated: 2026-02-21 -- Phase 29 complete (2/2 plans), Phase 30 next*
