@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 31 (3 of 4 in v2.5) — Agent Board
-Plan: 01 of 2 in phase
+Plan: 02 of 2 in phase
 Status: Ready
 Milestone: v2.5 Mission Control Dashboard
-Last activity: 2026-02-21 — Completed 30-02 (dashboard page with status cards, activity feed, metrics)
+Last activity: 2026-02-21 — Completed 31-01 (agent board data layer, /api/agents endpoint, token utilities)
 
-Progress: [████░░░░░░] 44% (4/9 plans)
+Progress: [█████░░░░░] 56% (5/9 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 58 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
+- Total plans completed: 59 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
 
 **By Milestone:**
 
@@ -41,6 +41,7 @@ Progress: [████░░░░░░] 44% (4/9 plans)
 | 29-02 | 12min | 3 | 9 |
 | 30-01 | 4min | 2 | 11 |
 | 30-02 | 8min | 3 | 5 |
+| 31-01 | 5min | 2 | 4 |
 
 ## Accumulated Context
 
@@ -60,12 +61,15 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 30-02: Kept Phase 29 DB status section at bottom of dashboard for infrastructure visibility
 - Phase 30-02: Freshness indicator uses color transitions (amber at 60s, rose at 120s) with no manual refresh
 - Phase 30-02: Activity feed is flat chronological list with type-based color coding (no grouping)
+- Phase 31-01: Use input+output tokens only (not cache) for headline counts -- cache is 100x larger and not actionable
+- Phase 31-01: Query both 'main' and 'bob' agent_ids for main agent across all DB queries
+- Phase 31-01: Separate /api/agents route rather than extending /api/dashboard/agents to keep Phase 30 stable
 
 ### Research Flags
 
 - Phase 29: SSH to EC2 and inspect actual schemas for all 5 databases before writing queries
-- Phase 31: Verify observability.db schema (table/column names inferred, not confirmed)
-- Phase 31: Verify observability.db has accumulated meaningful data since v2.4
+- Phase 31: observability.db schema VERIFIED -- llm_calls and agent_runs tables confirmed with exact column names
+- Phase 31: observability.db has meaningful data -- 8,912 agent_runs, 2,208 llm_calls, 1,023 calls in last 24h
 
 ### Open Items
 
@@ -87,4 +91,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - UFW: port 3001 allowed from 100.64.0.0/10 (Tailscale CGNAT only)
 
 ---
-*Last updated: 2026-02-21 -- Completed 30-02 (dashboard page). Phase 30 complete. Ready for Phase 31 (Agent Board).*
+*Last updated: 2026-02-21 -- Completed 31-01 (agent board data layer). Ready for 31-02 (agent board page).*

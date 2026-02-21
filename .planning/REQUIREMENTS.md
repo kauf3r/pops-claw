@@ -22,10 +22,10 @@
 
 ### Agent Board
 
-- [ ] **AGNT-01**: Agent board page displays a card for each of the 7 agents
-- [ ] **AGNT-02**: Each agent card shows heartbeat status (alive/down, last seen timestamp)
-- [ ] **AGNT-03**: Each agent card shows token usage and model distribution (Haiku/Sonnet/Opus) from observability.db
-- [ ] **AGNT-04**: Each agent card shows recent error count
+- [x] **AGNT-01**: Agent board page displays a card for each of the 7 agents
+- [x] **AGNT-02**: Each agent card shows heartbeat status (alive/down, last seen timestamp)
+- [x] **AGNT-03**: Each agent card shows token usage and model distribution (Haiku/Sonnet/Opus) from observability.db
+- [x] **AGNT-04**: Each agent card shows recent error count
 
 ### Pipeline Metrics
 
@@ -96,10 +96,10 @@
 | DASH-01 | Phase 30 | Complete |
 | DASH-02 | Phase 30 | Complete |
 | DASH-03 | Phase 30 | Complete |
-| AGNT-01 | Phase 31 | Pending |
-| AGNT-02 | Phase 31 | Pending |
-| AGNT-03 | Phase 31 | Pending |
-| AGNT-04 | Phase 31 | Pending |
+| AGNT-01 | Phase 31 | Complete |
+| AGNT-02 | Phase 31 | Complete |
+| AGNT-03 | Phase 31 | Complete |
+| AGNT-04 | Phase 31 | Complete |
 | PIPE-01 | Phase 30 | Complete |
 | PIPE-02 | Phase 30 | Complete |
 | MEM-01 | Phase 32 | Pending |
