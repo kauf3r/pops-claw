@@ -32,6 +32,16 @@
 - [ ] **PIPE-01**: Content pipeline section shows article counts by status (researched, written, reviewed, published)
 - [ ] **PIPE-02**: Email metrics section shows sent/received counts, bounce rate, and quota usage from email.db
 
+### Memory
+
+- [ ] **MEM-01**: Memory screen displays all agent memories from SQLite memory backend, browseable by agent
+- [ ] **MEM-02**: Global search across all agent memories and conversations
+
+### Office
+
+- [ ] **OFFC-01**: Office view shows avatar for each of the 7 agents at virtual workstations
+- [ ] **OFFC-02**: Agent avatars reflect current status (working when active, idle when inactive)
+
 ### Visualization
 
 - [ ] **VIZ-01**: Token usage displayed as area charts per agent via Recharts
@@ -95,12 +105,16 @@
 | VIZ-01 | TBD | Pending |
 | VIZ-02 | TBD | Pending |
 | VIZ-03 | TBD | Pending |
+| MEM-01 | TBD | Pending |
+| MEM-02 | TBD | Pending |
+| OFFC-01 | TBD | Pending |
+| OFFC-02 | TBD | Pending |
 | VIZ-04 | TBD | Pending |
 
 **Coverage:**
-- v2.5 requirements: 20 total
+- v2.5 requirements: 24 total
 - Mapped to phases: 0
-- Unmapped: 20
+- Unmapped: 24
 
 ---
 *Requirements defined: 2026-02-20*
