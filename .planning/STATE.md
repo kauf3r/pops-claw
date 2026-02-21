@@ -73,6 +73,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 31: observability.db schema VERIFIED -- llm_calls and agent_runs tables confirmed with exact column names
 - Phase 31: observability.db has meaningful data -- 8,912 agent_runs, 2,208 llm_calls, 1,023 calls in last 24h
 
+### Roadmap Evolution
+
+- Phase 31.1 inserted after Phase 31: Context Usage Indicators (URGENT)
+
 ### Open Items
 
 - DMARC rua at theandykaufman@gmail.com: aggregate reports expected (Phase 27-01 checkpoint)
