@@ -76,7 +76,7 @@ Full details: [milestones/v2.4-ROADMAP.md](milestones/v2.4-ROADMAP.md)
 **Milestone Goal:** Build Mission Control into the single pane of glass for the entire pops-claw system -- live data feeds from all 5 SQLite databases, agent health/work/usage oversight, content pipeline and email metrics, memory browsing, office visualization, and charts -- accessible directly via Tailscale.
 
 - [x] **Phase 29: Infrastructure & Database Foundation** - WAL-mode database layer, Convex removal, shadcn/ui, systemd service, Tailscale binding
-- [ ] **Phase 30: Dashboard & Metrics** - Status cards, activity feed, pipeline counts, email stats, auto-refresh polling
+- [x] **Phase 30: Dashboard & Metrics** - Status cards, activity feed, pipeline counts, email stats, auto-refresh polling
 - [ ] **Phase 31: Agent Board** - Per-agent cards with heartbeat status, token usage, model distribution, errors
 - [ ] **Phase 32: Memory, Office & Visualization** - Memory browser, office view, Recharts area/bar/line/donut charts
 
@@ -112,7 +112,7 @@ Plans:
 
 Plans:
 - [x] 30-01-PLAN.md -- Query modules (agents, crons, metrics, activity), 4 API routes, SWR global polling config, StatusCard component
-- [ ] 30-02-PLAN.md -- Dashboard page rewrite with 4 status cards, activity feed, pipeline metrics, email metrics, freshness indicator
+- [x] 30-02-PLAN.md -- Dashboard page rewrite with 4 status cards, activity feed, pipeline metrics, email metrics, freshness indicator
 
 ### Phase 31: Agent Board
 **Goal**: A dedicated agent board page shows the health, workload, and resource usage of all 7 agents at a glance
@@ -181,9 +181,9 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32
 | 27. Email Domain Hardening | v2.4 | 1/1 | Complete | 2026-02-19 |
 | 28. Platform Cleanup | v2.4 | 2/2 | Complete | 2026-02-21 |
 | 29. Infrastructure & Database Foundation | v2.5 | 2/2 | Complete | 2026-02-21 |
-| 30. Dashboard & Metrics | v2.5 | 1/2 | In progress | - |
+| 30. Dashboard & Metrics | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 31. Agent Board | v2.5 | 0/2 | Not started | - |
 | 32. Memory, Office & Visualization | v2.5 | 0/3 | Not started | - |
 
 ---
-*Updated: 2026-02-21 -- Phase 30 in progress (1/2 plans complete)*
+*Updated: 2026-02-21 -- Phase 30 complete (2/2 plans). Phase 31 next.*

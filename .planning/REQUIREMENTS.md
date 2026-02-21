@@ -16,9 +16,9 @@
 
 ### Dashboard
 
-- [ ] **DASH-01**: Dashboard shows status cards for agent health summary, cron success rates, content pipeline counts, and email quota/bounce stats
-- [ ] **DASH-02**: Dashboard shows chronological activity stream from coordination.db replacing Convex feed
-- [ ] **DASH-03**: Dashboard auto-refreshes data every 30 seconds via SWR polling with freshness indicator
+- [x] **DASH-01**: Dashboard shows status cards for agent health summary, cron success rates, content pipeline counts, and email quota/bounce stats
+- [x] **DASH-02**: Dashboard shows chronological activity stream from coordination.db replacing Convex feed
+- [x] **DASH-03**: Dashboard auto-refreshes data every 30 seconds via SWR polling with freshness indicator
 
 ### Agent Board
 
@@ -29,8 +29,8 @@
 
 ### Pipeline Metrics
 
-- [ ] **PIPE-01**: Content pipeline section shows article counts by status (researched, written, reviewed, published)
-- [ ] **PIPE-02**: Email metrics section shows sent/received counts, bounce rate, and quota usage from email.db
+- [x] **PIPE-01**: Content pipeline section shows article counts by status (researched, written, reviewed, published)
+- [x] **PIPE-02**: Email metrics section shows sent/received counts, bounce rate, and quota usage from email.db
 
 ### Memory
 
@@ -93,15 +93,15 @@
 | INFRA-04 | Phase 29 | Complete |
 | INFRA-05 | Phase 29 | Complete |
 | INFRA-06 | Phase 29 | Complete |
-| DASH-01 | Phase 30 | Pending |
-| DASH-02 | Phase 30 | Pending |
-| DASH-03 | Phase 30 | Pending |
+| DASH-01 | Phase 30 | Complete |
+| DASH-02 | Phase 30 | Complete |
+| DASH-03 | Phase 30 | Complete |
 | AGNT-01 | Phase 31 | Pending |
 | AGNT-02 | Phase 31 | Pending |
 | AGNT-03 | Phase 31 | Pending |
 | AGNT-04 | Phase 31 | Pending |
-| PIPE-01 | Phase 30 | Pending |
-| PIPE-02 | Phase 30 | Pending |
+| PIPE-01 | Phase 30 | Complete |
+| PIPE-02 | Phase 30 | Complete |
 | MEM-01 | Phase 32 | Pending |
 | MEM-02 | Phase 32 | Pending |
 | OFFC-01 | Phase 32 | Pending |
@@ -118,4 +118,4 @@
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-20 after roadmap creation (traceability complete)*
+*Last updated: 2026-02-21 -- DASH-01, DASH-02, DASH-03, PIPE-01, PIPE-02 marked complete (Phase 30)*

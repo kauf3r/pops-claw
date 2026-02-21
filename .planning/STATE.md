@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** Mission Control Dashboard as single pane of glass for the entire pops-claw system.
-**Current focus:** Phase 30 - Dashboard & Metrics
+**Current focus:** Phase 31 - Agent Board
 
 ## Current Position
 
-Phase: 30 (2 of 4 in v2.5) — Dashboard & Metrics
-Plan: 02 of 2 in phase
+Phase: 31 (3 of 4 in v2.5) — Agent Board
+Plan: 01 of 2 in phase
 Status: Ready
 Milestone: v2.5 Mission Control Dashboard
-Last activity: 2026-02-21 — Completed 30-01 (4 API routes, SWR polling, StatusCard, query modules)
+Last activity: 2026-02-21 — Completed 30-02 (dashboard page with status cards, activity feed, metrics)
 
-Progress: [███░░░░░░░] 33% (3/9 plans)
+Progress: [████░░░░░░] 44% (4/9 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 57 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
+- Total plans completed: 58 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
 
 **By Milestone:**
 
@@ -40,6 +40,7 @@ Progress: [███░░░░░░░] 33% (3/9 plans)
 | 29-01 | 6min | 2 | 15 |
 | 29-02 | 12min | 3 | 9 |
 | 30-01 | 4min | 2 | 11 |
+| 30-02 | 8min | 3 | 5 |
 
 ## Accumulated Context
 
@@ -56,6 +57,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 30-01: Query modules per subsystem (not one mega route) for independent error handling
 - Phase 30-01: Activity feed merges coordination + observability + email DBs in JS (no ATTACH in read-only)
 - Phase 30-01: Agents with no data show as idle (not down) to avoid false alarms for sage/ezra
+- Phase 30-02: Kept Phase 29 DB status section at bottom of dashboard for infrastructure visibility
+- Phase 30-02: Freshness indicator uses color transitions (amber at 60s, rose at 120s) with no manual refresh
+- Phase 30-02: Activity feed is flat chronological list with type-based color coding (no grouping)
 
 ### Research Flags
 
@@ -83,4 +87,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - UFW: port 3001 allowed from 100.64.0.0/10 (Tailscale CGNAT only)
 
 ---
-*Last updated: 2026-02-21 -- Completed 30-01 (data layer + API routes). Ready for 30-02 (dashboard page).*
+*Last updated: 2026-02-21 -- Completed 30-02 (dashboard page). Phase 30 complete. Ready for Phase 31 (Agent Board).*
