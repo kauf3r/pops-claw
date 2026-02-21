@@ -100,3 +100,22 @@
 **Archive:** [milestones/v2.4-ROADMAP.md](milestones/v2.4-ROADMAP.md) | [milestones/v2.4-REQUIREMENTS.md](milestones/v2.4-REQUIREMENTS.md)
 
 ---
+
+## v2.5 Mission Control Dashboard (In Progress)
+
+**Phases:** 29-32 (4 phases, 9 plans, 24 requirements)
+**Timeline:** Started 2026-02-20
+**Status:** In progress
+
+**Goal:** Build Mission Control into the single pane of glass for the entire pops-claw system -- live data feeds from all 5 SQLite databases, agent health/work/usage oversight, content pipeline and email metrics, memory browsing, office visualization, and Recharts charting -- accessible directly via Tailscale.
+
+**Target features:**
+1. Infrastructure foundation -- 5 WAL-mode SQLite connections, Convex removal, shadcn/ui, systemd service, Tailscale binding
+2. Dashboard landing page -- status cards (agents, crons, content, email), activity feed replacing Convex, 30s auto-refresh
+3. Agent board -- 7-agent cards with heartbeat status, token usage, model distribution, error counts
+4. Pipeline and email metrics -- article counts by status, sent/received/bounce/quota stats
+5. Memory browser -- agent memories browseable by agent with global search
+6. Office view -- agent avatars at virtual workstations reflecting activity status
+7. Recharts visualization -- token area charts, content bar chart, email line chart, cron donut chart
+
+---

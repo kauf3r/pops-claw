@@ -87,35 +87,35 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | TBD | Pending |
-| INFRA-02 | TBD | Pending |
-| INFRA-03 | TBD | Pending |
-| INFRA-04 | TBD | Pending |
-| INFRA-05 | TBD | Pending |
-| INFRA-06 | TBD | Pending |
-| DASH-01 | TBD | Pending |
-| DASH-02 | TBD | Pending |
-| DASH-03 | TBD | Pending |
-| AGNT-01 | TBD | Pending |
-| AGNT-02 | TBD | Pending |
-| AGNT-03 | TBD | Pending |
-| AGNT-04 | TBD | Pending |
-| PIPE-01 | TBD | Pending |
-| PIPE-02 | TBD | Pending |
-| VIZ-01 | TBD | Pending |
-| VIZ-02 | TBD | Pending |
-| VIZ-03 | TBD | Pending |
-| MEM-01 | TBD | Pending |
-| MEM-02 | TBD | Pending |
-| OFFC-01 | TBD | Pending |
-| OFFC-02 | TBD | Pending |
-| VIZ-04 | TBD | Pending |
+| INFRA-01 | Phase 29 | Pending |
+| INFRA-02 | Phase 29 | Pending |
+| INFRA-03 | Phase 29 | Pending |
+| INFRA-04 | Phase 29 | Pending |
+| INFRA-05 | Phase 29 | Pending |
+| INFRA-06 | Phase 29 | Pending |
+| DASH-01 | Phase 30 | Pending |
+| DASH-02 | Phase 30 | Pending |
+| DASH-03 | Phase 30 | Pending |
+| AGNT-01 | Phase 31 | Pending |
+| AGNT-02 | Phase 31 | Pending |
+| AGNT-03 | Phase 31 | Pending |
+| AGNT-04 | Phase 31 | Pending |
+| PIPE-01 | Phase 30 | Pending |
+| PIPE-02 | Phase 30 | Pending |
+| MEM-01 | Phase 32 | Pending |
+| MEM-02 | Phase 32 | Pending |
+| OFFC-01 | Phase 32 | Pending |
+| OFFC-02 | Phase 32 | Pending |
+| VIZ-01 | Phase 32 | Pending |
+| VIZ-02 | Phase 32 | Pending |
+| VIZ-03 | Phase 32 | Pending |
+| VIZ-04 | Phase 32 | Pending |
 
 **Coverage:**
 - v2.5 requirements: 24 total
-- Mapped to phases: 0
-- Unmapped: 24
+- Mapped to phases: 24
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-20 after initial definition*
+*Last updated: 2026-02-20 after roadmap creation (traceability complete)*

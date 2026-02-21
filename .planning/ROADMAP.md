@@ -6,7 +6,8 @@
 - ✅ **v2.1 Content Marketing Pipeline** — Phases 12-18 (shipped 2026-02-09)
 - ✅ **v2.2 Resend Email Integration** — Phases 19-23 (shipped 2026-02-17)
 - ✅ **v2.3 Security & Platform Hardening** — Merged into v2.4 (0 phases executed)
-- 🚧 **v2.4 Content Distribution & Platform Hardening** — Phases 24-29 (in progress)
+- ✅ **v2.4 Content Distribution & Platform Hardening** — Phases 24-28 (shipped 2026-02-21, Phase 29 dropped)
+- 🚧 **v2.5 Mission Control Dashboard** — Phases 29-32 (in progress)
 
 ## Phases
 
@@ -57,111 +58,97 @@ Full details: [milestones/v2.2-ROADMAP.md](milestones/v2.2-ROADMAP.md)
 
 </details>
 
-### 🚧 v2.4 Content Distribution & Platform Hardening (In Progress)
+<details>
+<summary>✅ v2.4 Content Distribution & Platform Hardening (Phases 24-28) — SHIPPED 2026-02-21</summary>
 
-**Milestone Goal:** Turn the content pipeline into a distribution engine -- auto-send weekly digests to subscribers via Resend -- while folding in deferred security hardening, observability, email domain hardening, and platform cleanup from v2.3.
+- [x] Phase 24: Critical Security Update (2/2 plans) — completed 2026-02-18
+- [x] Phase 25: Post-Update Audit (2/2 plans) — completed 2026-02-18
+- [x] Phase 26: Agent Observability (2/2 plans) — completed 2026-02-19
+- [x] Phase 27: Email Domain Hardening (1/1 plan) — completed 2026-02-19
+- [x] Phase 28: Platform Cleanup (2/2 plans) — completed 2026-02-21
 
-- [x] **Phase 24: Critical Security Update** — Update OpenClaw to v2026.2.17 and install SecureClaw security plugin (completed 2026-02-18)
-- [x] **Phase 25: Post-Update Audit** — Verify all crons, skills, agents, and injection protections survived the update (completed 2026-02-18)
-- [x] **Phase 26: Agent Observability** — Add LLM hooks, activity summaries, and observability briefing section (completed 2026-02-19)
-- [x] **Phase 27: Email Domain Hardening** — Escalate DMARC, execute warmup checklist, verify health metrics (completed 2026-02-19, Task 4 deferred 48h)
-- [x] **Phase 28: Platform Cleanup** — OAuth re-auth, doctor warnings resolved, gateway.remote.url documented (completed 2026-02-21)
-- [ ] **Phase 29: Content Distribution** — Subscriber audience, weekly digest compilation and send via Resend Broadcasts
+Full details: [milestones/v2.4-ROADMAP.md](milestones/v2.4-ROADMAP.md)
+
+</details>
+
+### 🚧 v2.5 Mission Control Dashboard (In Progress)
+
+**Milestone Goal:** Build Mission Control into the single pane of glass for the entire pops-claw system -- live data feeds from all 5 SQLite databases, agent health/work/usage oversight, content pipeline and email metrics, memory browsing, office visualization, and charts -- accessible directly via Tailscale.
+
+- [ ] **Phase 29: Infrastructure & Database Foundation** - WAL-mode database layer, Convex removal, shadcn/ui, systemd service, Tailscale binding
+- [ ] **Phase 30: Dashboard & Metrics** - Status cards, activity feed, pipeline counts, email stats, auto-refresh polling
+- [ ] **Phase 31: Agent Board** - Per-agent cards with heartbeat status, token usage, model distribution, errors
+- [ ] **Phase 32: Memory, Office & Visualization** - Memory browser, office view, Recharts area/bar/line/donut charts
 
 ## Phase Details
 
-### Phase 24: Critical Security Update
-**Goal**: Bob is running on a patched, security-audited OpenClaw with runtime behavioral protections active
-**Depends on**: Nothing (first phase of v2.4)
-**Requirements**: SEC-01, SEC-02, SEC-03
+### Phase 29: Infrastructure & Database Foundation
+**Goal**: Mission Control has a solid foundation -- all 5 databases accessible read-only, Convex removed, UI components ready, service running on Tailscale, timestamps hydrate correctly
+**Depends on**: Nothing (first phase of v2.5)
+**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06
 **Success Criteria** (what must be TRUE):
-  1. `openclaw --version` reports v2026.2.17 on EC2
-  2. SecureClaw plugin is installed and its 51-check audit completes with zero critical failures
-  3. SecureClaw's 15 runtime behavioral rules are active (external content sandboxed, credential access blocked, destructive commands gated)
-  4. Gateway service is running and Bob responds to a Slack DM
-**Plans**: 2 plans
-
-Plans:
-- [ ] 24-01-PLAN.md -- Baseline, backup & OpenClaw update to v2026.2.17
-- [ ] 24-02-PLAN.md -- SecureClaw plugin install, audit, behavioral rules & smoke test
-
-### Phase 25: Post-Update Audit
-**Goal**: Every existing automation is confirmed functional after the major version jump, and new prompt injection protections are verified
-**Depends on**: Phase 24
-**Requirements**: SEC-04, SEC-05, SEC-06, SEC-07
-**Success Criteria** (what must be TRUE):
-  1. All 20 cron jobs appear in `openclaw cron list` and fire on their next scheduled run without errors
-  2. All 10 skills appear in `openclaw skill list` and Bob can invoke each without "skill not found"
-  3. All 7 agents respond to a heartbeat or direct message (main, landos, rangeos, ops, quill, sage, ezra)
-  4. Browser/web content fetched by Bob is treated as untrusted -- SecureClaw injection protections block embedded prompt injection payloads
-**Plans**: 2 plans
-
-Plans:
-- [ ] 25-01-PLAN.md -- Manifest verification audit (20 crons, 13 skills, 7 agents) with inline fixes
-- [ ] 25-02-PLAN.md -- Prompt injection protection verification (browser + email vectors, 8 payloads)
-
-### Phase 26: Agent Observability
-**Goal**: Bob can see how all agents are using LLM resources and surfaces anomalies in the morning briefing
-**Depends on**: Phase 24 (hooks require v2026.2.17; independent of phases 25, 27, 28)
-**Requirements**: OBS-01, OBS-02, OBS-03
-**Success Criteria** (what must be TRUE):
-  1. LLM hook payloads are configured and firing (verified by log output after at least one agent turn)
-  2. Bob can report per-agent token usage, model distribution (Haiku/Sonnet/Opus), and turn counts for the last 24 hours
-  3. Morning briefing includes an "Agent Observability" section that flags anomalous usage spikes, errors, or rate limit proximity
-**Plans**: 2 plans
-
-Plans:
-- [ ] 26-01-PLAN.md -- Build and install observability-hooks plugin (llm_output + agent_end hooks, SQLite storage, cost estimation)
-- [ ] 26-02-PLAN.md -- Backfill baseline from cron JSONL, create OBSERVABILITY.md, add Section 10 to morning briefing
-
-### Phase 27: Email Domain Hardening
-**Goal**: Email domain reputation is production-grade with enforced DMARC and verified deliverability -- prerequisite for subscriber sends in Phase 29
-**Depends on**: Phase 24 (gateway must be running; independent of phases 25, 26, 28)
-**Requirements**: EML-01, EML-02, EML-03
-**Success Criteria** (what must be TRUE):
-  1. DMARC DNS record for mail.andykaufman.net shows `p=quarantine` (verified via `dig TXT _dmarc.mail.andykaufman.net`)
-  2. WARMUP.md 5-step checklist is fully executed: DNS verified, authentication tested, inbox placement confirmed, monitoring active, escalation complete
-  3. Email health metrics in morning briefing show bounce rate < 5% and complaint rate < 0.1% over the most recent 7-day window
-**Plans**: 1 plan
-
-Plans:
-- [x] 27-01-PLAN.md -- DNS verification, DMARC escalation to p=quarantine, warmup checklist execution, monitoring threshold update with readiness gate
-
-### Phase 28: Platform Cleanup
-**Goal**: All deferred maintenance items resolved -- clean doctor output, minimal OAuth scopes, modern config patterns
-**Depends on**: Phase 24 (gateway must be running; independent of phases 25, 26, 27)
-**Requirements**: CLN-01, CLN-02, CLN-03, CLN-04, CLN-05
-**Success Criteria** (what must be TRUE):
-  1. `gog auth list` shows Gmail OAuth with only required scopes (excess scopes removed; minimum: gmail.readonly + gmail.send + gmail.modify + calendar.readonly)
-  2. `openclaw doctor` outputs zero warnings (deprecated auth profile migrated, legacy session key resolved)
-  3. `openclaw.json` uses `dmPolicy`/`allowFrom` config aliases where applicable to current setup
-  4. `gateway.remote.url` is documented in PROJECT.md and verified reachable from VPS after update
-**Plans**: 2 plans
-
-Plans:
-- [x] 28-01-PLAN.md -- Fix doctor warnings (deprecated auth profile, legacy session keys) and verify dmPolicy/allowFrom migration
-- [x] 28-02-PLAN.md -- Re-auth Gmail OAuth (both accounts, calendar added to AirSpace) and document gateway.remote.url in PROJECT.md
-
-### Phase 29: Content Distribution
-**Goal**: Published articles reach subscribers automatically via weekly digest emails sent through Resend Broadcasts
-**Depends on**: Phase 27 (DMARC must be at p=quarantine before subscriber sends begin)
-**Requirements**: DIST-01, DIST-02, DIST-03, DIST-04, DIST-05
-**Success Criteria** (what must be TRUE):
-  1. Resend Audience exists with a seed list of industry contacts, and Bob can add/remove contacts via skill command
-  2. Weekly cron fires and compiles all articles published in the last 7 days from content.db into a digest
-  3. Digest email includes article titles, summaries, and links to airspaceintegration.com -- formatted with the existing HTML email template
-  4. Digest is sent via Resend Broadcasts API to the subscriber audience on a consistent weekly schedule
+  1. Opening http://100.72.143.9:3001 from any Tailscale device loads Mission Control without SSH tunneling
+  2. All 5 SQLite databases (coordination.db, observability.db, content.db, email.db, health.db) are connected read-only with WAL mode and busy_timeout, and a missing database shows a "not initialized" state instead of crashing
+  3. Convex is fully gone -- no Convex imports, no @convex/ packages in node_modules, no ConvexProvider in the component tree
+  4. shadcn/ui components (card, table, badge, chart) are installed and a test card renders on the landing page
+  5. Mission Control auto-starts on boot via systemd, restarts on crash, has OOMScoreAdjust=500 so the gateway survives if memory runs low
 **Plans**: TBD
 
 Plans:
-- [ ] 29-01: TBD
-- [ ] 29-02: TBD
+- [ ] 29-01: Schema discovery (SSH to EC2, inspect all 5 DB schemas), Convex removal, shadcn/ui init, date-fns + SWR install
+- [ ] 29-02: Database connection layer (5 WAL singletons, fileMustExist, busy_timeout), RelativeTime component, systemd service, Tailscale bind + UFW rule
+
+### Phase 30: Dashboard & Metrics
+**Goal**: The landing page answers "is everything OK?" at a glance -- status cards for all major subsystems, a live activity feed replacing Convex, pipeline and email metrics, all auto-refreshing
+**Depends on**: Phase 29
+**Requirements**: DASH-01, DASH-02, DASH-03, PIPE-01, PIPE-02
+**Success Criteria** (what must be TRUE):
+  1. Dashboard shows status cards for agent health (N/7 alive), cron success rate, content pipeline counts (by status), and email quota/bounce stats -- all sourced from SQLite
+  2. Chronological activity stream displays recent agent actions, cron runs, emails, and content pipeline moves merged from coordination.db, observability.db, content.db, and email.db
+  3. All dashboard data auto-refreshes every 30 seconds via SWR polling, with a visible "last updated X seconds ago" indicator
+  4. Content pipeline section shows article counts broken down by status (researched, written, reviewed, published)
+  5. Email metrics section shows sent/received counts, bounce rate, and quota usage
+**Plans**: TBD
+
+Plans:
+- [ ] 30-01: API route handlers (agents, activity, content, email, crons) + SWR polling + status cards
+- [ ] 30-02: Activity feed (cross-DB merge, chronological, paginated) + pipeline counts + email metrics
+
+### Phase 31: Agent Board
+**Goal**: A dedicated agent board page shows the health, workload, and resource usage of all 7 agents at a glance
+**Depends on**: Phase 30
+**Requirements**: AGNT-01, AGNT-02, AGNT-03, AGNT-04
+**Success Criteria** (what must be TRUE):
+  1. /agents page displays a card for each of the 7 agents (Andy, Scout, Vector, Sentinel, Quill, Sage, Ezra)
+  2. Each agent card shows heartbeat status with color coding (green = active, yellow = stale, red = down) and last-seen timestamp
+  3. Each agent card shows 24-hour token usage and model distribution (Haiku/Sonnet/Opus counts) from observability.db
+  4. Each agent card shows recent error count from observability.db, with visual highlighting when errors are non-zero
+**Plans**: TBD
+
+Plans:
+- [ ] 31-01: Agent board page -- 7-agent card grid, heartbeat status from coordination.db, observability.db connection with caching + higher busy_timeout
+- [ ] 31-02: Token usage, model distribution, and error counts per agent from observability.db
+
+### Phase 32: Memory, Office & Visualization
+**Goal**: Memory is browseable, agent status is fun to look at, and charts make trends visible across tokens, content, email, and crons
+**Depends on**: Phase 31
+**Requirements**: MEM-01, MEM-02, OFFC-01, OFFC-02, VIZ-01, VIZ-02, VIZ-03, VIZ-04
+**Success Criteria** (what must be TRUE):
+  1. /memory page displays agent memories from the SQLite memory backend, filterable by agent, with timestamps and content previewed
+  2. Global search on the memory page returns results across all agents' memories and conversations
+  3. /office page shows avatars for all 7 agents at virtual workstations, with status reflecting current activity (working vs idle based on recent heartbeat/action data)
+  4. Token usage is displayed as area charts per agent, content pipeline as bar chart by status, email volume as line chart over time, and cron success/failure as donut chart -- all powered by Recharts
+**Plans**: TBD
+
+Plans:
+- [ ] 32-01: Memory browser page (SQLite memory backend queries, agent filter, search)
+- [ ] 32-02: Office view (agent avatars, workstation layout, activity-based status)
+- [ ] 32-03: Recharts visualization (token area charts, content bar chart, email line chart, cron donut chart)
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 24 -> 25 -> 26 -> 27 -> 28 -> 29
-Note: Phases 26, 27, 28 depend only on Phase 24 (not each other) but execute sequentially for simplicity. Phase 29 hard-depends on Phase 27.
+Phases execute in numeric order: 29 -> 30 -> 31 -> 32
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -189,11 +176,14 @@ Note: Phases 26, 27, 28 depend only on Phase 24 (not each other) but execute seq
 | 22. Domain Warmup & Hardening | v2.2 | 1/1 | Complete | 2026-02-17 |
 | 23. Email Integration Gap Closure | v2.2 | 1/1 | Complete | 2026-02-17 |
 | 24. Critical Security Update | v2.4 | 2/2 | Complete | 2026-02-18 |
-| 25. Post-Update Audit | v2.4 | Complete    | 2026-02-18 | 2026-02-18 |
-| 26. Agent Observability | 2/2 | Complete    | 2026-02-19 | - |
-| 27. Email Domain Hardening | v2.4 | 1/1 | Complete (Task 4 deferred 48h) | 2026-02-19 |
+| 25. Post-Update Audit | v2.4 | 2/2 | Complete | 2026-02-18 |
+| 26. Agent Observability | v2.4 | 2/2 | Complete | 2026-02-19 |
+| 27. Email Domain Hardening | v2.4 | 1/1 | Complete | 2026-02-19 |
 | 28. Platform Cleanup | v2.4 | 2/2 | Complete | 2026-02-21 |
-| 29. Content Distribution | v2.4 | 0/? | Not started | - |
+| 29. Infrastructure & Database Foundation | v2.5 | 0/2 | Not started | - |
+| 30. Dashboard & Metrics | v2.5 | 0/2 | Not started | - |
+| 31. Agent Board | v2.5 | 0/2 | Not started | - |
+| 32. Memory, Office & Visualization | v2.5 | 0/3 | Not started | - |
 
 ---
-*Updated: 2026-02-20 -- Phase 28 Plan 01 complete (doctor warnings resolved, config migration verified)*
+*Updated: 2026-02-20 -- v2.5 roadmap created (4 phases, 9 plans, 24 requirements)*
