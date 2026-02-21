@@ -108,11 +108,11 @@ Plans:
   3. All dashboard data auto-refreshes every 30 seconds via SWR polling, with a visible "last updated X seconds ago" indicator
   4. Content pipeline section shows article counts broken down by status (researched, written, reviewed, published)
   5. Email metrics section shows sent/received counts, bounce rate, and quota usage
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 30-01: API route handlers (agents, activity, content, email, crons) + SWR polling + status cards
-- [ ] 30-02: Activity feed (cross-DB merge, chronological, paginated) + pipeline counts + email metrics
+- [ ] 30-01-PLAN.md -- Query modules (agents, crons, metrics, activity), 4 API routes, SWR global polling config, StatusCard component
+- [ ] 30-02-PLAN.md -- Dashboard page rewrite with 4 status cards, activity feed, pipeline metrics, email metrics, freshness indicator
 
 ### Phase 31: Agent Board
 **Goal**: A dedicated agent board page shows the health, workload, and resource usage of all 7 agents at a glance
@@ -180,10 +180,10 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32
 | 26. Agent Observability | v2.4 | 2/2 | Complete | 2026-02-19 |
 | 27. Email Domain Hardening | v2.4 | 1/1 | Complete | 2026-02-19 |
 | 28. Platform Cleanup | v2.4 | 2/2 | Complete | 2026-02-21 |
-| 29. Infrastructure & Database Foundation | v2.5 | Complete    | 2026-02-21 | 2026-02-21 |
+| 29. Infrastructure & Database Foundation | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 30. Dashboard & Metrics | v2.5 | 0/2 | Not started | - |
 | 31. Agent Board | v2.5 | 0/2 | Not started | - |
 | 32. Memory, Office & Visualization | v2.5 | 0/3 | Not started | - |
 
 ---
-*Updated: 2026-02-21 -- Phase 29 complete (2/2 plans), Phase 30 next*
+*Updated: 2026-02-21 -- Phase 30 planned (2 plans), ready for execution*
