@@ -20,7 +20,7 @@ Progress: [████████░░] 89% (8/9 plans)
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 61 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
+- Total plans completed: 62 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
 
 **By Milestone:**
 
@@ -43,6 +43,7 @@ Progress: [████████░░] 89% (8/9 plans)
 | 30-02 | 8min | 3 | 5 |
 | 31-01 | 5min | 2 | 4 |
 | 31-02 | 3min | 2 | 2 |
+| 32-01 | 17min | 2 | 8 |
 | 32-02 | 13min | 2 | 5 |
 
 ## Accumulated Context
@@ -67,6 +68,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 31-01: Query both 'main' and 'bob' agent_ids for main agent across all DB queries
 - Phase 31-01: Separate /api/agents route rather than extending /api/dashboard/agents to keep Phase 30 stable
 - Phase 31-02: Used variant='error' instead of variant='destructive' for Badge -- matching project's actual shadcn config
+- Phase 32-01: Per-request open/close for memory DBs (not cached singletons) since per-agent files accessed infrequently
+- Phase 32-01: FTS5 MATCH with LIKE fallback on syntax errors for robust search
+- Phase 32-01: NavBar integrated into root layout (was previously created but unused in Phase 31)
 - Phase 32-02: Simple SVG avatars with unique per-agent accessory shapes as placeholders for future illustrated assets
 - Phase 32-02: 5-minute idle threshold matches existing agent board pattern for consistency
 - Phase 32-02: Added Office link to NavBar between Agents and Calendar
@@ -102,4 +106,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - UFW: port 3001 allowed from 100.64.0.0/10 (Tailscale CGNAT only)
 
 ---
-*Last updated: 2026-02-21 -- Completed 32-02 (office view with SVG agent avatars). Ready for 32-03 (analytics charts).*
+*Last updated: 2026-02-21 -- Completed 32-01 (memory browser with FTS5 search) and 32-02 (office view). Ready for 32-03 (analytics charts).*

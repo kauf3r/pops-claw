@@ -34,8 +34,8 @@
 
 ### Memory
 
-- [ ] **MEM-01**: Memory screen displays all agent memories from SQLite memory backend, browseable by agent
-- [ ] **MEM-02**: Global search across all agent memories and conversations
+- [x] **MEM-01**: Memory screen displays all agent memories from SQLite memory backend, browseable by agent
+- [x] **MEM-02**: Global search across all agent memories and conversations
 
 ### Office
 
@@ -102,8 +102,8 @@
 | AGNT-04 | Phase 31 | Complete |
 | PIPE-01 | Phase 30 | Complete |
 | PIPE-02 | Phase 30 | Complete |
-| MEM-01 | Phase 32 | Pending |
-| MEM-02 | Phase 32 | Pending |
+| MEM-01 | Phase 32 | Complete |
+| MEM-02 | Phase 32 | Complete |
 | OFFC-01 | Phase 32 | Complete |
 | OFFC-02 | Phase 32 | Complete |
 | VIZ-01 | Phase 32 | Pending |
