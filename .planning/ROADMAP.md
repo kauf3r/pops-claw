@@ -111,7 +111,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 30-01-PLAN.md -- Query modules (agents, crons, metrics, activity), 4 API routes, SWR global polling config, StatusCard component
+- [x] 30-01-PLAN.md -- Query modules (agents, crons, metrics, activity), 4 API routes, SWR global polling config, StatusCard component
 - [ ] 30-02-PLAN.md -- Dashboard page rewrite with 4 status cards, activity feed, pipeline metrics, email metrics, freshness indicator
 
 ### Phase 31: Agent Board
@@ -181,9 +181,9 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32
 | 27. Email Domain Hardening | v2.4 | 1/1 | Complete | 2026-02-19 |
 | 28. Platform Cleanup | v2.4 | 2/2 | Complete | 2026-02-21 |
 | 29. Infrastructure & Database Foundation | v2.5 | 2/2 | Complete | 2026-02-21 |
-| 30. Dashboard & Metrics | v2.5 | 0/2 | Not started | - |
+| 30. Dashboard & Metrics | v2.5 | 1/2 | In progress | - |
 | 31. Agent Board | v2.5 | 0/2 | Not started | - |
 | 32. Memory, Office & Visualization | v2.5 | 0/3 | Not started | - |
 
 ---
-*Updated: 2026-02-21 -- Phase 30 planned (2 plans), ready for execution*
+*Updated: 2026-02-21 -- Phase 30 in progress (1/2 plans complete)*

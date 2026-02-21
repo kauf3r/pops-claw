@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** Mission Control Dashboard as single pane of glass for the entire pops-claw system.
-**Current focus:** Phase 29 - Infrastructure & Database Foundation
+**Current focus:** Phase 30 - Dashboard & Metrics
 
 ## Current Position
 
 Phase: 30 (2 of 4 in v2.5) — Dashboard & Metrics
-Plan: 01 of 2 in phase
+Plan: 02 of 2 in phase
 Status: Ready
 Milestone: v2.5 Mission Control Dashboard
-Last activity: 2026-02-21 — Completed 29-02 (DB connection layer, status cards, systemd service, Tailscale bind)
+Last activity: 2026-02-21 — Completed 30-01 (4 API routes, SWR polling, StatusCard, query modules)
 
-Progress: [██░░░░░░░░] 22% (2/9 plans)
+Progress: [███░░░░░░░] 33% (3/9 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 56 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
+- Total plans completed: 57 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
 
 **By Milestone:**
 
@@ -39,6 +39,7 @@ Progress: [██░░░░░░░░] 22% (2/9 plans)
 |------|----------|-------|-------|
 | 29-01 | 6min | 2 | 15 |
 | 29-02 | 12min | 3 | 9 |
+| 30-01 | 4min | 2 | 11 |
 
 ## Accumulated Context
 
@@ -52,6 +53,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 29-02: Bound Next.js to 0.0.0.0:3001 for direct Tailscale access instead of loopback with SSH tunnel
 - Phase 29-02: OOMScoreAdjust=500 on mission-control so gateway (-900) and Tailscale survive OOM events
 - Phase 29-02: Database connections opened read-only with WAL check and busy_timeout=5000
+- Phase 30-01: Query modules per subsystem (not one mega route) for independent error handling
+- Phase 30-01: Activity feed merges coordination + observability + email DBs in JS (no ATTACH in read-only)
+- Phase 30-01: Agents with no data show as idle (not down) to avoid false alarms for sage/ezra
 
 ### Research Flags
 
@@ -79,4 +83,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - UFW: port 3001 allowed from 100.64.0.0/10 (Tailscale CGNAT only)
 
 ---
-*Last updated: 2026-02-21 -- Completed 29-02, Phase 29 complete. Ready for Phase 30.*
+*Last updated: 2026-02-21 -- Completed 30-01 (data layer + API routes). Ready for 30-02 (dashboard page).*
