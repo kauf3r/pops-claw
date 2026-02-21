@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 32 (4 of 4 in v2.5) — Memory, Office & Visualization
-Plan: 01 of 3 in phase
+Plan: 03 of 3 in phase
 Status: Ready
 Milestone: v2.5 Mission Control Dashboard
-Last activity: 2026-02-21 — Completed 31-02 (agent board UI, /agents page with 7 agent cards, human-verified)
+Last activity: 2026-02-21 — Completed 32-02 (office view, /office page with 7 agent avatars and animated status)
 
-Progress: [███████░░░] 67% (6/9 plans)
+Progress: [████████░░] 89% (8/9 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 60 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
+- Total plans completed: 61 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
 
 **By Milestone:**
 
@@ -43,6 +43,7 @@ Progress: [███████░░░] 67% (6/9 plans)
 | 30-02 | 8min | 3 | 5 |
 | 31-01 | 5min | 2 | 4 |
 | 31-02 | 3min | 2 | 2 |
+| 32-02 | 13min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -66,6 +67,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 31-01: Query both 'main' and 'bob' agent_ids for main agent across all DB queries
 - Phase 31-01: Separate /api/agents route rather than extending /api/dashboard/agents to keep Phase 30 stable
 - Phase 31-02: Used variant='error' instead of variant='destructive' for Badge -- matching project's actual shadcn config
+- Phase 32-02: Simple SVG avatars with unique per-agent accessory shapes as placeholders for future illustrated assets
+- Phase 32-02: 5-minute idle threshold matches existing agent board pattern for consistency
+- Phase 32-02: Added Office link to NavBar between Agents and Calendar
 
 ### Research Flags
 
@@ -98,4 +102,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - UFW: port 3001 allowed from 100.64.0.0/10 (Tailscale CGNAT only)
 
 ---
-*Last updated: 2026-02-21 -- Completed 31-02 (agent board UI). Phase 31 complete. Ready for Phase 32 (memory, office, visualization).*
+*Last updated: 2026-02-21 -- Completed 32-02 (office view with SVG agent avatars). Ready for 32-03 (analytics charts).*

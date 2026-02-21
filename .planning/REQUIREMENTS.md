@@ -39,8 +39,8 @@
 
 ### Office
 
-- [ ] **OFFC-01**: Office view shows avatar for each of the 7 agents at virtual workstations
-- [ ] **OFFC-02**: Agent avatars reflect current status (working when active, idle when inactive)
+- [x] **OFFC-01**: Office view shows avatar for each of the 7 agents at virtual workstations
+- [x] **OFFC-02**: Agent avatars reflect current status (working when active, idle when inactive)
 
 ### Visualization
 
@@ -104,8 +104,8 @@
 | PIPE-02 | Phase 30 | Complete |
 | MEM-01 | Phase 32 | Pending |
 | MEM-02 | Phase 32 | Pending |
-| OFFC-01 | Phase 32 | Pending |
-| OFFC-02 | Phase 32 | Pending |
+| OFFC-01 | Phase 32 | Complete |
+| OFFC-02 | Phase 32 | Complete |
 | VIZ-01 | Phase 32 | Pending |
 | VIZ-02 | Phase 32 | Pending |
 | VIZ-03 | Phase 32 | Pending |
