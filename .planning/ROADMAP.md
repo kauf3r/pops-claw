@@ -129,6 +129,15 @@ Plans:
 - [x] 31-01-PLAN.md -- Agent board data layer: query module with per-agent heartbeat/token/error queries, /api/agents route, token formatting utilities, NavBar update
 - [x] 31-02-PLAN.md -- Agent board UI: AgentCard component with status borders, /agents page with responsive grid, fleet summary header, human verification
 
+### Phase 31.2: Agent Board Polish (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Depends on:** Phase 31
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 31.2 to break down)
+
 ### Phase 31.1: Context Usage Indicators (INSERTED)
 
 **Goal:** Each agent card on /agents shows context window utilization %, cache hit rate, and 24h cost at a glance
@@ -147,12 +156,12 @@ Plans:
   2. Global search on the memory page returns results across all agents' memories and conversations
   3. /office page shows avatars for all 7 agents at virtual workstations, with status reflecting current activity (working vs idle based on recent heartbeat/action data)
   4. Token usage is displayed as area charts per agent, content pipeline as bar chart by status, email volume as line chart over time, and cron success/failure as donut chart -- all powered by Recharts
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 32-01: Memory browser page (SQLite memory backend queries, agent filter, search)
-- [ ] 32-02: Office view (agent avatars, workstation layout, activity-based status)
-- [ ] 32-03: Recharts visualization (token area charts, content bar chart, email line chart, cron donut chart)
+- [ ] 32-01-PLAN.md -- Memory browser page with FTS5 search, agent tabs, expandable cards, NavBar update
+- [ ] 32-02-PLAN.md -- Office view with top-down floorplan, agent avatars, pulse animation, task badges
+- [ ] 32-03-PLAN.md -- Analytics page with 4 Recharts charts (token area, pipeline bar, email line, cron donut)
 
 ## Progress
 
