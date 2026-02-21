@@ -1,600 +1,829 @@
-# Architecture: Content Distribution, Security Hardening & LLM Observability
+# Architecture: Mission Control Dashboard v2.5
 
-**Domain:** Integration architecture for content distribution, SecureClaw plugin, and LLM observability hooks into existing OpenClaw/EC2 deployment
-**Researched:** 2026-02-17
-**Confidence:** MEDIUM-HIGH
+**Domain:** Next.js 14 dashboard integrating 5 SQLite databases + OpenClaw gateway for personal AI companion monitoring
+**Researched:** 2026-02-20
+**Confidence:** HIGH (Next.js patterns, SQLite access), MEDIUM (OpenClaw gateway API, Tailscale binding)
 
 ---
 
 ## System Context: What Already Exists
 
-The following components are LIVE and must not be disrupted:
+```
+EC2 (100.72.143.9) -- Tailscale
+|
++-- OpenClaw Gateway :18789 (tailnet bind)
+|   +-- 7 agents (main, landos, rangeos, ops, quill, sage, ezra)
+|   +-- 20 cron jobs
+|   +-- 13 skills
+|   +-- Session JSONL: ~/.openclaw/agents/<id>/sessions/*.jsonl
+|
++-- SQLite Databases (~/clawd/agents/main/)
+|   +-- coordination.db -- agent coordination, standup data
+|   +-- health.db ------- Oura Ring metrics (sleep, readiness, HRV, HR)
+|   +-- content.db ------ content pipeline (topics, articles, reviews)
+|   +-- email.db -------- email tracking (sent, received, bounced, quota)
+|   +-- observability.db  LLM usage (tokens, models, turns per agent)
+|
++-- Mission Control (~/clawd/mission-control/)
+|   +-- Next.js 14.2.15 + Tailwind + better-sqlite3
+|   +-- Dev server: 127.0.0.1:3001 (SSH tunnel required)
+|   +-- Current: Convex activity feed (to be replaced)
+|   +-- Current: coordination.db for calendar tasks
+|
++-- Docker Sandbox (agent runtime, network=bridge)
+    +-- /workspace/ = ~/clawd/agents/main/ (bind-mount)
+    +-- DBs accessible inside sandbox AND on host
+```
+
+**Key constraint:** Next.js runs on the EC2 host (not in Docker). It has direct filesystem access to all 5 SQLite databases. No network hop needed for DB reads. This is the single biggest architectural advantage -- use it.
+
+---
+
+## Recommended Architecture
+
+### System Overview
 
 ```
-EC2 (100.72.143.9) — OpenClaw v2026.2.6-3
-├── Gateway: :18789 (tailnet bind)
-├── Agents (7):
-│   ├── main (Bob) — Andy's primary assistant
-│   ├── landos (Scout) — research agent
-│   ├── rangeos (Vector) — topic researcher
-│   ├── ops (Sentinel) — operations/monitoring
-│   ├── quill (Quill) — writer
-│   ├── sage (Sage) — reviewer
-│   └── ezra (Ezra) — WordPress publisher
-├── Databases (SQLite, bind-mounted):
-│   ├── content.db — content pipeline state (status, drafts, published)
-│   ├── email.db — email send/receive tracking + subscriber records
-│   ├── health.db — system health metrics
-│   └── coordination.db — inter-agent coordination
-├── Skills (10): resend-email, clawdstrike, save-voice-notes, + 7 others
-├── Crons (20): morning briefing, airspace monitor, email-catchup, + 17 others
-└── Config: ~/.openclaw/openclaw.json + ~/.openclaw/.env
+                    Tailscale Network
+                         |
+                    100.72.143.9:3001
+                         |
++--------------------------------------------------------+
+|                   Next.js 14 App Router                |
+|                                                        |
+|  +------------------+    +------------------------+    |
+|  | Server Components|    | API Route Handlers     |    |
+|  | (pages, layouts) |    | /api/agents/[id]       |    |
+|  |                  |    | /api/activity           |    |
+|  | Direct DB reads  |    | /api/crons             |    |
+|  | via db modules   |    | /api/email/stats        |    |
+|  +--------+---------+    | /api/content/pipeline   |    |
+|           |              +----------+--------------+    |
+|           |                         |                   |
+|  +--------+-------------------------+----------+       |
+|  |              Database Layer (lib/db/)        |       |
+|  |                                              |       |
+|  |  +-------------+  +--------------+           |       |
+|  |  | db/index.ts  |  | db/queries/  |          |       |
+|  |  | (singletons) |  | (prepared    |          |       |
+|  |  |              |  |  statements) |          |       |
+|  |  +------+-------+  +------+------+           |       |
+|  |         |                 |                   |       |
+|  +---------+-----------------+-------------------+       |
+|            |                                             |
++------------|---------------------------------------------+
+             |
+    +--------+-------------------------------------------+
+    |              SQLite Files (read-only access)        |
+    |                                                    |
+    |  coordination.db  health.db  content.db            |
+    |  email.db  observability.db                        |
+    +----------------------------------------------------+
+             |
+    +--------+-------------------------------------------+
+    |          Client Components ("use client")          |
+    |                                                    |
+    |  +------------+  +-----------+  +------------+    |
+    |  | Dashboard   |  | Agent     |  | Activity   |    |
+    |  | Status Cards|  | Board     |  | Feed       |    |
+    |  | (SWR poll)  |  | (SWR poll)|  | (SWR poll) |    |
+    |  +------------+  +-----------+  +------------+    |
+    +----------------------------------------------------+
+```
 
-VPS (165.22.139.214 / Tailscale: 100.105.251.99)
-├── n8n: webhook relay for Resend inbound email
-└── Caddy: TLS termination for public webhooks
+### Component Responsibilities
 
-External Services:
-├── Resend API: transactional email (bob@mail.andykaufman.net)
-│   ├── email.db tracks sent/received emails
-│   └── DMARC currently p=none (target: p=quarantine)
-├── Anthropic API: LLM calls (Claude Haiku/Sonnet/Opus)
-├── WordPress: Ezra publishes approved content
-└── Slack: primary notification channel (Socket Mode)
+| Component | Responsibility | Implementation |
+|-----------|---------------|----------------|
+| Database Layer (`lib/db/`) | Singleton better-sqlite3 connections to all 5 DBs; prepared statements for common queries | Module-level singletons, WAL mode, `readonly: true` for all DBs |
+| Server Components (pages) | Initial page render with fresh data; no client JS for static content | Direct import of db query functions; no fetch() needed |
+| API Route Handlers (`/api/`) | JSON endpoints for client-side polling via SWR | Call same db query functions; return JSON; 5-30s cache headers |
+| Client Components | Interactive UI, auto-refreshing status cards, activity feed with polling | SWR with `refreshInterval`, "use client" directive |
+| Status Cards | At-a-glance system health: agent heartbeats, cron success, email quota | Server-rendered initial, SWR-polled updates every 30s |
+| Activity Feed | Chronological stream of agent actions, cron runs, emails | Replaces Convex; reads coordination.db + observability.db |
+| Agent Board | Per-agent detail: heartbeat status, work queue, token usage, last action | Reads coordination.db + observability.db per agent |
+| Content Pipeline | Article status counts and flow visualization | Reads content.db `articles` table grouped by status |
+| Email Metrics | Sent/received counts, bounce rate, quota usage | Reads email.db aggregate queries |
+
+---
+
+## Database Layer: The Core Pattern
+
+### Singleton Module with Read-Only Connections
+
+**This is the most important architectural decision.** better-sqlite3 is synchronous. Opening multiple connections per request is wasteful and risks file locking issues. Use module-level singletons with WAL mode and read-only access.
+
+```typescript
+// lib/db/index.ts
+import Database from 'better-sqlite3';
+import path from 'path';
+
+const DB_BASE = process.env.DB_PATH || '/home/ubuntu/clawd/agents/main';
+
+function openDb(filename: string): Database.Database {
+  const db = new Database(path.join(DB_BASE, filename), {
+    readonly: true,
+    fileMustExist: true,
+  });
+  db.pragma('journal_mode = WAL');
+  db.pragma('busy_timeout = 3000');
+  return db;
+}
+
+// Module-level singletons -- created once, reused across requests
+export const coordinationDb = openDb('coordination.db');
+export const healthDb = openDb('health.db');
+export const contentDb = openDb('content.db');
+export const emailDb = openDb('email.db');
+export const observabilityDb = openDb('observability.db');
+```
+
+**Why `readonly: true`:** Mission Control is a monitoring dashboard. It NEVER writes to these databases. The agents (running in Docker) and cron hooks are the writers. Opening read-only prevents accidental writes and avoids WAL checkpoint contention with the writer processes.
+
+**Why WAL mode:** SQLite WAL allows concurrent readers without blocking writers. The OpenClaw agents write to these databases while Mission Control reads. WAL mode is essential -- without it, a long-running dashboard query could block an agent's write, or vice versa.
+
+**Why singletons:** better-sqlite3 connections are lightweight but opening them per-request is unnecessary overhead. Module-level singletons survive across requests in the same Node.js process. In development with hot reload, Next.js may re-execute the module -- this is fine; a new read-only connection replaces the old one.
+
+### Prepared Statements for Common Queries
+
+```typescript
+// lib/db/queries/agents.ts
+import { coordinationDb, observabilityDb } from '../index';
+
+// Prepare once, execute many times -- better-sqlite3 caches compiled SQL
+const getAgentStatusStmt = coordinationDb.prepare(`
+  SELECT agent_id, last_heartbeat, status, last_action
+  FROM agent_status
+  ORDER BY last_heartbeat DESC
+`);
+
+const getTokenUsageStmt = observabilityDb.prepare(`
+  SELECT agent_id,
+         SUM(input_tokens) as total_input,
+         SUM(output_tokens) as total_output,
+         COUNT(*) as turn_count,
+         model
+  FROM llm_usage
+  WHERE timestamp > datetime('now', '-24 hours')
+  GROUP BY agent_id, model
+`);
+
+export function getAgentStatuses() {
+  return getAgentStatusStmt.all();
+}
+
+export function getTokenUsage24h() {
+  return getTokenUsageStmt.all();
+}
+```
+
+**Why prepared statements:** better-sqlite3 compiles SQL once and reuses the compiled statement. For a dashboard making the same queries every 30 seconds, this eliminates repeated SQL parsing overhead.
+
+---
+
+## Data Flow Patterns
+
+### Pattern 1: Server Component Initial Render (No Polling)
+
+**What:** Server Components read directly from SQLite during SSR. No API route, no fetch, no network hop. The query runs in the same Node.js process as the page render.
+
+**When to use:** Pages that load with data but don't need auto-refresh (calendar page, settings, historical views).
+
+**Trade-offs:**
+- Pro: Zero client JS for data fetching. Fastest possible initial load.
+- Pro: No API layer to maintain for read-only views.
+- Con: Data is stale after initial render unless client-side polling is added.
+
+```typescript
+// app/dashboard/page.tsx (Server Component -- default in App Router)
+import { getAgentStatuses } from '@/lib/db/queries/agents';
+import { getContentPipelineCounts } from '@/lib/db/queries/content';
+import { getEmailStats } from '@/lib/db/queries/email';
+import { DashboardClient } from './dashboard-client';
+
+export const dynamic = 'force-dynamic'; // Always fresh data, no caching
+
+export default function DashboardPage() {
+  // These run server-side, synchronously, no await needed for better-sqlite3
+  const agents = getAgentStatuses();
+  const pipeline = getContentPipelineCounts();
+  const emailStats = getEmailStats();
+
+  return (
+    <DashboardClient
+      initialAgents={agents}
+      initialPipeline={pipeline}
+      initialEmailStats={emailStats}
+    />
+  );
+}
+```
+
+### Pattern 2: SWR Polling for Live Updates (Client Components)
+
+**What:** Client components use SWR with `refreshInterval` to poll API routes for updated data. Server-rendered initial data is passed as `fallbackData` to avoid a loading flash.
+
+**When to use:** Dashboard cards, activity feed, agent board -- anything that should update without page reload.
+
+**Trade-offs:**
+- Pro: Near-real-time updates without WebSocket complexity.
+- Pro: SWR deduplicates requests, handles errors, auto-retries.
+- Con: Polling adds server load (mitigated by 30s intervals and lightweight SQLite queries).
+
+```typescript
+// app/dashboard/dashboard-client.tsx
+'use client';
+
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then(r => r.json());
+
+export function DashboardClient({ initialAgents, initialPipeline, initialEmailStats }) {
+  const { data: agents } = useSWR('/api/agents', fetcher, {
+    fallbackData: initialAgents,
+    refreshInterval: 30_000,  // 30 seconds
+  });
+
+  const { data: pipeline } = useSWR('/api/content/pipeline', fetcher, {
+    fallbackData: initialPipeline,
+    refreshInterval: 60_000,  // 1 minute -- content changes slowly
+  });
+
+  const { data: emailStats } = useSWR('/api/email/stats', fetcher, {
+    fallbackData: initialEmailStats,
+    refreshInterval: 60_000,
+  });
+
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      <AgentStatusCards agents={agents} />
+      <PipelineOverview pipeline={pipeline} />
+      <EmailMetrics stats={emailStats} />
+    </div>
+  );
+}
+```
+
+### Pattern 3: API Route Handlers (JSON Endpoints)
+
+**What:** Thin Route Handlers that call the same query functions used by Server Components. Return JSON for SWR consumers.
+
+**When to use:** Every data endpoint that client components poll.
+
+```typescript
+// app/api/agents/route.ts
+import { NextResponse } from 'next/server';
+import { getAgentStatuses } from '@/lib/db/queries/agents';
+import { getTokenUsage24h } from '@/lib/db/queries/agents';
+
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  const statuses = getAgentStatuses();
+  const usage = getTokenUsage24h();
+
+  // Merge agent status with token usage
+  const agents = statuses.map(agent => ({
+    ...agent,
+    usage: usage.filter(u => u.agent_id === agent.agent_id),
+  }));
+
+  return NextResponse.json(agents, {
+    headers: { 'Cache-Control': 'no-store' },
+  });
+}
 ```
 
 ---
 
-## Component Boundaries: New vs Modified
+## Page Structure and Data Flows
 
-### Feature 1: Content Distribution (Subscriber Notifications, Weekly Digest, Pitch Copy)
+### Dashboard Page (`/`)
 
-```
-EXISTING:
-  content.db
-    └── articles table: status field (researched → drafted → reviewed → approved → published)
-  email.db
-    └── sent_emails, received_emails tables
-  Ezra (agent): publishes to WordPress on human approval
-
-NEW/MODIFIED:
-  content.db
-    └── (MODIFIED) articles table: add `notified_at` column to track send status
-  email.db
-    └── (MODIFIED) add subscribers table (email, name, subscribed_at, unsubscribed_at)
-  Resend Audiences API
-    └── (NEW) subscriber list synced from email.db subscribers table
-  Resend Broadcasts API
-    └── (NEW) weekly digest sent as Broadcast to Audience
-  Ezra (agent)
-    └── (MODIFIED) gets new distribution responsibilities:
-        1. After WordPress publish: trigger subscriber notification via Resend transactional
-        2. Weekly: compile digest from content.db, send via Resend Broadcast
-  pitch-copy skill
-    └── (NEW) SKILL.md at ~/.openclaw/skills/pitch-copy/ — Quill or Bob drafts social/pitch copy
-  content-distribution cron
-    └── (NEW) weekly digest trigger cron, e.g. Friday 9am PT
-```
-
-**Key Architectural Decision:** Use Resend Audiences + Broadcasts for the weekly digest (not individual transactional emails). Broadcasts handle list management, unsubscribe flows, and throttling automatically. Individual article notifications use transactional sends from the existing resend-email skill — simpler and already proven.
-
-**Confidence: MEDIUM-HIGH** — Resend Broadcasts API confirmed functional (released March 2025, documented at resend.com/docs/dashboard/broadcasts/introduction). Integration with existing resend-email skill pattern is LOW-risk. Subscriber table schema is straightforward SQLite.
-
----
-
-### Feature 2: SecureClaw Plugin Installation
+**Purpose:** Single-pane-of-glass overview of the entire system.
 
 ```
-EXISTING:
-  ~/.openclaw/openclaw.json
-    └── plugins.entries section (other plugins loaded here)
-  Gateway: v2026.2.6-3 (CVE-2026-25253 unpatched)
-  ClawdStrike skill: ~/.openclaw/skills/clawdstrike/ (16/25 OK, 3 warn)
-
-NEW:
-  OpenClaw binary: v2026.2.17 (CVE patched)
-  SecureClaw plugin: ~/.openclaw/extensions/secureclaw/
-    └── 51 automated checks across 8 categories
-    └── 15 behavioral rules loaded into agent context (~1,230 tokens)
-    └── 9 bash scripts (audit, harden, scan, integrity check, etc.)
-    └── 4 JSON pattern databases
-  openclaw.json (MODIFIED):
-    └── plugins.entries.secureclaw: { enabled: true, config: { mode: "enforce" } }
+Dashboard Page
+|
++-- Status Bar (server-rendered)
+|   +-- Gateway status indicator
+|   +-- Last briefing time
+|   +-- Current time (PT)
+|
++-- Status Cards Row (SWR 30s poll)
+|   +-- Agent Health: 7/7 heartbeating, last heartbeat times
+|   +-- Cron Status: success rate (last 24h), next run times
+|   +-- Email Quota: sent today / 100 limit, bounce rate
+|   +-- Content Pipeline: articles by status (researched/drafted/reviewed/published)
+|   +-- Token Usage: total tokens today, model distribution pie
+|
++-- Activity Feed (SWR 15s poll)
+|   +-- Chronological stream merging:
+|       +-- coordination.db: agent actions, standup entries
+|       +-- observability.db: LLM calls with agent/model/tokens
+|       +-- email.db: sent/received emails
+|       +-- content.db: article status changes
+|   +-- Filter by: agent, type, time range
+|
++-- Data sources:
+    coordination.db -> agent status, standup, actions
+    observability.db -> token usage, model distribution
+    email.db -> quota usage, bounce rate
+    content.db -> pipeline counts
+    health.db -> (optional) latest health score in status bar
 ```
 
-**Plugin Install Pattern:**
-SecureClaw uses the standard OpenClaw plugin installation flow:
-```bash
-openclaw plugins install secureclaw
-# or direct: npm install -g @adversa-ai/secureclaw
-# then: openclaw plugins enable secureclaw
-```
+### Agent Board Page (`/agents`)
 
-SecureClaw's `openclaw.plugin.json` manifest uses `configPatch` to auto-merge security config into `openclaw.json` on install. No manual JSON editing required for the plugin config block. Manual editing may be needed for mode (`enforce` vs `audit`) and any custom behavioral rules.
-
-**Relationship to Existing ClawdStrike:**
-ClawdStrike is a SKILL (passive scanner, on-demand). SecureClaw is a PLUGIN (active runtime enforcement). They do not conflict — ClawdStrike audits, SecureClaw enforces. Run ClawdStrike after SecureClaw install to confirm score improves.
-
-**Confidence: HIGH** — SecureClaw GitHub confirms plugin architecture, `configPatch` pattern confirmed for OpenClaw plugins, behavioral rules count (15) and check count (51) confirmed by Adversa AI press release.
-
----
-
-### Feature 3: LLM Observability Hooks
+**Purpose:** Per-agent detail view with drill-down.
 
 ```
-EXISTING:
-  openclaw.json:
-    └── hooks.internal.entries.session-memory (already enabled)
-  Morning briefing cron: pulls from health.db, coordination.db
-
-NEW — Two approaches, pick one:
-
-APPROACH A (diagnostics-otel plugin — MEDIUM confidence):
-  openclaw.json (MODIFIED):
-    └── plugins.entries.diagnostics-otel: { enabled: true }
-    └── diagnostics.otel: {
-          enabled: true,
-          endpoint: "http://localhost:4318",   // or file export
-          traces: true,
-          metrics: true,
-          logs: true
-        }
-  Limitation: Requires an OTEL collector endpoint. Adding Prometheus/Grafana
-  or a managed OTEL backend is more infra than warranted for personal use.
-  Workaround: Export to file, Bob reads file on morning briefing schedule.
-
-APPROACH B (llm hooks → SQLite → Bob queries — HIGH confidence for fit):
-  openclaw.json (MODIFIED):
-    └── hooks.internal.entries.llm_input: { enabled: true }
-    └── hooks.internal.entries.llm_output: { enabled: true }
-  Each hook fires on every LLM call, writes payload to a script/file.
-  A lightweight hook script appends JSON Lines to ~/clawd/logs/llm-usage.jsonl.
-  Morning briefing cron: Bob reads llm-usage.jsonl, aggregates per-agent stats.
-
-  NOTE: Existence of llm_input/llm_output as valid hook names in OpenClaw
-  v2026.2.17 is UNCONFIRMED via official docs. The REQUIREMENTS.md references
-  them as targets. Verify during Phase 26 planning by checking `openclaw hooks list`
-  on the updated gateway.
+Agent Board Page
+|
++-- Agent Grid (SWR 30s poll)
+|   +-- Card per agent (7 total):
+|       +-- Agent name + domain label
+|       +-- Heartbeat status: "alive" (green) / "stale" (yellow) / "dead" (red)
+|       +-- Last action timestamp + description
+|       +-- Token usage spark chart (24h)
+|       +-- Active session indicator
+|
++-- Agent Detail Panel (click to expand)
+    +-- Token usage by model (last 7 days)
+    +-- Recent LLM calls (last 20 turns from observability.db)
+    +-- Cron jobs owned by this agent + last run status
+    +-- Work queue items (from coordination.db)
+    +-- Skills assigned
+|
++-- Data sources:
+    coordination.db -> per-agent status, work queue, standup
+    observability.db -> per-agent tokens, turns, model split
 ```
 
-**Recommendation: Start with Approach B (hook → JSONL → Bob reads).** No new infrastructure. Fits the existing pattern of Bob reading local files for context. If `llm_input`/`llm_output` hooks don't exist in v2026.2.17, fall back to diagnostics-otel with a local file exporter, or use the hook `llm:used` if it exists.
+### Calendar Page (`/calendar`) -- EXISTING
 
-**Confidence: LOW-MEDIUM** for the specific hook names (`llm_input`, `llm_output`). The diagnostics-otel plugin is MEDIUM confidence as a fallback. The morning briefing integration pattern is HIGH confidence (Bob already aggregates multiple data sources).
-
----
-
-## Data Flow: Publish → Notify Pipeline
-
-```
-Vector (rangeos) researches topic
-    |
-    v
-content.db: status = 'researched'
-    |
-    v
-Quill writes draft
-    |
-    v
-content.db: status = 'drafted'
-    |
-    v
-Sage reviews
-    |
-    v
-content.db: status = 'reviewed'
-    |
-    v
-[HUMAN APPROVAL GATE — Andy approves in Slack]
-    |
-    v
-content.db: status = 'approved'
-    |
-    v
-Ezra publishes to WordPress
-    |
-    v
-content.db: status = 'published', published_url = 'https://...'
-    |
-    +---> [NEW] Ezra triggers subscriber notification:
-    |         Resend transactional email to each subscriber
-    |         (uses resend-email skill, curl to api.resend.com/emails)
-    |         content.db: notified_at = NOW()
-    |         email.db: records each send
-    |
-    +---> [NEW] Ezra drafts pitch copy (or triggers pitch-copy skill):
-              Social media copy + outreach copy saved to coordination.db or Slack
-```
-
-## Data Flow: Weekly Digest
-
-```
-content-distribution cron fires (e.g., Friday 9am PT)
-    |
-    v
-Bob (or Ezra) queries content.db:
-    SELECT * FROM articles
-    WHERE status = 'published'
-    AND published_at >= date('now', '-7 days')
-    |
-    v
-Compile digest content (titles, excerpts, URLs)
-    |
-    v
-Create Resend Broadcast:
-    POST api.resend.com/broadcasts
-    Body: { audienceId: "...", subject: "Weekly Digest", html: "..." }
-    |
-    v
-Send broadcast:
-    POST api.resend.com/broadcasts/{id}/send
-    (Resend handles throttling, unsubscribe links, list management)
-    |
-    v
-email.db: record broadcast send (broadcast_id, sent_at, recipient_count)
-```
-
-## Data Flow: LLM Observability
-
-```
-Any agent makes LLM call
-    |
-    v
-OpenClaw gateway processes LLM response
-    |
-    v
-llm_output hook fires (if configured in openclaw.json)
-    |
-    v
-Hook script appends to ~/clawd/logs/llm-usage.jsonl:
-    { ts: "...", agent: "main", model: "claude-sonnet-4-5", input_tokens: 1200,
-      output_tokens: 450, cost_usd: 0.0032 }
-    |
-    v
-Morning briefing cron fires
-    |
-    v
-Bob reads llm-usage.jsonl (last 24h), aggregates:
-    - Total tokens by agent
-    - Model distribution (Haiku/Sonnet/Opus ratio)
-    - Turn counts
-    - Anomalies (spike > 2x average)
-    |
-    v
-Morning briefing: "Agent Observability" section added
-```
-
-## Data Flow: SecureClaw Runtime
-
-```
-External content arrives (web fetch, email, webhook)
-    |
-    v
-SecureClaw plugin intercepts (runtime layer)
-    |
-    v
-Content tagged as "untrusted" — behavioral rules applied:
-    - Embedded prompt injection attempts blocked/flagged
-    - Credential access requests gated
-    - Destructive commands require confirmation
-    |
-    v
-Agent processes sanitized content
-```
-
----
-
-## Component Table
-
-| Component | New/Modified | Location | Communicates With | Notes |
-|-----------|-------------|----------|-------------------|-------|
-| content.db | MODIFIED | ~/clawd/agents/main/content.db | Ezra (write), all pipeline agents (read) | Add `notified_at` column to articles table |
-| email.db | MODIFIED | ~/clawd/agents/main/email.db | Bob/Ezra (write), morning-briefing cron (read) | Add `subscribers` table |
-| Resend Audiences | NEW (external) | api.resend.com/audiences | Ezra or Bob via resend-email skill | Synced from email.db subscribers table |
-| Resend Broadcasts | NEW (external) | api.resend.com/broadcasts | Weekly digest cron via resend-email skill | Handles list management, unsubscribes |
-| pitch-copy skill | NEW | ~/.openclaw/skills/pitch-copy/ | Quill or Bob (invoke) | SKILL.md with pitch/social copy protocol |
-| content-distribution cron | NEW | openclaw cron system | Bob or Ezra (target) | Weekly digest trigger |
-| Ezra (agent) | MODIFIED | ~/.openclaw/agents/ezra/ | content.db, resend-email skill, WordPress | Add distribution + pitch responsibilities |
-| OpenClaw binary | MODIFIED | /home/ubuntu/.npm-global/bin/openclaw | All | v2026.2.6-3 → v2026.2.17 |
-| SecureClaw plugin | NEW | ~/.openclaw/extensions/secureclaw/ | Gateway (runtime hook) | 51-check audit + 15 behavioral rules |
-| llm-usage.jsonl | NEW | ~/clawd/logs/llm-usage.jsonl | Hook script (write), Bob morning briefing (read) | LLM call telemetry log |
-| llm_output hook config | NEW | openclaw.json hooks.internal | Gateway → hook script | Unconfirmed exact key name in v2026.2.17 |
-| morning-briefing cron | MODIFIED | openclaw cron system | Bob (target) | Add observability section reading llm-usage.jsonl |
-| subscribers table (email.db) | NEW schema | email.db | Bob/Ezra (CRUD), resend-email skill | Seed list only, no public signup |
+Already built with `coordination.db` user_calendar_tasks table + cron-parser v5. Retain as-is; no architecture changes needed.
 
 ---
 
 ## Recommended Project Structure
 
 ```
-~/.openclaw/
-├── skills/
-│   ├── resend-email/        # EXISTING — transactional send/receive
-│   │   └── SKILL.md         # (modified to add Broadcast + Audience API calls)
-│   └── pitch-copy/          # NEW — draft pitch/social copy from published content
-│       └── SKILL.md
-├── extensions/
-│   └── secureclaw/          # NEW — security plugin (installed via npm/openclaw plugins)
-~/clawd/
-├── agents/
-│   ├── main/                # Bob's workspace
-│   │   ├── content.db       # EXISTING + modified schema
-│   │   ├── email.db         # EXISTING + modified schema
-│   │   └── ...
-│   └── ezra/                # Ezra's workspace — add distribution WORKING.md updates
-└── logs/
-    └── llm-usage.jsonl      # NEW — LLM call telemetry
+~/clawd/mission-control/
++-- src/
+|   +-- app/
+|   |   +-- layout.tsx              # Root layout with nav + SWRConfig
+|   |   +-- page.tsx                # Dashboard (server component, initial render)
+|   |   +-- dashboard-client.tsx    # Dashboard client component (SWR polling)
+|   |   +-- agents/
+|   |   |   +-- page.tsx            # Agent board
+|   |   |   +-- [id]/
+|   |   |       +-- page.tsx        # Agent detail
+|   |   +-- calendar/
+|   |   |   +-- page.tsx            # Calendar (existing)
+|   |   +-- api/
+|   |       +-- agents/
+|   |       |   +-- route.ts        # GET /api/agents
+|   |       |   +-- [id]/
+|   |       |       +-- route.ts    # GET /api/agents/:id
+|   |       +-- activity/
+|   |       |   +-- route.ts        # GET /api/activity
+|   |       +-- content/
+|   |       |   +-- pipeline/
+|   |       |       +-- route.ts    # GET /api/content/pipeline
+|   |       +-- email/
+|   |       |   +-- stats/
+|   |       |       +-- route.ts    # GET /api/email/stats
+|   |       +-- crons/
+|   |       |   +-- route.ts        # GET /api/crons
+|   |       +-- health/
+|   |           +-- route.ts        # GET /api/health (Oura data)
+|   +-- lib/
+|   |   +-- db/
+|   |   |   +-- index.ts            # Database singletons (5 connections)
+|   |   |   +-- queries/
+|   |   |       +-- agents.ts       # Agent status + token queries
+|   |   |       +-- activity.ts     # Cross-DB activity feed query
+|   |   |       +-- content.ts      # Content pipeline queries
+|   |   |       +-- email.ts        # Email stats queries
+|   |   |       +-- health.ts       # Oura health queries
+|   |   |       +-- crons.ts        # Cron status queries
+|   |   +-- types/
+|   |   |   +-- agent.ts            # Agent type definitions
+|   |   |   +-- activity.ts         # Activity feed types
+|   |   |   +-- content.ts          # Content pipeline types
+|   |   |   +-- email.ts            # Email stats types
+|   |   +-- utils/
+|   |       +-- time.ts             # PT timezone helpers
+|   |       +-- format.ts           # Number/date formatting
+|   +-- components/
+|       +-- cards/
+|       |   +-- agent-card.tsx      # Agent status card
+|       |   +-- stat-card.tsx       # Generic stat card
+|       |   +-- pipeline-card.tsx   # Content pipeline card
+|       +-- feed/
+|       |   +-- activity-feed.tsx   # Activity stream component
+|       |   +-- activity-item.tsx   # Single activity row
+|       +-- charts/
+|       |   +-- token-spark.tsx     # Sparkline for token usage
+|       |   +-- pipeline-flow.tsx   # Status flow visualization
+|       +-- layout/
+|           +-- nav.tsx             # Navigation sidebar
+|           +-- header.tsx          # Page header
++-- public/
++-- next.config.js
++-- package.json
++-- tsconfig.json
 ```
 
----
+### Structure Rationale
 
-## Architectural Patterns
-
-### Pattern 1: Status-Triggered Distribution
-
-**What:** Watch content.db `status` field for `published` → trigger downstream notification as part of the publish step (Ezra's responsibility), not as a separate polling cron.
-
-**When to use:** When notification is coupled to a discrete event (publish), not a time schedule.
-
-**Why this fits:** Ezra already calls WordPress API as part of publish. Adding Resend notify after WordPress confirm is natural extension. Decouples notification timing from digest schedule. Prevents duplicate notifications if cron polls before `notified_at` is set.
-
-**Example logic (in Ezra's WORKING.md or instructions):**
-```
-After WordPress publish succeeds:
-1. UPDATE content.db SET status='published', published_url=?, published_at=NOW() WHERE id=?
-2. SELECT email FROM subscribers WHERE unsubscribed_at IS NULL
-3. For each subscriber: POST api.resend.com/emails with article summary + link
-4. UPDATE content.db SET notified_at=NOW() WHERE id=?
-5. Draft pitch copy → post to Slack for Andy's review
-```
-
-### Pattern 2: Broadcast for Digest (Not Transactional Loop)
-
-**What:** Use Resend Broadcasts API for the weekly digest instead of sending individual transactional emails in a loop.
-
-**When to use:** Sending same content to a list (digest, newsletter). Not when sending unique content per-recipient.
-
-**Why this fits:** Broadcasts handle unsubscribe links automatically (legal compliance). Resend throttles broadcasts internally (doesn't burn 100/day transactional quota in one burst). Broadcasts are reviewable in the Resend dashboard before sending. Free tier allows marketing emails up to 1,000 contacts/month (separate from transactional quota).
-
-**Quota implication:** Subscriber notification emails (individual, unique content per article) count against the 100/day transactional quota. Weekly digest sent as Broadcast counts against the separate marketing quota. Keep subscriber list small (seed only) to stay within free tier.
-
-### Pattern 3: Plugin Enforces, Skill Audits
-
-**What:** SecureClaw plugin provides runtime enforcement (active). ClawdStrike skill provides on-demand audit (passive). Run both, they serve different purposes.
-
-**When to use:** SecureClaw = always-on guardrails. ClawdStrike = periodic security posture check.
-
-**No conflict:** SecureClaw runs as a plugin (gateway-level). ClawdStrike runs as a skill (agent invokes on demand). They operate at different layers.
-
-### Pattern 4: JSONL Hook Log → Bob Aggregates
-
-**What:** LLM observability via a hook script that appends JSON Lines to a log file, which Bob reads and aggregates on the morning briefing schedule.
-
-**When to use:** When you want observability without adding external infrastructure (no OTEL collector, no Prometheus, no Grafana).
-
-**Trade-offs:**
-- Pro: Zero new infrastructure. Bob already reads local files (verified-bundle.json pattern from ClawdStrike).
-- Pro: Fits existing skill/cron pattern.
-- Con: Log file grows unboundedly. Must add rotation (cron to truncate logs older than 30 days).
-- Con: No real-time alerting — only surfaced at morning briefing.
-- Con: Hook key name (`llm_input`/`llm_output`) must be verified against actual v2026.2.17 API.
-
----
-
-## Build Order (Dependency-Aware)
-
-Phase 24 must complete before Phases 25-28 because it upgrades the gateway binary. Phases 25-28 are independent after Phase 24 but execute sequentially.
-
-```
-Phase 24: OpenClaw Update + SecureClaw Install
-  24a. Backup openclaw.json + cron jobs
-  24b. npm install -g openclaw@latest (target: v2026.2.17)
-  24c. openclaw doctor --fix
-  24d. Verify gateway starts, Bob responds in Slack
-  24e. openclaw plugins install secureclaw (or npm install -g @adversa-ai/secureclaw)
-  24f. openclaw plugins enable secureclaw
-  24g. Run SecureClaw 51-check audit
-  24h. Apply SecureClaw hardening fixes
-  24i. Verify 15 behavioral rules active (check openclaw.json for plugin config)
-  NOTE: gateway.remote.url may need re-verification after update (known issue from MEMORY.md)
-
-Phase 25: Post-Update Audit
-  25a. openclaw cron list → verify all 20 cron jobs present
-  25b. openclaw skill list → verify all 10 skills present
-  25c. Heartbeat each of 7 agents
-  25d. Test prompt injection with known payload → SecureClaw should block
-  DEPENDS ON: Phase 24
-
-Phase 26: LLM Observability
-  26a. Check openclaw v2026.2.17 for available hook names (openclaw hooks list or docs)
-  26b. Configure llm_output hook in openclaw.json (or diagnostics-otel if hooks unavailable)
-  26c. Create hook script: appends to ~/clawd/logs/llm-usage.jsonl
-  26d. Restart gateway, make test LLM calls, verify log populates
-  26e. Modify morning-briefing cron payload to include observability section
-  26f. Verify morning briefing shows agent observability section
-  DEPENDS ON: Phase 24 (gateway must be v2026.2.17 for correct hook API)
-  RISK: llm_input/llm_output hook names unconfirmed — verify before implementation
-
-Phase 27: Email Domain Hardening
-  27a. Verify WARMUP.md 5-step checklist (DNS, auth, inbox, monitoring)
-  27b. Check bounce/complaint rates in Resend dashboard
-  27c. If clean: update DNS _dmarc.mail.andykaufman.net → p=quarantine
-  27d. Verify: dig TXT _dmarc.mail.andykaufman.net
-  27e. Confirm morning briefing shows email health metrics
-  DEPENDS ON: Phase 24 (gateway running), independent of 25-26
-
-Phase 28: Platform Cleanup
-  28a. gog auth scope reduction (remove 2 excess scopes, re-auth)
-  28b. openclaw doctor → resolve deprecated auth profile warning
-  28c. openclaw doctor → resolve legacy session key warning
-  28d. Review openclaw.json for dmPolicy/allowFrom alias adoption
-  28e. Verify gateway.remote.url still reachable from VPS (n8n relay)
-  DEPENDS ON: Phase 24 (gateway running), independent of 25-27
-
-NEW Content Distribution Phases (Post-v2.3 cleanup):
-  Phase N: Content Distribution Setup
-    Na. Add notified_at column to content.db articles table
-    Nb. Create subscribers table in email.db (schema below)
-    Nc. Create Resend Audience, sync initial subscribers
-    Nd. Modify resend-email skill to add Broadcast + Audience API calls
-    Ne. Create pitch-copy skill (SKILL.md)
-    Nf. Update Ezra's instructions to handle post-publish notification + pitch copy draft
-    Ng. Test: publish test article → verify subscriber notification fires
-    Nh. Test: weekly digest broadcast sends to Audience
-    DEPENDS ON: Phase 24 (gateway updated), Phase 27 (email domain hardened for deliverability)
-    NOTE: build this after email hardening — don't send subscriber emails from p=none domain
-```
-
----
-
-## Schema: New Database Tables
-
-### subscribers table (email.db)
-
-```sql
-CREATE TABLE IF NOT EXISTS subscribers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT NOT NULL UNIQUE,
-    name TEXT,
-    source TEXT DEFAULT 'seed',          -- 'seed', 'manual', 'form'
-    subscribed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    unsubscribed_at DATETIME,            -- NULL = active
-    resend_contact_id TEXT,              -- Resend Audiences contact ID for sync
-    notes TEXT
-);
-```
-
-### articles table modification (content.db)
-
-```sql
-ALTER TABLE articles ADD COLUMN notified_at DATETIME;
-ALTER TABLE articles ADD COLUMN notification_count INTEGER DEFAULT 0;
--- notified_at = NULL means notification not yet sent
--- Check: WHERE status='published' AND notified_at IS NULL to find unsent
-```
-
-### llm-usage.jsonl format
-
-```jsonl
-{"ts":"2026-02-17T09:00:00Z","agent":"main","model":"claude-sonnet-4-5","input_tokens":1200,"output_tokens":450,"session_key":"morning-briefing","cost_usd":0.0032}
-{"ts":"2026-02-17T09:00:05Z","agent":"rangeos","model":"claude-haiku-4-5","input_tokens":800,"output_tokens":200,"session_key":"topic-research","cost_usd":0.0004}
-```
+- **`lib/db/`:** Isolates all database access. Every query function lives here. Server Components and API Routes both import from the same place -- single source of truth for data access.
+- **`lib/db/queries/`:** One file per domain. Prepared statements are module-level constants. Functions are exported for use in both Server Components and API Routes.
+- **`components/`:** Shared UI components grouped by function (cards, feed, charts), not by page. Allows reuse across dashboard and agent board pages.
+- **`app/api/`:** Thin handlers that call query functions and return JSON. No business logic in route handlers -- that belongs in `lib/db/queries/`.
+- **`lib/types/`:** TypeScript types matching SQLite row shapes. better-sqlite3 returns plain objects, so types are applied at the query function level.
 
 ---
 
 ## Integration Points
 
-### External Services
+### SQLite Databases (Direct Filesystem)
 
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| Resend Transactional API | curl from sandbox via resend-email skill (existing) | Subscriber notifications (individual emails per article) |
-| Resend Audiences API | curl from sandbox via resend-email skill (new endpoints) | Manage subscriber list, sync from email.db |
-| Resend Broadcasts API | curl from sandbox via resend-email skill (new endpoints) | Weekly digest — separate from transactional quota |
-| SecureClaw plugin | openclaw plugins install + openclaw.json configPatch | Gateway-level runtime, auto-configures on install |
-| OTEL collector (optional) | diagnostics-otel plugin if llm hooks unavailable | Only needed if hook-based observability doesn't work |
+| Database | Read Pattern | Key Tables/Queries | Notes |
+|----------|-------------|-------------------|-------|
+| coordination.db | Singleton, read-only, WAL | `agent_status`, `standup_entries`, `work_queue` | Primary source for agent health; agents write heartbeats here |
+| observability.db | Singleton, read-only, WAL | `llm_usage` (tokens, model, agent_id, timestamp) | Per-turn LLM telemetry; written by observability hooks |
+| content.db | Singleton, read-only, WAL | `articles` (status, published_at, notified_at) | Pipeline status counts; `GROUP BY status` for overview |
+| email.db | Singleton, read-only, WAL | `sent_emails`, `received_emails`, `bounces` | Quota math: `COUNT WHERE date = today`; bounce rate |
+| health.db | Singleton, read-only, WAL | `daily_metrics` (sleep_score, readiness, HRV) | Optional status bar widget; low-frequency reads |
 
-### Internal Boundaries
+**Cross-database activity feed query:** The activity feed merges events from 4 databases. Since SQLite doesn't support cross-database joins in better-sqlite3 read-only mode, the merge happens in JavaScript:
 
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| content.db → Ezra | Ezra reads status column; triggers on 'published' | Ezra is responsible for post-publish distribution |
-| email.db → resend-email skill | Skill reads subscribers table for notification sends | Ezra invokes skill; skill queries db |
-| llm-usage.jsonl → morning briefing | Bob reads file, aggregates stats | Log rotation needed to prevent unbounded growth |
-| SecureClaw plugin → all agents | Runtime interception at gateway level | No changes to individual agent configs needed |
+```typescript
+// lib/db/queries/activity.ts
+import { coordinationDb, observabilityDb, emailDb, contentDb } from '../index';
+
+interface ActivityItem {
+  timestamp: string;
+  type: 'agent_action' | 'llm_call' | 'email' | 'content_update';
+  agent?: string;
+  description: string;
+  metadata?: Record<string, unknown>;
+}
+
+const recentActionsStmt = coordinationDb.prepare(`
+  SELECT timestamp, agent_id, action, details
+  FROM agent_actions
+  WHERE timestamp > datetime('now', '-24 hours')
+  ORDER BY timestamp DESC LIMIT 50
+`);
+
+const recentLlmCallsStmt = observabilityDb.prepare(`
+  SELECT timestamp, agent_id, model, input_tokens, output_tokens
+  FROM llm_usage
+  WHERE timestamp > datetime('now', '-24 hours')
+  ORDER BY timestamp DESC LIMIT 50
+`);
+
+const recentEmailsStmt = emailDb.prepare(`
+  SELECT sent_at as timestamp, 'sent' as direction, subject, recipient
+  FROM sent_emails
+  WHERE sent_at > datetime('now', '-24 hours')
+  UNION ALL
+  SELECT received_at as timestamp, 'received' as direction, subject, sender
+  FROM received_emails
+  WHERE received_at > datetime('now', '-24 hours')
+  ORDER BY timestamp DESC LIMIT 20
+`);
+
+const recentContentStmt = contentDb.prepare(`
+  SELECT updated_at as timestamp, title, status, agent_id
+  FROM articles
+  WHERE updated_at > datetime('now', '-24 hours')
+  ORDER BY updated_at DESC LIMIT 20
+`);
+
+export function getActivityFeed(): ActivityItem[] {
+  const actions = recentActionsStmt.all().map(r => ({
+    timestamp: r.timestamp,
+    type: 'agent_action' as const,
+    agent: r.agent_id,
+    description: r.action,
+    metadata: { details: r.details },
+  }));
+
+  const llmCalls = recentLlmCallsStmt.all().map(r => ({
+    timestamp: r.timestamp,
+    type: 'llm_call' as const,
+    agent: r.agent_id,
+    description: `${r.model}: ${r.input_tokens}+${r.output_tokens} tokens`,
+    metadata: { model: r.model, input: r.input_tokens, output: r.output_tokens },
+  }));
+
+  const emails = recentEmailsStmt.all().map(r => ({
+    timestamp: r.timestamp,
+    type: 'email' as const,
+    description: `${r.direction}: ${r.subject}`,
+    metadata: { direction: r.direction },
+  }));
+
+  const content = recentContentStmt.all().map(r => ({
+    timestamp: r.timestamp,
+    type: 'content_update' as const,
+    agent: r.agent_id,
+    description: `"${r.title}" -> ${r.status}`,
+  }));
+
+  // Merge and sort by timestamp descending
+  return [...actions, ...llmCalls, ...emails, ...content]
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, 100);
+}
+```
+
+### OpenClaw Gateway (Potential API Integration)
+
+The OpenClaw gateway at `ws://100.72.143.9:18789` is a WebSocket-based service, not a REST API. Direct integration is limited.
+
+**What is available (MEDIUM confidence):**
+- `openclaw sessions list` (CLI) returns active session data
+- `openclaw cron list` (CLI) returns cron job status including `lastStatus`, `lastRunAtMs`, `nextRunAtMs`
+- Session transcripts stored at `~/.openclaw/agents/<agentId>/sessions/*.jsonl`
+
+**What is NOT available:**
+- No REST API on the gateway for programmatic queries
+- No WebSocket subscription API for real-time events
+- No built-in dashboard API endpoints
+
+**Recommendation:** Do NOT integrate directly with the OpenClaw gateway WebSocket. Instead:
+1. Read cron status by parsing `openclaw cron list --json` output via a periodic script that writes to a JSON file Mission Control reads
+2. Read session data from the JSONL files directly (same filesystem access pattern as the databases)
+3. Agent heartbeat status is already in coordination.db -- no need to query the gateway
+
+**Alternative considered:** The community `openclaw-dashboard` projects (tugcantopaloglu/openclaw-dashboard, abhi1693/openclaw-mission-control) connect directly to the gateway. This requires auth token management and WebSocket handling that adds complexity for this single-user deployment. Reading from files and databases is simpler, more reliable, and sufficient.
+
+### Tailscale Direct Access
+
+**Current:** Dev server binds to `127.0.0.1:3001`, accessed via SSH tunnel (`-L 3001:127.0.0.1:3001`).
+
+**Target:** Bind to Tailscale IP `100.72.143.9:3001`, accessible directly from any device on the tailnet.
+
+**Implementation:**
+
+```json
+// package.json
+{
+  "scripts": {
+    "dev": "next dev -H 100.72.143.9 -p 3001",
+    "start": "next start -H 100.72.143.9 -p 3001"
+  }
+}
+```
+
+Or, bind to `0.0.0.0` and rely on the EC2 security group (which restricts to `100.64.0.0/10` only) for access control:
+
+```json
+{
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0 -p 3001"
+  }
+}
+```
+
+**Recommendation:** Bind to `0.0.0.0:3001` and trust the security group. The Tailscale IP may change if the node re-registers, but `0.0.0.0` with SG restriction is equivalent and more robust. UFW is also active on the EC2 host -- add a UFW rule to allow port 3001 from the Tailscale subnet.
+
+```bash
+sudo ufw allow from 100.64.0.0/10 to any port 3001
+```
+
+**No authentication layer needed:** The Tailscale network IS the authentication. Only devices on Andy's tailnet can reach this IP. Adding username/password auth would be security theater on top of a zero-trust network.
+
+---
+
+## Convex Removal Strategy
+
+The current Mission Control uses Convex for the activity feed. This must be replaced with direct SQLite reads.
+
+**What Convex currently provides:**
+- Real-time activity feed updates (push-based)
+- Cloud-hosted data storage for feed items
+
+**What replaces it:**
+- SWR polling every 15 seconds against `/api/activity` route handler
+- Activity data sourced from coordination.db + observability.db + email.db + content.db
+- No cloud dependency -- all data is local SQLite
+
+**Migration steps:**
+1. Create `lib/db/queries/activity.ts` with the cross-database activity feed query
+2. Create `/api/activity/route.ts` that calls the query function
+3. Replace Convex hooks with SWR hooks in the activity feed component
+4. Remove Convex SDK dependency from `package.json`
+5. Remove Convex configuration files
+
+**Trade-off:** Losing real-time push in favor of 15-second polling. For a single-user personal dashboard, this is acceptable. The polling interval can be reduced to 5 seconds if needed without meaningful server impact (SQLite reads are sub-millisecond).
+
+---
+
+## Architectural Patterns
+
+### Pattern 1: Server-First with Client Hydration
+
+**What:** Every page renders server-side with fresh data. Client components take over for polling. Initial data is passed as `fallbackData` to SWR so there's no loading state on first render.
+
+**When to use:** Every data-displaying page in this dashboard.
+
+**Why:** Eliminates the "loading spinner on page load" anti-pattern. The page is immediately useful, then stays current via polling.
+
+### Pattern 2: One Query File Per Domain
+
+**What:** Each database domain (agents, content, email, health, observability) gets its own query file with prepared statements and exported functions.
+
+**When to use:** Always. Even if a query is only used in one place today, isolating it makes the codebase navigable and prevents query duplication.
+
+**Why:** Prevents the "queries scattered across route handlers" problem. When a table schema changes, you update one file, not 5 route handlers.
+
+### Pattern 3: Thin Route Handlers
+
+**What:** API route handlers contain zero business logic. They call a query function, return the result as JSON. No data transformation, no computation.
+
+**When to use:** All `/api/` routes in this project.
+
+**Why:** Keeps the API layer maintainable. If you need the same data in a server component and an API route, both call the same function from `lib/db/queries/`.
+
+### Pattern 4: Time-Based Aggregation in SQL
+
+**What:** Dashboard aggregations (token usage per day, email counts per hour, pipeline status counts) are computed in SQL with `GROUP BY` and `datetime()` functions, not in JavaScript.
+
+**When to use:** Any summary statistic displayed on the dashboard.
+
+**Why:** SQLite is faster at aggregation than JavaScript array operations. The database has indexes; the JavaScript runtime does not. Also reduces data transfer from the query -- return 7 daily totals, not 10,000 individual rows.
+
+```sql
+-- Token usage per agent per day (last 7 days)
+SELECT agent_id,
+       date(timestamp) as day,
+       SUM(input_tokens) as input_total,
+       SUM(output_tokens) as output_total,
+       COUNT(*) as turns
+FROM llm_usage
+WHERE timestamp > datetime('now', '-7 days')
+GROUP BY agent_id, date(timestamp)
+ORDER BY day DESC;
+```
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: New "Distribution Agent" Instead of Extending Ezra
+### Anti-Pattern 1: Using Prisma or Drizzle for Read-Only SQLite
 
-**What people do:** Create an 8th agent specifically for content distribution.
+**What people do:** Add an ORM for "type safety" when reading from SQLite.
 
-**Why it's wrong:** Ezra already owns the "publish" step. Distribution is the natural next step after publish. A new agent adds coordination overhead (inter-agent messaging, shared state) without benefit. At this scale, distribution is 2-3 extra API calls after the WordPress publish.
+**Why it's wrong:** ORMs add connection pooling, migration systems, and schema management overhead. This project uses 5 existing SQLite databases that it does not own the schema for -- the agents and hooks create and manage these schemas. An ORM's migration system would conflict. Prisma's SQLite support also has limitations with read-only mode and WAL.
 
-**Do this instead:** Extend Ezra's instructions/WORKING.md to include the post-publish notification + pitch copy draft steps.
+**Do this instead:** Use better-sqlite3 directly with TypeScript interfaces for row types. Prepared statements give you all the performance benefit. Manual type assertions on query results give you type safety without the overhead.
 
-### Anti-Pattern 2: Transactional Loop for Weekly Digest
+### Anti-Pattern 2: One Database Connection Per Request
 
-**What people do:** Send the weekly digest by looping through subscribers and sending individual transactional emails.
+**What people do:** Open a new better-sqlite3 connection in each API route handler or server component render.
 
-**Why it's wrong:** Burns 100/day quota. No unsubscribe management. No throttling. If subscriber list grows past 100, hits quota wall immediately.
+**Why it's wrong:** Each connection opens a file handle. While better-sqlite3 handles this gracefully, it's wasteful when a singleton works perfectly. More importantly, you lose the benefit of prepared statement caching -- each new connection must recompile all SQL.
 
-**Do this instead:** Use Resend Broadcasts API. Designed for this use case. Separate quota from transactional. Handles unsubscribes, throttling, and scheduling.
+**Do this instead:** Module-level singletons as shown in the database layer pattern above. One connection per database, shared across all requests in the Node.js process.
 
-### Anti-Pattern 3: Skipping Backup Before OpenClaw Update
+### Anti-Pattern 3: WebSocket to OpenClaw Gateway for Dashboard Data
 
-**What people do:** `npm install -g openclaw@latest` without backup.
+**What people do:** Connect to the OpenClaw gateway WebSocket to get real-time agent data.
 
-**Why it's wrong:** Major version jumps (v2026.2.6 → v2026.2.17) have broken cron job format, session key canonicalization, and entrypoint paths in this deployment's history. Recovery without backup requires reconstructing all 20 cron job configs from memory or logs.
+**Why it's wrong:** The gateway WebSocket is designed for agent communication, not monitoring. Connecting a dashboard client adds a persistent connection that could interfere with agent sessions. The gateway also requires auth tokens that rotate. Community dashboard projects that do this require significant auth management code.
 
-**Do this instead:** Always backup `~/.openclaw/openclaw.json` and export `openclaw cron list` output before update.
+**Do this instead:** Read from SQLite databases and session JSONL files directly. The data you need is already persisted on disk by the agents. The 15-30 second polling delay is acceptable for a monitoring dashboard.
 
-### Anti-Pattern 4: Treating DMARC Escalation as Risk-Free
+### Anti-Pattern 4: Server Actions for Data Reads
 
-**What people do:** Change p=none to p=reject immediately.
+**What people do:** Use Next.js Server Actions (`'use server'` functions) for fetching dashboard data.
 
-**Why it's wrong:** p=none → p=quarantine → p=reject is the correct escalation path. p=quarantine is the right target after warmup, not p=reject. p=reject drops emails that fail DMARC; p=quarantine routes them to spam. Wrong SPF include or misconfigured DKIM causes legitimate emails to disappear silently under p=reject.
+**Why it's wrong:** Server Actions are designed for mutations (form submissions, data writes). Using them for reads creates unnecessary POST requests and doesn't benefit from caching. The Next.js team recommends API Routes for data fetching and Server Actions for mutations.
 
-**Do this instead:** Escalate from p=none to p=quarantine only. Monitor for 2 clean weeks before considering p=reject (which is out of scope for this milestone).
+**Do this instead:** Use Server Components for initial data loading (no fetch at all) and API Route Handlers for SWR-polled updates.
 
-### Anti-Pattern 5: Sending Subscriber Notifications Before Email Hardening
+### Anti-Pattern 5: Building a Cron Status API When the CLI Already Works
 
-**What people do:** Build the subscriber notification flow (Phase N), then do DMARC escalation (Phase 27) later.
+**What people do:** Build a custom cron monitoring system that queries OpenClaw internals.
 
-**Why it's wrong:** Sending from a p=none domain to subscribers risks reputation damage. Subscribers may mark early emails as spam, damaging the domain score before it's properly warmed.
+**Why it's wrong:** `openclaw cron list --json` already returns structured cron status data. Building a parallel monitoring system duplicates effort and can diverge from reality.
 
-**Do this instead:** Complete Phase 27 (email hardening, DMARC escalation, confirm warmup clean) BEFORE launching subscriber notifications.
+**Do this instead:** Run `openclaw cron list --json` periodically (via a cron job or startup script) and write the output to a JSON file that Mission Control reads. Simple, reliable, always accurate.
 
 ---
 
-## Scalability Considerations
+## Build Order (Dependency-Aware)
 
-This is a personal deployment. Scaling is not a concern. For reference:
+The build order reflects true dependencies, not just feature grouping.
 
-| Concern | Current Scale | If subscriber list grows |
-|---------|--------------|--------------------------|
-| Resend transactional quota | 100/day — article notifications use ~1-5/day | Sufficient for seed list (<100 subscribers) |
-| Resend marketing quota | 1,000/month — weekly digest | Sufficient for ~250 active subscribers |
-| LLM observability log | JSONL, <1KB per call | Rotate after 30 days; ~500KB/day max at current agent usage |
-| SecureClaw context cost | 1,230 tokens per agent context | Fixed cost, not a scaling concern |
-| content.db size | Grows with articles | SQLite handles thousands of rows fine |
+```
+Phase A: Database Layer Foundation
+  A1. Create lib/db/index.ts with 5 singleton connections
+  A2. Create lib/db/queries/ with prepared statements for each domain
+  A3. Verify: import queries in a test page, confirm data returns
+  DEPENDS ON: Nothing (all DBs exist on disk)
+  RISK: Schema discovery -- must inspect actual table names/columns in each DB
+  NOTE: Before writing queries, SSH to EC2 and run:
+        sqlite3 ~/clawd/agents/main/coordination.db ".tables" ".schema"
+        ...for each database to discover actual schema
+
+Phase B: Dashboard Page (Replace Convex)
+  B1. Create /api/agents route handler
+  B2. Create /api/activity route handler (cross-DB merge)
+  B3. Create /api/content/pipeline route handler
+  B4. Create /api/email/stats route handler
+  B5. Build dashboard page with status cards + activity feed
+  B6. Wire SWR polling to API routes
+  B7. Remove Convex dependency from package.json
+  DEPENDS ON: Phase A (database layer must exist)
+
+Phase C: Agent Board Page
+  C1. Create /api/agents/[id] route handler (per-agent detail)
+  C2. Build agent grid with heartbeat indicators
+  C3. Build agent detail panel with token usage + recent activity
+  DEPENDS ON: Phase A (queries), Phase B is independent
+
+Phase D: Tailscale Direct Access
+  D1. Update package.json scripts to bind 0.0.0.0:3001
+  D2. Add UFW rule for port 3001 from Tailscale subnet
+  D3. Verify access from Mac via Tailscale IP
+  D4. Remove SSH tunnel from workflow
+  DEPENDS ON: Nothing (independent of B and C)
+  NOTE: Can be done in parallel with B or C
+
+Phase E: Cron Status Integration
+  E1. Create script to run `openclaw cron list --json > /path/to/crons.json`
+  E2. Create /api/crons route handler that reads the JSON file
+  E3. Add cron status cards to dashboard
+  E4. Schedule the script to run every 5 minutes
+  DEPENDS ON: Phase B (dashboard page exists to show the data)
+```
+
+**Parallelization opportunity:** Phases B and D are independent. Phase C can start after Phase A without waiting for Phase B. A developer could work on B and D simultaneously.
+
+---
+
+## Scaling Considerations
+
+This is a single-user personal dashboard. Scaling is not a concern.
+
+| Concern | Current (1 user) | If exposed to a team (5 users) |
+|---------|------------------|--------------------------------|
+| SQLite read contention | Zero -- WAL mode handles this | Still fine -- read-only connections don't block |
+| SWR polling load | ~10 requests/minute | ~50 requests/minute -- still negligible for SQLite |
+| Database file size | 5 DBs, likely <100MB total | Same -- data volume is agent-driven, not dashboard-driven |
+| Node.js memory (t3.small) | Next.js dev server: ~150MB | Same -- additional users don't increase server memory |
+| Network bandwidth | <1KB per API response | Same -- JSON payloads are tiny |
+
+**First bottleneck (if it ever mattered):** The activity feed cross-database merge in JavaScript. If individual database queries return large result sets, the merge + sort step could be slow. Mitigation: limit each sub-query to 50 rows (already done in the example above).
 
 ---
 
 ## Open Questions (Must Verify Before Implementation)
 
-1. **llm_input/llm_output hook names:** Are these valid event names in OpenClaw v2026.2.17? Run `openclaw hooks list` after update to confirm. Fallback: diagnostics-otel plugin or a custom hook on `session:end` that reads usage from session metadata.
+1. **Actual database schemas:** The table names and columns used in query examples above are inferred from project context (MEMORY.md, PROJECT.md). Before writing Phase A, SSH to EC2 and run `.tables` and `.schema` on each database to discover the actual schema. Confidence: MEDIUM -- table names may differ from what's documented.
 
-2. **SecureClaw configPatch behavior:** Does `openclaw plugins install secureclaw` auto-merge the plugin config into openclaw.json, or does it require manual openclaw.json edits? The `configPatch` feature was proposed as a GitHub issue (#6792) — confirm it's released and supported in v2026.2.17.
+2. **observability.db existence:** MEMORY.md mentions `observability.db` and the v2.4 milestone added it, but it may not have accumulated much data yet. Verify it has data before building the token usage views.
 
-3. **Resend free tier Broadcasts quota:** Confirmed: marketing emails separate from transactional. Verify exact monthly limit for Broadcasts on free tier (search results indicate 1,000 contacts/month for marketing).
+3. **Cron list JSON output:** The `openclaw cron list` command may or may not support `--json` flag. Verify on EC2. If not available, parse the text output or read from the OpenClaw config file directly.
 
-4. **Ezra's current agent instructions:** Before adding distribution responsibilities, read Ezra's existing WORKING.md/SOUL.md to understand what triggers the current publish step, so the notification hook can be inserted correctly.
+4. **better-sqlite3 compatibility with current Next.js 14.2.15:** better-sqlite3 is a native module. The existing Mission Control already uses it (for calendar tasks), so this is likely fine. Verify it's working in the current `node_modules/`.
 
-5. **gateway.remote.url after update:** MEMORY.md notes this was needed for CLI commands. Verify it still works after the version jump to v2026.2.17, as CLI behavior may have changed.
+5. **Convex removal scope:** Need to read the current Mission Control source code on EC2 to understand exactly what Convex provides and how deeply integrated it is. The removal may be trivial (swap hooks) or complex (data model dependency).
 
 ---
 
 ## Sources
 
-- [SecureClaw GitHub (adversa-ai/secureclaw)](https://github.com/adversa-ai/secureclaw) — Plugin architecture, 51 checks, 15 behavioral rules, install pattern
-- [SecureClaw Launch Press Release (PRNewswire)](https://www.prnewswire.com/news-releases/secureclaw-by-adversa-ai-launches-as-the-first-owasp-aligned-open-source-security-plugin-and-skill-for-openclaw-ai-agents-302688674.html) — Feature count confirmed, OWASP coverage
-- [SecureClaw: First Open-Source Security Solution for OpenClaw (Adversa AI Blog)](https://adversa.ai/blog/adversa-ai-launches-secureclaw-open-source-security-solution-for-openclaw-agents/) — Layer-by-layer breakdown
-- [OpenClaw Logging Documentation](https://docs.openclaw.ai/logging) — Gateway logging and diagnostics
-- [diagnostics-otel plugin configuration](https://deepwiki.com/openclaw/openclaw/10-extensions-and-plugins) — OTEL plugin config fields, metrics exported
-- [OpenClaw Hooks Documentation (openclawlab.com)](https://openclawlab.com/docs/hooks/) — Hook types, internal hooks, session-memory pattern
-- [OpenClaw Observability (Shinzo Labs)](https://shinzo.ai/blog/openclaw-observability-how-to-track-openclaw-sessions-and-tasks) — Observability patterns for OpenClaw sessions
-- [Instrumenting OpenClaw with LangWatch/OpenTelemetry](https://langwatch.ai/blog/instrumenting-your-openclaw-agent-with-opentelemetry) — OTEL integration alternative
-- [Resend Audiences Introduction](https://resend.com/docs/dashboard/audiences/introduction) — Audience management API, contact import
-- [Resend Broadcast API](https://resend.com/blog/broadcast-api) — Programmatic broadcast creation/send
-- [Resend Broadcasts Documentation](https://resend.com/docs/dashboard/broadcasts/introduction) — Broadcast management workflow
-- [Resend Manage Subscribers with Audiences](https://resend.com/blog/manage-subscribers-using-resend-audiences) — Audience/subscriber sync patterns
-- [configPatch plugin manifest (OpenClaw Issue #6792)](https://github.com/openclaw/openclaw/issues/6792) — Auto-merge plugin config on install
-- [OpenClaw Security Documentation](https://docs.openclaw.ai/gateway/security) — Baseline security config reference
-- OpenClaw MEMORY.md (internal) — gateway.remote.url requirement, sandbox bind-mount patterns, update procedure
+### HIGH confidence
+- [Next.js 14 Data Fetching Documentation](https://nextjs.org/docs/14/app/building-your-application/data-fetching/fetching-caching-and-revalidating) -- Server Components, Route Handlers, caching
+- [Next.js unstable_cache API](https://nextjs.org/docs/app/api-reference/functions/unstable_cache) -- cache for non-fetch data sources
+- [SWR Documentation](https://swr.vercel.app/docs/with-nextjs) -- useSWR with Next.js, refreshInterval
+- [SQLite WAL Mode](https://sqlite.org/wal.html) -- concurrent reader/writer behavior
+- [better-sqlite3 GitHub](https://github.com/WiseLibs/better-sqlite3) -- API, `readonly` option, prepared statements
+- [Fly.io: How SQLite Scales Read Concurrency](https://fly.io/blog/sqlite-internals-wal/) -- WAL mode deep dive, end-mark isolation
+- Project MEMORY.md -- database locations, Tailscale IPs, security group rules, Mission Control current state
+
+### MEDIUM confidence
+- [OpenClaw Dashboard (tugcantopaloglu)](https://github.com/tugcantopaloglu/openclaw-dashboard) -- community dashboard patterns, gateway integration approach
+- [OpenClaw Mission Control (abhi1693)](https://github.com/abhi1693/openclaw-mission-control) -- agent orchestration dashboard patterns
+- [BitDoze: Best OpenClaw Dashboards 2026](https://www.bitdoze.com/best-openclaw-dashboards/) -- ecosystem survey of monitoring tools
+- [Next.js GitHub Discussion: Server Actions vs Route Handlers](https://github.com/vercel/next.js/discussions/72919) -- when to use each
+- [Next.js GitHub: Binding to Network Interface](https://github.com/vercel/next.js/issues/4025) -- `-H 0.0.0.0` flag
+
+### LOW confidence (needs verification during implementation)
+- Database schemas -- inferred from project documentation, not verified against actual files
+- `openclaw cron list --json` flag existence -- assumed, not verified
+- Convex integration depth in current Mission Control codebase -- not inspected directly
 
 ---
 
-*Architecture research: 2026-02-17*
-*Scope: v2.4 Content Distribution & Security Hardening integration points*
+*Architecture research for: pops-claw v2.5 Mission Control Dashboard*
+*Researched: 2026-02-20*
+*Replaces: previous ARCHITECTURE.md covering v2.3/v2.4 security hardening and content distribution*
