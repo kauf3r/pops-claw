@@ -77,3 +77,26 @@
 **Archive:** [milestones/v2.3-ROADMAP.md](milestones/v2.3-ROADMAP.md) | [milestones/v2.3-REQUIREMENTS.md](milestones/v2.3-REQUIREMENTS.md)
 
 ---
+
+## v2.4 Content Distribution & Platform Hardening (Shipped: 2026-02-21)
+
+**Phases:** 24-28 (5 phases, 9 plans) — Phase 29 dropped
+**Timeline:** 4 days (Feb 18-21, 2026)
+**Commits:** ~25 | Total cron jobs: 20 | Total skills: 13 | Total agents: 7
+**New plugins:** observability-hooks, SecureClaw v2.1.0
+**Git range:** docs(24) → docs(28-02)
+
+**Delivered:** Security hardening (OpenClaw v2026.2.17, SecureClaw, injection protections), agent observability (LLM hooks, observability.db, briefing section), email domain hardening (DMARC p=quarantine, warmup checklist), and platform cleanup (OAuth re-auth, doctor warnings resolved).
+
+**Key accomplishments:**
+1. OpenClaw updated to v2026.2.17 (CVE-2026-25253 patched), SecureClaw v2.1.0 installed with 51-check audit and 15 behavioral rules
+2. Post-update audit verified all 20 crons, 13 skills, 7 agents intact; 8 prompt injection payloads blocked
+3. Agent observability via observability-hooks plugin — LLM hooks, observability.db, per-agent token usage, briefing Section 10
+4. DMARC escalated to p=quarantine, warmup checklist executed, two-tier email health thresholds
+5. Platform cleanup — deprecated auth profile removed, both accounts re-authed with calendar scope, gateway.remote.url documented
+
+**Dropped:** Phase 29 (Content Distribution — subscriber digest via Resend Broadcasts) deferred to future milestone.
+
+**Archive:** [milestones/v2.4-ROADMAP.md](milestones/v2.4-ROADMAP.md) | [milestones/v2.4-REQUIREMENTS.md](milestones/v2.4-REQUIREMENTS.md)
+
+---

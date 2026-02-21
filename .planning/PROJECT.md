@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A proactive AI companion (Bob) running on OpenClaw v2026.2.6-3, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, and sends/receives email autonomously via Resend API — all proactively, before being asked.
+A proactive AI companion (Bob) running on OpenClaw v2026.2.17, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, and sends/receives email autonomously via Resend API — all proactively, before being asked. Mission Control Dashboard provides a web-based single pane of glass for monitoring the entire system.
 
 ## Core Value
 
@@ -49,21 +49,26 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - ✓ Domain warmup & hardening — WARMUP.md checklist, quota enforcement (daily 80/95, monthly 2700), catch-up cron — v2.2
 - ✓ Email health monitoring — bounce/complaint rates, volume stats, threshold alerts in morning briefing — v2.2
 
+- ✓ OpenClaw updated to v2026.2.17 (CVE-2026-25253 patched), SecureClaw v2.1.0 plugin (51-check audit, 15 behavioral rules) — v2.4
+- ✓ Post-update audit — 20 crons, 13 skills, 7 agents confirmed intact; prompt injection protections verified — v2.4
+- ✓ Agent observability — observability-hooks plugin (llm_output + agent_end), observability.db, briefing Section 10 — v2.4
+- ✓ DMARC escalated to p=quarantine, warmup checklist executed, email health thresholds (WARNING/CRITICAL) — v2.4
+- ✓ Platform cleanup — deprecated auth profile removed, config migrated to dmPolicy/allowFrom, gateway.remote.url documented — v2.4
+
 ### Active
 
-## Current Milestone: v2.4 Content Distribution & Platform Hardening
+## Current Milestone: v2.5 Mission Control Dashboard
 
-**Goal:** Turn the content pipeline into a distribution engine — auto-notify subscribers on publish, send weekly digests, generate pitch copy — while folding in deferred security hardening from v2.3.
+**Goal:** Build Mission Control into the single pane of glass for the entire pops-claw system — live data feeds from all SQLite databases, agent health/work/usage oversight, content pipeline and email metrics, accessible directly via Tailscale.
 
 **Target features:**
-- Subscriber notifications via Resend audience (seed list, auto-email after human-approved publish)
-- Weekly content digest compilation and send to mailing list
-- Pitch copy generation for published articles (human sends manually)
-- OpenClaw update v2026.2.17 + SecureClaw plugin (from v2.3)
-- Post-update audit of all 20 crons, 10 skills, 7 agents (from v2.3)
-- Agent observability via llm_input/llm_output hooks (from v2.3)
-- DMARC escalation + warmup checklist completion (from v2.3)
-- Gmail OAuth scope reduction + doctor warning cleanup (from v2.3)
+- Replace Convex activity feed with live reads from coordination.db, observability.db, content.db, email.db
+- Status cards: agent health, cron success rates, content pipeline counts, email quota/bounce stats
+- Chronological activity stream of agent actions, cron runs, emails, content pipeline moves
+- Agent board: per-agent heartbeat status, work queue, token usage from observability.db
+- Content pipeline visibility: article counts by status (researched → written → reviewed → published)
+- Email metrics: sent/received counts, bounce rate, quota usage
+- Tailscale-direct access (bind to tailnet IP, no SSH tunnel needed)
 
 ### Out of Scope
 
@@ -71,12 +76,14 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - Public API exposure
 - EC2 instance upgrade
 - Offline mode — real-time connectivity is core
+- Gmail OAuth scope reduction — gog CLI hardcodes gmail.settings.basic + gmail.settings.sharing, cannot be removed without switching tools
+- Content distribution (subscriber digest, pitch copy) — deferred from v2.4 Phase 29
 
 ## Context
 
 **Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) = full proactive companion + autonomous content pipeline + email integration.
 
-**Tech stack:** OpenClaw v2026.2.17, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean).
+**Tech stack:** OpenClaw v2026.2.17, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db + observability.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean). Mission Control: Next.js 14 + Tailwind + better-sqlite3 at ~/clawd/mission-control/.
 
 **Infrastructure:**
 - AWS EC2 Ubuntu, Tailscale IP: 100.72.143.9
@@ -87,9 +94,11 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - Service: openclaw-gateway.service (systemd user)
 - Gateway remote URL: `gateway.remote.url: ws://100.72.143.9:18789` in openclaw.json — required because gateway binds to tailnet IP (not loopback), so CLI commands fail with 1006 abnormal closure without it. Added Phase 20 when inbound email required tailnet bind.
 
-**Skills deployed:** oura, govee, coding-assistant, receipt-scanner, content-strategy, seo-writer, content-editor, wordpress-publisher, social-promoter, resend-email
+**Skills deployed (13):** oura, govee, coding-assistant, receipt-scanner, content-strategy, seo-writer, content-editor, wordpress-publisher, social-promoter, resend-email, clawdstrike, secureclaw, save-voice-notes
 
 **Cron jobs (20 total):** morning-briefing, evening-recap, weekly-review, meeting-prep-scan, anomaly-check (2x), daily-standup, monthly-expense-summary, 4 heartbeats, topic-research, writing-check, review-check, publish-check, pipeline-report, stuck-check, airspace-email-monitor, email-catchup
+
+**Databases (5):** health.db, coordination.db, content.db, email.db, observability.db
 
 **Agent Roster:**
 | Agent ID | Name | Domain | Heartbeat Offset |
@@ -146,4 +155,4 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Catch-up cron as webhook fallback | Resend list API + dedup via email.db | ✓ Good — secondary safety net |
 
 ---
-*Last updated: 2026-02-17 after v2.4 milestone start (v2.3 merged forward)*
+*Last updated: 2026-02-20 after v2.5 milestone start (v2.4 archived, Phase 29 dropped)*
