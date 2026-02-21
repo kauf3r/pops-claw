@@ -129,6 +129,15 @@ Plans:
 - [x] 31-01-PLAN.md -- Agent board data layer: query module with per-agent heartbeat/token/error queries, /api/agents route, token formatting utilities, NavBar update
 - [x] 31-02-PLAN.md -- Agent board UI: AgentCard component with status borders, /agents page with responsive grid, fleet summary header, human verification
 
+### Phase 31.1: Context Usage Indicators (INSERTED)
+
+**Goal:** Each agent card on /agents shows context window utilization %, cache hit rate, and 24h cost at a glance
+**Depends on:** Phase 31
+**Plans:** 1 plan
+
+Plans:
+- [ ] 31.1-01-PLAN.md — Extend agent data layer + AgentCard with context %, cache rate, and cost indicators
+
 ### Phase 32: Memory, Office & Visualization
 **Goal**: Memory is browseable, agent status is fun to look at, and charts make trends visible across tokens, content, email, and crons
 **Depends on**: Phase 31
