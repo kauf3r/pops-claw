@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 32 (4 of 4 in v2.5) — Memory, Office & Visualization
-Plan: 03 of 3 in phase
-Status: Ready
+Plan: 3 of 3 in phase (COMPLETE)
+Status: Phase Complete
 Milestone: v2.5 Mission Control Dashboard
-Last activity: 2026-02-21 — Completed 32-02 (office view, /office page with 7 agent avatars and animated status)
+Last activity: 2026-02-21 — Completed 32-03 (analytics page with 4 Recharts visualizations)
 
-Progress: [████████░░] 89% (8/9 plans)
+Progress: [██████████] 100% (9/9 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 62 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
+- Total plans completed: 63 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
 
 **By Milestone:**
 
@@ -45,6 +45,7 @@ Progress: [████████░░] 89% (8/9 plans)
 | 31-02 | 3min | 2 | 2 |
 | 32-01 | 17min | 2 | 8 |
 | 32-02 | 13min | 2 | 5 |
+| 32-03 | 20min | 2 | 11 |
 
 ## Accumulated Context
 
@@ -74,6 +75,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 32-02: Simple SVG avatars with unique per-agent accessory shapes as placeholders for future illustrated assets
 - Phase 32-02: 5-minute idle threshold matches existing agent board pattern for consistency
 - Phase 32-02: Added Office link to NavBar between Agents and Calendar
+- Phase 32-03: Extracted chart constants to chart-constants.ts for client-safe imports (avoids fs/better-sqlite3 in client bundle)
+- Phase 32-03: Token chart uses gradient fills with SVG linearGradient defs per agent
+- Phase 32-03: Cron donut uses PieChart with innerRadius/outerRadius and center total label
 
 ### Research Flags
 
@@ -106,4 +110,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - UFW: port 3001 allowed from 100.64.0.0/10 (Tailscale CGNAT only)
 
 ---
-*Last updated: 2026-02-21 -- Completed 32-01 (memory browser with FTS5 search) and 32-02 (office view). Ready for 32-03 (analytics charts).*
+*Last updated: 2026-02-21 -- Completed 32-03 (analytics charts). Phase 32 complete. v2.5 milestone complete (all 9 plans delivered).*

@@ -78,7 +78,7 @@ Full details: [milestones/v2.4-ROADMAP.md](milestones/v2.4-ROADMAP.md)
 - [x] **Phase 29: Infrastructure & Database Foundation** - WAL-mode database layer, Convex removal, shadcn/ui, systemd service, Tailscale binding
 - [x] **Phase 30: Dashboard & Metrics** - Status cards, activity feed, pipeline counts, email stats, auto-refresh polling
 - [x] **Phase 31: Agent Board** - Per-agent cards with heartbeat status, token usage, model distribution, errors
-- [ ] **Phase 32: Memory, Office & Visualization** - Memory browser, office view, Recharts area/bar/line/donut charts
+- [x] **Phase 32: Memory, Office & Visualization** - Memory browser, office view, Recharts area/bar/line/donut charts (completed 2026-02-21)
 
 ## Phase Details
 
@@ -201,7 +201,7 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32
 | 29. Infrastructure & Database Foundation | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 30. Dashboard & Metrics | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 31. Agent Board | v2.5 | Complete    | 2026-02-21 | 2026-02-21 |
-| 32. Memory, Office & Visualization | 2/3 | In Progress|  | - |
+| 32. Memory, Office & Visualization | 3/3 | Complete   | 2026-02-21 | - |
 
 ---
 *Updated: 2026-02-21 -- Phase 31 complete (2/2 plans). Phase 32 next.*

@@ -44,10 +44,10 @@
 
 ### Visualization
 
-- [ ] **VIZ-01**: Token usage displayed as area charts per agent via Recharts
-- [ ] **VIZ-02**: Content pipeline displayed as bar chart by status
-- [ ] **VIZ-03**: Email volume displayed as line chart over time
-- [ ] **VIZ-04**: Cron success/failure displayed as donut chart
+- [x] **VIZ-01**: Token usage displayed as area charts per agent via Recharts
+- [x] **VIZ-02**: Content pipeline displayed as bar chart by status
+- [x] **VIZ-03**: Email volume displayed as line chart over time
+- [x] **VIZ-04**: Cron success/failure displayed as donut chart
 
 ## Future Requirements
 
@@ -106,10 +106,10 @@
 | MEM-02 | Phase 32 | Complete |
 | OFFC-01 | Phase 32 | Complete |
 | OFFC-02 | Phase 32 | Complete |
-| VIZ-01 | Phase 32 | Pending |
-| VIZ-02 | Phase 32 | Pending |
-| VIZ-03 | Phase 32 | Pending |
-| VIZ-04 | Phase 32 | Pending |
+| VIZ-01 | Phase 32 | Complete |
+| VIZ-02 | Phase 32 | Complete |
+| VIZ-03 | Phase 32 | Complete |
+| VIZ-04 | Phase 32 | Complete |
 
 **Coverage:**
 - v2.5 requirements: 24 total
