@@ -123,11 +123,11 @@ Plans:
   2. Each agent card shows heartbeat status with color coding (green = active, yellow = stale, red = down) and last-seen timestamp
   3. Each agent card shows 24-hour token usage and model distribution (Haiku/Sonnet/Opus counts) from observability.db
   4. Each agent card shows recent error count from observability.db, with visual highlighting when errors are non-zero
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 31-01: Agent board page -- 7-agent card grid, heartbeat status from coordination.db, observability.db connection with caching + higher busy_timeout
-- [ ] 31-02: Token usage, model distribution, and error counts per agent from observability.db
+- [ ] 31-01-PLAN.md -- Agent board data layer: query module with per-agent heartbeat/token/error queries, /api/agents route, token formatting utilities, NavBar update
+- [ ] 31-02-PLAN.md -- Agent board UI: AgentCard component with status borders, /agents page with responsive grid, fleet summary header, human verification
 
 ### Phase 32: Memory, Office & Visualization
 **Goal**: Memory is browseable, agent status is fun to look at, and charts make trends visible across tokens, content, email, and crons
@@ -181,9 +181,9 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32
 | 27. Email Domain Hardening | v2.4 | 1/1 | Complete | 2026-02-19 |
 | 28. Platform Cleanup | v2.4 | 2/2 | Complete | 2026-02-21 |
 | 29. Infrastructure & Database Foundation | v2.5 | 2/2 | Complete | 2026-02-21 |
-| 30. Dashboard & Metrics | v2.5 | Complete    | 2026-02-21 | 2026-02-21 |
+| 30. Dashboard & Metrics | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 31. Agent Board | v2.5 | 0/2 | Not started | - |
 | 32. Memory, Office & Visualization | v2.5 | 0/3 | Not started | - |
 
 ---
-*Updated: 2026-02-21 -- Phase 30 complete (2/2 plans). Phase 31 next.*
+*Updated: 2026-02-21 -- Phase 31 planned (2 plans). Ready for execution.*
