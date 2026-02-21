@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** Mission Control Dashboard as single pane of glass for the entire pops-claw system.
-**Current focus:** Phase 31 - Agent Board
+**Current focus:** Phase 32 - Memory, Office & Visualization
 
 ## Current Position
 
-Phase: 31 (3 of 4 in v2.5) — Agent Board
-Plan: 02 of 2 in phase
+Phase: 32 (4 of 4 in v2.5) — Memory, Office & Visualization
+Plan: 01 of 3 in phase
 Status: Ready
 Milestone: v2.5 Mission Control Dashboard
-Last activity: 2026-02-21 — Completed 31-01 (agent board data layer, /api/agents endpoint, token utilities)
+Last activity: 2026-02-21 — Completed 31-02 (agent board UI, /agents page with 7 agent cards, human-verified)
 
-Progress: [█████░░░░░] 56% (5/9 plans)
+Progress: [███████░░░] 67% (6/9 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 59 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
+- Total plans completed: 60 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
 
 **By Milestone:**
 
@@ -42,6 +42,7 @@ Progress: [█████░░░░░] 56% (5/9 plans)
 | 30-01 | 4min | 2 | 11 |
 | 30-02 | 8min | 3 | 5 |
 | 31-01 | 5min | 2 | 4 |
+| 31-02 | 3min | 2 | 2 |
 
 ## Accumulated Context
 
@@ -64,6 +65,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 31-01: Use input+output tokens only (not cache) for headline counts -- cache is 100x larger and not actionable
 - Phase 31-01: Query both 'main' and 'bob' agent_ids for main agent across all DB queries
 - Phase 31-01: Separate /api/agents route rather than extending /api/dashboard/agents to keep Phase 30 stable
+- Phase 31-02: Used variant='error' instead of variant='destructive' for Badge -- matching project's actual shadcn config
 
 ### Research Flags
 
@@ -91,4 +93,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - UFW: port 3001 allowed from 100.64.0.0/10 (Tailscale CGNAT only)
 
 ---
-*Last updated: 2026-02-21 -- Completed 31-01 (agent board data layer). Ready for 31-02 (agent board page).*
+*Last updated: 2026-02-21 -- Completed 31-02 (agent board UI). Phase 31 complete. Ready for Phase 32 (memory, office, visualization).*

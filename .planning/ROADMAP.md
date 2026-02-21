@@ -77,7 +77,7 @@ Full details: [milestones/v2.4-ROADMAP.md](milestones/v2.4-ROADMAP.md)
 
 - [x] **Phase 29: Infrastructure & Database Foundation** - WAL-mode database layer, Convex removal, shadcn/ui, systemd service, Tailscale binding
 - [x] **Phase 30: Dashboard & Metrics** - Status cards, activity feed, pipeline counts, email stats, auto-refresh polling
-- [ ] **Phase 31: Agent Board** - Per-agent cards with heartbeat status, token usage, model distribution, errors
+- [x] **Phase 31: Agent Board** - Per-agent cards with heartbeat status, token usage, model distribution, errors
 - [ ] **Phase 32: Memory, Office & Visualization** - Memory browser, office view, Recharts area/bar/line/donut charts
 
 ## Phase Details
@@ -126,8 +126,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 31-01-PLAN.md -- Agent board data layer: query module with per-agent heartbeat/token/error queries, /api/agents route, token formatting utilities, NavBar update
-- [ ] 31-02-PLAN.md -- Agent board UI: AgentCard component with status borders, /agents page with responsive grid, fleet summary header, human verification
+- [x] 31-01-PLAN.md -- Agent board data layer: query module with per-agent heartbeat/token/error queries, /api/agents route, token formatting utilities, NavBar update
+- [x] 31-02-PLAN.md -- Agent board UI: AgentCard component with status borders, /agents page with responsive grid, fleet summary header, human verification
 
 ### Phase 32: Memory, Office & Visualization
 **Goal**: Memory is browseable, agent status is fun to look at, and charts make trends visible across tokens, content, email, and crons
@@ -182,8 +182,8 @@ Phases execute in numeric order: 29 -> 30 -> 31 -> 32
 | 28. Platform Cleanup | v2.4 | 2/2 | Complete | 2026-02-21 |
 | 29. Infrastructure & Database Foundation | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 30. Dashboard & Metrics | v2.5 | 2/2 | Complete | 2026-02-21 |
-| 31. Agent Board | 1/2 | In Progress|  | - |
+| 31. Agent Board | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 32. Memory, Office & Visualization | v2.5 | 0/3 | Not started | - |
 
 ---
-*Updated: 2026-02-21 -- Phase 31 planned (2 plans). Ready for execution.*
+*Updated: 2026-02-21 -- Phase 31 complete (2/2 plans). Phase 32 next.*
