@@ -101,21 +101,26 @@
 
 ---
 
-## v2.5 Mission Control Dashboard (In Progress)
+## v2.5 Mission Control Dashboard (Shipped: 2026-02-22)
 
 **Phases:** 29-32 (4 phases, 9 plans, 24 requirements)
-**Timeline:** Started 2026-02-20
-**Status:** In progress
+**Timeline:** 2 days (Feb 20-22, 2026)
+**Commits:** 40 | Total cron jobs: 20 | Total skills: 13 | Total agents: 7
+**Git range:** docs(29) → test(32)
 
-**Goal:** Build Mission Control into the single pane of glass for the entire pops-claw system -- live data feeds from all 5 SQLite databases, agent health/work/usage oversight, content pipeline and email metrics, memory browsing, office visualization, and Recharts charting -- accessible directly via Tailscale.
+**Delivered:** Built Mission Control Dashboard as the single pane of glass for the entire pops-claw system — live data feeds from all 5 SQLite databases, agent health monitoring, content pipeline and email metrics, memory browsing, office visualization, and Recharts analytics — accessible directly via Tailscale without SSH tunneling.
 
-**Target features:**
-1. Infrastructure foundation -- 5 WAL-mode SQLite connections, Convex removal, shadcn/ui, systemd service, Tailscale binding
-2. Dashboard landing page -- status cards (agents, crons, content, email), activity feed replacing Convex, 30s auto-refresh
-3. Agent board -- 7-agent cards with heartbeat status, token usage, model distribution, error counts
-4. Pipeline and email metrics -- article counts by status, sent/received/bounce/quota stats
-5. Memory browser -- agent memories browseable by agent with global search
-6. Office view -- agent avatars at virtual workstations reflecting activity status
-7. Recharts visualization -- token area charts, content bar chart, email line chart, cron donut chart
+**Key accomplishments:**
+1. WAL-mode database layer connecting all 5 SQLite databases read-only, Convex fully removed, shadcn/ui initialized, systemd service with direct Tailscale access at :3001
+2. Dashboard landing page with status cards for agents (7/7), crons, content pipeline, and email quota — plus activity feed from coordination.db and 30s SWR auto-refresh
+3. Agent board with 7-agent cards showing heartbeat status (color-coded), 24h token usage, model distribution (Haiku/Sonnet/Opus), and error counts from observability.db
+4. Memory browser with FTS5 search across all agent memories, filterable by agent, with expandable card previews
+5. Office view with SVG agent avatars at virtual workstations reflecting active/idle status from heartbeat data
+6. Analytics page with 4 Recharts visualizations — token area charts per agent, content pipeline bar chart, email volume line chart, cron success/failure donut chart
+
+**Deferred:** Phases 31.1 (Context Usage Indicators) and 31.2 (Agent Board Polish) — inserted during development but never executed, no requirements mapped. Carried forward to next milestone.
+
+**Archive:** [milestones/v2.5-ROADMAP.md](milestones/v2.5-ROADMAP.md) | [milestones/v2.5-REQUIREMENTS.md](milestones/v2.5-REQUIREMENTS.md) | [milestones/v2.5-MILESTONE-AUDIT.md](milestones/v2.5-MILESTONE-AUDIT.md)
 
 ---
+

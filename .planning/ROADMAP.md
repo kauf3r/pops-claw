@@ -7,7 +7,7 @@
 - ✅ **v2.2 Resend Email Integration** — Phases 19-23 (shipped 2026-02-17)
 - ✅ **v2.3 Security & Platform Hardening** — Merged into v2.4 (0 phases executed)
 - ✅ **v2.4 Content Distribution & Platform Hardening** — Phases 24-28 (shipped 2026-02-21, Phase 29 dropped)
-- 🚧 **v2.5 Mission Control Dashboard** — Phases 29-32 (in progress)
+- ✅ **v2.5 Mission Control Dashboard** — Phases 29-32 (shipped 2026-02-22)
 
 ## Phases
 
@@ -71,137 +71,26 @@ Full details: [milestones/v2.4-ROADMAP.md](milestones/v2.4-ROADMAP.md)
 
 </details>
 
-### 🚧 v2.5 Mission Control Dashboard (In Progress)
+<details>
+<summary>✅ v2.5 Mission Control Dashboard (Phases 29-32) — SHIPPED 2026-02-22</summary>
 
-**Milestone Goal:** Build Mission Control into the single pane of glass for the entire pops-claw system -- live data feeds from all 5 SQLite databases, agent health/work/usage oversight, content pipeline and email metrics, memory browsing, office visualization, and charts -- accessible directly via Tailscale.
+- [x] Phase 29: Infrastructure & Database Foundation (2/2 plans) — completed 2026-02-21
+- [x] Phase 30: Dashboard & Metrics (2/2 plans) — completed 2026-02-21
+- [x] Phase 31: Agent Board (2/2 plans) — completed 2026-02-21
+- [x] Phase 32: Memory, Office & Visualization (3/3 plans) — completed 2026-02-21
 
-- [x] **Phase 29: Infrastructure & Database Foundation** - WAL-mode database layer, Convex removal, shadcn/ui, systemd service, Tailscale binding
-- [x] **Phase 30: Dashboard & Metrics** - Status cards, activity feed, pipeline counts, email stats, auto-refresh polling
-- [x] **Phase 31: Agent Board** - Per-agent cards with heartbeat status, token usage, model distribution, errors
-- [x] **Phase 32: Memory, Office & Visualization** - Memory browser, office view, Recharts area/bar/line/donut charts (completed 2026-02-21)
+Full details: [milestones/v2.5-ROADMAP.md](milestones/v2.5-ROADMAP.md)
 
-## Phase Details
-
-### Phase 29: Infrastructure & Database Foundation
-**Goal**: Mission Control has a solid foundation -- all 5 databases accessible read-only, Convex removed, UI components ready, service running on Tailscale, timestamps hydrate correctly
-**Depends on**: Nothing (first phase of v2.5)
-**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06
-**Success Criteria** (what must be TRUE):
-  1. Opening http://100.72.143.9:3001 from any Tailscale device loads Mission Control without SSH tunneling
-  2. All 5 SQLite databases (coordination.db, observability.db, content.db, email.db, health.db) are connected read-only with WAL mode and busy_timeout, and a missing database shows a "not initialized" state instead of crashing
-  3. Convex is fully gone -- no Convex imports, no @convex/ packages in node_modules, no ConvexProvider in the component tree
-  4. shadcn/ui components (card, table, badge, chart) are installed and a test card renders on the landing page
-  5. Mission Control auto-starts on boot via systemd, restarts on crash, has OOMScoreAdjust=500 so the gateway survives if memory runs low
-**Plans**: 2 plans
-
-Plans:
-- [x] 29-01-PLAN.md -- Convex removal, SWR install, shadcn table/chart, zinc+blue CSS palette, RelativeTime component
-- [x] 29-02-PLAN.md -- Database connection layer (5 WAL singletons), landing page with DB status cards, systemd service, Tailscale bind + UFW rule
-
-### Phase 30: Dashboard & Metrics
-**Goal**: The landing page answers "is everything OK?" at a glance -- status cards for all major subsystems, a live activity feed replacing Convex, pipeline and email metrics, all auto-refreshing
-**Depends on**: Phase 29
-**Requirements**: DASH-01, DASH-02, DASH-03, PIPE-01, PIPE-02
-**Success Criteria** (what must be TRUE):
-  1. Dashboard shows status cards for agent health (N/7 alive), cron success rate, content pipeline counts (by status), and email quota/bounce stats -- all sourced from SQLite
-  2. Chronological activity stream displays recent agent actions, cron runs, emails, and content pipeline moves merged from coordination.db, observability.db, content.db, and email.db
-  3. All dashboard data auto-refreshes every 30 seconds via SWR polling, with a visible "last updated X seconds ago" indicator
-  4. Content pipeline section shows article counts broken down by status (researched, written, reviewed, published)
-  5. Email metrics section shows sent/received counts, bounce rate, and quota usage
-**Plans**: 2 plans
-
-Plans:
-- [x] 30-01-PLAN.md -- Query modules (agents, crons, metrics, activity), 4 API routes, SWR global polling config, StatusCard component
-- [x] 30-02-PLAN.md -- Dashboard page rewrite with 4 status cards, activity feed, pipeline metrics, email metrics, freshness indicator
-
-### Phase 31: Agent Board
-**Goal**: A dedicated agent board page shows the health, workload, and resource usage of all 7 agents at a glance
-**Depends on**: Phase 30
-**Requirements**: AGNT-01, AGNT-02, AGNT-03, AGNT-04
-**Success Criteria** (what must be TRUE):
-  1. /agents page displays a card for each of the 7 agents (Andy, Scout, Vector, Sentinel, Quill, Sage, Ezra)
-  2. Each agent card shows heartbeat status with color coding (green = active, yellow = stale, red = down) and last-seen timestamp
-  3. Each agent card shows 24-hour token usage and model distribution (Haiku/Sonnet/Opus counts) from observability.db
-  4. Each agent card shows recent error count from observability.db, with visual highlighting when errors are non-zero
-**Plans**: 2 plans
-
-Plans:
-- [x] 31-01-PLAN.md -- Agent board data layer: query module with per-agent heartbeat/token/error queries, /api/agents route, token formatting utilities, NavBar update
-- [x] 31-02-PLAN.md -- Agent board UI: AgentCard component with status borders, /agents page with responsive grid, fleet summary header, human verification
-
-### Phase 31.2: Agent Board Polish (INSERTED)
-
-**Goal:** [Urgent work - to be planned]
-**Depends on:** Phase 31
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd:plan-phase 31.2 to break down)
-
-### Phase 31.1: Context Usage Indicators (INSERTED)
-
-**Goal:** Each agent card on /agents shows context window utilization %, cache hit rate, and 24h cost at a glance
-**Depends on:** Phase 31
-**Plans:** 1 plan
-
-Plans:
-- [ ] 31.1-01-PLAN.md — Extend agent data layer + AgentCard with context %, cache rate, and cost indicators
-
-### Phase 32: Memory, Office & Visualization
-**Goal**: Memory is browseable, agent status is fun to look at, and charts make trends visible across tokens, content, email, and crons
-**Depends on**: Phase 31
-**Requirements**: MEM-01, MEM-02, OFFC-01, OFFC-02, VIZ-01, VIZ-02, VIZ-03, VIZ-04
-**Success Criteria** (what must be TRUE):
-  1. /memory page displays agent memories from the SQLite memory backend, filterable by agent, with timestamps and content previewed
-  2. Global search on the memory page returns results across all agents' memories and conversations
-  3. /office page shows avatars for all 7 agents at virtual workstations, with status reflecting current activity (working vs idle based on recent heartbeat/action data)
-  4. Token usage is displayed as area charts per agent, content pipeline as bar chart by status, email volume as line chart over time, and cron success/failure as donut chart -- all powered by Recharts
-**Plans**: 3 plans
-
-Plans:
-- [ ] 32-01-PLAN.md -- Memory browser page with FTS5 search, agent tabs, expandable cards, NavBar update
-- [ ] 32-02-PLAN.md -- Office view with top-down floorplan, agent avatars, pulse animation, task badges
-- [ ] 32-03-PLAN.md -- Analytics page with 4 Recharts charts (token area, pipeline bar, email line, cron donut)
+</details>
 
 ## Progress
 
-**Execution Order:**
-Phases execute in numeric order: 29 -> 30 -> 31 -> 32
-
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Update, Memory & Security | v2.0 | 2/2 | Complete | 2026-02-07 |
-| 2. Oura Ring Integration | v2.0 | 1/1 | Complete | 2026-02-08 |
-| 3. Daily Briefing & Rate Limits | v2.0 | 3/3 | Complete | 2026-02-08 |
-| 4. MCP Servers | v2.0 | 1/1 | Complete | 2026-02-08 |
-| 5. Govee & Wyze Integrations | v2.0 | 2/2 | Complete | 2026-02-08 |
-| 6. Multi-Agent Gateway | v2.0 | 2/2 | Complete | 2026-02-08 |
-| 7. Multi-Agent Slack Channels | v2.0 | 1/1 | Complete | 2026-02-09 |
-| 8. Multi-Agent Automation | v2.0 | 2/2 | Complete | 2026-02-09 |
-| 9. Proactive Agent Patterns | v2.0 | 3/3 | Complete | 2026-02-08 |
-| 10. Agentic Coding Workflow | v2.0 | 2/2 | Complete | 2026-02-09 |
-| 11. Document Processing | v2.0 | 2/2 | Complete | 2026-02-09 |
-| 12. Content DB + Agent Setup | v2.1 | 3/3 | Complete | 2026-02-09 |
-| 13. Topic Research | v2.1 | 2/2 | Complete | 2026-02-09 |
-| 14. Writing Pipeline | v2.1 | 2/2 | Complete | 2026-02-09 |
-| 15. Review Pipeline | v2.1 | 2/2 | Complete | 2026-02-09 |
-| 16. WordPress Publishing | v2.1 | 2/2 | Complete | 2026-02-09 |
-| 17. Social Promotion | v2.1 | 1/1 | Complete | 2026-02-09 |
-| 18. Pipeline Monitoring | v2.1 | 2/2 | Complete | 2026-02-09 |
-| 19. Outbound Email Foundation | v2.2 | 2/2 | Complete | 2026-02-16 |
-| 20. Inbound Email Infrastructure | v2.2 | 2/2 | Complete | 2026-02-17 |
-| 21. Inbound Email Processing | v2.2 | 2/2 | Complete | 2026-02-17 |
-| 22. Domain Warmup & Hardening | v2.2 | 1/1 | Complete | 2026-02-17 |
-| 23. Email Integration Gap Closure | v2.2 | 1/1 | Complete | 2026-02-17 |
-| 24. Critical Security Update | v2.4 | 2/2 | Complete | 2026-02-18 |
-| 25. Post-Update Audit | v2.4 | 2/2 | Complete | 2026-02-18 |
-| 26. Agent Observability | v2.4 | 2/2 | Complete | 2026-02-19 |
-| 27. Email Domain Hardening | v2.4 | 1/1 | Complete | 2026-02-19 |
-| 28. Platform Cleanup | v2.4 | 2/2 | Complete | 2026-02-21 |
 | 29. Infrastructure & Database Foundation | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 30. Dashboard & Metrics | v2.5 | 2/2 | Complete | 2026-02-21 |
-| 31. Agent Board | v2.5 | Complete    | 2026-02-21 | 2026-02-21 |
-| 32. Memory, Office & Visualization | 3/3 | Complete    | 2026-02-21 | - |
+| 31. Agent Board | v2.5 | 2/2 | Complete | 2026-02-21 |
+| 32. Memory, Office & Visualization | v2.5 | 3/3 | Complete | 2026-02-21 |
 
 ---
-*Updated: 2026-02-21 -- Phase 31 complete (2/2 plans). Phase 32 next.*
+*Updated: 2026-02-22 -- v2.5 Mission Control Dashboard shipped.*

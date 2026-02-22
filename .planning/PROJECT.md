@@ -2,11 +2,11 @@
 
 ## What This Is
 
-A proactive AI companion (Bob) running on OpenClaw v2026.2.17, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, and sends/receives email autonomously via Resend API — all proactively, before being asked. Mission Control Dashboard provides a web-based single pane of glass for monitoring the entire system.
+A proactive AI companion (Bob) running on OpenClaw v2026.2.17, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, and sends/receives email autonomously via Resend API — all proactively, before being asked. Mission Control Dashboard (shipped v2.5) provides a web-based single pane of glass for monitoring the entire system — live database status, agent health, content pipeline, email metrics, memory browsing, office visualization, and analytics charts, all accessible directly via Tailscale.
 
 ## Core Value
 
-Bob delivers a genuinely useful morning briefing, knows your health data, manages home devices, reviews code, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, and now communicates via email with a verified domain — all for ~$0 incremental cost on existing Claude Pro 200.
+Bob delivers a genuinely useful morning briefing, knows your health data, manages home devices, reviews code, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, communicates via email with a verified domain, and is monitored via Mission Control Dashboard — all for ~$0 incremental cost on existing Claude Pro 200.
 
 ## Requirements
 
@@ -55,20 +55,14 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - ✓ DMARC escalated to p=quarantine, warmup checklist executed, email health thresholds (WARNING/CRITICAL) — v2.4
 - ✓ Platform cleanup — deprecated auth profile removed, config migrated to dmPolicy/allowFrom, gateway.remote.url documented — v2.4
 
+- ✓ WAL-mode database layer (5 SQLite DBs read-only), Convex removed, shadcn/ui, systemd service, Tailscale direct access — v2.5
+- ✓ Dashboard status cards (agents, crons, pipeline, email), activity feed from coordination.db, 30s SWR auto-refresh — v2.5
+- ✓ Agent board with 7-agent cards: heartbeat status, token usage, model distribution, error counts — v2.5
+- ✓ Memory browser with FTS5 search, office view with SVG agent avatars, 4 Recharts analytics charts — v2.5
+
 ### Active
 
-## Current Milestone: v2.5 Mission Control Dashboard
-
-**Goal:** Build Mission Control into the single pane of glass for the entire pops-claw system — live data feeds from all SQLite databases, agent health/work/usage oversight, content pipeline and email metrics, accessible directly via Tailscale.
-
-**Target features:**
-- Replace Convex activity feed with live reads from coordination.db, observability.db, content.db, email.db
-- Status cards: agent health, cron success rates, content pipeline counts, email quota/bounce stats
-- Chronological activity stream of agent actions, cron runs, emails, content pipeline moves
-- Agent board: per-agent heartbeat status, work queue, token usage from observability.db
-- Content pipeline visibility: article counts by status (researched → written → reviewed → published)
-- Email metrics: sent/received counts, bounce rate, quota usage
-- Tailscale-direct access (bind to tailnet IP, no SSH tunnel needed)
+(No active milestone — run `/gsd:new-milestone` to start next)
 
 ### Out of Scope
 
@@ -78,10 +72,12 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - Offline mode — real-time connectivity is core
 - Gmail OAuth scope reduction — gog CLI hardcodes gmail.settings.basic + gmail.settings.sharing, cannot be removed without switching tools
 - Content distribution (subscriber digest, pitch copy) — deferred from v2.4 Phase 29
+- Context usage indicators on agent cards — deferred from v2.5 Phase 31.1
+- Agent board visual polish — deferred from v2.5 Phase 31.2
 
 ## Context
 
-**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) = full proactive companion + autonomous content pipeline + email integration.
+**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) + **v2.4** (4 days) + **v2.5** (2 days) = full proactive companion + content pipeline + email + security + Mission Control Dashboard.
 
 **Tech stack:** OpenClaw v2026.2.17, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db + observability.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean). Mission Control: Next.js 14 + Tailwind + better-sqlite3 at ~/clawd/mission-control/.
 
@@ -153,6 +149,13 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | No auto-reply policy | Human approval for all email replies | ✓ Good — prevents runaway replies |
 | Dual-delivery briefing (Slack + email) | Email as backup channel | ✓ Good — Section 8 in briefing |
 | Catch-up cron as webhook fallback | Resend list API + dedup via email.db | ✓ Good — secondary safety net |
+| SQLite direct reads (not gateway WS) | Dashboard reads DBs directly, no gateway dependency | ✓ Good — simpler, faster |
+| WAL-mode read-only connections | Concurrent reads without blocking gateway writes | ✓ Good — no contention |
+| SWR 30s polling (not WebSocket) | Single user, polling sufficient | ✓ Good — minimal infrastructure |
+| Tailscale direct bind at :3001 | No SSH tunnel needed, simpler access | ✓ Good — one-click access |
+| Per-subsystem query modules | Independent error handling, not one mega route | ✓ Good — clean boundaries |
+| FTS5 with LIKE fallback | Robust search even with syntax errors | ✓ Good — resilient UX |
+| Recharts for visualization | React-native, no D3 complexity | ✓ Good — charts working |
 
 ---
-*Last updated: 2026-02-20 after v2.5 milestone start (v2.4 archived, Phase 29 dropped)*
+*Last updated: 2026-02-22 after v2.5 milestone completion*
