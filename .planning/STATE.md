@@ -51,6 +51,12 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 (None)
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 3 | Connect content agent into Mission Control dashboard | 2026-02-22 | f2b302f | [3-connect-content-agent-into-mission-contr](./quick/3-connect-content-agent-into-mission-contr/) |
+
 ## Notes
 
 - EC2 access via Tailscale: 100.72.143.9
