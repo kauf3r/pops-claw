@@ -13,7 +13,7 @@ Phase: — (between milestones)
 Plan: —
 Status: Milestone Complete
 Milestone: v2.5 Mission Control Dashboard (shipped 2026-02-22)
-Last activity: 2026-02-22 — Completed v2.5 milestone archival
+Last activity: 2026-02-22 — Completed quick task 3 (content pipeline page)
 
 Progress: [██████████] 100% (9/9 plans)
 
@@ -61,4 +61,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - systemd service: mission-control.service (auto-starts, OOMScoreAdjust=500)
 
 ---
-*Last updated: 2026-02-22 -- v2.5 Mission Control Dashboard shipped and archived.*
+*Last updated: 2026-02-22 -- Quick task 3 complete: content.db initialized + /content page in Mission Control.*
