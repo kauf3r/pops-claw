@@ -83,6 +83,19 @@ Full details: [milestones/v2.5-ROADMAP.md](milestones/v2.5-ROADMAP.md)
 
 </details>
 
+### Phase 33: Content Pipeline Improvements
+
+**Goal:** Fully operational content pipeline with bug fixes, pillar-cluster SEO architecture, topic suggestions queue, updated agent skills, and upgraded Mission Control dashboard.
+
+**Requirements:** [CP2-01, CP2-02, CP2-03, CP2-04, CP2-05, CP2-06, CP2-07, CP2-08, CP2-09, CP2-10, CP2-11, CP2-12]
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 33-01-PLAN.md — Fix content.db schema bugs and add pillar-cluster tables
+- [ ] 33-02-PLAN.md — Update content pipeline skills (strategy, writer, monitoring)
+- [ ] 33-03-PLAN.md — Upgrade Mission Control /content dashboard with KPI bar and funnel
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -91,6 +104,7 @@ Full details: [milestones/v2.5-ROADMAP.md](milestones/v2.5-ROADMAP.md)
 | 30. Dashboard & Metrics | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 31. Agent Board | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 32. Memory, Office & Visualization | v2.5 | 3/3 | Complete | 2026-02-21 |
+| 33. Content Pipeline Improvements | — | 0/3 | Planning | — |
 
 ---
-*Updated: 2026-02-22 -- v2.5 Mission Control Dashboard shipped.*
+*Updated: 2026-02-23 -- Phase 33 planned (3 plans in 2 waves).*
