@@ -52,16 +52,16 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MEM-01 | Phase 33 | Pending |
-| MEM-02 | Phase 33 | Pending |
-| MEM-03 | Phase 34 | Pending |
-| MEM-04 | Phase 34 | Pending |
-| MEM-05 | Phase 34 | Pending |
-| MON-01 | Phase 35 | Pending |
-| MON-02 | Phase 35 | Pending |
-| MON-03 | Phase 35 | Pending |
-| DASH-01 | Phase 36 | Pending |
-| DASH-02 | Phase 36 | Pending |
+| MEM-01 | Phase 34 | Pending |
+| MEM-02 | Phase 34 | Pending |
+| MEM-03 | Phase 35 | Pending |
+| MEM-04 | Phase 35 | Pending |
+| MEM-05 | Phase 35 | Pending |
+| MON-01 | Phase 36 | Pending |
+| MON-02 | Phase 36 | Pending |
+| MON-03 | Phase 36 | Pending |
+| DASH-01 | Phase 37 | Pending |
+| DASH-02 | Phase 37 | Pending |
 
 **Coverage:**
 - v2.6 requirements: 10 total
@@ -70,4 +70,4 @@
 
 ---
 *Requirements defined: 2026-02-23*
-*Last updated: 2026-02-23 after roadmap creation -- all 10 requirements mapped to phases 33-36*
+*Last updated: 2026-02-23 after renumber -- all 10 requirements mapped to phases 34-37 (Phase 33 reserved for content-pipeline on main)*
