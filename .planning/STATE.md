@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 33 (Content Pipeline Improvements)
-Plan: 3/3 complete
+Plan: 4/4 complete
 Status: Complete
 Milestone: v2.6 Content Pipeline Hardening
-Last activity: 2026-02-23 — Completed 33-01-PLAN.md (verify infrastructure + fix Slack delivery)
+Last activity: 2026-02-23 — Completed 33-04-PLAN.md (fix cron payload messages in jobs.json)
 
-Progress: [██████████] 100% (3/3 plans)
+Progress: [██████████] 100% (4/4 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 65 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5 + v2.6)
+- Total plans completed: 66 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5 + v2.6)
 
 **By Milestone:**
 
@@ -34,6 +34,7 @@ Progress: [██████████] 100% (3/3 plans)
 | v2.5 | 4 | 9 | 2 days |
 | Phase 33 P01 | 21min | 2 tasks | 10 files |
 | Phase 33 P02 | 7min | 2 tasks | 1 files |
+| Phase 33 P04 | 3min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -45,6 +46,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 33-02]: openclaw cron run IS safe (tested) but inaccessible from sandbox -- host-only command
 - [Phase 33-01]: All agent session files must use channel:ID format (channel:CXXXXXXXXXX), never #channel-name
 - [Phase 33-01]: Vector posts to #range-ops (C0AC3HB82P5), not #content-pipeline
+- [Phase 33-04]: Cron payload messages must also use channel:ID format -- session files alone insufficient
+- [Phase 33-04]: topic-research cron payload was wrong channel AND wrong format -- fixed to channel:C0AC3HB82P5
 
 ### Open Items
 
@@ -74,4 +77,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - systemd service: mission-control.service (auto-starts, OOMScoreAdjust=500)
 
 ---
-*Last updated: 2026-02-23 -- Completed 33-01: Verified content.db bind-mount, cleaned stubs, fixed Slack channel references in all session files.*
+*Last updated: 2026-02-23 -- Completed 33-04: Fixed cron payload messages in jobs.json to use channel:ID format. Phase 33 fully complete.*

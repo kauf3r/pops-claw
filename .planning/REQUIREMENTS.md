@@ -3,14 +3,14 @@
 ## ~~CP-01: Verify Content DB Bind-Mount~~ COMPLETE (33-01)
 Confirm `content.db` Docker bind-mount in `openclaw.json` points to the correct live DB path. After the Ezra E2E test, the live DB may be at `~/clawd/agents/main/content.db` while the original mount was `~/clawd/content.db`. All content agents (Quill, Sage, Ezra, Vector) must read/write the same DB file. *Verified: bind-mount at ~/clawd/content.db:/workspace/content.db:rw is correct. 0-byte stubs cleaned up.*
 
-## ~~CP-02: Verify Cron Pipeline Produces Output~~ COMPLETE (33-01)
+## ~~CP-02: Verify Cron Pipeline Produces Output~~ COMPLETE (33-01, 33-04)
 Run each content cron job manually and confirm it produces expected output:
 - `topic-research` (Vector): inserts topics into content.db
 - `writing-check` (Quill): claims topic, writes article
 - `review-check` (Sage): reviews article, scores it
 - `publish-check` (Ezra): creates WP draft for approved articles
 - `stuck-check` + `pipeline-report` (Sentinel): monitoring fires correctly
-*Fixed: All session instruction files updated to use channel:ID format. review-check and stuck-check confirmed working via manual cron run.*
+*Fixed: Session instruction files updated to channel:ID format (33-01). Cron payload messages in jobs.json updated to channel:ID format (33-04). Human-verified: Sage delivered review summaries to #content-pipeline at 1:19 PM and 1:49 PM.*
 
 ## ~~CP-03: On-Demand Content Trigger~~ COMPLETE (33-02)
 Add ability to tell Bob "write an article about X" and have it:
@@ -24,5 +24,6 @@ Add ability to tell Bob "research topics about X" and have Vector research and i
 ## ~~CP-05: Social Post Retrieval~~ COMPLETE (33-02)
 Make social posts from `social_posts` table retrievable on demand. Bob should be able to surface LinkedIn/Twitter/Instagram copy for a published article when asked, formatted and ready to paste.
 
-## CP-06: Fix Content Analytics
+## ~~CP-06: Fix Content Analytics~~ COMPLETE (33-03)
 Verify Mission Control `/analytics` page content pipeline charts work with real data from content.db. Fix any rendering issues with the pipeline status bar chart.
+*Fixed: STATUS_COLORS corrected for real pipeline statuses (draft/writing/review/revision/approved/published). API returns real data from content.db (15 articles, 4 statuses). CASE ordering in SQL for correct stage display order.*
