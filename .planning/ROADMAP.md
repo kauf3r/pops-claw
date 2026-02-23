@@ -88,12 +88,13 @@ Full details: [milestones/v2.5-ROADMAP.md](milestones/v2.5-ROADMAP.md)
 
 **Goal:** Make the content pipeline reliable and on-demand — verify infrastructure works end-to-end, add ability to trigger content creation on demand, and make social posts retrievable.
 
-- [x] Phase 33: Content Pipeline Improvements (3/3 plans) — **Requirements:** [CP-01, CP-02, CP-03, CP-04, CP-05, CP-06]
+- [ ] Phase 33: Content Pipeline Improvements (4 plans) — **Requirements:** [CP-01, CP-02, CP-03, CP-04, CP-05, CP-06]
 
 Plans:
 - [x] 33-01-PLAN.md — Verify bind-mount, clean up stubs, fix Slack channel references
 - [x] 33-02-PLAN.md — On-demand content triggers and social post retrieval for Bob
 - [x] 33-03-PLAN.md — Fix analytics pipeline chart status mismatch
+- [ ] 33-04-PLAN.md — Gap closure: fix cron payload messages in jobs.json (channel:ID format)
 
 ## Progress
 
@@ -103,7 +104,7 @@ Plans:
 | 30. Dashboard & Metrics | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 31. Agent Board | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 32. Memory, Office & Visualization | v2.5 | 3/3 | Complete | 2026-02-21 |
-| 33. Content Pipeline Improvements | v2.6 | 3/3 | Complete | 2026-02-23 |
+| 33. Content Pipeline Improvements | v2.6 | 3/4 | Gap Closure | 2026-02-23 |
 
 ---
-*Updated: 2026-02-23 -- Phase 33 complete: all 3 plans done (infrastructure verified, Slack delivery fixed, on-demand triggers added, analytics chart fixed).*
+*Updated: 2026-02-23 -- Gap closure plan 33-04 added: fix cron payload messages in jobs.json to use channel:ID format.*
