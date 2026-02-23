@@ -86,7 +86,7 @@ Full details: [milestones/v2.5-ROADMAP.md](milestones/v2.5-ROADMAP.md)
 ### v2.6 Agent Memory & Dashboard Polish
 
 - [x] **Phase 34: Memory Curation & Bootstrap** - Curate MEMORY.md under budget, fix flush consistency
-- [ ] **Phase 35: Memory Retrieval Discipline** - Retrieval instructions, LEARNINGS.md, content agent memory
+- [x] **Phase 35: Memory Retrieval Discipline** - Retrieval instructions, LEARNINGS.md, content agent memory (completed 2026-02-23)
 - [ ] **Phase 36: Memory Health Monitoring** - Dashboard panel for per-agent memory metrics
 - [ ] **Phase 37: Agent Board Polish** - Context usage indicators and visual refinements
 
@@ -151,7 +151,7 @@ Phases execute in numeric order: 34 -> 35 -> 36 -> 37
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 34. Memory Curation & Bootstrap | v2.6 | Complete    | 2026-02-23 | 2026-02-23 |
-| 35. Memory Retrieval Discipline | v2.6 | 1/2 | In Progress | - |
+| 35. Memory Retrieval Discipline | 2/2 | Complete   | 2026-02-23 | - |
 | 36. Memory Health Monitoring | v2.6 | 0/TBD | Not started | - |
 | 37. Agent Board Polish | v2.6 | 0/TBD | Not started | - |
 

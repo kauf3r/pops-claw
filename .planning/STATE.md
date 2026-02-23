@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 35 of 37 (Memory Retrieval Discipline)
-Plan: 1 of 2 in current phase
-Status: Plan 35-01 complete
+Plan: 2 of 2 in current phase
+Status: Phase 35 complete
 Milestone: v2.6 Agent Memory & Dashboard Polish
-Last activity: 2026-02-23 — Completed 35-01 (Memory Protocol + LEARNINGS.md)
+Last activity: 2026-02-23 — Completed 35-02 (Content Agent BOOTSTRAP.md files)
 
-Progress: [=====     ] 50% (1/2 plans in phase 35)
+Progress: [==========] 100% (2/2 plans in phase 35)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 65 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5 + v2.6)
+- Total plans completed: 66 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5 + v2.6)
 
 **By Milestone:**
 
@@ -39,6 +39,7 @@ Progress: [=====     ] 50% (1/2 plans in phase 35)
 
 Decisions are logged in PROJECT.md Key Decisions table.
 
+- **35-02**: BOOTSTRAP.md for Quill/Sage/Ezra with 4-section template, SQL state queries, LEARNINGS.md + SESSION.md references
 - **35-01**: LEARNINGS.md at workspace root (~/clawd/), Memory Protocol 5-bullet cascade in global AGENTS.md, no bind-mount changes needed
 - **34-02**: Reference-doc cron pattern (DAILY_FLUSH.md) for complex cron instructions, softThresholdTokens halved to 3000
 - **34-01**: MEMORY.md cut to 91 lines (from 304), 8 reference docs moved to ~/clawd/docs/, 25% input token reduction
@@ -66,4 +67,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Existing plan 31.1-01-PLAN.md (context indicators) archived at milestones/v2.5-phases/ -- reuse for Phase 36
 
 ---
-*Last updated: 2026-02-23 -- Phase 35 plan 01 complete (1/2 plans). Memory Protocol + LEARNINGS.md deployed. Next: 35-02 content agent BOOTSTRAP.md files.*
+*Last updated: 2026-02-23 -- Phase 35 complete (2/2 plans). Memory retrieval discipline fully deployed: Memory Protocol, LEARNINGS.md, and content agent BOOTSTRAP.md files. Next: Phase 36 (Dashboard Polish).*

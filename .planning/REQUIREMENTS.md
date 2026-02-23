@@ -11,7 +11,7 @@
 - [x] **MEM-02**: Memory flush triggers consistently across session types (daily logs written for all active days, not just long sessions)
 - [x] **MEM-03**: AGENTS.md boot sequence includes explicit retrieval instructions (search daily logs and LEARNINGS.md before tasks)
 - [x] **MEM-04**: LEARNINGS.md activated with seeded entries from existing operational knowledge (not empty framework)
-- [ ] **MEM-05**: Content agents (Quill, Sage, Ezra) have bootstrap memory files so they retain context across cron sessions
+- [x] **MEM-05**: Content agents (Quill, Sage, Ezra) have bootstrap memory files so they retain context across cron sessions
 
 ### Memory Health Monitoring
 
@@ -56,7 +56,7 @@
 | MEM-02 | Phase 34 | Complete |
 | MEM-03 | Phase 35 | Complete |
 | MEM-04 | Phase 35 | Complete |
-| MEM-05 | Phase 35 | Pending |
+| MEM-05 | Phase 35 | Complete |
 | MON-01 | Phase 36 | Pending |
 | MON-02 | Phase 36 | Pending |
 | MON-03 | Phase 36 | Pending |
