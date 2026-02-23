@@ -7,7 +7,7 @@
 
 ### Memory System
 
-- [ ] **MEM-01**: MEMORY.md curated from 304 lines to under 150 lines, reference docs moved to docs/ directory
+- [x] **MEM-01**: MEMORY.md curated from 304 lines to under 150 lines, reference docs moved to docs/ directory
 - [x] **MEM-02**: Memory flush triggers consistently across session types (daily logs written for all active days, not just long sessions)
 - [ ] **MEM-03**: AGENTS.md boot sequence includes explicit retrieval instructions (search daily logs and LEARNINGS.md before tasks)
 - [ ] **MEM-04**: LEARNINGS.md activated with seeded entries from existing operational knowledge (not empty framework)
@@ -52,7 +52,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MEM-01 | Phase 34 | Pending |
+| MEM-01 | Phase 34 | Complete |
 | MEM-02 | Phase 34 | Complete |
 | MEM-03 | Phase 35 | Pending |
 | MEM-04 | Phase 35 | Pending |

@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 34 of 37 (Memory Curation & Bootstrap)
-Plan: 1 of 2 in current phase
-Status: In progress
+Plan: 2 of 2 in current phase
+Status: Phase 34 complete
 Milestone: v2.6 Agent Memory & Dashboard Polish
-Last activity: 2026-02-23 — Completed 34-02 (fix memory flush consistency)
+Last activity: 2026-02-23 — Completed 34-01 (curate MEMORY.md under budget)
 
-Progress: [=====.....] 50% (1/2 plans in phase 34)
+Progress: [==========] 100% (2/2 plans in phase 34)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 62 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
+- Total plans completed: 64 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5 + v2.6)
 
 **By Milestone:**
 
@@ -40,6 +40,7 @@ Progress: [=====.....] 50% (1/2 plans in phase 34)
 Decisions are logged in PROJECT.md Key Decisions table.
 
 - **34-02**: Reference-doc cron pattern (DAILY_FLUSH.md) for complex cron instructions, softThresholdTokens halved to 3000
+- **34-01**: MEMORY.md cut to 91 lines (from 304), 8 reference docs moved to ~/clawd/docs/, 25% input token reduction
 
 ### Open Items
 
@@ -64,4 +65,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Existing plan 31.1-01-PLAN.md (context indicators) archived at milestones/v2.5-phases/ -- reuse for Phase 36
 
 ---
-*Last updated: 2026-02-23 -- Completed 34-02-PLAN.md (fix memory flush consistency). 34-01 still pending.*
+*Last updated: 2026-02-23 -- Phase 34 complete (2/2 plans). Both MEMORY.md curation and flush consistency done.*
