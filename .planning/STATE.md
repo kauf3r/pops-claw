@@ -9,11 +9,11 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 
 ## Current Position
 
-Phase: — (between milestones)
+Phase: 33 (Content Pipeline Improvements)
 Plan: —
-Status: Milestone Complete
-Milestone: v2.5 Mission Control Dashboard (shipped 2026-02-22)
-Last activity: 2026-02-22 — Completed quick task 3 (content pipeline page)
+Status: Planning
+Milestone: v2.6 Content Pipeline Hardening
+Last activity: 2026-02-23 — Planning phase 33
 
 Progress: [██████████] 100% (9/9 plans)
 
