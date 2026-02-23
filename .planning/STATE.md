@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** Planning next milestone
+**Current focus:** Executing v2.6 Content Pipeline Hardening
 
 ## Current Position
 
 Phase: 33 (Content Pipeline Improvements)
-Plan: —
-Status: Planning
+Plan: 3/3 complete
+Status: Executing
 Milestone: v2.6 Content Pipeline Hardening
-Last activity: 2026-02-23 — Planning phase 33
+Last activity: 2026-02-23 — Completed 33-03-PLAN.md
 
-Progress: [██████████] 100% (9/9 plans)
+Progress: [██████████] 100% (3/3 plans)
 
 ## Performance Metrics
 
@@ -38,6 +38,7 @@ Progress: [██████████] 100% (9/9 plans)
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
+- [Phase 33]: SQL CASE ordering for pipeline stages instead of app-level sort
 
 ### Open Items
 
@@ -67,4 +68,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - systemd service: mission-control.service (auto-starts, OOMScoreAdjust=500)
 
 ---
-*Last updated: 2026-02-22 -- Quick task 3 complete: content.db initialized + /content page in Mission Control.*
+*Last updated: 2026-02-23 -- Completed 33-03: Pipeline chart fixed with real DB statuses.*
