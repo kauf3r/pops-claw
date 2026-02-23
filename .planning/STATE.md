@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 34 of 37 (Memory Curation & Bootstrap)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
+Plan: 1 of 2 in current phase
+Status: In progress
 Milestone: v2.6 Agent Memory & Dashboard Polish
-Last activity: 2026-02-23 — Roadmap created (4 phases, 10 requirements)
+Last activity: 2026-02-23 — Completed 34-02 (fix memory flush consistency)
 
-Progress: [..........] 0% (0/TBD plans)
+Progress: [=====.....] 50% (1/2 plans in phase 34)
 
 ## Performance Metrics
 
@@ -38,6 +38,8 @@ Progress: [..........] 0% (0/TBD plans)
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
+
+- **34-02**: Reference-doc cron pattern (DAILY_FLUSH.md) for complex cron instructions, softThresholdTokens halved to 3000
 
 ### Open Items
 
@@ -62,4 +64,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Existing plan 31.1-01-PLAN.md (context indicators) archived at milestones/v2.5-phases/ -- reuse for Phase 36
 
 ---
-*Last updated: 2026-02-23 -- v2.6 roadmap created, ready to plan Phase 33.*
+*Last updated: 2026-02-23 -- Completed 34-02-PLAN.md (fix memory flush consistency). 34-01 still pending.*
