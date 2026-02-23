@@ -5,17 +5,15 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** Planning next milestone
+**Current focus:** v2.6 Agent Memory & Dashboard Polish
 
 ## Current Position
 
-Phase: — (between milestones)
+Phase: Not started (defining requirements)
 Plan: —
-Status: Milestone Complete
-Milestone: v2.5 Mission Control Dashboard (shipped 2026-02-22)
-Last activity: 2026-02-22 — Completed quick task 3 (content pipeline page)
-
-Progress: [██████████] 100% (9/9 plans)
+Status: Defining requirements
+Milestone: v2.6 Agent Memory & Dashboard Polish
+Last activity: 2026-02-23 — Milestone v2.6 started
 
 ## Performance Metrics
 
@@ -67,4 +65,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - systemd service: mission-control.service (auto-starts, OOMScoreAdjust=500)
 
 ---
-*Last updated: 2026-02-22 -- Quick task 3 complete: content.db initialized + /content page in Mission Control.*
+*Last updated: 2026-02-23 -- Milestone v2.6 started: Agent Memory & Dashboard Polish*

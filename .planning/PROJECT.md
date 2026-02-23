@@ -62,7 +62,19 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ### Active
 
-(No active milestone — run `/gsd:new-milestone` to start next)
+## Current Milestone: v2.6 Agent Memory & Dashboard Polish
+
+**Goal:** Make Bob's memory system reliable — fix silent data loss, add retrieval discipline, give visibility into memory health — and close out deferred v2.5 items.
+
+**Target features:**
+- MEMORY.md curation (304→<150 lines, move reference docs to docs/)
+- Memory flush consistency (close daily log coverage gaps)
+- Boot sequence retrieval instructions (Bob searches memory before acting)
+- LEARNINGS.md activation (empty template → working ops manual)
+- Agent memory coverage (3 agents with 0 chunks)
+- Mission Control memory health panel (line counts, flush status, chunk stats)
+- Context usage indicators on agent cards (carried from v2.5 Phase 31.1)
+- Agent board visual polish (carried from v2.5 Phase 31.2)
 
 ### Out of Scope
 
@@ -72,8 +84,6 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - Offline mode — real-time connectivity is core
 - Gmail OAuth scope reduction — gog CLI hardcodes gmail.settings.basic + gmail.settings.sharing, cannot be removed without switching tools
 - Content distribution (subscriber digest, pitch copy) — deferred from v2.4 Phase 29
-- Context usage indicators on agent cards — deferred from v2.5 Phase 31.1
-- Agent board visual polish — deferred from v2.5 Phase 31.2
 
 ## Context
 
@@ -158,4 +168,4 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Recharts for visualization | React-native, no D3 complexity | ✓ Good — charts working |
 
 ---
-*Last updated: 2026-02-22 after v2.5 milestone completion*
+*Last updated: 2026-02-23 after v2.6 milestone start*
