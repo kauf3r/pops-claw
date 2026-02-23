@@ -115,7 +115,11 @@ Plans:
   2. LEARNINGS.md contains seeded entries from real operational knowledge (not an empty template)
   3. Quill, Sage, and Ezra each have bootstrap memory files in their agent workspace so cron sessions start with prior context
   4. An agent asked about something from a previous session can retrieve it via memory search without being told where to look
-**Plans**: TBD
+**Plans**: 2 plans (2 waves)
+
+Plans:
+- [ ] 35-01-PLAN.md -- Add Memory Protocol to AGENTS.md + create/seed LEARNINGS.md with MARKER entry
+- [ ] 35-02-PLAN.md -- Create BOOTSTRAP.md for Quill, Sage, and Ezra content agents
 
 ### Phase 36: Memory Health Monitoring
 **Goal**: Andy can see the health of every agent's memory system at a glance in Mission Control
@@ -147,7 +151,7 @@ Phases execute in numeric order: 34 -> 35 -> 36 -> 37
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 34. Memory Curation & Bootstrap | v2.6 | Complete    | 2026-02-23 | 2026-02-23 |
-| 35. Memory Retrieval Discipline | v2.6 | 0/TBD | Not started | - |
+| 35. Memory Retrieval Discipline | v2.6 | 0/2 | Planned | - |
 | 36. Memory Health Monitoring | v2.6 | 0/TBD | Not started | - |
 | 37. Agent Board Polish | v2.6 | 0/TBD | Not started | - |
 
