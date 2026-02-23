@@ -118,7 +118,7 @@ Plans:
 **Plans**: 2 plans (2 waves)
 
 Plans:
-- [ ] 35-01-PLAN.md -- Add Memory Protocol to AGENTS.md + create/seed LEARNINGS.md with MARKER entry
+- [x] 35-01-PLAN.md -- Add Memory Protocol to AGENTS.md + create/seed LEARNINGS.md with MARKER entry
 - [ ] 35-02-PLAN.md -- Create BOOTSTRAP.md for Quill, Sage, and Ezra content agents
 
 ### Phase 36: Memory Health Monitoring
@@ -151,9 +151,9 @@ Phases execute in numeric order: 34 -> 35 -> 36 -> 37
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 34. Memory Curation & Bootstrap | v2.6 | Complete    | 2026-02-23 | 2026-02-23 |
-| 35. Memory Retrieval Discipline | v2.6 | 0/2 | Planned | - |
+| 35. Memory Retrieval Discipline | v2.6 | 1/2 | In Progress | - |
 | 36. Memory Health Monitoring | v2.6 | 0/TBD | Not started | - |
 | 37. Agent Board Polish | v2.6 | 0/TBD | Not started | - |
 
 ---
-*Updated: 2026-02-23 -- Phase 34 complete (2/2 plans). Next: Phase 35 Memory Retrieval Discipline.*
+*Updated: 2026-02-23 -- Phase 35 plan 01 complete (1/2). Next: 35-02 content agent BOOTSTRAP.md files.*

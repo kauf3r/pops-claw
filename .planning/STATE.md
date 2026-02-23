@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.6 Phase 34 - Memory Curation & Bootstrap
+**Current focus:** v2.6 Phase 35 - Memory Retrieval Discipline
 
 ## Current Position
 
-Phase: 34 of 37 (Memory Curation & Bootstrap)
-Plan: 2 of 2 in current phase
-Status: Phase 34 complete
+Phase: 35 of 37 (Memory Retrieval Discipline)
+Plan: 1 of 2 in current phase
+Status: Plan 35-01 complete
 Milestone: v2.6 Agent Memory & Dashboard Polish
-Last activity: 2026-02-23 — Completed 34-01 (curate MEMORY.md under budget)
+Last activity: 2026-02-23 — Completed 35-01 (Memory Protocol + LEARNINGS.md)
 
-Progress: [==========] 100% (2/2 plans in phase 34)
+Progress: [=====     ] 50% (1/2 plans in phase 35)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 64 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5 + v2.6)
+- Total plans completed: 65 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5 + v2.6)
 
 **By Milestone:**
 
@@ -39,6 +39,7 @@ Progress: [==========] 100% (2/2 plans in phase 34)
 
 Decisions are logged in PROJECT.md Key Decisions table.
 
+- **35-01**: LEARNINGS.md at workspace root (~/clawd/), Memory Protocol 5-bullet cascade in global AGENTS.md, no bind-mount changes needed
 - **34-02**: Reference-doc cron pattern (DAILY_FLUSH.md) for complex cron instructions, softThresholdTokens halved to 3000
 - **34-01**: MEMORY.md cut to 91 lines (from 304), 8 reference docs moved to ~/clawd/docs/, 25% input token reduction
 
@@ -65,4 +66,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Existing plan 31.1-01-PLAN.md (context indicators) archived at milestones/v2.5-phases/ -- reuse for Phase 36
 
 ---
-*Last updated: 2026-02-23 -- Phase 34 complete (2/2 plans). Both MEMORY.md curation and flush consistency done.*
+*Last updated: 2026-02-23 -- Phase 35 plan 01 complete (1/2 plans). Memory Protocol + LEARNINGS.md deployed. Next: 35-02 content agent BOOTSTRAP.md files.*
