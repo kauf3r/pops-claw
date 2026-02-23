@@ -151,7 +151,7 @@ Phases execute in numeric order: 34 -> 35 -> 36 -> 37
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 34. Memory Curation & Bootstrap | v2.6 | Complete    | 2026-02-23 | 2026-02-23 |
-| 35. Memory Retrieval Discipline | 2/2 | Complete   | 2026-02-23 | - |
+| 35. Memory Retrieval Discipline | 2/2 | Complete    | 2026-02-23 | - |
 | 36. Memory Health Monitoring | v2.6 | 0/TBD | Not started | - |
 | 37. Agent Board Polish | v2.6 | 0/TBD | Not started | - |
 
