@@ -8,6 +8,7 @@
 - ✅ **v2.3 Security & Platform Hardening** — Merged into v2.4 (0 phases executed)
 - ✅ **v2.4 Content Distribution & Platform Hardening** — Phases 24-28 (shipped 2026-02-21, Phase 29 dropped)
 - ✅ **v2.5 Mission Control Dashboard** — Phases 29-32 (shipped 2026-02-22)
+- **v2.6 Content Pipeline Hardening** — Phase 33
 
 ## Phases
 
@@ -83,6 +84,17 @@ Full details: [milestones/v2.5-ROADMAP.md](milestones/v2.5-ROADMAP.md)
 
 </details>
 
+### v2.6 Content Pipeline Hardening
+
+**Goal:** Make the content pipeline reliable and on-demand — verify infrastructure works end-to-end, add ability to trigger content creation on demand, and make social posts retrievable.
+
+- [ ] Phase 33: Content Pipeline Improvements (0/3 plans) — **Requirements:** [CP-01, CP-02, CP-03, CP-04, CP-05, CP-06]
+
+Plans:
+- [ ] 33-01-PLAN.md — Verify bind-mount, clean up stubs, fix Slack channel references
+- [ ] 33-02-PLAN.md — On-demand content triggers and social post retrieval for Bob
+- [ ] 33-03-PLAN.md — Fix analytics pipeline chart status mismatch
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -91,6 +103,7 @@ Full details: [milestones/v2.5-ROADMAP.md](milestones/v2.5-ROADMAP.md)
 | 30. Dashboard & Metrics | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 31. Agent Board | v2.5 | 2/2 | Complete | 2026-02-21 |
 | 32. Memory, Office & Visualization | v2.5 | 3/3 | Complete | 2026-02-21 |
+| 33. Content Pipeline Improvements | v2.6 | 0/3 | Planning | — |
 
 ---
-*Updated: 2026-02-22 -- v2.5 Mission Control Dashboard shipped.*
+*Updated: 2026-02-23 -- Phase 33 planned: 3 plans in 1 wave.*
