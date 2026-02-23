@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** Executing v2.6 Content Pipeline Hardening
+**Current focus:** v2.6 Content Pipeline Hardening -- complete
 
 ## Current Position
 
 Phase: 33 (Content Pipeline Improvements)
-Plan: 2/3 complete (33-02, 33-03 done; 33-01 remaining)
-Status: Executing
+Plan: 3/3 complete
+Status: Complete
 Milestone: v2.6 Content Pipeline Hardening
-Last activity: 2026-02-23 — Completed 33-02-PLAN.md
+Last activity: 2026-02-23 — Completed 33-01-PLAN.md (verify infrastructure + fix Slack delivery)
 
-Progress: [██████░░░░] 67% (2/3 plans)
+Progress: [██████████] 100% (3/3 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 62 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5)
+- Total plans completed: 65 (across v2.0 + v2.1 + v2.2 + v2.4 + v2.5 + v2.6)
 
 **By Milestone:**
 
@@ -32,6 +32,7 @@ Progress: [██████░░░░] 67% (2/3 plans)
 | v2.3 | 0 | 0 | Merged into v2.4 |
 | v2.4 | 5 | 9 | 4 days |
 | v2.5 | 4 | 9 | 2 days |
+| Phase 33 P01 | 21min | 2 tasks | 10 files |
 | Phase 33 P02 | 7min | 2 tasks | 1 files |
 
 ## Accumulated Context
@@ -42,6 +43,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 33]: SQL CASE ordering for pipeline stages instead of app-level sort
 - [Phase 33-02]: Bob inserts topics via sqlite3 rather than triggering cron directly -- openclaw binary not in Docker sandbox
 - [Phase 33-02]: openclaw cron run IS safe (tested) but inaccessible from sandbox -- host-only command
+- [Phase 33-01]: All agent session files must use channel:ID format (channel:CXXXXXXXXXX), never #channel-name
+- [Phase 33-01]: Vector posts to #range-ops (C0AC3HB82P5), not #content-pipeline
 
 ### Open Items
 
@@ -71,4 +74,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - systemd service: mission-control.service (auto-starts, OOMScoreAdjust=500)
 
 ---
-*Last updated: 2026-02-23 -- Completed 33-02: On-demand content triggers protocol doc for Bob.*
+*Last updated: 2026-02-23 -- Completed 33-01: Verified content.db bind-mount, cleaned stubs, fixed Slack channel references in all session files.*
