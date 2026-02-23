@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 33 (Content Pipeline Improvements)
-Plan: 3/3 complete
+Plan: 2/3 complete (33-02, 33-03 done; 33-01 remaining)
 Status: Executing
 Milestone: v2.6 Content Pipeline Hardening
-Last activity: 2026-02-23 — Completed 33-03-PLAN.md
+Last activity: 2026-02-23 — Completed 33-02-PLAN.md
 
-Progress: [██████████] 100% (3/3 plans)
+Progress: [██████░░░░] 67% (2/3 plans)
 
 ## Performance Metrics
 
@@ -32,6 +32,7 @@ Progress: [██████████] 100% (3/3 plans)
 | v2.3 | 0 | 0 | Merged into v2.4 |
 | v2.4 | 5 | 9 | 4 days |
 | v2.5 | 4 | 9 | 2 days |
+| Phase 33 P02 | 7min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -39,6 +40,8 @@ Progress: [██████████] 100% (3/3 plans)
 
 Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 33]: SQL CASE ordering for pipeline stages instead of app-level sort
+- [Phase 33-02]: Bob inserts topics via sqlite3 rather than triggering cron directly -- openclaw binary not in Docker sandbox
+- [Phase 33-02]: openclaw cron run IS safe (tested) but inaccessible from sandbox -- host-only command
 
 ### Open Items
 
@@ -68,4 +71,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - systemd service: mission-control.service (auto-starts, OOMScoreAdjust=500)
 
 ---
-*Last updated: 2026-02-23 -- Completed 33-03: Pipeline chart fixed with real DB statuses.*
+*Last updated: 2026-02-23 -- Completed 33-02: On-demand content triggers protocol doc for Bob.*

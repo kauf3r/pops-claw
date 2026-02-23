@@ -11,16 +11,16 @@ Run each content cron job manually and confirm it produces expected output:
 - `publish-check` (Ezra): creates WP draft for approved articles
 - `stuck-check` + `pipeline-report` (Sentinel): monitoring fires correctly
 
-## CP-03: On-Demand Content Trigger
+## ~~CP-03: On-Demand Content Trigger~~ COMPLETE (33-02)
 Add ability to tell Bob "write an article about X" and have it:
 1. Insert topic into content.db with high priority
-2. Trigger Quill's writing session immediately (not waiting for cron)
+2. ~~Trigger Quill's writing session immediately (not waiting for cron)~~ *Not possible from Docker sandbox; topic queued with priority 1 for next cron*
 3. Route through normal review/publish pipeline after writing
 
-## CP-04: On-Demand Topic Research
-Add ability to tell Bob "research topics about X" and have Vector research and insert topics immediately rather than waiting for the Tuesday/Friday cron.
+## ~~CP-04: On-Demand Topic Research~~ COMPLETE (33-02)
+Add ability to tell Bob "research topics about X" and have Vector research and insert topics immediately rather than waiting for the Tuesday/Friday cron. *Research directives queued via sqlite3 INSERT with priority 1; immediate cron triggering not available from Docker sandbox.*
 
-## CP-05: Social Post Retrieval
+## ~~CP-05: Social Post Retrieval~~ COMPLETE (33-02)
 Make social posts from `social_posts` table retrievable on demand. Bob should be able to surface LinkedIn/Twitter/Instagram copy for a published article when asked, formatted and ready to paste.
 
 ## CP-06: Fix Content Analytics
