@@ -6,7 +6,7 @@
 - ✅ **v2.1 Content Marketing Pipeline** — Phases 12-18 (shipped 2026-02-09)
 - ✅ **v2.2 Resend Email Integration** — Phases 19-23 (shipped 2026-02-17)
 - ✅ **v2.3 Security & Platform Hardening** — Merged into v2.4 (0 phases executed)
-- ✅ **v2.4 Content Distribution & Platform Hardening** — Phases 24-28 (shipped 2026-02-21, Phase 29 dropped)
+- ✅ **v2.4 Content Distribution & Platform Hardening** — Phases 24-28 (shipped 2026-02-21)
 - ✅ **v2.5 Mission Control Dashboard** — Phases 29-32 (shipped 2026-02-22)
 
 ## Phases
@@ -83,14 +83,69 @@ Full details: [milestones/v2.5-ROADMAP.md](milestones/v2.5-ROADMAP.md)
 
 </details>
 
+### v2.6 Agent Memory & Dashboard Polish
+
+- [ ] **Phase 33: Memory Curation & Bootstrap** - Curate MEMORY.md under budget, fix flush consistency
+- [ ] **Phase 34: Memory Retrieval Discipline** - Retrieval instructions, LEARNINGS.md, content agent memory
+- [ ] **Phase 35: Memory Health Monitoring** - Dashboard panel for per-agent memory metrics
+- [ ] **Phase 36: Agent Board Polish** - Context usage indicators and visual refinements
+
+## Phase Details
+
+### Phase 33: Memory Curation & Bootstrap
+**Goal**: Bob's MEMORY.md fits within the 200-line auto-load budget and memory flushes fire reliably across all session types
+**Depends on**: Nothing (first phase of v2.6)
+**Requirements**: MEM-01, MEM-02
+**Success Criteria** (what must be TRUE):
+  1. MEMORY.md is under 150 lines with reference material moved to docs/ directory files that agents can retrieve on demand
+  2. Bob's daily log entries appear for every active day, not just days with long sessions
+  3. Gateway restart with curated MEMORY.md shows reduced bootstrap token consumption in observability.db
+**Plans**: TBD
+
+### Phase 34: Memory Retrieval Discipline
+**Goal**: Agents actively search their memory before starting tasks, and content agents retain context across cron-triggered sessions
+**Depends on**: Phase 33 (freed bootstrap budget makes room for retrieval instructions)
+**Requirements**: MEM-03, MEM-04, MEM-05
+**Success Criteria** (what must be TRUE):
+  1. AGENTS.md boot sequence includes explicit instructions to search daily logs and LEARNINGS.md before executing tasks
+  2. LEARNINGS.md contains seeded entries from real operational knowledge (not an empty template)
+  3. Quill, Sage, and Ezra each have bootstrap memory files in their agent workspace so cron sessions start with prior context
+  4. An agent asked about something from a previous session can retrieve it via memory search without being told where to look
+**Plans**: TBD
+
+### Phase 35: Memory Health Monitoring
+**Goal**: Andy can see the health of every agent's memory system at a glance in Mission Control
+**Depends on**: Phase 34 (memory system must be stable before monitoring it)
+**Requirements**: MON-01, MON-02, MON-03
+**Success Criteria** (what must be TRUE):
+  1. Mission Control shows per-agent memory chunk count and last-updated timestamp on a memory health panel
+  2. MEMORY.md line count is displayed alongside the 200-line auto-load limit so Andy can see how close to budget each agent is
+  3. Memory flush frequency (flushes per day over last 7 days) is visible as a trend indicator
+  4. The panel updates on the existing 30s SWR polling cycle without new infrastructure
+**Plans**: TBD
+
+### Phase 36: Agent Board Polish
+**Goal**: Agent cards show context utilization at a glance and the board looks polished and professional
+**Depends on**: Phase 35 (context indicators change card layout; polish after layout is final)
+**Requirements**: DASH-01, DASH-02
+**Success Criteria** (what must be TRUE):
+  1. Each agent card on /agents shows context window utilization as a colored progress bar (green/amber/red)
+  2. Each agent card shows cache hit rate and 24h cost
+  3. Agent board has refined layout, spacing, and card hierarchy that feels intentional rather than scaffolded
+  4. Inactive agents (no recent LLM calls) show dash placeholders instead of misleading zeros
+**Plans**: TBD
+
 ## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 33 -> 34 -> 35 -> 36
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 29. Infrastructure & Database Foundation | v2.5 | 2/2 | Complete | 2026-02-21 |
-| 30. Dashboard & Metrics | v2.5 | 2/2 | Complete | 2026-02-21 |
-| 31. Agent Board | v2.5 | 2/2 | Complete | 2026-02-21 |
-| 32. Memory, Office & Visualization | v2.5 | 3/3 | Complete | 2026-02-21 |
+| 33. Memory Curation & Bootstrap | v2.6 | 0/TBD | Not started | - |
+| 34. Memory Retrieval Discipline | v2.6 | 0/TBD | Not started | - |
+| 35. Memory Health Monitoring | v2.6 | 0/TBD | Not started | - |
+| 36. Agent Board Polish | v2.6 | 0/TBD | Not started | - |
 
 ---
-*Updated: 2026-02-22 -- v2.5 Mission Control Dashboard shipped.*
+*Updated: 2026-02-23 -- v2.6 roadmap created (4 phases, 10 requirements mapped).*

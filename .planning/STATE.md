@@ -2,18 +2,20 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-22)
+See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.6 Agent Memory & Dashboard Polish
+**Current focus:** v2.6 Phase 33 - Memory Curation & Bootstrap
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
+Phase: 33 of 36 (Memory Curation & Bootstrap)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
 Milestone: v2.6 Agent Memory & Dashboard Polish
-Last activity: 2026-02-23 — Milestone v2.6 started
+Last activity: 2026-02-23 — Roadmap created (4 phases, 10 requirements)
+
+Progress: [..........] 0% (0/TBD plans)
 
 ## Performance Metrics
 
@@ -41,19 +43,13 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 - DMARC rua at theandykaufman@gmail.com: aggregate reports expected (Phase 27-01 checkpoint)
 - Email-catchup cron delivery target error: "Action send requires a target" -- deferred
-- Phase 31.1 (Context Usage Indicators) — carried forward from v2.5
-- Phase 31.2 (Agent Board Polish) — carried forward from v2.5
 - Dead code: global-search.tsx returns null (Convex removal stub from Phase 29)
+- Phase 31.1 plan (context usage indicators) carries forward as DASH-01 in Phase 36
+- Phase 31.2 scope (agent board polish) carries forward as DASH-02 in Phase 36
 
 ### Blockers
 
 (None)
-
-### Quick Tasks Completed
-
-| # | Description | Date | Commit | Directory |
-|---|-------------|------|--------|-----------|
-| 3 | Connect content agent into Mission Control dashboard | 2026-02-22 | f2b302f | [3-connect-content-agent-into-mission-contr](./quick/3-connect-content-agent-into-mission-contr/) |
 
 ## Notes
 
@@ -62,7 +58,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Stack: Next.js 14.2.15 + Tailwind + better-sqlite3 + SWR + Recharts + cron-parser v5
 - 5 databases: health.db, coordination.db, content.db, email.db, observability.db
 - Mission Control: http://100.72.143.9:3001 (direct Tailscale, no SSH tunnel)
-- systemd service: mission-control.service (auto-starts, OOMScoreAdjust=500)
+- Research: hybrid search may trigger re-indexing -- test on single agent first (Phase 33)
+- Existing plan 31.1-01-PLAN.md (context indicators) archived at milestones/v2.5-phases/ -- reuse for Phase 36
 
 ---
-*Last updated: 2026-02-23 -- Milestone v2.6 started: Agent Memory & Dashboard Polish*
+*Last updated: 2026-02-23 -- v2.6 roadmap created, ready to plan Phase 33.*

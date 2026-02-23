@@ -22,7 +22,7 @@
 ### Dashboard Polish
 
 - [ ] **DASH-01**: Agent board cards show context usage indicators (token consumption as percentage of context window)
-- [ ] **DASH-02**: Agent board visual refinements (carried from v2.5 Phase 31.2 — layout, spacing, card hierarchy)
+- [ ] **DASH-02**: Agent board visual refinements (carried from v2.5 Phase 31.2 -- layout, spacing, card hierarchy)
 
 ## Future Requirements
 
@@ -31,7 +31,7 @@
 - **MEM-F01**: Hybrid search backend (QMD or BM25+vectors+reranking) replacing pure FTS5
 - **MEM-F02**: Automated MARKER retrieval test with pass/fail indicator in Mission Control
 - **MEM-F03**: Memory curation alerts when MEMORY.md exceeds line threshold
-- **MEM-F04**: Handover protocol — agent writes current context to daily log before session end or model switch
+- **MEM-F04**: Handover protocol -- agent writes current context to daily log before session end or model switch
 
 ### Dashboard (v2.7+)
 
@@ -42,32 +42,32 @@
 
 | Feature | Reason |
 |---------|--------|
-| QMD/hybrid search backend | Complexity — validate FTS5 is actually insufficient first before upgrading |
-| WebSocket real-time memory updates | Memory changes daily, not in real-time — 30s SWR polling sufficient |
-| Multi-agent memory comparison view | Single-user dashboard — not needed for ops monitoring |
-| Gateway restart automation | Too risky to automate — manual restart with DM re-establish is safer |
-| LEARNINGS.md auto-population from agent errors | Risk of noise — manual curation preferred until pattern is proven |
+| QMD/hybrid search backend | Complexity -- validate FTS5 is actually insufficient first before upgrading |
+| WebSocket real-time memory updates | Memory changes daily, not in real-time -- 30s SWR polling sufficient |
+| Multi-agent memory comparison view | Single-user dashboard -- not needed for ops monitoring |
+| Gateway restart automation | Too risky to automate -- manual restart with DM re-establish is safer |
+| LEARNINGS.md auto-population from agent errors | Risk of noise -- manual curation preferred until pattern is proven |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MEM-01 | TBD | Pending |
-| MEM-02 | TBD | Pending |
-| MEM-03 | TBD | Pending |
-| MEM-04 | TBD | Pending |
-| MEM-05 | TBD | Pending |
-| MON-01 | TBD | Pending |
-| MON-02 | TBD | Pending |
-| MON-03 | TBD | Pending |
-| DASH-01 | TBD | Pending |
-| DASH-02 | TBD | Pending |
+| MEM-01 | Phase 33 | Pending |
+| MEM-02 | Phase 33 | Pending |
+| MEM-03 | Phase 34 | Pending |
+| MEM-04 | Phase 34 | Pending |
+| MEM-05 | Phase 34 | Pending |
+| MON-01 | Phase 35 | Pending |
+| MON-02 | Phase 35 | Pending |
+| MON-03 | Phase 35 | Pending |
+| DASH-01 | Phase 36 | Pending |
+| DASH-02 | Phase 36 | Pending |
 
 **Coverage:**
 - v2.6 requirements: 10 total
-- Mapped to phases: 0
-- Unmapped: 10 ⚠️
+- Mapped to phases: 10
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-23*
-*Last updated: 2026-02-23 after initial definition*
+*Last updated: 2026-02-23 after roadmap creation -- all 10 requirements mapped to phases 33-36*
