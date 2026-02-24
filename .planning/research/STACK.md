@@ -1,482 +1,379 @@
-# Stack Research
+# Technology Stack: v2.7 YOLO Dev
 
-**Domain:** Mission Control Dashboard — real-time SQLite dashboards, agent monitoring, data visualization + OpenClaw VPS deployment patterns
-**Researched:** 2026-02-20
-**Confidence:** HIGH (UI/charting stack), HIGH (SQLite data layer), MEDIUM (SSE real-time), MEDIUM (OpenClaw latest deployment patterns)
-
----
-
-## v2.5 Stack Additions
-
-This document covers NEW stack additions for v2.5 Mission Control Dashboard. The existing stack (Next.js 14.2.15, Tailwind CSS, better-sqlite3, cron-parser v5) remains unchanged. Only deltas are documented below.
+**Project:** pops-claw -- Overnight Autonomous Builder
+**Researched:** 2026-02-24
+**Confidence:** HIGH (sandbox patterns validated in prior milestones), MEDIUM (overnight loop guardrails)
 
 ---
 
-## 1. Data Layer: SQLite Read Access Pattern
+## Executive Summary
 
-### Singleton Database Manager for Multiple DBs
+YOLO Dev adds zero new npm dependencies to Mission Control and zero new infrastructure to the EC2 host. The entire capability is built from: (1) a new OpenClaw skill + cron for Bob, (2) a new yolo.db SQLite database following the exact same pattern as the 5 existing databases, (3) Python/bash scripts executing inside the existing Docker sandbox, and (4) a new `/yolo` page in Mission Control following the established query-module + API-route + SWR pattern from v2.5.
 
-The dashboard reads from 5 SQLite databases (coordination.db, observability.db, content.db, email.db, health.db) that OpenClaw agents write to. The dashboard is read-only — it never writes to these databases.
+The sandbox already has Python 3, bash, curl, git, and jq. Bob already writes files to `/workspace/` (bind-mounted to `~/clawd/agents/main/`). The overnight build pipeline is a cron job that triggers Bob with a YOLO_DEV.md reference doc, Bob generates code, writes files to `~/clawd/yolo-dev/<project>/`, logs progress to yolo.db, and posts the result to Slack. No new runtimes needed. No new Docker images. No new agents.
+
+---
+
+## Recommended Stack
+
+### Core: Skill + Cron (Zero New Dependencies)
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| `better-sqlite3` | 12.6.2 (already installed) | Synchronous read-only SQLite access | Already proven in the project. Synchronous API is perfect for Next.js server components — no async overhead. v12.6.2 is latest stable |
+| OpenClaw Skill | N/A | `yolo-dev` skill in `~/.openclaw/skills/yolo-dev/SKILL.md` | Teaches Bob how to ideate, scaffold, build, test, and log YOLO projects. Same pattern as all 13 existing skills |
+| OpenClaw Cron | N/A | `yolo-build` cron triggering nightly at 1 AM PT (08:00 UTC) | Triggers Bob to pick an idea and build it overnight. Same cron system as 20 existing jobs |
+| Reference Doc | N/A | `~/clawd/agents/main/YOLO_DEV.md` | Standing instructions for overnight builds, idea bank, constraints. Same pattern as CONTENT_TRIGGERS.md |
 
-**Architecture Pattern: WAL Mode + Read-Only Connections**
+**Rationale:** Bob is already an autonomous agent that writes files, executes code, and logs to SQLite. YOLO Dev is a new *behavior*, not a new *system*. The skill teaches Bob the behavior; the cron triggers it; the reference doc provides context.
 
-All 5 databases should be opened in WAL (Write-Ahead Logging) mode with read-only connections. WAL allows concurrent readers without blocking the OpenClaw agents that write to these databases. This is the critical pattern — without WAL mode, the dashboard could lock the databases and block cron jobs.
-
-```javascript
-// lib/db.js — singleton pattern for Next.js
-import Database from 'better-sqlite3';
-import path from 'path';
-
-const DB_DIR = process.env.DB_DIR || '/home/ubuntu/clawd/agents/main';
-
-// Cache database instances to avoid re-opening on every request
-const dbCache = globalThis.__dbCache || (globalThis.__dbCache = {});
-
-function getDb(name) {
-  if (!dbCache[name]) {
-    const dbPath = path.join(DB_DIR, `${name}.db`);
-    dbCache[name] = new Database(dbPath, { readonly: true });
-    dbCache[name].pragma('journal_mode = WAL');
-  }
-  return dbCache[name];
-}
-
-export const coordination = () => getDb('coordination');
-export const observability = () => getDb('observability');
-export const content = () => getDb('content');
-export const email = () => getDb('email');
-export const health = () => getDb('health');
-```
-
-**Why `globalThis` singleton:** Next.js hot-reloads modules in development, which would otherwise create new database connections on every reload. The `globalThis` pattern is the canonical Next.js approach for singletons (confirmed from Vercel's own examples and community discussion).
-
-**Confidence:** HIGH — better-sqlite3 WAL mode, readonly connections, and globalThis singleton are all well-documented patterns.
-
-**Sources:**
-- [better-sqlite3 npm](https://www.npmjs.com/package/better-sqlite3) — v12.6.2 latest
-- [SQLite WAL mode documentation](https://sqlite.org/wal.html) — readers don't block writers
-- [Next.js singleton discussion](https://github.com/vercel/next.js/discussions/68572) — globalThis pattern
-
----
-
-## 2. Real-Time Data: SSE Polling Hybrid
-
-### Why NOT WebSockets, Why NOT Convex
-
-The existing Convex integration is being replaced. Convex requires an external service, adds latency through cloud roundtrips, and is overkill for a single-user Tailscale-private dashboard reading local SQLite files.
-
-WebSockets are also overkill here. The dashboard only needs server-to-client updates (unidirectional). The data source is SQLite files on disk, not a push-capable system.
-
-### Recommended: Server-Sent Events with Interval Polling
+### Database: yolo.db (SQLite, 6th Database)
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| Next.js Route Handler SSE | Built-in (Next.js 14) | Stream real-time updates to client | Native to Next.js App Router. No additional dependencies. Uses ReadableStream API. One-way server-to-client — perfect for dashboard feeds |
-| `setInterval` polling in SSE handler | Built-in (Node.js) | Poll SQLite for changes every N seconds | SQLite has no native change notifications. Polling at 5-10s intervals is efficient for a single-user dashboard on local disk |
+| SQLite (via `sqlite3` CLI) | Already installed | yolo.db at `~/clawd/yolo-dev/yolo.db` | Same pattern as 5 existing databases. Bob writes via sqlite3 CLI in sandbox (bind-mounted). Mission Control reads via better-sqlite3 |
+| better-sqlite3 | 12.6.2 (already installed) | Dashboard reads yolo.db | Already the Mission Control DB driver. Add yolo.db to the existing DB_PATHS registry |
 
-**Implementation Pattern:**
+**Schema Design:**
 
-```javascript
-// app/api/activity-stream/route.js
-import { coordination } from '@/lib/db';
+```sql
+-- ~/clawd/yolo-dev/yolo.db
 
-export async function GET(request) {
-  const encoder = new TextEncoder();
+CREATE TABLE builds (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_name TEXT NOT NULL,           -- e.g. "wifi-signal-mapper"
+  slug TEXT NOT NULL UNIQUE,            -- URL/folder-safe: "wifi-signal-mapper"
+  description TEXT NOT NULL,            -- 1-2 sentence pitch
+  idea_source TEXT,                     -- what inspired it: "morning-briefing", "voice-note", "random"
+  tech_stack TEXT NOT NULL,             -- "python", "html+js", "python+flask"
+  status TEXT NOT NULL DEFAULT 'ideating',  -- ideating|building|testing|completed|failed|abandoned
+  started_at TEXT NOT NULL DEFAULT (datetime('now')),
+  completed_at TEXT,
+  build_duration_seconds INTEGER,       -- wall clock from start to completion
+  files_created INTEGER DEFAULT 0,      -- count of files generated
+  lines_of_code INTEGER DEFAULT 0,      -- total LOC across all files
+  error_message TEXT,                   -- if failed, what went wrong
+  demo_url TEXT,                        -- if servable, how to access
+  slack_message_ts TEXT,                -- Slack message ID for the build report
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 
-  const stream = new ReadableStream({
-    start(controller) {
-      const send = (data) => {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
-      };
+CREATE TABLE build_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  build_id INTEGER NOT NULL REFERENCES builds(id),
+  phase TEXT NOT NULL,                  -- "ideation"|"scaffolding"|"implementation"|"testing"|"packaging"
+  message TEXT NOT NULL,                -- what happened
+  timestamp TEXT NOT NULL DEFAULT (datetime('now'))
+);
 
-      // Initial data burst
-      const db = coordination();
-      const recent = db.prepare(
-        'SELECT * FROM activity ORDER BY created_at DESC LIMIT 50'
-      ).all();
-      send({ type: 'initial', items: recent });
+CREATE TABLE build_files (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  build_id INTEGER NOT NULL REFERENCES builds(id),
+  file_path TEXT NOT NULL,              -- relative to project dir: "app.py", "templates/index.html"
+  language TEXT,                        -- "python", "html", "javascript", "css"
+  line_count INTEGER DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 
-      // Poll for new data every 5 seconds
-      let lastId = recent[0]?.id || 0;
-      const interval = setInterval(() => {
-        const newer = db.prepare(
-          'SELECT * FROM activity WHERE id > ? ORDER BY id ASC'
-        ).all(lastId);
-        if (newer.length > 0) {
-          lastId = newer[newer.length - 1].id;
-          send({ type: 'update', items: newer });
-        }
-      }, 5000);
-
-      // Cleanup on disconnect
-      request.signal.addEventListener('abort', () => {
-        clearInterval(interval);
-        controller.close();
-      });
-    },
-  });
-
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive',
-    },
-  });
-}
+-- Indexes for dashboard queries
+CREATE INDEX idx_builds_status ON builds(status);
+CREATE INDEX idx_builds_created ON builds(created_at DESC);
+CREATE INDEX idx_build_logs_build ON build_logs(build_id);
+CREATE INDEX idx_build_files_build ON build_files(build_id);
 ```
 
-**Why NOT `use-next-sse` library:** It exists (alexanderkasten/use-next-sse on GitHub) but adds a dependency for something achievable in ~30 lines of native code. The SSE pattern above is straightforward, and the client-side `EventSource` API is built into all browsers.
+**Why this schema:** Three tables track the full lifecycle. `builds` is the main record (what was built, outcome, metrics). `build_logs` captures the step-by-step narrative (useful for debugging and for the dashboard timeline view). `build_files` inventories artifacts (useful for "what did it create?" display). The `slug` column becomes the folder name under `~/clawd/yolo-dev/`.
 
-**Why 5-second polling is fine:** Single user, local disk reads, SQLite indexed queries return in <1ms. Even 1-second polling would be negligible load on the t3.small instance.
+**Why NOT a single table:** Build logs are append-only and high-volume (10-50 entries per build). Mixing them with the builds table would make dashboard queries for "list all builds" pull unnecessary log data. The three-table design matches the content pipeline pattern (topics, articles, pipeline_activity).
 
-**Confidence:** HIGH on SSE implementation pattern (multiple production guides, Next.js 14/15 support confirmed). The App Router's Route Handlers support ReadableStream natively.
-
-**Sources:**
-- [SSE in Next.js Complete Guide](https://medium.com/@ammarbinshakir557/implementing-server-sent-events-sse-in-node-js-with-next-js-a-complete-guide-1adcdcb814fd)
-- [SSE vs WebSockets in Next.js 15](https://hackernoon.com/streaming-in-nextjs-15-websockets-vs-server-sent-events)
-- [use-next-sse library](https://github.com/alexanderkasten/use-next-sse) — evaluated, not recommended for this use case
-
----
-
-## 3. UI Component Layer: shadcn/ui
-
-### Why shadcn/ui
-
-The dashboard needs cards, tables, badges, tabs, and other UI primitives. shadcn/ui is the standard choice for Next.js + Tailwind projects because it copies component source code into your project (no npm dependency lock-in), uses Radix UI primitives (accessibility built-in), and integrates with Tailwind's theming.
+### Sandbox Runtime: Already Sufficient
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| `shadcn/ui` | Latest (CLI-based, no version lock) | Card, Table, Badge, Tabs, Select, Separator | Copy-paste components you own. Built on Radix UI + Tailwind. Official chart components built on Recharts |
-| `class-variance-authority` | ^0.7 | Component variant definitions | Required by shadcn/ui for type-safe variant props |
-| `clsx` | ^2.1 | Conditional class merging | Required by shadcn/ui `cn()` utility |
-| `tailwind-merge` | ^3.0 | Intelligent Tailwind class dedup | Required by shadcn/ui — prevents `p-4 p-2` conflicts |
-| `lucide-react` | ^0.469 | Icon library | Used by shadcn/ui components. Consistent icon set for status indicators, navigation |
+| Python 3 | 3.11 (Debian Bookworm) | Default prototyping language | Already in the sandbox image (`openclaw-sandbox:bookworm-slim` includes python3). No pip needed for stdlib-only prototypes |
+| bash | 5.2 | Script execution, file manipulation | Already in sandbox |
+| curl | Already installed | HTTP testing, API interaction | Already in sandbox |
+| git | Already installed | Version tracking of builds (optional) | Already in sandbox |
+| sqlite3 CLI | Debian 12-compatible binary | Write to yolo.db from sandbox | Already bind-mounted at `/usr/bin/sqlite3` (Phase 6 fix: glibc-compatible binary at `~/clawd/sqlite3-compat`) |
+| Node.js | **NOT in default sandbox** | For JS/HTML prototypes that need a dev server | **See "What NOT to Add" -- stdlib Python + static HTML covers 90% of prototypes** |
 
-**Installation:**
+**Key insight:** The default sandbox image includes Python 3 but NOT pip, NOT Node.js, NOT Go, NOT Rust. This is fine. YOLO Dev prototypes should use Python stdlib (http.server, json, sqlite3, urllib, etc.) and static HTML/CSS/JS. If a prototype needs pip packages, Bob can install them via `python3 -m ensurepip && pip install X` in the sandbox (requires `readOnlyRoot: false` which is already the case based on the setupCommand pattern used for other tools). But the SKILL.md should strongly prefer stdlib-only prototypes.
 
-```bash
-# Initialize shadcn/ui in existing Next.js project
-npx shadcn-ui@latest init
-
-# Add specific components needed for dashboard
-npx shadcn-ui@latest add card table badge tabs select separator skeleton
-npx shadcn-ui@latest add chart  # Installs Recharts-based chart primitives
-```
-
-**Dependencies installed by shadcn init:**
-```bash
-npm install class-variance-authority clsx tailwind-merge lucide-react tw-animate-css
-```
-
-**Confidence:** HIGH — shadcn/ui is the dominant component approach for Next.js + Tailwind in 2025-2026. Official Vercel templates use it. Fully compatible with Next.js 14.
-
-**Sources:**
-- [shadcn/ui installation for Next.js](https://ui.shadcn.com/docs/installation/next)
-- [shadcn/ui charts documentation](https://ui.shadcn.com/charts/area)
-- [Vercel Next.js + shadcn admin template](https://vercel.com/templates/next.js/next-js-and-shadcn-ui-admin-dashboard)
-
----
-
-## 4. Charting: Recharts (via shadcn/ui)
-
-### Why Recharts
-
-shadcn/ui's official chart components are built on Recharts. Using Recharts directly (via shadcn chart primitives) means zero additional charting dependencies and automatic theming/dark mode support.
+### Build Artifact Storage: Filesystem
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| `recharts` | ^3.7.0 | Line charts, bar charts, area charts, pie charts | Latest stable. shadcn/ui chart components wrap it. Declarative React API. D3-powered but without D3 complexity |
+| Filesystem | N/A | `~/clawd/yolo-dev/<slug>/` on EC2 host | Bind-mounted into sandbox as `/workspace/yolo-dev/<slug>/`. Each build gets its own directory. Simple, inspectable, no extra infrastructure |
 
-**Dashboard Chart Use Cases:**
+**Directory structure per build:**
 
-| Chart Type | Data Source | Purpose |
-|------------|------------|---------|
-| Area chart | observability.db | Token usage over time (by agent, by model) |
-| Bar chart | content.db | Articles by pipeline status (researched/written/reviewed/published) |
-| Line chart | email.db | Email volume trends (sent/received/bounced per day) |
-| Donut/Pie | coordination.db | Cron job success/failure rates |
-| Sparkline | health.db | HRV/sleep score mini-trends in health card |
+```
+~/clawd/yolo-dev/
++-- yolo.db                        # Build metadata database
++-- wifi-signal-mapper/            # Build 1
+|   +-- README.md                  # Auto-generated by Bob
+|   +-- app.py                     # Main application
+|   +-- templates/
+|       +-- index.html
++-- habit-streak-tracker/          # Build 2
+|   +-- README.md
+|   +-- tracker.py
+|   +-- data/
++-- ...
+```
 
-**Why NOT Tremor:** Tremor is built on Recharts (meta-library). Adding it on top of shadcn/ui's Recharts integration would be redundant — two abstraction layers over the same underlying library.
+**Why filesystem over S3/cloud:** Single machine, personal use, inspectable via SSH. The files are already on the EC2 instance. Adding cloud storage adds cost and complexity for zero benefit.
 
-**Why NOT Nivo:** Nivo is more feature-rich (Canvas rendering, advanced animations) but heavier and less popular. For this dashboard's chart needs (time series, bars, pies), Recharts covers everything with less complexity.
-
-**Confidence:** HIGH — Recharts 3.7.0 is latest stable, shadcn/ui's chart primitives are built on it, npm shows 3,500+ downstream projects.
-
-**Sources:**
-- [Recharts npm](https://www.npmjs.com/package/recharts) — v3.7.0
-- [shadcn/ui charts](https://ui.shadcn.com/docs/components/radix/chart) — built on Recharts
-- [React chart library comparison](https://blog.logrocket.com/best-react-chart-libraries-2025/) — Recharts recommended for dashboards
-
----
-
-## 5. Date/Time Formatting: date-fns
-
-### Why date-fns Over dayjs
-
-The dashboard needs relative time display ("3 hours ago"), date formatting for timestamps, and duration calculations. date-fns is the better choice here because: (1) it uses tree-shakeable ESM exports — import only the functions you need, (2) it works with native Date objects (no wrapper), and (3) shadcn/ui's date-picker components use date-fns.
+### Mission Control: /yolo Page (Zero New Dependencies)
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| `date-fns` | ^4.1 | Relative time, date formatting, durations | Tree-shakeable (import only what you use). Works with native Date. shadcn/ui ecosystem standard |
+| Next.js 14 | 14.2.15 (existing) | `/yolo` page route | Same framework, same patterns as existing 7 pages |
+| better-sqlite3 | 12.6.2 (existing) | Read yolo.db | Add to existing DB_PATHS registry, same singleton pattern |
+| SWR | 2.3.3 (existing) | Poll `/api/yolo/builds` | Same polling pattern as all other dashboard data |
+| shadcn/ui | Existing | Card, Badge, Table components | Already installed. Status badges (building/completed/failed) use existing Badge variants |
+| Recharts | 3.7.0 (existing) | Build frequency chart, LOC trends | Already installed via shadcn charts |
+| date-fns | 3.6.0 (existing) | Relative timestamps ("built 2 days ago") | Already installed |
 
-**Key Functions Needed:**
+**New files to create on EC2:**
 
-```javascript
-import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
-import { format } from 'date-fns/format';
-import { differenceInMinutes } from 'date-fns/differenceInMinutes';
-
-// "3 hours ago"
-formatDistanceToNow(new Date(row.created_at), { addSuffix: true });
-
-// "Feb 20, 2:15 PM"
-format(new Date(row.created_at), 'MMM d, h:mm a');
-
-// Heartbeat staleness check
-const minutesSince = differenceInMinutes(new Date(), new Date(row.last_heartbeat));
-const isStale = minutesSince > 15;
+```
+~/clawd/mission-control/src/
++-- app/
+|   +-- yolo/
+|   |   +-- page.tsx                # /yolo page (server component, initial render)
+|   +-- api/
+|       +-- yolo/
+|           +-- builds/
+|           |   +-- route.ts        # GET /api/yolo/builds (list all builds)
+|           +-- builds/[id]/
+|               +-- route.ts        # GET /api/yolo/builds/:id (build detail + logs + files)
++-- lib/
+|   +-- db-paths.ts                 # ADD "yolo" to DB_NAMES, DB_PATHS, DB_LABELS
+|   +-- queries/
+|       +-- yolo.ts                 # Prepared statements for yolo.db queries
++-- components/
+    +-- yolo/
+        +-- build-card.tsx          # Individual build card with status badge
+        +-- build-timeline.tsx      # Build log timeline for detail view
+        +-- build-stats.tsx         # Aggregate stats (total builds, success rate, LOC)
 ```
 
-**Why NOT dayjs:** dayjs is smaller total size (2KB vs 6KB gzipped), but date-fns tree-shakes better — you only ship the functions you import. For a server-rendered Next.js dashboard, bundle size matters less anyway (most date logic runs server-side). date-fns aligns with the shadcn/ui ecosystem.
+**Dashboard integration pattern (same as all existing pages):**
 
-**Hydration Warning:** Date formatting MUST happen client-side or use consistent timezone handling. The EC2 server is UTC, the user is PT. Use `useEffect` for any `new Date()` calls that affect rendering (already learned in v2.5 hydration fix).
+1. Add `yolo` to `DB_PATHS` in `db-paths.ts`: `yolo: "/home/ubuntu/clawd/yolo-dev/yolo.db"`
+2. Create query module `queries/yolo.ts` with prepared statements
+3. Create API route `/api/yolo/builds/route.ts` that calls query functions
+4. Create page `/yolo/page.tsx` that reads server-side + passes to client
+5. Add `/yolo` to the navigation sidebar
+6. SWR polls `/api/yolo/builds` every 60 seconds
 
-**Confidence:** HIGH — date-fns v4 is latest stable, well-documented, standard in React ecosystem.
-
-**Sources:**
-- [date-fns vs dayjs comparison](https://www.dhiwise.com/post/date-fns-vs-dayjs-the-battle-of-javascript-date-libraries)
-- [shadcn/ui date-picker uses date-fns](https://github.com/shadcn-ui/ui/discussions/4817)
-
----
-
-## 6. Tailscale-Direct Access: Network Binding
-
-### Bind Next.js to Tailnet IP
-
-Currently, Mission Control runs on `127.0.0.1:3001` and requires an SSH tunnel. For direct Tailscale access, Next.js needs to bind to the tailnet IP or `0.0.0.0`.
+### Cron Delivery: Slack + Morning Briefing
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| Next.js `-H` flag | Built-in | Bind dev server to specific host | `npx next dev -H 0.0.0.0 -p 3001` or `-H 100.72.143.9` |
-| `tailscale serve` | Built-in (Tailscale) | Optional: serve Next.js via Tailscale HTTPS | Provides automatic HTTPS cert via Tailscale. Maps tailnet hostname to local port. Alternative to direct IP binding |
+| Slack Socket Mode | Existing | Post build results to DM or #ops | Same delivery pattern as all other cron outputs |
+| Morning Briefing | Existing | Add "YOLO Dev" section to briefing | New Section 11 (or append to existing): last night's build result, project name, status, LOC |
 
-**Option A: Direct IP Binding (Recommended)**
-
-```bash
-# In systemd service or startup script
-npx next dev -H 100.72.143.9 -p 3001
-# Or for production:
-npx next start -H 100.72.143.9 -p 3001
-```
-
-Access at: `http://100.72.143.9:3001` from any device on the tailnet.
-
-**Option B: Tailscale Serve (If HTTPS Needed)**
-
-```bash
-# Serve Next.js through Tailscale with auto-HTTPS
-tailscale serve --bg 3001
-```
-
-Access at: `https://ec2-instance.tail-net-name.ts.net` with valid TLS cert.
-
-**Recommendation:** Start with Option A (direct IP binding). It matches the gateway pattern (gateway binds to 100.72.143.9:18789). Add `tailscale serve` later if HTTPS is needed for any reason.
-
-**Security:** Both options are safe — traffic only reaches the EC2 instance via Tailscale VPN. No public internet exposure.
-
-**Confidence:** HIGH — Next.js `-H` flag and `tailscale serve` are both well-documented. This is the same pattern used for the gateway.
-
-**Sources:**
-- [Next.js host binding](https://github.com/vercel/next.js/issues/4025)
-- [Tailscale serve docs](https://tailscale.com/kb/1242/tailscale-serve/)
-
----
-
-## 7. OpenClaw VPS Deployment Patterns (2026)
-
-### Current State: v2026.2.17, Latest Available: v2026.2.19-2
-
-| Aspect | Current (pops-claw) | Latest Available | Notes |
-|--------|---------------------|------------------|-------|
-| OpenClaw version | v2026.2.17 | v2026.2.19-2 | 2 minor releases behind. Not urgent — no security patches in .18/.19 |
-| Install method | Bare metal (`npm install -g`) | Docker recommended by community | Bare metal is fine for this deployment — already working, no migration benefit |
-| Node.js | 18.x on EC2 | 20.x+ recommended | Node.js 18 LTS is still supported. Upgrade to 20 is nice-to-have, not blocking |
-
-### v2026.2.19 New Features (Released Feb 19, 2026)
-
-| Feature | Relevance to pops-claw |
-|---------|----------------------|
-| Apple Watch companion MVP | NOT relevant — no Apple Watch integration planned |
-| iOS APNs wake-before-invoke | NOT relevant — no iOS app |
-| Runtime path containment security | GOOD — hardens plugin/hook security. Worth updating for |
-| Token Usage Dashboard layout fix | RELEVANT — fixes clipped cost figures in built-in dashboard |
-| `/check-updates` command | NICE — quick update check without full install |
-
-### v2026.2.18 Features (Inferred from version gap)
-
-Could not directly verify v2026.2.18 changelog. LOW confidence on this version's contents.
-
-### Community Deployment Best Practices (2026)
-
-| Practice | Status in pops-claw | Action Needed |
-|----------|-------------------|---------------|
-| Docker Compose deployment | Using bare metal npm | None — bare metal works, Docker migration is optional |
-| UFW firewall + SG restriction | Done (v2.0) | None |
-| Non-root execution | Done (ubuntu user) | None |
-| Gateway token auth | Done | None |
-| Systemd service with watchdog | Done (v2.0) | None |
-| Swap file for OOM prevention | Done (2GB, v2.0) | None |
-| Regular version updates | v2026.2.17 (2 behind) | Consider updating to v2026.2.19 for path containment security |
-| Observability hooks + SQLite | Done (v2.4, observability.db) | None — dashboard will read from this |
-| Plugin security audit | Done (SecureClaw v2.1) | None |
-
-### OpenClaw Studio / Community Dashboards
-
-Several community dashboard projects exist for OpenClaw:
-
-| Project | What It Does | Relevance |
-|---------|-------------|-----------|
-| **openclaw-studio** (grp06) | Web UI for gateway — agents, chat, approvals, cron config | Different purpose. Studio manages agents; Mission Control monitors metrics. Could complement, not replace |
-| **openclaw-dashboard** (tugcantopaloglu) | Auth + TOTP MFA, cost tracking, live feed, memory browser | Overlaps with Mission Control. But it's generic — doesn't know about this deployment's 5 databases, 7 agents, content pipeline |
-| **openclaw-mission-control** (manish-raana) | Convex + React task tracking dashboard | Uses Convex (which we're removing). Different architecture |
-
-**Recommendation:** Continue building custom Mission Control. The community dashboards are generic monitoring tools. The pops-claw Mission Control is purpose-built for this specific multi-agent system with 5 databases, content pipeline tracking, email metrics, and health data — none of the community tools provide this.
-
-### Update Recommendation
-
-**Do NOT update OpenClaw as part of v2.5 dashboard work.** The dashboard reads SQLite databases — it has zero dependency on the OpenClaw version. Update OpenClaw separately when the path containment security feature (v2026.2.19) is desired, following the established update procedure in findings.md.
-
-**Confidence:** MEDIUM on v2026.2.19 features (WebSearch summaries, not official changelog directly read). HIGH on deployment best practices (multiple guides agree). HIGH on "don't update as part of dashboard work" recommendation.
-
-**Sources:**
-- [OpenClaw npm](https://www.npmjs.com/package/openclaw) — v2026.2.19-2 latest
-- [OpenClaw releases](https://github.com/openclaw/openclaw/releases)
-- [OpenClaw v2026.2.17 security coverage](https://cybersecuritynews.com/openclaw-ai-framework-v2026-2-17/)
-- [OpenClaw v2026.2.19 release](https://github.com/openclaw/openclaw/releases/tag/v2026.2.19)
-- [OpenClaw Docker docs](https://docs.openclaw.ai/install/docker)
-- [OpenClaw VPS hosting guide](https://docs.openclaw.ai/vps)
-- [Self-host OpenClaw guide](https://cognio.so/clawdbot/self-hosting)
-- [DigitalOcean OpenClaw tutorial](https://www.digitalocean.com/community/tutorials/how-to-run-openclaw)
-- [openclaw-studio](https://github.com/grp06/openclaw-studio)
-- [openclaw-dashboard](https://github.com/tugcantopaloglu/openclaw-dashboard)
-
----
-
-## Full Installation Plan
-
-```bash
-# From ~/clawd/mission-control/ on EC2
-
-# 1. Initialize shadcn/ui (interactive setup)
-npx shadcn-ui@latest init
-
-# 2. Add dashboard components
-npx shadcn-ui@latest add card table badge tabs select separator skeleton
-npx shadcn-ui@latest add chart
-
-# 3. Install date-fns
-npm install date-fns
-
-# 4. shadcn init will install these automatically, but verify:
-# class-variance-authority, clsx, tailwind-merge, lucide-react, tw-animate-css
-
-# 5. Recharts is installed by `shadcn-ui add chart`
-
-# NO new database packages needed — better-sqlite3 already installed
-# NO SSE library needed — built-in ReadableStream
-# NO Convex — REMOVE @convex/react and convex from package.json
-```
-
-**Packages to REMOVE:**
-
-```bash
-npm uninstall convex @convex/react
-```
+**No new Slack channels.** Build results post to Bob's DM (same as evening recap). Morning briefing includes a YOLO summary line.
 
 ---
 
 ## Alternatives Considered
 
-| Recommended | Alternative | When to Use Alternative |
-|-------------|-------------|-------------------------|
-| shadcn/ui | Tremor | If you want zero-config analytics dashboard components. Tremor is higher-level but less flexible |
-| shadcn/ui | Material UI / Chakra UI | If you need an opinionated design system. shadcn/ui is better for custom designs with Tailwind |
-| Recharts (via shadcn) | Nivo | If you need Canvas rendering for large datasets (10k+ data points). Nivo is heavier but more powerful |
-| Recharts (via shadcn) | Chart.js via react-chartjs-2 | If you're already familiar with Chart.js. Recharts is more React-idiomatic |
-| SSE polling | WebSocket (ws) | If you need bidirectional communication. Dashboard is read-only, so SSE is sufficient |
-| SSE polling | Convex (current) | Never — removing Convex is a v2.5 goal |
-| date-fns | dayjs | If total bundle size is the primary concern and you don't need tree-shaking. dayjs is 2KB total |
-| Direct IP binding | tailscale serve | If you need HTTPS or want cleaner URLs via tailnet hostnames |
+| Category | Recommended | Alternative | Why Not |
+|----------|-------------|-------------|---------|
+| Build runtime | Python 3 (stdlib) in existing sandbox | Install Node.js in sandbox via setupCommand | Adds startup latency, requires `readOnlyRoot: false` + `network: bridge` (already true). Python stdlib covers 90% of prototype needs. If Node is genuinely needed for a specific build, Bob can install it on-demand |
+| Build runtime | Existing sandbox image | Build custom Docker image with full dev tooling | Custom images require maintenance, disk space (1-2GB+), and rebuilds on updates. The existing image plus on-demand installs is sufficient for prototyping |
+| Database | yolo.db (SQLite) | Extend coordination.db with yolo tables | coordination.db is for agent coordination, not feature data. Each domain gets its own DB (content.db, email.db, etc.) -- yolo.db follows this pattern |
+| Database | SQLite via CLI | Python sqlite3 module | Bob already uses sqlite3 CLI for all other databases. Consistency > convenience |
+| Artifact storage | Filesystem (~/clawd/yolo-dev/) | Git repo per project | Over-engineering for throwaway prototypes. Git adds complexity Bob would need to manage. If a project is worth keeping, Andy can `git init` manually |
+| Dashboard | New /yolo page in Mission Control | Separate yolo dashboard | Defeats the "single pane of glass" principle. Mission Control is where system state lives |
+| Agent | Bob (main agent) | New "Yolo" agent | Adding an 8th agent increases rate limit pressure, adds heartbeat overhead, needs Slack binding. Bob already has all the tools and context. A skill is sufficient |
+| Trigger | Nightly cron (1 AM PT) | On-demand via Slack DM | Cron ensures builds happen automatically (the whole point of "overnight"). On-demand can be added later as a secondary trigger via YOLO_DEV.md protocol doc (same pattern as CONTENT_TRIGGERS.md) |
+| Build framework | No framework (raw files) | Cookiecutter / copier templates | Templates constrain creativity. YOLO Dev is explicitly about wild ideas -- Bob should scaffold from scratch each time, informed by the skill's guidelines |
 
 ---
 
-## What NOT to Add in v2.5
+## What NOT to Add
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| Convex / any external real-time database | Goal is to eliminate external dependencies. SQLite files are already on disk | better-sqlite3 reads + SSE polling |
-| WebSocket library (ws, socket.io) | Dashboard is read-only — no client-to-server data flow needed | Server-Sent Events (native) |
-| Prisma / Drizzle ORM | Adds abstraction over 5 read-only databases with simple queries. better-sqlite3's prepared statements are cleaner for this use case | Direct better-sqlite3 queries |
-| TanStack Query (react-query) | Overkill for SSE streams. The `EventSource` API + `useState` is sufficient for a single-user dashboard | Native EventSource + React state |
-| Next.js 15 upgrade | Next.js 14.2.15 is stable and working. Upgrading framework during feature work adds risk | Stay on 14.2.15 for v2.5 |
-| Docker for Mission Control | Dashboard is a simple Next.js dev server. Containerizing adds complexity for no benefit on a single-user system | Direct `npx next dev` or `npx next start` |
-| Grafana / Prometheus | External monitoring stack is overkill for a personal dashboard reading local SQLite files | Custom Next.js dashboard reading SQLite directly |
+| Node.js in sandbox image | Adds 100MB+ to image, startup cost. Python stdlib covers prototyping needs | Python 3 (already there). For HTML/JS projects, Bob writes static files and uses `python3 -m http.server` |
+| pip packages pre-installed | Most prototypes should use stdlib. Pre-installed packages rot and bloat the image | On-demand `python3 -m ensurepip && pip install X` when genuinely needed (rare) |
+| New OpenClaw agent | Rate limit pressure, heartbeat overhead, Slack channel setup | Bob with a `yolo-dev` skill. One agent, one skill, one cron |
+| GitHub integration | Auto-pushing prototypes to GitHub adds OAuth setup, repo management, PR creation | Filesystem only. If a prototype is worth sharing, Andy pushes manually |
+| CI/CD for prototypes | Testing infrastructure for throwaway code is over-engineering | Bob tests his own code by running it. The skill includes a "testing" phase where Bob executes the prototype |
+| Custom Docker image | Maintenance burden, disk space, rebuild-on-update | Existing `clawdbot-sandbox:with-browser` image. It has python3, bash, curl, git |
+| Deployment/hosting | Serving prototypes publicly adds security surface and infrastructure | Prototypes run locally. If demo-able, `python3 -m http.server 8080` inside sandbox, accessible via SSH tunnel |
+| Build queuing system | Redis/RabbitMQ for build queues is enterprise-grade overkill | One build per cron run. Sequential. If it fails, it fails. Retry next night |
+| @tanstack/react-table | Interactive sortable/filterable tables for build history | shadcn Table component (static). Build history is at most dozens of rows. No interactivity needed |
+| WebSocket for build streaming | Real-time build log streaming to dashboard | SWR polling. Builds happen overnight when Andy is asleep. No one is watching live |
+
+---
+
+## Integration Points with Existing System
+
+### yolo.db Access Pattern
+
+**Writer:** Bob (main agent) via sqlite3 CLI inside Docker sandbox
+- Path inside sandbox: `/workspace/yolo-dev/yolo.db`
+- Bob creates the DB + schema on first build (idempotent CREATE TABLE IF NOT EXISTS)
+
+**Reader:** Mission Control via better-sqlite3
+- Path on host: `/home/ubuntu/clawd/yolo-dev/yolo.db`
+- Read-only, WAL mode, same singleton pattern as 5 existing databases
+
+**Bind-mount:** yolo-dev directory needs to be bind-mounted into the sandbox.
+- Current bind-mounts include `~/clawd/agents/main/` -> `/workspace/`
+- Since yolo-dev lives at `~/clawd/yolo-dev/` (NOT inside `agents/main/`), it needs its own bind-mount entry in `openclaw.json`:
+
+```json
+{
+  "agents": {
+    "defaults": {
+      "sandbox": {
+        "docker": {
+          "binds": [
+            "/home/ubuntu/clawd/yolo-dev:/workspace/yolo-dev:rw"
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+This adds the yolo-dev directory as a writable mount inside the sandbox at `/workspace/yolo-dev/`. Bob can create project directories, write code files, and update yolo.db from inside the sandbox.
+
+### Morning Briefing Integration
+
+Add a YOLO Dev section to the morning briefing reference doc (MORNING_BRIEFING.md or equivalent). The section queries yolo.db for the most recent build:
+
+```sql
+SELECT project_name, status, description, build_duration_seconds,
+       files_created, lines_of_code, error_message
+FROM builds
+ORDER BY created_at DESC
+LIMIT 1;
+```
+
+Displays as:
+```
+## 11. YOLO Dev
+Last night's build: **wifi-signal-mapper** (completed)
+"Maps WiFi signal strength across rooms using ping latency"
+Duration: 23 min | Files: 4 | LOC: 187
+```
+
+### Sandbox Environment Constraints
+
+| Constraint | Impact on YOLO Dev | Mitigation |
+|------------|-------------------|------------|
+| 2GB RAM (t3.small) | Python prototypes must be lightweight | Skill instructs: no ML, no large datasets, no heavy computation |
+| 40GB EBS disk | Build artifacts accumulate | Auto-cleanup: delete builds older than 30 days, keep last 20 builds |
+| Docker bridge networking | Prototypes CAN make HTTP requests | Useful for API-consuming prototypes. Security acceptable (sandbox still isolated from host) |
+| No GPU | No ML/AI training workloads | Skill explicitly excludes ML prototypes. Claude API calls from prototypes NOT supported (no API key in sandbox... and shouldn't be) |
+| readOnlyRoot may be true | Can't pip install if root FS is readonly | If needed, set `readOnlyRoot: false` in agent-specific sandbox override. Currently the sandbox uses setupCommand which implies writable root |
+
+### Cleanup Strategy
+
+Build artifacts at `~/clawd/yolo-dev/` will accumulate. Add a cleanup cron or integrate into existing `prune-sessions.sh` pattern:
+
+```bash
+# ~/scripts/prune-yolo-builds.sh
+# Keep last 20 builds, delete the rest
+cd ~/clawd/yolo-dev
+ls -dt */ | tail -n +21 | xargs rm -rf
+# Also purge yolo.db entries for deleted builds
+sqlite3 ~/clawd/yolo-dev/yolo.db "DELETE FROM build_files WHERE build_id NOT IN (SELECT id FROM builds ORDER BY created_at DESC LIMIT 20)"
+sqlite3 ~/clawd/yolo-dev/yolo.db "DELETE FROM build_logs WHERE build_id NOT IN (SELECT id FROM builds ORDER BY created_at DESC LIMIT 20)"
+sqlite3 ~/clawd/yolo-dev/yolo.db "DELETE FROM builds WHERE id NOT IN (SELECT id FROM builds ORDER BY created_at DESC LIMIT 20)"
+```
+
+---
+
+## Installation / Setup Summary
+
+```bash
+# On EC2 (100.72.143.9)
+
+# 1. Create yolo-dev directory
+mkdir -p ~/clawd/yolo-dev
+
+# 2. Add bind-mount to openclaw.json (via jq or python3)
+# Add "/home/ubuntu/clawd/yolo-dev:/workspace/yolo-dev:rw" to
+# agents.defaults.sandbox.docker.binds array
+
+# 3. Deploy yolo-dev skill
+mkdir -p ~/.openclaw/skills/yolo-dev
+# Write SKILL.md to ~/.openclaw/skills/yolo-dev/SKILL.md
+
+# 4. Deploy YOLO_DEV.md reference doc
+# Write to ~/clawd/agents/main/YOLO_DEV.md
+
+# 5. Add yolo-build cron to openclaw.json
+# Schedule: "0 8 * * *" (08:00 UTC = 1 AM PT)
+# Agent: main, Model: sonnet, Isolated: true
+
+# 6. Restart gateway (batch with any other config changes)
+systemctl --user restart openclaw-gateway.service
+
+# 7. DM Bob to re-establish session
+
+# Mission Control (also on EC2, ~/clawd/mission-control/):
+
+# 8. Update db-paths.ts to include yolo
+# 9. Create queries/yolo.ts
+# 10. Create /api/yolo/builds route
+# 11. Create /yolo page
+# 12. Add /yolo to nav
+# 13. Rebuild: cd ~/clawd/mission-control && npm run build
+# 14. Restart: systemctl --user restart mission-control.service
+```
+
+**Packages to install:** None.
+**Packages to remove:** None.
+**Docker images to build:** None.
+**New agents to configure:** None.
 
 ---
 
 ## Version Compatibility
 
-| Package | Compatible With | Notes |
-|---------|-----------------|-------|
-| `better-sqlite3@12.6.2` | Node.js 18.x, 20.x, 22.x | Already installed. Confirmed compatible with EC2's Node.js 18.x |
-| `recharts@3.7.0` | React 18.x (Next.js 14) | Latest stable. React 18 is minimum required |
-| `shadcn/ui` (latest) | Next.js 14+, Tailwind CSS 3.x | Works with existing Tailwind setup. Will also work with Tailwind v4 if upgraded later |
-| `date-fns@4.1` | ESM/CJS, any React version | Pure JS library, no framework constraints |
-| `lucide-react@0.469` | React 18+ | Installed by shadcn init |
-| `cron-parser@5.x` | Already installed | No changes needed |
+| Package | Version | Already Installed | Notes |
+|---------|---------|-------------------|-------|
+| better-sqlite3 | 12.6.2 | Yes | Opens yolo.db same as 5 existing DBs |
+| SWR | 2.3.3 | Yes | Polls /api/yolo/builds |
+| Next.js | 14.2.15 | Yes | /yolo page route |
+| shadcn/ui | Latest | Yes | Card, Badge, Table for build display |
+| Recharts | 3.7.0 | Yes | Build frequency chart |
+| date-fns | 3.6.0 | Yes | "2 days ago" timestamps |
+| Python 3 | 3.11 | Yes (in sandbox) | Prototype runtime |
+| sqlite3 CLI | Debian 12 compat | Yes (bind-mounted) | yolo.db writes from sandbox |
+| cron-parser | 5.x | Yes | Calendar page shows yolo-build cron |
 
 ---
 
-## Platform Constraints Reminder (Updated for v2.5)
+## Sources
 
-| Constraint | Impact on Dashboard |
-|-----------|-------------------|
-| EC2 is t3.small (2GB RAM + 2GB swap) | Next.js dev server uses ~150MB. Production build (`next start`) uses less. 5 SQLite readonly connections are negligible. Comfortable with existing headroom |
-| 5 SQLite databases on host filesystem | Dashboard must read from host paths, NOT Docker-internal paths. DB_DIR env var should point to `/home/ubuntu/clawd/agents/main/` (or wherever each DB lives) |
-| Gateway binds tailnet (100.72.143.9:18789) | Dashboard should follow same pattern — bind to 100.72.143.9:3001 for Tailscale-direct access |
-| Server is UTC, user is PT | All date formatting must use client-side rendering (useEffect) to avoid hydration mismatches. Learned from existing cron page hydration fix |
-| Non-interactive SSH for management | Dashboard systemd service (if created) needs same patterns as gateway service |
+### HIGH confidence
+- [OpenClaw Sandboxing Docs](https://docs.openclaw.ai/gateway/sandboxing) -- sandbox configuration, bind-mounts, default tools, setupCommand
+- [OpenClaw Agent Workspace Docs](https://docs.openclaw.ai/concepts/agent-workspace) -- workspace file access, writable paths
+- Phase 6 Summary (project internal) -- sqlite3 glibc compatibility fix, bind-mount patterns
+- Phase 29 Research (project internal) -- better-sqlite3 singleton pattern, DB_PATHS registry, WAL mode
+- PROJECT.md (project internal) -- existing 5 databases, 13 skills, 20 crons, sandbox architecture
+- MEMORY.md (project internal) -- sandbox details, bind-mount patterns, Docker image `clawdbot-sandbox:with-browser`
 
----
+### MEDIUM confidence
+- [Docker Blog: OpenClaw Sandbox Security](https://www.docker.com/blog/run-openclaw-securely-in-docker-sandboxes/) -- sandbox image contents, security considerations
+- [OpenClaw GitHub: Dockerfile.sandbox](https://github.com/openclaw/openclaw/blob/main/Dockerfile.sandbox) -- default sandbox image includes python3, bash, curl, git, jq, ripgrep
+- [Ralph Wiggum Pattern for Autonomous Builds](https://beyond.addy.ie/2026-trends/) -- autonomous loop patterns, guardrails, iteration limits
 
-## Sources Summary
-
-| Source | Confidence | What It Informs |
-|--------|-----------|-----------------|
-| [better-sqlite3 npm](https://www.npmjs.com/package/better-sqlite3) | HIGH | v12.6.2 latest, readonly + WAL pattern |
-| [SQLite WAL documentation](https://sqlite.org/wal.html) | HIGH | Concurrent readers don't block writers |
-| [Next.js singleton pattern](https://github.com/vercel/next.js/discussions/68572) | HIGH | globalThis for database instances |
-| [shadcn/ui Next.js install](https://ui.shadcn.com/docs/installation/next) | HIGH | Component installation procedure |
-| [shadcn/ui charts](https://ui.shadcn.com/docs/components/radix/chart) | HIGH | Recharts integration, chart primitives |
-| [Recharts npm](https://www.npmjs.com/package/recharts) | HIGH | v3.7.0 latest stable |
-| [SSE in Next.js guide](https://medium.com/@ammarbinshakir557/implementing-server-sent-events-sse-in-node-js-with-next-js-a-complete-guide-1adcdcb814fd) | MEDIUM | ReadableStream SSE pattern |
-| [SSE vs WebSockets in Next.js](https://hackernoon.com/streaming-in-nextjs-15-websockets-vs-server-sent-events) | MEDIUM | SSE sufficient for unidirectional feeds |
-| [date-fns vs dayjs](https://www.dhiwise.com/post/date-fns-vs-dayjs-the-battle-of-javascript-date-libraries) | HIGH | Tree-shaking advantage, ecosystem fit |
-| [Next.js host binding](https://github.com/vercel/next.js/issues/4025) | HIGH | -H flag for non-localhost binding |
-| [Tailscale serve docs](https://tailscale.com/kb/1242/tailscale-serve/) | HIGH | Alternative HTTPS access pattern |
-| [OpenClaw npm](https://www.npmjs.com/package/openclaw) | HIGH | v2026.2.19-2 latest version info |
-| [OpenClaw releases](https://github.com/openclaw/openclaw/releases) | MEDIUM | v2026.2.19 feature summary |
-| [OpenClaw VPS docs](https://docs.openclaw.ai/vps) | HIGH | Deployment best practices |
-| [openclaw-studio](https://github.com/grp06/openclaw-studio) | MEDIUM | Community dashboard comparison |
-| [React chart library comparison](https://blog.logrocket.com/best-react-chart-libraries-2025/) | MEDIUM | Recharts vs alternatives |
+### LOW confidence
+- None. All recommendations are based on existing validated patterns in this project.
 
 ---
 
-*Stack research for: pops-claw v2.5 Mission Control Dashboard*
-*Researched: 2026-02-20*
+*Stack research for: pops-claw v2.7 YOLO Dev -- overnight autonomous builder*
+*Researched: 2026-02-24*
+*Replaces: previous STACK.md covering v2.5 Mission Control Dashboard stack*

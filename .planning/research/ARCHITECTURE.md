@@ -1,829 +1,772 @@
-# Architecture: Mission Control Dashboard v2.5
+# Architecture: YOLO Dev Integration with Existing OpenClaw System
 
-**Domain:** Next.js 14 dashboard integrating 5 SQLite databases + OpenClaw gateway for personal AI companion monitoring
-**Researched:** 2026-02-20
-**Confidence:** HIGH (Next.js patterns, SQLite access), MEDIUM (OpenClaw gateway API, Tailscale binding)
+**Domain:** Autonomous overnight prototype builder integrated into existing multi-agent OpenClaw deployment
+**Researched:** 2026-02-24
+**Confidence:** HIGH (integration patterns proven across 6 milestones), MEDIUM (code execution safety in Docker sandbox)
 
 ---
 
 ## System Context: What Already Exists
 
 ```
-EC2 (100.72.143.9) -- Tailscale
+EC2 (100.72.143.9) -- Tailscale -- t3.small (2GB RAM + 2GB swap)
 |
 +-- OpenClaw Gateway :18789 (tailnet bind)
 |   +-- 7 agents (main, landos, rangeos, ops, quill, sage, ezra)
-|   +-- 20 cron jobs
-|   +-- 13 skills
-|   +-- Session JSONL: ~/.openclaw/agents/<id>/sessions/*.jsonl
+|   +-- 20 cron jobs (staggered across agents)
+|   +-- 13 skills (~/.openclaw/skills/)
+|   +-- Config: ~/.openclaw/openclaw.json
+|   +-- Service: openclaw-gateway.service (systemd user)
 |
-+-- SQLite Databases (~/clawd/agents/main/)
++-- SQLite Databases (~/clawd/)
 |   +-- coordination.db -- agent coordination, standup data
-|   +-- health.db ------- Oura Ring metrics (sleep, readiness, HRV, HR)
-|   +-- content.db ------ content pipeline (topics, articles, reviews)
-|   +-- email.db -------- email tracking (sent, received, bounced, quota)
-|   +-- observability.db  LLM usage (tokens, models, turns per agent)
+|   +-- health.db ------- Oura Ring metrics
+|   +-- content.db ------ content pipeline (topics, articles)
+|   +-- email.db -------- email tracking
+|   +-- observability.db  LLM usage (tokens, models, turns)
 |
 +-- Mission Control (~/clawd/mission-control/)
-|   +-- Next.js 14.2.15 + Tailwind + better-sqlite3
-|   +-- Dev server: 127.0.0.1:3001 (SSH tunnel required)
-|   +-- Current: Convex activity feed (to be replaced)
-|   +-- Current: coordination.db for calendar tasks
+|   +-- Next.js 14.2.15 + Tailwind + SWR + better-sqlite3
+|   +-- Port 3001 (Tailscale direct)
+|   +-- Pages: /, /agents, /memory, /office, /content, /analytics, /calendar
+|   +-- Pattern: query module -> API route -> SWR poll -> component
 |
-+-- Docker Sandbox (agent runtime, network=bridge)
-    +-- /workspace/ = ~/clawd/agents/main/ (bind-mount)
-    +-- DBs accessible inside sandbox AND on host
++-- Docker Sandbox (agent runtime, network=bridge, read-only FS)
+    +-- /workspace/ = ~/clawd/agents/{agent_id}/ (bind-mount, rw)
+    +-- Explicit bind overlays for shared DBs:
+    |   content.db, coordination.db, email.db -> /workspace/*.db
+    +-- Host binaries: sqlite3, gh -> /usr/bin/* (bind-mount, ro)
+    +-- Agents write code, run sqlite3 CLI, execute shell commands
 ```
 
-**Key constraint:** Next.js runs on the EC2 host (not in Docker). It has direct filesystem access to all 5 SQLite databases. No network hop needed for DB reads. This is the single biggest architectural advantage -- use it.
+**Key insight for YOLO Dev:** Bob (agent `main`) already executes arbitrary shell commands inside the Docker sandbox. He already writes files to `/workspace/`. He already uses sqlite3 CLI to read/write SQLite databases. YOLO Dev does not require new execution infrastructure -- it requires a new SKILL that instructs Bob on what to build, where to put it, and how to log it.
 
 ---
 
 ## Recommended Architecture
 
-### System Overview
+### Overview: YOLO Dev as a Cron-Triggered Skill
+
+YOLO Dev follows the exact pattern established by the content pipeline (v2.1):
 
 ```
-                    Tailscale Network
-                         |
-                    100.72.143.9:3001
-                         |
-+--------------------------------------------------------+
-|                   Next.js 14 App Router                |
-|                                                        |
-|  +------------------+    +------------------------+    |
-|  | Server Components|    | API Route Handlers     |    |
-|  | (pages, layouts) |    | /api/agents/[id]       |    |
-|  |                  |    | /api/activity           |    |
-|  | Direct DB reads  |    | /api/crons             |    |
-|  | via db modules   |    | /api/email/stats        |    |
-|  +--------+---------+    | /api/content/pipeline   |    |
-|           |              +----------+--------------+    |
-|           |                         |                   |
-|  +--------+-------------------------+----------+       |
-|  |              Database Layer (lib/db/)        |       |
-|  |                                              |       |
-|  |  +-------------+  +--------------+           |       |
-|  |  | db/index.ts  |  | db/queries/  |          |       |
-|  |  | (singletons) |  | (prepared    |          |       |
-|  |  |              |  |  statements) |          |       |
-|  |  +------+-------+  +------+------+           |       |
-|  |         |                 |                   |       |
-|  +---------+-----------------+-------------------+       |
-|            |                                             |
-+------------|---------------------------------------------+
-             |
-    +--------+-------------------------------------------+
-    |              SQLite Files (read-only access)        |
-    |                                                    |
-    |  coordination.db  health.db  content.db            |
-    |  email.db  observability.db                        |
-    +----------------------------------------------------+
-             |
-    +--------+-------------------------------------------+
-    |          Client Components ("use client")          |
-    |                                                    |
-    |  +------------+  +-----------+  +------------+    |
-    |  | Dashboard   |  | Agent     |  | Activity   |    |
-    |  | Status Cards|  | Board     |  | Feed       |    |
-    |  | (SWR poll)  |  | (SWR poll)|  | (SWR poll) |    |
-    |  +------------+  +-----------+  +------------+    |
-    +----------------------------------------------------+
+Cron fires at 11 PM PT
+    -> OpenClaw creates session for agent "main" (Bob)
+    -> Bob reads YOLO_SESSION.md from /workspace/
+    -> Bob picks an idea (from YOLO_IDEAS.md or generates one)
+    -> Bob builds prototype in /workspace/yolo-dev/{project-slug}/
+    -> Bob logs build to yolo.db via sqlite3 CLI
+    -> Bob posts summary to Slack channel
+    -> Mission Control reads yolo.db via /api/yolo route
+    -> /yolo page displays build history
 ```
 
-### Component Responsibilities
+### What Is New vs What Is Modified
 
-| Component | Responsibility | Implementation |
-|-----------|---------------|----------------|
-| Database Layer (`lib/db/`) | Singleton better-sqlite3 connections to all 5 DBs; prepared statements for common queries | Module-level singletons, WAL mode, `readonly: true` for all DBs |
-| Server Components (pages) | Initial page render with fresh data; no client JS for static content | Direct import of db query functions; no fetch() needed |
-| API Route Handlers (`/api/`) | JSON endpoints for client-side polling via SWR | Call same db query functions; return JSON; 5-30s cache headers |
-| Client Components | Interactive UI, auto-refreshing status cards, activity feed with polling | SWR with `refreshInterval`, "use client" directive |
-| Status Cards | At-a-glance system health: agent heartbeats, cron success, email quota | Server-rendered initial, SWR-polled updates every 30s |
-| Activity Feed | Chronological stream of agent actions, cron runs, emails | Replaces Convex; reads coordination.db + observability.db |
-| Agent Board | Per-agent detail: heartbeat status, work queue, token usage, last action | Reads coordination.db + observability.db per agent |
-| Content Pipeline | Article status counts and flow visualization | Reads content.db `articles` table grouped by status |
-| Email Metrics | Sent/received counts, bounce rate, quota usage | Reads email.db aggregate queries |
+| Component | Status | Action |
+|-----------|--------|--------|
+| `yolo-dev` skill | **NEW** | `~/.openclaw/skills/yolo-dev/SKILL.md` |
+| `yolo-dev-overnight` cron | **NEW** | Added to openclaw.json crons array |
+| `YOLO_SESSION.md` | **NEW** | `/workspace/YOLO_SESSION.md` (cron reference doc) |
+| `YOLO_IDEAS.md` | **NEW** | `/workspace/YOLO_IDEAS.md` (idea bank) |
+| `yolo.db` | **NEW** | `~/clawd/yolo.db` (shared via bind-mount) |
+| `~/clawd/yolo-dev/` | **NEW** | Build artifact directory on host |
+| MC query module | **NEW** | `src/lib/queries/yolo.ts` |
+| MC API route | **NEW** | `src/app/api/dashboard/yolo/route.ts` |
+| MC page | **NEW** | `src/app/yolo/page.tsx` + client component |
+| MC navbar | **MODIFY** | Add /yolo link to existing NavBar |
+| MC db layer | **MODIFY** | Add yolo.db to `DB_PATHS` in `src/lib/db-paths.ts` |
+| openclaw.json | **MODIFY** | Add cron job + bind-mount for yolo.db + yolo-dev/ |
+| MEMORY.md | **MODIFY** | Add YOLO Dev section (brief, <10 lines) |
+
+**Zero new npm packages.** Zero new agents. Zero new Slack channels. Bob is the builder.
 
 ---
 
-## Database Layer: The Core Pattern
+## Component Boundaries
 
-### Singleton Module with Read-Only Connections
+### 1. YOLO Dev Skill (`~/.openclaw/skills/yolo-dev/SKILL.md`)
 
-**This is the most important architectural decision.** better-sqlite3 is synchronous. Opening multiple connections per request is wasteful and risks file locking issues. Use module-level singletons with WAL mode and read-only access.
+**Responsibility:** Define what Bob does during a YOLO Dev session. This is the brain.
 
-```typescript
-// lib/db/index.ts
-import Database from 'better-sqlite3';
-import path from 'path';
+**Key sections:**
+- **Idea Selection:** Read YOLO_IDEAS.md for pending ideas. If empty, generate an idea based on project context (Andy's interests from MEMORY.md) and current trends
+- **Tech Stack Constraint:** Python + HTML/CSS/JS only. No npm install, no pip install beyond stdlib + what's available in sandbox. This prevents build failures from missing dependencies
+- **Build Protocol:** Create directory, write code, test by running it, capture output
+- **Logging Protocol:** INSERT into yolo.db with project name, description, tech stack, status, artifacts path, build log
+- **Time Budget:** Single session, ~45 min target. Don't try to build a SaaS -- build a working demo
+- **Failure Protocol:** If build fails, log the failure with error details. Partial builds are fine. Never delete a failed attempt
 
-const DB_BASE = process.env.DB_PATH || '/home/ubuntu/clawd/agents/main';
+**Pattern precedent:** Follows exact SKILL.md structure from `seo-writer`, `content-editor`, `coding-assistant` skills. Same markdown format, same section headers.
 
-function openDb(filename: string): Database.Database {
-  const db = new Database(path.join(DB_BASE, filename), {
-    readonly: true,
-    fileMustExist: true,
-  });
-  db.pragma('journal_mode = WAL');
-  db.pragma('busy_timeout = 3000');
-  return db;
-}
+### 2. Cron Job (`yolo-dev-overnight`)
 
-// Module-level singletons -- created once, reused across requests
-export const coordinationDb = openDb('coordination.db');
-export const healthDb = openDb('health.db');
-export const contentDb = openDb('content.db');
-export const emailDb = openDb('email.db');
-export const observabilityDb = openDb('observability.db');
-```
+**Responsibility:** Trigger YOLO Dev session at a low-activity time.
 
-**Why `readonly: true`:** Mission Control is a monitoring dashboard. It NEVER writes to these databases. The agents (running in Docker) and cron hooks are the writers. Opening read-only prevents accidental writes and avoids WAL checkpoint contention with the writer processes.
-
-**Why WAL mode:** SQLite WAL allows concurrent readers without blocking writers. The OpenClaw agents write to these databases while Mission Control reads. WAL mode is essential -- without it, a long-running dashboard query could block an agent's write, or vice versa.
-
-**Why singletons:** better-sqlite3 connections are lightweight but opening them per-request is unnecessary overhead. Module-level singletons survive across requests in the same Node.js process. In development with hot reload, Next.js may re-execute the module -- this is fine; a new read-only connection replaces the old one.
-
-### Prepared Statements for Common Queries
-
-```typescript
-// lib/db/queries/agents.ts
-import { coordinationDb, observabilityDb } from '../index';
-
-// Prepare once, execute many times -- better-sqlite3 caches compiled SQL
-const getAgentStatusStmt = coordinationDb.prepare(`
-  SELECT agent_id, last_heartbeat, status, last_action
-  FROM agent_status
-  ORDER BY last_heartbeat DESC
-`);
-
-const getTokenUsageStmt = observabilityDb.prepare(`
-  SELECT agent_id,
-         SUM(input_tokens) as total_input,
-         SUM(output_tokens) as total_output,
-         COUNT(*) as turn_count,
-         model
-  FROM llm_usage
-  WHERE timestamp > datetime('now', '-24 hours')
-  GROUP BY agent_id, model
-`);
-
-export function getAgentStatuses() {
-  return getAgentStatusStmt.all();
-}
-
-export function getTokenUsage24h() {
-  return getTokenUsageStmt.all();
+```json
+{
+  "id": "yolo-dev-overnight",
+  "name": "YOLO Dev Overnight Build",
+  "schedule": "0 6 * * *",
+  "description": "Autonomous overnight prototype build",
+  "kind": "agentTurn",
+  "agentId": "main",
+  "message": "Read /workspace/YOLO_SESSION.md and follow the YOLO Dev build protocol. Pick a project idea, build a working prototype, log results to yolo.db.",
+  "sessionTarget": "main",
+  "model": "sonnet",
+  "isolated": true,
+  "silentOnNoDelivery": false
 }
 ```
 
-**Why prepared statements:** better-sqlite3 compiles SQL once and reuses the compiled statement. For a dashboard making the same queries every 30 seconds, this eliminates repeated SQL parsing overhead.
+**Schedule:** `0 6 * * *` = midnight PT (UTC-8 offset, 6 AM UTC). Runs daily. Can be adjusted to skip weekends if desired.
+
+**Why `isolated: true`:** YOLO Dev sessions are long and resource-intensive. Isolating ensures no interference with morning briefing (which fires at 6 AM PT = 2 PM UTC) or other cron jobs.
+
+**Why `model: "sonnet"`:** Sonnet is the sweet spot -- fast enough for code generation, smart enough for architecture decisions. Opus would be overkill and consume rate limit budget. Haiku is too limited for multi-file code generation.
+
+**Why `agentId: "main"` (Bob):** Bob has the broadest context -- access to MEMORY.md, all shared DBs, GitHub CLI, sqlite3, and the most workspace files. Creating a new "yolo" agent would require duplicating all these bind-mounts and building up agent context from scratch. Bob already builds code via the `coding-assistant` skill.
+
+### 3. Session Reference Doc (`YOLO_SESSION.md`)
+
+**Responsibility:** Detailed instructions for the cron session. Keeps the cron message concise while providing rich context.
+
+**Pattern precedent:** Same as MEETING_PREP.md, STANDUP.md, WRITING_SESSION.md, REVIEW_SESSION.md, PUBLISH_SESSION.md -- all existing cron reference docs.
+
+**Location:** `~/clawd/agents/main/YOLO_SESSION.md` (mapped to `/workspace/YOLO_SESSION.md` in sandbox)
+
+**Contents:**
+```markdown
+# YOLO Dev Session Protocol
+
+## Step 1: Select Project
+- Check /workspace/YOLO_IDEAS.md for pending ideas (priority 1 first)
+- If no pending ideas, generate one based on your knowledge of Andy's interests
+- Ideas should be achievable in a single session (~45 min of coding)
+
+## Step 2: Initialize Project
+- Create /workspace/yolo-dev/{date}-{slug}/ directory
+- Start a BUILD_LOG.md in the project directory
+
+## Step 3: Build
+- Default stack: Python 3 + HTML/CSS/JS
+- Available tools: python3, sqlite3, curl, bash
+- Write clean, commented code
+- Test by running: `python3 main.py` or `python3 -m http.server`
+- Capture test output in BUILD_LOG.md
+
+## Step 4: Log to Database
+- Log the build to /workspace/yolo.db using sqlite3 CLI:
+  INSERT INTO builds (date, project_name, slug, description, tech_stack,
+    status, artifacts_path, build_log, idea_source, lines_of_code,
+    files_created, created_at)
+  VALUES (...)
+
+## Step 5: Report
+- Post summary to channel:D0AARQR0Y4V (Andy's DM)
+- Include: project name, what it does, status (complete/partial/failed),
+  lines of code, and one-sentence takeaway
+```
+
+### 4. Idea Bank (`YOLO_IDEAS.md`)
+
+**Responsibility:** Curated list of project ideas that Bob can pick from. Andy adds ideas; Bob consumes them.
+
+**Location:** `~/clawd/agents/main/YOLO_IDEAS.md` (in workspace)
+
+**Format:**
+```markdown
+# YOLO Dev Ideas
+
+## Pending
+- [ ] **CLI Weather Dashboard** - Terminal weather display using NOAA API. Python + curses. Priority: 1
+- [ ] **Markdown Resume Generator** - Parse YAML resume data, output styled HTML. Python + Jinja2. Priority: 2
+- [ ] **SQLite Query Analyzer** - Parse .db files and suggest indexes. Python + sqlite3. Priority: 2
+
+## Completed
+- [x] **First Build** - Description (2026-02-25)
+
+## Rules
+- Pick highest priority (1 = do next, 2 = whenever, 3 = someday)
+- If all pending ideas are priority 3 or lower, generate your own
+- After building, move the idea to Completed with the date
+- Andy adds ideas here anytime; Bob only consumes, never adds to Pending
+```
+
+**Why a static file, not a DB table:** Ideas are curated by Andy (human). He'll edit this file via Slack DM to Bob or directly. A text file is simpler to view and edit than a database table. The ideas list will be small (5-20 items). No need for queryability.
+
+### 5. Build Artifacts Directory (`~/clawd/yolo-dev/`)
+
+**Responsibility:** Persistent storage for all YOLO Dev build outputs.
+
+**Host path:** `~/clawd/yolo-dev/`
+**Container path:** `/workspace/yolo-dev/` (via bind-mount in agents.defaults.sandbox.docker.binds)
+
+**Directory structure:**
+```
+~/clawd/yolo-dev/
++-- 2026-02-25-cli-weather/
+|   +-- main.py
+|   +-- templates/
+|   +-- BUILD_LOG.md
+|   +-- README.md
++-- 2026-02-26-resume-gen/
+|   +-- main.py
+|   +-- resume.yaml
+|   +-- output.html
+|   +-- BUILD_LOG.md
++-- ...
+```
+
+**Convention:** `{YYYY-MM-DD}-{slug}/` directories. Date prefix ensures chronological ordering in `ls`. Slug matches the yolo.db `slug` column.
+
+**Why `~/clawd/yolo-dev/` and not inside the agent workspace (`~/clawd/agents/main/yolo-dev/`):** Build artifacts should persist independently of agent workspace management. The `~/clawd/` directory is the project root where all persistent data lives (content.db, coordination.db, mission-control/). Keeping yolo-dev at the same level is consistent. Also, if the agent workspace is ever reset or pruned, build artifacts survive.
+
+**Bind-mount configuration** (add to openclaw.json `agents.defaults.sandbox.docker.binds`):
+```json
+"/home/ubuntu/clawd/yolo-dev:/workspace/yolo-dev:rw"
+```
+
+### 6. YOLO Database (`yolo.db`)
+
+**Responsibility:** Track all builds with metadata, status, and logs.
+
+**Host path:** `~/clawd/yolo.db`
+**Container path:** `/workspace/yolo.db` (explicit bind-mount overlay, same pattern as content.db)
+
+**Schema:**
+
+```sql
+CREATE TABLE IF NOT EXISTS builds (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,                    -- YYYY-MM-DD
+    project_name TEXT NOT NULL,            -- Human-readable name
+    slug TEXT NOT NULL UNIQUE,             -- URL-safe identifier
+    description TEXT,                      -- What this project does
+    tech_stack TEXT DEFAULT 'python',      -- python, python+html, bash, etc.
+    status TEXT DEFAULT 'building',        -- building, complete, partial, failed
+    artifacts_path TEXT,                   -- Relative path: yolo-dev/2026-02-25-weather/
+    build_log TEXT,                        -- Full build log (stdout + decisions)
+    idea_source TEXT DEFAULT 'generated',  -- 'ideas-file' or 'generated'
+    lines_of_code INTEGER DEFAULT 0,      -- Total LOC produced
+    files_created INTEGER DEFAULT 0,      -- Number of files created
+    duration_minutes INTEGER,             -- Approximate build duration
+    error_message TEXT,                   -- If failed, why
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS build_files (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    build_id INTEGER NOT NULL REFERENCES builds(id),
+    file_path TEXT NOT NULL,              -- Relative to artifacts_path
+    file_type TEXT,                       -- py, html, css, js, md, etc.
+    line_count INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_builds_date ON builds(date DESC);
+CREATE INDEX IF NOT EXISTS idx_builds_status ON builds(status);
+CREATE INDEX IF NOT EXISTS idx_build_files_build_id ON build_files(build_id);
+```
+
+**Why two tables:** `builds` is the summary Bob writes during the session. `build_files` is optional enrichment -- Bob can log individual files for the Mission Control UI to show a file tree. If this is too complex for v1, skip `build_files` and just use `files_created` count in `builds`.
+
+**Bind-mount configuration** (add to openclaw.json `agents.defaults.sandbox.docker.binds`):
+```json
+"/home/ubuntu/clawd/yolo.db:/workspace/yolo.db:rw"
+```
+
+**DB creation:** The YOLO Dev skill instructions tell Bob to create the tables on first run using sqlite3 CLI `CREATE TABLE IF NOT EXISTS`. No migration infrastructure needed.
+
+### 7. Mission Control Integration
+
+**Pattern:** Identical to every other MC subsystem (content, email, agents, crons).
+
+#### Query Module: `src/lib/queries/yolo.ts`
+
+```typescript
+// src/lib/queries/yolo.ts
+import { getDb } from "@/lib/db";
+
+export function getYoloBuilds(limit = 20, offset = 0) {
+  const db = getDb("yolo");
+  if (!db) return { builds: [], total: 0 };
+
+  const total = db.prepare("SELECT COUNT(*) as cnt FROM builds").get() as { cnt: number };
+  const builds = db.prepare(`
+    SELECT id, date, project_name, slug, description, tech_stack,
+           status, artifacts_path, idea_source, lines_of_code,
+           files_created, duration_minutes, error_message, created_at
+    FROM builds
+    ORDER BY date DESC, created_at DESC
+    LIMIT ? OFFSET ?
+  `).all(limit, offset);
+
+  return { builds, total: total.cnt };
+}
+
+export function getYoloStats() {
+  const db = getDb("yolo");
+  if (!db) return { total: 0, complete: 0, failed: 0, totalLoc: 0, streak: 0 };
+
+  const stats = db.prepare(`
+    SELECT
+      COUNT(*) as total,
+      SUM(CASE WHEN status = 'complete' THEN 1 ELSE 0 END) as complete,
+      SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed,
+      SUM(CASE WHEN status = 'partial' THEN 1 ELSE 0 END) as partial,
+      SUM(lines_of_code) as totalLoc,
+      SUM(files_created) as totalFiles
+    FROM builds
+  `).get();
+
+  return stats;
+}
+
+export function getYoloBuild(slug: string) {
+  const db = getDb("yolo");
+  if (!db) return null;
+
+  const build = db.prepare(`
+    SELECT * FROM builds WHERE slug = ?
+  `).get(slug);
+
+  return build;
+}
+```
+
+#### API Route: `src/app/api/dashboard/yolo/route.ts`
+
+```typescript
+export const dynamic = "force-dynamic";
+
+import { NextResponse } from "next/server";
+import { getYoloBuilds, getYoloStats } from "@/lib/queries/yolo";
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const offset = parseInt(searchParams.get("offset") || "0");
+
+    const { builds, total } = getYoloBuilds(limit, offset);
+    const stats = getYoloStats();
+
+    return NextResponse.json({ builds, total, stats });
+  } catch (error) {
+    return NextResponse.json(
+      { builds: [], total: 0, stats: { total: 0, complete: 0, failed: 0, totalLoc: 0 }, error: String(error) },
+      { status: 500 }
+    );
+  }
+}
+```
+
+#### Page: `src/app/yolo/page.tsx`
+
+**Layout concept:**
+```
+/yolo
++-- Stats Row (SWR 30s poll)
+|   +-- Total Builds (count)
+|   +-- Success Rate (complete / total %)
+|   +-- Total LOC (sum)
+|   +-- Current Streak (consecutive successful builds)
+|
++-- Build History (scrollable list/grid)
+    +-- BuildCard per build:
+        +-- Date + Project Name
+        +-- Status badge (complete=green, partial=yellow, failed=red)
+        +-- Description (1-2 lines)
+        +-- Tech stack tag
+        +-- LOC count + file count
+        +-- Expandable: build log, error message
+```
+
+**UI components:** Uses existing shadcn Card, Badge, StatusCard patterns from Phase 30. No new UI libraries.
+
+#### DB Layer Update: `src/lib/db-paths.ts`
+
+Add one entry:
+```typescript
+yolo: "/home/ubuntu/clawd/yolo.db"
+```
+
+And extend the `DbName` type to include `"yolo"`.
 
 ---
 
-## Data Flow Patterns
-
-### Pattern 1: Server Component Initial Render (No Polling)
-
-**What:** Server Components read directly from SQLite during SSR. No API route, no fetch, no network hop. The query runs in the same Node.js process as the page render.
-
-**When to use:** Pages that load with data but don't need auto-refresh (calendar page, settings, historical views).
-
-**Trade-offs:**
-- Pro: Zero client JS for data fetching. Fastest possible initial load.
-- Pro: No API layer to maintain for read-only views.
-- Con: Data is stale after initial render unless client-side polling is added.
-
-```typescript
-// app/dashboard/page.tsx (Server Component -- default in App Router)
-import { getAgentStatuses } from '@/lib/db/queries/agents';
-import { getContentPipelineCounts } from '@/lib/db/queries/content';
-import { getEmailStats } from '@/lib/db/queries/email';
-import { DashboardClient } from './dashboard-client';
-
-export const dynamic = 'force-dynamic'; // Always fresh data, no caching
-
-export default function DashboardPage() {
-  // These run server-side, synchronously, no await needed for better-sqlite3
-  const agents = getAgentStatuses();
-  const pipeline = getContentPipelineCounts();
-  const emailStats = getEmailStats();
-
-  return (
-    <DashboardClient
-      initialAgents={agents}
-      initialPipeline={pipeline}
-      initialEmailStats={emailStats}
-    />
-  );
-}
-```
-
-### Pattern 2: SWR Polling for Live Updates (Client Components)
-
-**What:** Client components use SWR with `refreshInterval` to poll API routes for updated data. Server-rendered initial data is passed as `fallbackData` to avoid a loading flash.
-
-**When to use:** Dashboard cards, activity feed, agent board -- anything that should update without page reload.
-
-**Trade-offs:**
-- Pro: Near-real-time updates without WebSocket complexity.
-- Pro: SWR deduplicates requests, handles errors, auto-retries.
-- Con: Polling adds server load (mitigated by 30s intervals and lightweight SQLite queries).
-
-```typescript
-// app/dashboard/dashboard-client.tsx
-'use client';
-
-import useSWR from 'swr';
-
-const fetcher = (url: string) => fetch(url).then(r => r.json());
-
-export function DashboardClient({ initialAgents, initialPipeline, initialEmailStats }) {
-  const { data: agents } = useSWR('/api/agents', fetcher, {
-    fallbackData: initialAgents,
-    refreshInterval: 30_000,  // 30 seconds
-  });
-
-  const { data: pipeline } = useSWR('/api/content/pipeline', fetcher, {
-    fallbackData: initialPipeline,
-    refreshInterval: 60_000,  // 1 minute -- content changes slowly
-  });
-
-  const { data: emailStats } = useSWR('/api/email/stats', fetcher, {
-    fallbackData: initialEmailStats,
-    refreshInterval: 60_000,
-  });
-
-  return (
-    <div className="grid grid-cols-3 gap-4">
-      <AgentStatusCards agents={agents} />
-      <PipelineOverview pipeline={pipeline} />
-      <EmailMetrics stats={emailStats} />
-    </div>
-  );
-}
-```
-
-### Pattern 3: API Route Handlers (JSON Endpoints)
-
-**What:** Thin Route Handlers that call the same query functions used by Server Components. Return JSON for SWR consumers.
-
-**When to use:** Every data endpoint that client components poll.
-
-```typescript
-// app/api/agents/route.ts
-import { NextResponse } from 'next/server';
-import { getAgentStatuses } from '@/lib/db/queries/agents';
-import { getTokenUsage24h } from '@/lib/db/queries/agents';
-
-export const dynamic = 'force-dynamic';
-
-export async function GET() {
-  const statuses = getAgentStatuses();
-  const usage = getTokenUsage24h();
-
-  // Merge agent status with token usage
-  const agents = statuses.map(agent => ({
-    ...agent,
-    usage: usage.filter(u => u.agent_id === agent.agent_id),
-  }));
-
-  return NextResponse.json(agents, {
-    headers: { 'Cache-Control': 'no-store' },
-  });
-}
-```
-
----
-
-## Page Structure and Data Flows
-
-### Dashboard Page (`/`)
-
-**Purpose:** Single-pane-of-glass overview of the entire system.
+## Data Flow: End-to-End Build Pipeline
 
 ```
-Dashboard Page
-|
-+-- Status Bar (server-rendered)
-|   +-- Gateway status indicator
-|   +-- Last briefing time
-|   +-- Current time (PT)
-|
-+-- Status Cards Row (SWR 30s poll)
-|   +-- Agent Health: 7/7 heartbeating, last heartbeat times
-|   +-- Cron Status: success rate (last 24h), next run times
-|   +-- Email Quota: sent today / 100 limit, bounce rate
-|   +-- Content Pipeline: articles by status (researched/drafted/reviewed/published)
-|   +-- Token Usage: total tokens today, model distribution pie
-|
-+-- Activity Feed (SWR 15s poll)
-|   +-- Chronological stream merging:
-|       +-- coordination.db: agent actions, standup entries
-|       +-- observability.db: LLM calls with agent/model/tokens
-|       +-- email.db: sent/received emails
-|       +-- content.db: article status changes
-|   +-- Filter by: agent, type, time range
-|
-+-- Data sources:
-    coordination.db -> agent status, standup, actions
-    observability.db -> token usage, model distribution
-    email.db -> quota usage, bounce rate
-    content.db -> pipeline counts
-    health.db -> (optional) latest health score in status bar
+                    TRIGGER
+                       |
+                       v
+            +---------------------+
+            | Cron: 0 6 * * *     |     midnight PT
+            | (yolo-dev-overnight)|
+            +----------+----------+
+                       |
+                       v
+            +---------------------+
+            | OpenClaw Gateway    |     creates isolated session
+            | agent: main (Bob)   |     model: sonnet
+            +----------+----------+
+                       |
+                       v
+            +---------------------+
+            | Docker Sandbox      |     read-only FS + bind-mounts
+            | /workspace/         |
+            +----------+----------+
+                       |
+          +------------+------------+
+          |            |            |
+          v            v            v
+   +-----------+ +-----------+ +-----------+
+   | Read      | | Build     | | Log       |
+   | IDEAS.md  | | Prototype | | to DB     |
+   | or        | | in        | | yolo.db   |
+   | generate  | | yolo-dev/ | | via       |
+   | idea      | | directory | | sqlite3   |
+   +-----------+ +-----------+ +-----------+
+                       |
+                       v
+            +---------------------+
+            | Post Summary        |     channel:D0AARQR0Y4V
+            | to Andy DM          |     (Andy's Slack DM)
+            +---------------------+
+                       |
+                       v
+            +---------------------+
+            | Mission Control     |     SWR polls /api/dashboard/yolo
+            | /yolo page          |     reads yolo.db (read-only)
+            +---------------------+
 ```
-
-### Agent Board Page (`/agents`)
-
-**Purpose:** Per-agent detail view with drill-down.
-
-```
-Agent Board Page
-|
-+-- Agent Grid (SWR 30s poll)
-|   +-- Card per agent (7 total):
-|       +-- Agent name + domain label
-|       +-- Heartbeat status: "alive" (green) / "stale" (yellow) / "dead" (red)
-|       +-- Last action timestamp + description
-|       +-- Token usage spark chart (24h)
-|       +-- Active session indicator
-|
-+-- Agent Detail Panel (click to expand)
-    +-- Token usage by model (last 7 days)
-    +-- Recent LLM calls (last 20 turns from observability.db)
-    +-- Cron jobs owned by this agent + last run status
-    +-- Work queue items (from coordination.db)
-    +-- Skills assigned
-|
-+-- Data sources:
-    coordination.db -> per-agent status, work queue, standup
-    observability.db -> per-agent tokens, turns, model split
-```
-
-### Calendar Page (`/calendar`) -- EXISTING
-
-Already built with `coordination.db` user_calendar_tasks table + cron-parser v5. Retain as-is; no architecture changes needed.
-
----
-
-## Recommended Project Structure
-
-```
-~/clawd/mission-control/
-+-- src/
-|   +-- app/
-|   |   +-- layout.tsx              # Root layout with nav + SWRConfig
-|   |   +-- page.tsx                # Dashboard (server component, initial render)
-|   |   +-- dashboard-client.tsx    # Dashboard client component (SWR polling)
-|   |   +-- agents/
-|   |   |   +-- page.tsx            # Agent board
-|   |   |   +-- [id]/
-|   |   |       +-- page.tsx        # Agent detail
-|   |   +-- calendar/
-|   |   |   +-- page.tsx            # Calendar (existing)
-|   |   +-- api/
-|   |       +-- agents/
-|   |       |   +-- route.ts        # GET /api/agents
-|   |       |   +-- [id]/
-|   |       |       +-- route.ts    # GET /api/agents/:id
-|   |       +-- activity/
-|   |       |   +-- route.ts        # GET /api/activity
-|   |       +-- content/
-|   |       |   +-- pipeline/
-|   |       |       +-- route.ts    # GET /api/content/pipeline
-|   |       +-- email/
-|   |       |   +-- stats/
-|   |       |       +-- route.ts    # GET /api/email/stats
-|   |       +-- crons/
-|   |       |   +-- route.ts        # GET /api/crons
-|   |       +-- health/
-|   |           +-- route.ts        # GET /api/health (Oura data)
-|   +-- lib/
-|   |   +-- db/
-|   |   |   +-- index.ts            # Database singletons (5 connections)
-|   |   |   +-- queries/
-|   |   |       +-- agents.ts       # Agent status + token queries
-|   |   |       +-- activity.ts     # Cross-DB activity feed query
-|   |   |       +-- content.ts      # Content pipeline queries
-|   |   |       +-- email.ts        # Email stats queries
-|   |   |       +-- health.ts       # Oura health queries
-|   |   |       +-- crons.ts        # Cron status queries
-|   |   +-- types/
-|   |   |   +-- agent.ts            # Agent type definitions
-|   |   |   +-- activity.ts         # Activity feed types
-|   |   |   +-- content.ts          # Content pipeline types
-|   |   |   +-- email.ts            # Email stats types
-|   |   +-- utils/
-|   |       +-- time.ts             # PT timezone helpers
-|   |       +-- format.ts           # Number/date formatting
-|   +-- components/
-|       +-- cards/
-|       |   +-- agent-card.tsx      # Agent status card
-|       |   +-- stat-card.tsx       # Generic stat card
-|       |   +-- pipeline-card.tsx   # Content pipeline card
-|       +-- feed/
-|       |   +-- activity-feed.tsx   # Activity stream component
-|       |   +-- activity-item.tsx   # Single activity row
-|       +-- charts/
-|       |   +-- token-spark.tsx     # Sparkline for token usage
-|       |   +-- pipeline-flow.tsx   # Status flow visualization
-|       +-- layout/
-|           +-- nav.tsx             # Navigation sidebar
-|           +-- header.tsx          # Page header
-+-- public/
-+-- next.config.js
-+-- package.json
-+-- tsconfig.json
-```
-
-### Structure Rationale
-
-- **`lib/db/`:** Isolates all database access. Every query function lives here. Server Components and API Routes both import from the same place -- single source of truth for data access.
-- **`lib/db/queries/`:** One file per domain. Prepared statements are module-level constants. Functions are exported for use in both Server Components and API Routes.
-- **`components/`:** Shared UI components grouped by function (cards, feed, charts), not by page. Allows reuse across dashboard and agent board pages.
-- **`app/api/`:** Thin handlers that call query functions and return JSON. No business logic in route handlers -- that belongs in `lib/db/queries/`.
-- **`lib/types/`:** TypeScript types matching SQLite row shapes. better-sqlite3 returns plain objects, so types are applied at the query function level.
 
 ---
 
 ## Integration Points
 
-### SQLite Databases (Direct Filesystem)
+### Docker Sandbox Bind-Mounts (openclaw.json)
 
-| Database | Read Pattern | Key Tables/Queries | Notes |
-|----------|-------------|-------------------|-------|
-| coordination.db | Singleton, read-only, WAL | `agent_status`, `standup_entries`, `work_queue` | Primary source for agent health; agents write heartbeats here |
-| observability.db | Singleton, read-only, WAL | `llm_usage` (tokens, model, agent_id, timestamp) | Per-turn LLM telemetry; written by observability hooks |
-| content.db | Singleton, read-only, WAL | `articles` (status, published_at, notified_at) | Pipeline status counts; `GROUP BY status` for overview |
-| email.db | Singleton, read-only, WAL | `sent_emails`, `received_emails`, `bounces` | Quota math: `COUNT WHERE date = today`; bounce rate |
-| health.db | Singleton, read-only, WAL | `daily_metrics` (sleep_score, readiness, HRV) | Optional status bar widget; low-frequency reads |
-
-**Cross-database activity feed query:** The activity feed merges events from 4 databases. Since SQLite doesn't support cross-database joins in better-sqlite3 read-only mode, the merge happens in JavaScript:
-
-```typescript
-// lib/db/queries/activity.ts
-import { coordinationDb, observabilityDb, emailDb, contentDb } from '../index';
-
-interface ActivityItem {
-  timestamp: string;
-  type: 'agent_action' | 'llm_call' | 'email' | 'content_update';
-  agent?: string;
-  description: string;
-  metadata?: Record<string, unknown>;
-}
-
-const recentActionsStmt = coordinationDb.prepare(`
-  SELECT timestamp, agent_id, action, details
-  FROM agent_actions
-  WHERE timestamp > datetime('now', '-24 hours')
-  ORDER BY timestamp DESC LIMIT 50
-`);
-
-const recentLlmCallsStmt = observabilityDb.prepare(`
-  SELECT timestamp, agent_id, model, input_tokens, output_tokens
-  FROM llm_usage
-  WHERE timestamp > datetime('now', '-24 hours')
-  ORDER BY timestamp DESC LIMIT 50
-`);
-
-const recentEmailsStmt = emailDb.prepare(`
-  SELECT sent_at as timestamp, 'sent' as direction, subject, recipient
-  FROM sent_emails
-  WHERE sent_at > datetime('now', '-24 hours')
-  UNION ALL
-  SELECT received_at as timestamp, 'received' as direction, subject, sender
-  FROM received_emails
-  WHERE received_at > datetime('now', '-24 hours')
-  ORDER BY timestamp DESC LIMIT 20
-`);
-
-const recentContentStmt = contentDb.prepare(`
-  SELECT updated_at as timestamp, title, status, agent_id
-  FROM articles
-  WHERE updated_at > datetime('now', '-24 hours')
-  ORDER BY updated_at DESC LIMIT 20
-`);
-
-export function getActivityFeed(): ActivityItem[] {
-  const actions = recentActionsStmt.all().map(r => ({
-    timestamp: r.timestamp,
-    type: 'agent_action' as const,
-    agent: r.agent_id,
-    description: r.action,
-    metadata: { details: r.details },
-  }));
-
-  const llmCalls = recentLlmCallsStmt.all().map(r => ({
-    timestamp: r.timestamp,
-    type: 'llm_call' as const,
-    agent: r.agent_id,
-    description: `${r.model}: ${r.input_tokens}+${r.output_tokens} tokens`,
-    metadata: { model: r.model, input: r.input_tokens, output: r.output_tokens },
-  }));
-
-  const emails = recentEmailsStmt.all().map(r => ({
-    timestamp: r.timestamp,
-    type: 'email' as const,
-    description: `${r.direction}: ${r.subject}`,
-    metadata: { direction: r.direction },
-  }));
-
-  const content = recentContentStmt.all().map(r => ({
-    timestamp: r.timestamp,
-    type: 'content_update' as const,
-    agent: r.agent_id,
-    description: `"${r.title}" -> ${r.status}`,
-  }));
-
-  // Merge and sort by timestamp descending
-  return [...actions, ...llmCalls, ...emails, ...content]
-    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-    .slice(0, 100);
-}
-```
-
-### OpenClaw Gateway (Potential API Integration)
-
-The OpenClaw gateway at `ws://100.72.143.9:18789` is a WebSocket-based service, not a REST API. Direct integration is limited.
-
-**What is available (MEDIUM confidence):**
-- `openclaw sessions list` (CLI) returns active session data
-- `openclaw cron list` (CLI) returns cron job status including `lastStatus`, `lastRunAtMs`, `nextRunAtMs`
-- Session transcripts stored at `~/.openclaw/agents/<agentId>/sessions/*.jsonl`
-
-**What is NOT available:**
-- No REST API on the gateway for programmatic queries
-- No WebSocket subscription API for real-time events
-- No built-in dashboard API endpoints
-
-**Recommendation:** Do NOT integrate directly with the OpenClaw gateway WebSocket. Instead:
-1. Read cron status by parsing `openclaw cron list --json` output via a periodic script that writes to a JSON file Mission Control reads
-2. Read session data from the JSONL files directly (same filesystem access pattern as the databases)
-3. Agent heartbeat status is already in coordination.db -- no need to query the gateway
-
-**Alternative considered:** The community `openclaw-dashboard` projects (tugcantopaloglu/openclaw-dashboard, abhi1693/openclaw-mission-control) connect directly to the gateway. This requires auth token management and WebSocket handling that adds complexity for this single-user deployment. Reading from files and databases is simpler, more reliable, and sufficient.
-
-### Tailscale Direct Access
-
-**Current:** Dev server binds to `127.0.0.1:3001`, accessed via SSH tunnel (`-L 3001:127.0.0.1:3001`).
-
-**Target:** Bind to Tailscale IP `100.72.143.9:3001`, accessible directly from any device on the tailnet.
-
-**Implementation:**
+Two new bind-mounts added to `agents.defaults.sandbox.docker.binds`:
 
 ```json
-// package.json
 {
-  "scripts": {
-    "dev": "next dev -H 100.72.143.9 -p 3001",
-    "start": "next start -H 100.72.143.9 -p 3001"
+  "agents": {
+    "defaults": {
+      "sandbox": {
+        "docker": {
+          "binds": [
+            "... existing binds ...",
+            "/home/ubuntu/clawd/yolo.db:/workspace/yolo.db:rw",
+            "/home/ubuntu/clawd/yolo-dev:/workspace/yolo-dev:rw"
+          ]
+        }
+      }
+    }
   }
 }
 ```
 
-Or, bind to `0.0.0.0` and rely on the EC2 security group (which restricts to `100.64.0.0/10` only) for access control:
+**Why add both:**
+- `yolo.db` needs to be at a known path (`/workspace/yolo.db`) so Bob can use sqlite3 CLI to write to it
+- `yolo-dev/` needs to be bind-mounted so build artifacts persist on the host (Docker sandbox filesystem is ephemeral for non-mounted paths)
 
-```json
-{
-  "scripts": {
-    "dev": "next dev -H 0.0.0.0 -p 3001"
-  }
-}
+**Impact:** These binds apply to ALL agents (they're in `agents.defaults`). This is fine -- other agents won't touch these files. Same pattern as content.db and coordination.db.
+
+### Cron Integration (openclaw.json)
+
+One new cron job added to the `crons` array. Follows exact same JSON structure as the 20 existing cron jobs. Total after: 21 cron jobs.
+
+### Skill Integration
+
+One new skill directory:
+```
+~/.openclaw/skills/yolo-dev/
++-- SKILL.md
 ```
 
-**Recommendation:** Bind to `0.0.0.0:3001` and trust the security group. The Tailscale IP may change if the node re-registers, but `0.0.0.0` with SG restriction is equivalent and more robust. UFW is also active on the EC2 host -- add a UFW rule to allow port 3001 from the Tailscale subnet.
+Total skills after: 14. The skill is available to all agents but only Bob's cron session references it.
 
+### Slack Delivery
+
+Summary posted to `channel:D0AARQR0Y4V` (Andy's DM channel). Uses the validated `channel:ID` format from v2.6.
+
+Alternative: Create a `#yolo-dev` Slack channel for build logs. This keeps YOLO Dev noise out of Andy's DM. Decision for the roadmap planner.
+
+### Mission Control Read Path
+
+```
+yolo.db (host: ~/clawd/yolo.db)
+    |
+    +-- better-sqlite3 (readonly, WAL mode)
+    |
+    +-- src/lib/queries/yolo.ts (query module)
+    |
+    +-- src/app/api/dashboard/yolo/route.ts (JSON endpoint)
+    |
+    +-- src/app/yolo/page.tsx (SWR polling, 30s refresh)
+```
+
+Identical pattern to content pipeline (`content.db -> queries/metrics.ts -> api/dashboard/metrics -> /content`).
+
+---
+
+## Code Execution Inside Docker Sandbox
+
+### What Bob Can Already Do
+
+Bob runs inside a Docker container with `network=bridge` (internet access) and these capabilities:
+- **Shell commands:** `bash`, `python3`, `curl`, `wget`
+- **File operations:** Read/write anything under `/workspace/`
+- **SQLite:** `sqlite3` CLI (bind-mounted from host)
+- **GitHub:** `gh` CLI (bind-mounted from host)
+- **No package managers:** `pip install` and `npm install` are NOT available (read-only FS outside /workspace/)
+
+### What Bob Needs for YOLO Dev
+
+Everything Bob needs is already available:
+
+| Capability | Available? | How |
+|------------|-----------|-----|
+| Write Python files | Yes | Write to `/workspace/yolo-dev/{slug}/` |
+| Write HTML/CSS/JS | Yes | Same directory |
+| Run Python scripts | Yes | `python3 main.py` |
+| Test HTTP servers | Partially | `python3 -m http.server` works but not accessible from outside sandbox |
+| Access SQLite | Yes | `sqlite3 /workspace/yolo.db` |
+| Capture output | Yes | Redirect: `python3 main.py 2>&1 | head -100` |
+| Read project context | Yes | MEMORY.md, YOLO_IDEAS.md, other workspace files |
+
+### What Bob CANNOT Do (Constraints)
+
+| Constraint | Why | Workaround |
+|-----------|-----|-----------|
+| `pip install` anything | Read-only FS outside /workspace/ | Use Python stdlib only. stdlib includes: http.server, json, sqlite3, csv, html, urllib, argparse, pathlib, etc. |
+| `npm install` | Same reason | Write vanilla HTML/JS. No React, no bundlers |
+| Start persistent services | Container lifecycle tied to session | Build is a script, not a server. Demo via output, not deployment |
+| Access GPU | No GPU on t3.small | No ML/AI model training. Pure logic and web projects only |
+| Large file downloads | Network is available but slow | Keep builds self-contained. No large dataset downloads |
+
+### Python Stdlib Capabilities (What's Available Without pip)
+
+Python 3.10+ stdlib is rich enough for meaningful prototypes:
+
+- **Web:** `http.server`, `urllib.request`, `html`, `json`
+- **Data:** `sqlite3`, `csv`, `statistics`, `collections`, `itertools`
+- **CLI:** `argparse`, `curses`, `readline`
+- **System:** `os`, `pathlib`, `shutil`, `subprocess`, `threading`
+- **Text:** `re`, `textwrap`, `string`, `difflib`
+- **Math:** `math`, `decimal`, `fractions`, `random`
+- **I/O:** `io`, `tempfile`, `gzip`, `zipfile`
+
+This is more than enough to build: CLI tools, data processors, file converters, simple web servers, SQLite utilities, text analyzers, game prototypes, automation scripts.
+
+---
+
+## Patterns to Follow
+
+### Pattern 1: Cron + Reference Doc + Skill (Established v2.1)
+
+```
+Cron fires -> message points to reference doc -> agent reads doc
+-> doc references skill -> agent follows skill protocol -> logs result
+```
+
+This is the exact pattern for all content pipeline crons (writing-check, review-check, publish-check). YOLO Dev follows it identically.
+
+### Pattern 2: Shared DB via Bind-Mount Overlay (Established v2.1)
+
+```
+Host: ~/clawd/yolo.db
+    |
+    +-- Bind-mount: /workspace/yolo.db (rw) -- Bob writes via sqlite3 CLI
+    +-- Read-only: Mission Control opens via better-sqlite3
+```
+
+Same as content.db, coordination.db, email.db. Writer is the agent (via sqlite3 CLI inside sandbox). Reader is Mission Control (via better-sqlite3 on host).
+
+### Pattern 3: MC Query Module + API Route + SWR Page (Established v2.5)
+
+Every Mission Control subsystem follows:
+1. `src/lib/queries/{domain}.ts` -- prepared statements, exported functions
+2. `src/app/api/dashboard/{domain}/route.ts` -- thin JSON handler
+3. `src/app/{page}/page.tsx` -- server component with initial data
+4. Client component with SWR polling (30s refresh)
+
+YOLO Dev adds one more instance of this pattern. No architectural novelty.
+
+### Pattern 4: Self-Initializing DB Schema (Pragmatic)
+
+Bob creates the yolo.db schema on first run via `CREATE TABLE IF NOT EXISTS`. No migration tool needed. Same approach used for content.db (created by content pipeline agents on first run).
+
+If yolo.db doesn't exist when Bob first writes to it, `sqlite3 /workspace/yolo.db` will create it. The bind-mount creates the host-side file automatically if the container creates it at the mount point.
+
+**Correction:** The bind-mount requires the host file to exist FIRST. So `yolo.db` must be created on the host before the first YOLO Dev session:
 ```bash
-sudo ufw allow from 100.64.0.0/10 to any port 3001
+sqlite3 ~/clawd/yolo.db "SELECT 1;"  # Creates empty DB file
 ```
 
-**No authentication layer needed:** The Tailscale network IS the authentication. Only devices on Andy's tailnet can reach this IP. Adding username/password auth would be security theater on top of a zero-trust network.
-
----
-
-## Convex Removal Strategy
-
-The current Mission Control uses Convex for the activity feed. This must be replaced with direct SQLite reads.
-
-**What Convex currently provides:**
-- Real-time activity feed updates (push-based)
-- Cloud-hosted data storage for feed items
-
-**What replaces it:**
-- SWR polling every 15 seconds against `/api/activity` route handler
-- Activity data sourced from coordination.db + observability.db + email.db + content.db
-- No cloud dependency -- all data is local SQLite
-
-**Migration steps:**
-1. Create `lib/db/queries/activity.ts` with the cross-database activity feed query
-2. Create `/api/activity/route.ts` that calls the query function
-3. Replace Convex hooks with SWR hooks in the activity feed component
-4. Remove Convex SDK dependency from `package.json`
-5. Remove Convex configuration files
-
-**Trade-off:** Losing real-time push in favor of 15-second polling. For a single-user personal dashboard, this is acceptable. The polling interval can be reduced to 5 seconds if needed without meaningful server impact (SQLite reads are sub-millisecond).
-
----
-
-## Architectural Patterns
-
-### Pattern 1: Server-First with Client Hydration
-
-**What:** Every page renders server-side with fresh data. Client components take over for polling. Initial data is passed as `fallbackData` to SWR so there's no loading state on first render.
-
-**When to use:** Every data-displaying page in this dashboard.
-
-**Why:** Eliminates the "loading spinner on page load" anti-pattern. The page is immediately useful, then stays current via polling.
-
-### Pattern 2: One Query File Per Domain
-
-**What:** Each database domain (agents, content, email, health, observability) gets its own query file with prepared statements and exported functions.
-
-**When to use:** Always. Even if a query is only used in one place today, isolating it makes the codebase navigable and prevents query duplication.
-
-**Why:** Prevents the "queries scattered across route handlers" problem. When a table schema changes, you update one file, not 5 route handlers.
-
-### Pattern 3: Thin Route Handlers
-
-**What:** API route handlers contain zero business logic. They call a query function, return the result as JSON. No data transformation, no computation.
-
-**When to use:** All `/api/` routes in this project.
-
-**Why:** Keeps the API layer maintainable. If you need the same data in a server component and an API route, both call the same function from `lib/db/queries/`.
-
-### Pattern 4: Time-Based Aggregation in SQL
-
-**What:** Dashboard aggregations (token usage per day, email counts per hour, pipeline status counts) are computed in SQL with `GROUP BY` and `datetime()` functions, not in JavaScript.
-
-**When to use:** Any summary statistic displayed on the dashboard.
-
-**Why:** SQLite is faster at aggregation than JavaScript array operations. The database has indexes; the JavaScript runtime does not. Also reduces data transfer from the query -- return 7 daily totals, not 10,000 individual rows.
-
-```sql
--- Token usage per agent per day (last 7 days)
-SELECT agent_id,
-       date(timestamp) as day,
-       SUM(input_tokens) as input_total,
-       SUM(output_tokens) as output_total,
-       COUNT(*) as turns
-FROM llm_usage
-WHERE timestamp > datetime('now', '-7 days')
-GROUP BY agent_id, date(timestamp)
-ORDER BY day DESC;
-```
+This is a one-time setup step in Phase 1.
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Using Prisma or Drizzle for Read-Only SQLite
+### Anti-Pattern 1: Creating a New Agent for YOLO Dev
 
-**What people do:** Add an ORM for "type safety" when reading from SQLite.
+**What people do:** Create a dedicated "yolo" agent with its own workspace, heartbeat, and configuration.
 
-**Why it's wrong:** ORMs add connection pooling, migration systems, and schema management overhead. This project uses 5 existing SQLite databases that it does not own the schema for -- the agents and hooks create and manage these schemas. An ORM's migration system would conflict. Prisma's SQLite support also has limitations with read-only mode and WAL.
+**Why it's wrong for this project:** A new agent requires: new workspace directory, bind-mount configuration, personality files (SOUL.md, AGENTS.md), heartbeat cron, Slack channel routing. For one daily build session, this is massive overhead. Bob already has all the tools needed. The content pipeline uses 3 separate agents because they have distinct roles in a pipeline (researcher, writer, reviewer). YOLO Dev is a single-agent activity.
 
-**Do this instead:** Use better-sqlite3 directly with TypeScript interfaces for row types. Prepared statements give you all the performance benefit. Manual type assertions on query results give you type safety without the overhead.
+**Do this instead:** Use Bob (agent `main`) with an isolated cron session.
 
-### Anti-Pattern 2: One Database Connection Per Request
+### Anti-Pattern 2: Running npm/pip Install Inside Sandbox
 
-**What people do:** Open a new better-sqlite3 connection in each API route handler or server component render.
+**What people do:** Try to install packages at build time for richer project capabilities.
 
-**Why it's wrong:** Each connection opens a file handle. While better-sqlite3 handles this gracefully, it's wasteful when a singleton works perfectly. More importantly, you lose the benefit of prepared statement caching -- each new connection must recompile all SQL.
+**Why it's wrong:** The sandbox filesystem is read-only outside `/workspace/`. Package managers need to write to system directories (`/usr/lib/`, `/usr/local/`, etc.). Even if you worked around this, installed packages wouldn't persist between sessions.
 
-**Do this instead:** Module-level singletons as shown in the database layer pattern above. One connection per database, shared across all requests in the Node.js process.
+**Do this instead:** Constrain the tech stack to Python stdlib + vanilla HTML/JS. This is a feature, not a limitation -- it forces creative, dependency-free prototypes that work anywhere.
 
-### Anti-Pattern 3: WebSocket to OpenClaw Gateway for Dashboard Data
+### Anti-Pattern 3: Building a Custom Execution Engine
 
-**What people do:** Connect to the OpenClaw gateway WebSocket to get real-time agent data.
+**What people do:** Build a separate script/service that watches for build requests and executes code.
 
-**Why it's wrong:** The gateway WebSocket is designed for agent communication, not monitoring. Connecting a dashboard client adds a persistent connection that could interfere with agent sessions. The gateway also requires auth tokens that rotate. Community dashboard projects that do this require significant auth management code.
+**Why it's wrong:** Bob already IS the execution engine. He runs shell commands inside Docker. Adding another execution layer creates complexity and a second failure mode.
 
-**Do this instead:** Read from SQLite databases and session JSONL files directly. The data you need is already persisted on disk by the agents. The 15-30 second polling delay is acceptable for a monitoring dashboard.
+**Do this instead:** The skill file tells Bob how to execute. Bob runs Python directly. The cron triggers Bob. No intermediary.
 
-### Anti-Pattern 4: Server Actions for Data Reads
+### Anti-Pattern 4: Storing Build Logs in Slack Instead of a Database
 
-**What people do:** Use Next.js Server Actions (`'use server'` functions) for fetching dashboard data.
+**What people do:** Post full build logs to Slack and rely on Slack history for build tracking.
 
-**Why it's wrong:** Server Actions are designed for mutations (form submissions, data writes). Using them for reads creates unnecessary POST requests and doesn't benefit from caching. The Next.js team recommends API Routes for data fetching and Server Actions for mutations.
+**Why it's wrong:** Slack messages are ephemeral in free tiers, unsearchable in context, and not queryable for dashboards. The content pipeline learned this -- everything goes in SQLite.
 
-**Do this instead:** Use Server Components for initial data loading (no fetch at all) and API Route Handlers for SWR-polled updates.
+**Do this instead:** Build log goes in yolo.db. Slack gets a summary (project name, status, LOC, one-liner). Dashboard reads from yolo.db.
 
-### Anti-Pattern 5: Building a Cron Status API When the CLI Already Works
+### Anti-Pattern 5: Trying to Deploy Prototypes
 
-**What people do:** Build a custom cron monitoring system that queries OpenClaw internals.
+**What people do:** Add deployment steps (Docker build, server start, port mapping) to the build pipeline.
 
-**Why it's wrong:** `openclaw cron list --json` already returns structured cron status data. Building a parallel monitoring system duplicates effort and can diverge from reality.
+**Why it's wrong:** YOLO Dev is about building, not deploying. The Docker sandbox can't expose ports to the host. Deployment adds failure modes that have nothing to do with whether the prototype works. The value is in the code, not the running service.
 
-**Do this instead:** Run `openclaw cron list --json` periodically (via a cron job or startup script) and write the output to a JSON file that Mission Control reads. Simple, reliable, always accurate.
-
----
-
-## Build Order (Dependency-Aware)
-
-The build order reflects true dependencies, not just feature grouping.
-
-```
-Phase A: Database Layer Foundation
-  A1. Create lib/db/index.ts with 5 singleton connections
-  A2. Create lib/db/queries/ with prepared statements for each domain
-  A3. Verify: import queries in a test page, confirm data returns
-  DEPENDS ON: Nothing (all DBs exist on disk)
-  RISK: Schema discovery -- must inspect actual table names/columns in each DB
-  NOTE: Before writing queries, SSH to EC2 and run:
-        sqlite3 ~/clawd/agents/main/coordination.db ".tables" ".schema"
-        ...for each database to discover actual schema
-
-Phase B: Dashboard Page (Replace Convex)
-  B1. Create /api/agents route handler
-  B2. Create /api/activity route handler (cross-DB merge)
-  B3. Create /api/content/pipeline route handler
-  B4. Create /api/email/stats route handler
-  B5. Build dashboard page with status cards + activity feed
-  B6. Wire SWR polling to API routes
-  B7. Remove Convex dependency from package.json
-  DEPENDS ON: Phase A (database layer must exist)
-
-Phase C: Agent Board Page
-  C1. Create /api/agents/[id] route handler (per-agent detail)
-  C2. Build agent grid with heartbeat indicators
-  C3. Build agent detail panel with token usage + recent activity
-  DEPENDS ON: Phase A (queries), Phase B is independent
-
-Phase D: Tailscale Direct Access
-  D1. Update package.json scripts to bind 0.0.0.0:3001
-  D2. Add UFW rule for port 3001 from Tailscale subnet
-  D3. Verify access from Mac via Tailscale IP
-  D4. Remove SSH tunnel from workflow
-  DEPENDS ON: Nothing (independent of B and C)
-  NOTE: Can be done in parallel with B or C
-
-Phase E: Cron Status Integration
-  E1. Create script to run `openclaw cron list --json > /path/to/crons.json`
-  E2. Create /api/crons route handler that reads the JSON file
-  E3. Add cron status cards to dashboard
-  E4. Schedule the script to run every 5 minutes
-  DEPENDS ON: Phase B (dashboard page exists to show the data)
-```
-
-**Parallelization opportunity:** Phases B and D are independent. Phase C can start after Phase A without waiting for Phase B. A developer could work on B and D simultaneously.
+**Do this instead:** Build artifacts are files on disk. "Working" means the script runs and produces output. If Andy wants to deploy a prototype later, he does it manually -- that's a separate activity.
 
 ---
 
-## Scaling Considerations
+## Build Order: Dependency-Aware Phase Sequence
 
-This is a single-user personal dashboard. Scaling is not a concern.
+```
+Phase 1: Infrastructure Foundation
+  - Create ~/clawd/yolo-dev/ directory on host
+  - Create ~/clawd/yolo.db (empty, schema created by Bob on first run)
+  - Add bind-mounts to openclaw.json (yolo.db + yolo-dev/)
+  - Add cron job to openclaw.json
+  - Restart gateway (batch ALL config changes into one restart)
+  DEPENDS ON: Nothing
+  RISK: Gateway restart clears DM sessions (Pitfall 3 from previous research)
+  MITIGATION: Schedule restart during low-activity window; DM Bob after
 
-| Concern | Current (1 user) | If exposed to a team (5 users) |
-|---------|------------------|--------------------------------|
-| SQLite read contention | Zero -- WAL mode handles this | Still fine -- read-only connections don't block |
-| SWR polling load | ~10 requests/minute | ~50 requests/minute -- still negligible for SQLite |
-| Database file size | 5 DBs, likely <100MB total | Same -- data volume is agent-driven, not dashboard-driven |
-| Node.js memory (t3.small) | Next.js dev server: ~150MB | Same -- additional users don't increase server memory |
-| Network bandwidth | <1KB per API response | Same -- JSON payloads are tiny |
+Phase 2: Skill + Session Protocol
+  - Create ~/.openclaw/skills/yolo-dev/SKILL.md
+  - Create ~/clawd/agents/main/YOLO_SESSION.md (cron reference doc)
+  - Create ~/clawd/agents/main/YOLO_IDEAS.md (seed with 3-5 ideas)
+  - Update MEMORY.md with YOLO Dev section
+  DEPENDS ON: Phase 1 (bind-mounts must exist for Bob to write to yolo-dev/)
+  RISK: Skill file too verbose -> consumes context budget
+  MITIGATION: Keep SKILL.md under 3000 chars; test with openclaw context list
+  NOTE: No gateway restart needed (skill/workspace files are hot-loaded)
 
-**First bottleneck (if it ever mattered):** The activity feed cross-database merge in JavaScript. If individual database queries return large result sets, the merge + sort step could be slow. Mitigation: limit each sub-query to 50 rows (already done in the example above).
+Phase 3: First Build Verification
+  - Trigger cron manually: openclaw cron run --id yolo-dev-overnight
+  - Verify: Bob picks an idea, creates directory, writes code, logs to yolo.db
+  - Verify: Slack summary delivered to Andy's DM
+  - Verify: Build artifacts exist at ~/clawd/yolo-dev/{slug}/
+  - Verify: yolo.db has correct schema and row data
+  - Fix any issues discovered during first run
+  DEPENDS ON: Phase 2 (skill and session docs must exist)
+  RISK: Bob may not follow the build protocol precisely on first attempt
+  MITIGATION: Review BUILD_LOG.md, adjust SKILL.md/YOLO_SESSION.md as needed
+
+Phase 4: Mission Control Dashboard
+  - Add yolo.db to MC db-paths.ts
+  - Create src/lib/queries/yolo.ts
+  - Create src/app/api/dashboard/yolo/route.ts
+  - Create src/app/yolo/page.tsx + client component
+  - Add /yolo to NavBar
+  - Build and verify on EC2
+  DEPENDS ON: Phase 3 (yolo.db must have at least one row for the page to display data)
+  RISK: Standard MC development risk (build errors, type mismatches)
+  MITIGATION: Follow exact Phase 30 patterns
+```
+
+**Phase ordering rationale:**
+- Phase 1 first because ALL other phases depend on the bind-mounts and cron existing
+- Phase 2 before Phase 3 because Bob needs the skill and session docs to know what to do
+- Phase 3 before Phase 4 because the dashboard needs real data to test against
+- Phase 1 is the only phase requiring a gateway restart -- batch everything
+- Phases 2-4 don't require gateway restarts (skill files, workspace docs, and MC code changes are all hot-loadable)
+
+**Parallelization opportunity:** Phase 4 (MC dashboard) can start after Phase 1 completes if you're willing to test with mock data. But Phase 3 is cheap (one cron trigger) and provides real data, so sequential is better.
+
+---
+
+## Scalability Considerations
+
+This is a personal overnight build tool. "Scaling" means: what happens after 30, 100, 365 builds?
+
+| Concern | At 30 builds | At 100 builds | At 365 builds |
+|---------|-------------|--------------|--------------|
+| yolo.db size | ~50KB | ~200KB | ~500KB |
+| Disk usage (artifacts) | ~3MB (avg 100KB/build) | ~10MB | ~35MB |
+| MC /yolo page load | Instant (30 rows) | Instant (paginate at 20) | Paginate; still fast |
+| Build log length | Short (text column) | Paginate in UI | Consider truncating logs >50KB |
+| Dashboard query time | <1ms | <1ms | <1ms (indexed) |
+
+**First bottleneck:** Disk space for build artifacts. At ~100KB per build, 365 builds = ~35MB. The EC2 has 40GB EBS with ~13GB free. Not a concern for years.
+
+**When to worry:** If builds start including large data files (images, datasets), the per-build average could jump to 1-10MB. Add a disk usage check to the YOLO Dev skill: "Total yolo-dev/ should stay under 1GB."
 
 ---
 
 ## Open Questions (Must Verify Before Implementation)
 
-1. **Actual database schemas:** The table names and columns used in query examples above are inferred from project context (MEMORY.md, PROJECT.md). Before writing Phase A, SSH to EC2 and run `.tables` and `.schema` on each database to discover the actual schema. Confidence: MEDIUM -- table names may differ from what's documented.
+1. **Python version in Docker sandbox:** Verify `python3 --version` inside the sandbox. If Python 3.8 or older, some stdlib features (walrus operator, match/case) won't be available. The skill should document the available Python version.
 
-2. **observability.db existence:** MEMORY.md mentions `observability.db` and the v2.4 milestone added it, but it may not have accumulated much data yet. Verify it has data before building the token usage views.
+2. **Can Bob create the yolo.db schema via sqlite3 CLI?** The `CREATE TABLE IF NOT EXISTS` pattern should work, but verify that the bind-mount creates the file correctly when Bob writes to an initially-empty DB.
 
-3. **Cron list JSON output:** The `openclaw cron list` command may or may not support `--json` flag. Verify on EC2. If not available, parse the text output or read from the OpenClaw config file directly.
+3. **Cron schedule collision:** `0 6 * * *` (midnight PT) must not overlap with other crons. Check current cron schedule for any job near 6 AM UTC. The existing morning-briefing is at 2 PM UTC (6 AM PT), so midnight PT is safe -- 6 hours earlier.
 
-4. **better-sqlite3 compatibility with current Next.js 14.2.15:** better-sqlite3 is a native module. The existing Mission Control already uses it (for calendar tasks), so this is likely fine. Verify it's working in the current `node_modules/`.
+4. **Should YOLO Dev run daily or weekly?** Daily = 365 builds/year, consistent habit. Weekly = 52 builds/year, less rate limit pressure. Start daily; reduce to weekdays or weekly if rate limits are a concern.
 
-5. **Convex removal scope:** Need to read the current Mission Control source code on EC2 to understand exactly what Convex provides and how deeply integrated it is. The removal may be trivial (swap hooks) or complex (data model dependency).
+5. **Slack channel: DM or dedicated channel?** DM is simpler (no new channel). Dedicated `#yolo-dev` channel keeps build logs out of DM and makes them browsable in Slack history. Recommend DM for v1, add channel later if needed.
 
 ---
 
 ## Sources
 
-### HIGH confidence
-- [Next.js 14 Data Fetching Documentation](https://nextjs.org/docs/14/app/building-your-application/data-fetching/fetching-caching-and-revalidating) -- Server Components, Route Handlers, caching
-- [Next.js unstable_cache API](https://nextjs.org/docs/app/api-reference/functions/unstable_cache) -- cache for non-fetch data sources
-- [SWR Documentation](https://swr.vercel.app/docs/with-nextjs) -- useSWR with Next.js, refreshInterval
-- [SQLite WAL Mode](https://sqlite.org/wal.html) -- concurrent reader/writer behavior
-- [better-sqlite3 GitHub](https://github.com/WiseLibs/better-sqlite3) -- API, `readonly` option, prepared statements
-- [Fly.io: How SQLite Scales Read Concurrency](https://fly.io/blog/sqlite-internals-wal/) -- WAL mode deep dive, end-mark isolation
-- Project MEMORY.md -- database locations, Tailscale IPs, security group rules, Mission Control current state
+### HIGH confidence (internal project)
+- PROJECT.md -- full system inventory, tech stack, agent roster, cron jobs, databases
+- MEMORY.md -- EC2 access, sandbox architecture, bind-mount patterns, cron configuration
+- Phase 12 (Content DB + Agent Setup) -- established DB + bind-mount + skill pattern
+- Phase 30 (Dashboard Metrics) -- established MC query module + API route + SWR pattern
+- Phase 33 (Content Pipeline Improvements) -- established cron reference doc + channel:ID pattern
+- v2.6 ROADMAP.md -- most recent milestone structure and phase pattern
 
-### MEDIUM confidence
-- [OpenClaw Dashboard (tugcantopaloglu)](https://github.com/tugcantopaloglu/openclaw-dashboard) -- community dashboard patterns, gateway integration approach
-- [OpenClaw Mission Control (abhi1693)](https://github.com/abhi1693/openclaw-mission-control) -- agent orchestration dashboard patterns
-- [BitDoze: Best OpenClaw Dashboards 2026](https://www.bitdoze.com/best-openclaw-dashboards/) -- ecosystem survey of monitoring tools
-- [Next.js GitHub Discussion: Server Actions vs Route Handlers](https://github.com/vercel/next.js/discussions/72919) -- when to use each
-- [Next.js GitHub: Binding to Network Interface](https://github.com/vercel/next.js/issues/4025) -- `-H 0.0.0.0` flag
+### MEDIUM confidence (OpenClaw platform)
+- OpenClaw cron documentation -- cron job JSON schema, `isolated` flag, `sessionTarget` behavior
+- OpenClaw skill documentation -- SKILL.md format, skill loading, skill scoping
+- OpenClaw sandbox documentation -- Docker bind-mount behavior, read-only FS, available binaries
 
-### LOW confidence (needs verification during implementation)
-- Database schemas -- inferred from project documentation, not verified against actual files
-- `openclaw cron list --json` flag existence -- assumed, not verified
-- Convex integration depth in current Mission Control codebase -- not inspected directly
+### LOW confidence (needs verification on EC2)
+- Python version available in Docker sandbox
+- sqlite3 CLI behavior with bind-mounted empty DB files
+- Exact cron schedule collision check (need to inspect current jobs.json)
 
 ---
 
-*Architecture research for: pops-claw v2.5 Mission Control Dashboard*
-*Researched: 2026-02-20*
-*Replaces: previous ARCHITECTURE.md covering v2.3/v2.4 security hardening and content distribution*
+*Architecture research for: pops-claw v2.7 YOLO Dev -- autonomous overnight prototype builder*
+*Researched: 2026-02-24*
+*Replaces: previous ARCHITECTURE.md covering v2.5 Mission Control Dashboard*

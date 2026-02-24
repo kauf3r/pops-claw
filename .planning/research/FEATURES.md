@@ -1,279 +1,262 @@
-# Feature Landscape: Mission Control Dashboard v2.5
+# Feature Landscape: YOLO Dev v2.7
 
-**Domain:** Single-user operational monitoring dashboard for a multi-agent AI system
-**Researched:** 2026-02-20
-**Confidence:** HIGH (features derived from existing infrastructure, known database schemas, and established dashboard design patterns)
+**Domain:** Autonomous overnight prototype builder for a personal AI agent system
+**Researched:** 2026-02-24
+**Confidence:** HIGH (features derived from existing OpenClaw infrastructure, proven cron/skill/DB patterns, and current autonomous coding agent ecosystem)
 
 ## Context
 
-Mission Control is a Next.js 14 + Tailwind + better-sqlite3 dashboard running on EC2 at `~/clawd/mission-control/`, accessed via SSH tunnel or Tailscale-direct binding. It currently has a Convex-backed activity feed, cron overview, search, and a calendar page. The v2.5 milestone replaces Convex with direct SQLite reads and builds the "single pane of glass" for the entire pops-claw system: 7 agents, 20 crons, 5 databases, 13 skills, and email/content infrastructure.
+YOLO Dev adds overnight autonomous prototype building to Bob's existing capabilities. A cron fires late at night, Bob picks a project idea informed by personal context (interests, recent conversations, existing skills), builds a working prototype in his Docker sandbox, logs everything to yolo.db, and Andy wakes up to a new project on the `/yolo` dashboard page.
 
-**Critical constraint:** This is a single-user operational dashboard. Andy is the only consumer. Features that make sense for multi-user SaaS dashboards (role-based views, granular permissions, team notifications, collaborative annotations) are anti-features here. Every feature must pass the test: "Does this help Andy understand what his system is doing right now?"
+**Critical constraint:** Bob operates inside a Docker sandbox with network=bridge. He can write files, execute shell commands, and run scripts inside the container. The workspace at `~/clawd/yolo-dev/` is bind-mounted to `/workspace/yolo-dev/` in the sandbox. All builds happen inside the container. Bob already has 13 skills and 20 crons -- the patterns are proven and repeatable.
 
-**Data sources available (all SQLite, all on EC2):**
-- `coordination.db` -- agent_tasks, agent_messages, agent_activity
-- `observability.db` -- llm_calls (tokens, model, cost per call), agent_runs (duration, success, errors)
-- `content.db` -- topics, articles, social_posts, pipeline_activity
-- `email.db` -- sent/received emails, bounce tracking, quota usage, conversations
-- `health.db` -- Oura sleep/readiness/HRV data
-- Cron JSONL logs at `~/.openclaw/cron/runs/*.jsonl`
+**Existing infrastructure leveraged:**
+- OpenClaw cron system (20 crons already running, proven scheduling)
+- Docker sandbox (read-only FS with bind-mount pattern for writes)
+- SQLite database pattern (5 DBs already, yolo.db follows the same model)
+- Mission Control Next.js 14 dashboard (5 pages already, `/yolo` extends)
+- Skill system (13 skills deployed, SKILL.md + YAML frontmatter pattern)
+- Workspace protocol docs (CONTENT_TRIGGERS.md pattern proven in v2.6)
+- observability.db (token tracking already exists per agent)
+
+**What Bob CAN do in sandbox:**
+- Write files to bind-mounted directories
+- Execute `python3`, `node`, `bash` scripts
+- Install pip/npm packages (within the container)
+- Use `curl` for HTTP requests (bridge networking)
+- Read workspace files for context
+
+**What Bob CANNOT do in sandbox:**
+- Persist data outside bind-mounted paths (container resets)
+- Run Docker-in-Docker
+- Access host services directly (uses bridge network)
+- Modify OpenClaw config or gateway
 
 ---
 
 ## Table Stakes
 
-Features users expect from any operational monitoring dashboard. Missing any of these makes the dashboard feel incomplete or untrustworthy.
+Features that make YOLO Dev functional. Without these, the feature does not exist.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| System health overview on landing page | First thing an operator needs is "is everything OK?" -- a single glance answer | Low | 4-6 status cards at top of page: agents alive, crons healthy, content pipeline flowing, email quota OK. Green/yellow/red indicators. No clicking required for the answer |
-| Agent heartbeat status | 7 agents running -- which ones responded recently? Which are silent? | Low | Query `agent_runs` in observability.db for most recent `created_at` per agent. Green = last heartbeat < 20 min ago, yellow = 20-60 min, red = > 60 min or never. Display as a compact card grid |
-| Cron success/failure summary | 20 cron jobs -- are they all running? Any failing? | Med | Parse cron JSONL logs for last N runs per job. Show success rate (last 24h), last run time, next scheduled time. Red badge on any job with recent failures |
-| Activity stream (chronological feed) | The existing Convex feed must be replaced -- it is the primary way Andy sees "what happened" | Med | Read from coordination.db (agent_activity), observability.db (agent_runs), content.db (pipeline_activity), email.db (sent/received). Merge into single reverse-chronological feed. This is the Convex replacement |
-| Data freshness indicator | Stale data is worse than no data -- must know when data was last fetched | Low | Show "Last updated: X seconds ago" in the header or per-section. If using polling, show the poll interval. If data is > 5 min old, show a warning |
-| Auto-refresh / polling | Dashboard data goes stale within minutes as agents run. Manual refresh defeats the purpose | Low | Client-side polling every 30-60 seconds via `setInterval` + fetch to API routes. Next.js Route Handlers return JSON from SQLite queries. No WebSocket needed for single-user low-frequency updates |
-| Mobile-responsive layout | Andy may check the dashboard from his phone via Tailscale | Low | Tailwind responsive breakpoints. Cards stack vertically on mobile. Already built into Tailwind's grid system |
+| Nightly cron trigger | The entire premise is "overnight builds." Without a cron, nothing fires | LOW | Follows exact pattern of 20 existing crons. `systemEvent` with reference doc pattern (YOLO_BUILD.md). Schedule: ~11 PM PT, isolated session, Sonnet model. Single cron entry in openclaw.json |
+| Idea generation from context | Bob must pick something to build, informed by interests and recent context, not random | MEDIUM | Reference doc (YOLO_BUILD.md) provides idea generation instructions. Bob reads PRODUCT_CONTEXT.md, recent voice notes, coordination.db tasks, personal interests list. Outputs a project brief before building. Context sources are all already in the workspace or bind-mounted |
+| Prototype building in sandbox | Bob writes actual code that runs. Not just a plan -- a working artifact | MEDIUM | Python + HTML as the default stack (both available in sandbox). Bob creates project directory under `/workspace/yolo-dev/{date}-{slug}/`, writes code, runs it, verifies output. Follows existing sandbox write patterns |
+| Build artifact storage | Artifacts must persist after the session ends. Container resets, bind-mount survives | LOW | `~/clawd/yolo-dev/` bind-mounted to `/workspace/yolo-dev/`. Each build gets its own directory: `{YYYY-MM-DD}-{project-slug}/`. Contains source code, README.md, and any output files. Identical to how content.db and email.db are bind-mounted today |
+| Build logging to yolo.db | Must know: what was built, when, did it work, how long did it take | MEDIUM | New SQLite database at `~/clawd/yolo-dev/yolo.db`. Schema: builds table (id, date, project_name, slug, description, status, started_at, completed_at, duration_seconds, tech_stack, lines_of_code, files_created, build_log, error_log). Bind-mounted alongside artifacts. Bob writes to it via SQL in sandbox |
+| Build status tracking | Each build has a clear outcome: success, partial, or failed | LOW | Status enum in yolo.db: `idea`, `building`, `testing`, `success`, `partial`, `failed`. Bob updates status as it progresses. Final status reflects whether the prototype actually runs |
+| README per build | Every build must explain what it is and how to run it | LOW | Bob writes `README.md` in each project directory. Contains: project name, what it does, how to run, tech used, what worked, what did not. This is the "morning briefing" for each build |
+| Mission Control `/yolo` page | Andy checks the dashboard to see what shipped overnight | MEDIUM | New page in Mission Control. Reads yolo.db via better-sqlite3 (same pattern as all other pages). Shows build history as cards with status badges. Route: `/yolo`. Navigation link in sidebar |
 
 ### Confidence: HIGH
-All of these are standard patterns for operational dashboards. The data sources exist and have known schemas. No new infrastructure required.
+Every table-stakes feature uses a pattern already proven in the existing system. Cron, skill, SQLite, bind-mount, Mission Control page -- all have 5+ working examples to copy from.
 
 ---
 
 ## Differentiators
 
-Features that make Mission Control genuinely valuable beyond a basic status page. Not expected, but each one turns the dashboard from "nice to glance at" into "I rely on this."
+Features that transform YOLO Dev from "Bob builds random things overnight" into something genuinely delightful and useful.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Token usage sparklines per agent | "How much is each agent consuming over the past 7 days?" as a visual trend, not just today's number | Med | Query observability.db `llm_calls` grouped by agent_id and DATE(created_at). Render as tiny sparkline charts in the agent board. Libraries: Recharts (already React-compatible) or CSS-only bar charts. Reveals patterns like "Quill spikes on Wednesdays" |
-| Content pipeline kanban view | Articles moving through stages (researched, writing, review, approved, published) as a visual board | Med | Query content.db `articles` grouped by status. Render as columns with article cards. Not drag-and-drop (Bob manages transitions, not Andy via UI). Read-only visualization of pipeline health. Shows bottlenecks at a glance |
-| Email health gauges | Bounce rate, quota usage, and delivery rate as visual meters -- not just numbers | Low | Query email.db for daily sent/bounced/received counts. Resend free tier: 100/day, 3000/month. Show as percentage gauges with threshold coloring (green < 80%, yellow 80-95%, red > 95%). Bounce rate gauge with industry threshold lines (< 2% good, 2-5% warning, > 5% critical) |
-| Cost attribution breakdown | "How much would this system cost at API pricing?" per agent per day | Med | observability.db already stores `estimated_cost_usd` per LLM call. Aggregate by agent and time period. Show as stacked bar chart or table. Even though Andy is on Claude Pro 200 (flat rate), cost visibility reveals which agents are resource-heavy and informs model routing decisions |
-| Anomaly highlighting in activity stream | Flag unusual events in the activity feed (errors, high token usage, unexpected agent activity) | Med | Apply the same anomaly detection logic from the morning briefing (2x/4x rolling average) to visually highlight entries in the feed. Red border or warning icon on anomalous entries. Turns passive scrolling into active anomaly discovery |
-| Agent detail drill-down page | Click an agent card to see its full history: recent sessions, token usage over time, error log, cron run history | Med | Dynamic route `/agents/[id]`. Queries observability.db filtered by agent_id. Shows timeline of activity, cumulative token usage, error messages, model distribution pie chart. Single-agent deep dive without cluttering the overview |
-| Cron job detail page | Click a cron to see its run history: last 30 runs, success/fail timeline, average duration, last output snippet | Med | Dynamic route `/crons/[id]`. Parse JSONL log files for the specific cron job. Show run history as a timeline with green/red dots. Duration trend line. Useful for spotting degrading performance (runs getting slower) |
-| Time range selector | Switch between "last 1h / 6h / 24h / 7d" views for all metrics | Low | Client-side state that modifies API query parameters. All SQL queries already support `WHERE created_at >= datetime('now', '-N hours')`. Consistent across all dashboard sections |
+| Morning briefing integration | "Oh, Bob built something last night" shows up in the existing morning briefing alongside health, calendar, email | LOW | Add Section 11 (or equivalent) to morning briefing cron. Query yolo.db for builds from the previous night. Include project name, status, one-line description. Zero new infrastructure -- just a new section in an existing reference doc |
+| Build quality self-evaluation | Bob rates his own build on a 1-5 scale with reasoning. "3/5 -- runs but the UI is ugly" | LOW | Add `self_score` (integer 1-5) and `self_evaluation` (text) columns to yolo.db builds table. Bob evaluates after building: does it run? Is the code clean? Does it do what was intended? Stored alongside build metadata. Useful for trending quality over time |
+| Interest/context seeding file | A curated `YOLO_INTERESTS.md` file that Andy edits to steer idea generation toward domains he cares about | LOW | Workspace protocol doc at `~/clawd/agents/main/YOLO_INTERESTS.md`. Lists domains, technologies, project types Andy finds interesting. Bob reads it during idea generation. Andy can update anytime to shift the direction. Same pattern as CONTENT_TRIGGERS.md |
+| Idea-to-build pipeline (not just random) | Bob generates 3-5 ideas, picks the best one with reasoning, then builds it. The selection logic is visible | LOW | Part of the YOLO_BUILD.md reference doc instructions. Bob writes `ideas.md` in the project directory before starting. Lists candidates with brief rationale, marks the selected one. Andy can see the decision process |
+| Build log streaming to Slack | Short notification to DM or #ops when build starts and completes. "YOLO: Starting 'weather-dashboard'... YOLO: Done! 3/5, 47 files" | LOW | Bob already sends messages to Slack channels from crons. Add a brief start/complete notification to #ops or DM. Not the full log -- just status bookends. Uses existing `sessions_send` delivery pattern |
+| Tech stack variety tracking | Track what technologies Bob uses across builds. Prevent repetition -- if the last 3 builds were all Python Flask, nudge toward something different | LOW | `tech_stack` column in yolo.db (text/JSON). Dashboard shows tech distribution across all builds. Reference doc can include "avoid repeating the same stack 3 times in a row" as a soft constraint |
+| Build artifact preview | `/yolo` page shows a screenshot or HTML preview of the built artifact when applicable | HIGH | Would require Bob to take a screenshot of the running app (Camofox browser is available) or serve static HTML. Technically possible but adds complexity. Defer unless simple (e.g., if the build produces index.html, serve it as an iframe preview) |
+| Weekly YOLO digest | Once a week, Bob summarizes all builds: best one, patterns, ideas for next week | LOW | Add to existing weekly-review cron. Query yolo.db for the past 7 days. Summarize: N builds, best-rated, most interesting, tech distribution. Same pattern as content pipeline weekly report |
+| Failure analysis and learning | When a build fails, Bob writes a post-mortem in the project directory explaining what went wrong and what to try differently | LOW | Part of YOLO_BUILD.md instructions. On failure, write `POSTMORTEM.md` in the project directory. Include: what was attempted, where it broke, what would fix it, time spent. Valuable for trending failure patterns |
 
-### Confidence: HIGH for data availability, MEDIUM for specific visualization library choices (Recharts is well-established but version compatibility with Next.js 14 should be verified during implementation).
+### Confidence: HIGH for all LOW/MEDIUM complexity items. These use proven patterns. MEDIUM for build artifact preview (requires browser automation integration during overnight builds, which adds execution complexity).
 
 ---
 
 ## Anti-Features
 
-Features to explicitly NOT build. Each would add complexity without proportional value for a single-user operational dashboard.
+Features to explicitly NOT build. Each would add complexity disproportionate to value, or would conflict with the existing system architecture.
 
-| Anti-Feature | Why It Sounds Good | Why Avoid | What to Do Instead |
-|--------------|-------------------|-----------|-------------------|
-| Real-time WebSocket push | "See updates instantly without polling" | WebSocket server adds infrastructure complexity (separate process, reconnection logic, state management). For a single user checking every few minutes, polling every 30-60 seconds is indistinguishable from real-time | Client-side polling via `setInterval` + fetch. Simpler, stateless, no new server process |
-| Interactive cron/agent control | "Pause crons, restart agents from the dashboard" | Write operations from a web UI into OpenClaw's config create a second control plane alongside the CLI. Risk of conflicting state. OpenClaw CLI is the canonical control interface | Dashboard is read-only. Show status and link to SSH commands if action is needed. "View-only mission control" |
-| User authentication / login page | "Secure the dashboard" | Already behind Tailscale -- only reachable from Andy's devices. Adding auth adds a login step to every dashboard check, and requires session management, password storage, or OAuth setup | Tailscale IS the auth layer. Bind to tailnet IP only. No login needed |
-| Multi-user views / role-based access | "Different views for different people" | Andy is the only user. Building role infrastructure, permission checks, and view customization for a single operator is pure overhead | One view, one user, one dashboard. Optimize for Andy's workflow |
-| Notification system (alerts, toasts, sounds) | "Alert me when something goes wrong" | Bob already delivers alerts via Slack and morning briefing. The dashboard duplicating this creates notification fatigue and a second alert channel to manage | Dashboard shows current state. Slack is the notification channel. No duplication |
-| Historical data beyond 90 days | "Long-term trend analysis" | observability.db retains 90 days (by design -- disk space on t3.small). Building archive/export infrastructure for a personal dashboard is over-engineering | 90-day rolling window is sufficient. If historical analysis is needed, export to CSV on demand |
-| Dark mode toggle | "Personal preference" | Adds CSS complexity and a preference storage mechanism. For a single user, pick one theme and ship it | Choose dark mode (operational dashboards are conventionally dark -- easier on eyes during extended monitoring). Ship it as the only mode |
-| External data source integration (Grafana, Datadog) | "Enterprise-grade monitoring" | Adds API key management, network egress, OTEL configuration, and monthly costs. The data already lives in 5 local SQLite files | Read SQLite directly. Zero external dependencies. Full data access without any third-party coupling |
-| Drag-and-drop dashboard customization | "Let users arrange widgets" | Layout persistence, widget registry, drag-and-drop library, serialization/deserialization. Months of UI work for a single user who won't reconfigure after initial setup | Fixed layout optimized for Andy's priorities. Status cards at top, activity stream center, details on drill-down pages |
-| AI-powered dashboard insights | "Claude analyzes your dashboard data" | LLM calls from the dashboard add latency, token costs, and API dependency to every page load. Bob already does this analysis in the morning briefing | Bob IS the AI insight layer via morning briefing and Slack. The dashboard presents raw data; Bob provides interpretation |
+| Anti-Feature | Why Requested | Why Problematic | Alternative |
+|--------------|---------------|-----------------|-------------|
+| Human approval gate before building | "What if Bob builds something bad?" | The entire point of YOLO is autonomous overnight execution. An approval gate means Andy stays up to approve, defeating the purpose. Bob operates in a sandbox -- worst case is wasted tokens and disk space | Post-hoc review via dashboard. Bob builds freely, Andy reviews in the morning. Self-evaluation scores flag questionable builds |
+| Multi-agent collaboration on builds | "Have Sentinel review Bob's code, or Vector research the idea" | Adds coordination complexity, increases token usage significantly, and the content pipeline already proved that multi-agent workflows need careful orchestration (took 3+ phases to stabilize). Single-agent builds are simpler and sufficient for prototypes | Bob builds alone. If a build concept matures into a real project, it graduates to the multi-agent workflow |
+| Deployment/hosting of built prototypes | "Automatically deploy to a URL so I can share it" | Requires a web server, port management, DNS, HTTPS, and security considerations for every prototype. The EC2 is a t3.small with 2GB RAM. Running N arbitrary prototypes as services is a resource and security nightmare | Artifacts stored as files. Andy can manually run interesting ones via SSH. If something is worth deploying, it gets its own infrastructure intentionally |
+| Git repo creation per build | "Each build should be its own git repo with commit history" | Git operations inside the Docker sandbox add complexity (git config, SSH keys, GitHub auth). The build is already versioned by date directory. Commit history for a 2-hour prototype is not meaningful | Directory-based versioning: `{date}-{slug}/`. If a build graduates, manually `git init` it |
+| Persistent package cache across builds | "Don't re-download pip/npm packages every night" | Docker container resets between sessions. Maintaining a package cache requires additional bind-mount configuration and cache invalidation logic. Most prototypes use standard library or a few small packages | Accept the reinstall cost. Prototype builds are small -- package install is minutes, not hours |
+| Interactive build mode ("watch Bob build live") | "Stream Bob's terminal output to the dashboard" | Requires WebSocket streaming, terminal emulation in the browser, and real-time log forwarding from the Docker container. Massive infrastructure for watching a process that runs while you sleep | Read the build log after completion. The `build_log` column in yolo.db captures the narrative. If real-time observation is needed, SSH into the container |
+| Build templates / scaffolding system | "Pre-built templates for common project types (Flask app, React app, CLI tool)" | Over-constrains what Bob builds. Templates make sense for human developers who want consistency. For an autonomous agent, templates limit creativity and make builds feel formulaic | Let Bob decide the structure. The reference doc can suggest preferred patterns without enforcing rigid templates |
+| Automatic PR creation for good builds | "If the build scores 4+, create a GitHub PR" | Mixes the experimental YOLO space with production repos. A 4/5 self-score does not mean production-ready code. Creates noise in GitHub. Blurs the line between prototype and production | Keep YOLO artifacts in `~/clawd/yolo-dev/`. Graduation to a real repo is a deliberate human decision |
+| Cost budgeting per build | "Set a token limit per build to prevent runaway spending" | Andy is on Claude Pro 200 (flat rate). There are no per-token costs. Rate limits are the real constraint, not cost. Adding a token budget system solves a problem that does not exist | Model routing handles rate limits. Use Sonnet for builds (already the default for isolated crons). If builds hit rate limits, reduce frequency |
 
 ---
 
 ## Feature Dependencies
 
 ```
-Convex removal
-    |-- Activity stream must replace it (reads coordination.db, observability.db, content.db, email.db)
-    |-- Convex npm dependency can be removed after migration
+YOLO_BUILD.md (reference doc)
+    |-- required by: nightly cron (reads instructions from here)
+    |-- required by: idea generation (instructions define context sources)
+    |-- required by: build execution (instructions define output format)
 
-Status cards (landing page)
-    |-- Agent health: requires observability.db reads (agent_runs table)
-    |-- Cron health: requires JSONL log parsing OR a new cron_runs SQLite table
-    |-- Content pipeline: requires content.db reads (articles by status)
-    |-- Email metrics: requires email.db reads (sent/received/bounced counts)
+yolo.db schema
+    |-- required by: build logging (Bob writes build records)
+    |-- required by: /yolo dashboard page (reads build history)
+    |-- required by: morning briefing section (reads last night's build)
+    |-- required by: weekly digest (reads past 7 days)
 
-Activity stream
-    |-- requires: coordination.db read access (agent_activity)
-    |-- requires: observability.db read access (agent_runs)
-    |-- requires: content.db read access (pipeline_activity)
-    |-- requires: email.db read access (emails sent/received)
-    |-- all 4 DBs must be accessible from Next.js server process via better-sqlite3
+~/clawd/yolo-dev/ bind-mount
+    |-- required by: artifact storage (build files persist here)
+    |-- required by: yolo.db (database lives here)
+    |-- requires: openclaw.json sandbox config update (add bind-mount)
 
-Agent board
-    |-- requires: observability.db (llm_calls for token usage, agent_runs for heartbeat)
-    |-- requires: coordination.db (agent_tasks for work queue)
-    |-- optional: sparklines require a charting library (Recharts)
+Nightly cron
+    |-- requires: YOLO_BUILD.md (reference doc)
+    |-- requires: bind-mount configured (writes to yolo-dev/)
+    |-- requires: yolo.db schema created (logs builds)
 
-Content pipeline view
-    |-- requires: content.db (topics and articles tables)
-    |-- independent of other dashboard sections
+/yolo dashboard page
+    |-- requires: yolo.db with data (reads build history)
+    |-- requires: Mission Control running (Next.js server)
+    |-- independent of: cron and build execution (can be built in parallel)
 
-Email metrics
-    |-- requires: email.db (sent/received/bounced counts, quota tracking)
-    |-- independent of other dashboard sections
+YOLO_INTERESTS.md (context seeding)
+    |-- enhances: idea generation quality
+    |-- independent of: everything else (additive, not blocking)
 
-Drill-down pages (/agents/[id], /crons/[id])
-    |-- requires: Activity stream and status cards built first (provides navigation context)
-    |-- /agents/[id]: observability.db filtered queries
-    |-- /crons/[id]: JSONL log parsing for specific job
+Morning briefing integration
+    |-- requires: yolo.db with data
+    |-- requires: nightly cron to have run at least once
+    |-- modifies: existing morning-briefing cron reference doc
 
-Database access (cross-cutting)
-    |-- All databases are on EC2 at known paths
-    |-- Next.js server runs on EC2 -- direct filesystem access via better-sqlite3
-    |-- Read-only connections sufficient for all dashboard features
-    |-- DB files: ~/clawd/agents/main/observability.db, ~/clawd/content.db,
-    |   ~/clawd/agents/main/email.db, ~/clawd/coordination.db (verify exact paths)
+Slack notifications
+    |-- requires: nightly cron running
+    |-- independent of: dashboard and DB schema
 ```
 
 ### Dependency Notes
 
-- **Convex removal is the prerequisite for everything.** The current dashboard has a hard dependency on Convex for the activity feed. Replacing it with SQLite reads is the first architectural change that must land before any new features make sense.
-- **All databases are already on the same machine.** No network I/O, no connection strings, no credentials. `better-sqlite3` opens files directly. This is the simplest possible data access pattern.
-- **Cron JSONL parsing is the one non-SQLite data source.** Consider whether to parse JSONL files in API routes (simple but per-request I/O) or build a cron that periodically imports JSONL data into a SQLite table (cleaner but more infrastructure). Recommendation: parse JSONL directly in API routes for v2.5, migrate to SQLite import if performance becomes an issue.
-- **Charting library (Recharts) is optional.** Status cards and tables can ship without it. Add Recharts only for sparklines and trend charts. It adds ~45KB gzipped to the client bundle.
+- **YOLO_BUILD.md is the keystone.** The reference doc defines how Bob generates ideas, builds prototypes, and logs results. Everything else depends on these instructions being clear and complete.
+- **yolo.db and bind-mount are infrastructure prerequisites.** Must be configured before the first cron run. But the dashboard page can be built in parallel since it just needs the schema to exist (even empty).
+- **Dashboard and cron are independent work streams.** The `/yolo` page reads from yolo.db. The cron writes to yolo.db. They share the schema but not execution. Can be built and tested independently.
+- **Morning briefing and Slack notifications are additive.** They enhance the experience but are not required for the core loop (cron -> build -> log -> dashboard).
 
 ---
 
-## MVP Recommendation
+## MVP Definition
 
-### Must-ship for v2.5 (the dashboard becomes useful)
+### Launch With (v2.7)
 
-1. **Convex removal + SQLite data layer** -- Replace Convex with direct better-sqlite3 reads. Open all 4+ databases read-only from Next.js Route Handlers. This is the architectural foundation for everything else.
+Minimum viable YOLO Dev -- the overnight build loop works end to end.
 
-2. **Status cards on landing page** -- 4-6 cards showing system health at a glance:
-   - Agent health (N/7 alive, any warnings)
-   - Cron health (N/20 healthy, last failure)
-   - Content pipeline (articles by status counts)
-   - Email metrics (quota %, bounce rate)
-   - Token usage today (total across agents)
-   - (Optional) System uptime / last gateway restart
+- [ ] **YOLO_BUILD.md reference doc** -- Instructions for idea generation, build execution, quality evaluation, and logging. The "brain" of YOLO Dev
+- [ ] **yolo.db schema + bind-mount** -- Database and filesystem infrastructure. Build records and artifacts persist across container resets
+- [ ] **Nightly cron job** -- Triggers the build. Scheduled ~11 PM PT, isolated session, Sonnet model
+- [ ] **YOLO_INTERESTS.md** -- Andy's interests/domains file for seeding idea generation. Quick to create, high impact on build relevance
+- [ ] **Prototype building capability** -- Bob generates ideas, picks one, builds it, runs it, evaluates it, logs it. The core loop
+- [ ] **Mission Control `/yolo` page** -- Build history dashboard. Cards with status badges, timestamps, descriptions, self-scores
+- [ ] **Morning briefing integration** -- One section in existing briefing: "Last night's YOLO build: [name] -- [status] [score]/5"
 
-3. **Activity stream** -- Chronological feed replacing Convex. Reads from coordination.db + observability.db + content.db + email.db. Reverse chronological, paginated, filterable by source type (agent activity, cron runs, content pipeline, email).
+### Add After Validation (v2.7.x)
 
-4. **Agent board** -- Per-agent cards showing:
-   - Last heartbeat time (green/yellow/red)
-   - 24h token usage
-   - Model distribution (Haiku/Sonnet/Opus)
-   - Error count
-   - Link to detail page
+Features to add once the core loop runs successfully for 5-7 nights.
 
-5. **Auto-refresh polling** -- 30-second client-side polling for all dashboard data. "Last updated" indicator.
+- [ ] **Slack build notifications** -- Start/complete messages to #ops. Add after confirming the cron runs reliably
+- [ ] **Weekly YOLO digest** -- Add to weekly-review cron after accumulating 5+ builds
+- [ ] **Tech stack variety tracking** -- Dashboard chart showing tech distribution. Add after 10+ builds
+- [ ] **Failure analysis post-mortems** -- POSTMORTEM.md on failed builds. Add once failure patterns emerge
 
-6. **Tailscale-direct binding** -- Bind Next.js to tailnet IP instead of requiring SSH tunnel. Direct access at `http://100.72.143.9:3001`.
+### Future Consideration (v2.8+)
 
-### Defer to v2.6 or later
+Features to defer until YOLO Dev is a proven, running system.
 
-- **Content pipeline kanban** -- Useful but not critical for initial monitoring. The status card count covers the basic need. Full kanban is a polish feature.
-- **Agent/cron detail drill-down pages** -- Valuable but requires additional routes and more complex queries. Overview is sufficient for v2.5.
-- **Sparklines and trend charts** -- Requires Recharts, adds bundle size. Tables with numbers are sufficient for v2.5.
-- **Time range selector** -- Nice but "last 24h" as a hardcoded default covers the primary use case.
-- **Email health gauges** -- Status card with numbers covers the need. Visual gauges are polish.
-- **Cost attribution breakdown** -- Interesting but not operationally critical. The morning briefing already surfaces this.
-
-### Why this order
-
-1. **Convex removal first** because it is blocking. The current Convex dependency is a liability (external service, separate account, data not owned locally). Every other feature depends on the SQLite data layer.
-2. **Status cards second** because they deliver the "single pane of glass" promise immediately. Andy opens the dashboard and knows system health in 2 seconds.
-3. **Activity stream third** because it replaces the primary interaction pattern (scrolling through what happened).
-4. **Agent board fourth** because it provides the agent monitoring depth that status cards summarize.
-5. **Auto-refresh and Tailscale binding** are infrastructure that make the dashboard usable day-to-day instead of a one-time-check tool.
+- [ ] **Build artifact preview** -- Screenshots or iframe previews on dashboard. Requires browser automation integration
+- [ ] **Build quality trending** -- Sparkline showing self-scores over time. Needs 20+ data points to be meaningful
+- [ ] **Idea backlog** -- Persist rejected ideas for future consideration. Needs a separate ideas table in yolo.db
+- [ ] **Theme nights** -- "Python night" / "CLI tool night" / "data viz night" constraints. Fun but premature before the basic loop works
 
 ---
 
-## Page Structure Recommendation
+## Feature Prioritization Matrix
 
-```
-/ (Dashboard - Landing Page)
-    |-- Status cards row (agent health, cron health, content counts, email metrics)
-    |-- Activity stream (scrollable, paginated, filterable)
-    |-- Agent board (7 agent cards in a grid)
+| Feature | User Value | Implementation Cost | Priority | Depends On Existing Infra |
+|---------|------------|---------------------|----------|---------------------------|
+| Nightly cron trigger | HIGH | LOW | P1 | Cron system (20 examples) |
+| YOLO_BUILD.md reference doc | HIGH | LOW | P1 | Workspace protocol doc pattern |
+| yolo.db schema + bind-mount | HIGH | LOW | P1 | SQLite + bind-mount pattern (5 DBs) |
+| Prototype building in sandbox | HIGH | MEDIUM | P1 | Docker sandbox (existing) |
+| Build artifact storage | HIGH | LOW | P1 | Bind-mount pattern (existing) |
+| Mission Control /yolo page | HIGH | MEDIUM | P1 | Next.js dashboard (5 pages) |
+| YOLO_INTERESTS.md | MEDIUM | LOW | P1 | Workspace doc pattern |
+| Morning briefing integration | MEDIUM | LOW | P1 | Morning briefing cron (existing) |
+| Build quality self-evaluation | MEDIUM | LOW | P1 | Part of build instructions |
+| Idea-to-build pipeline visibility | MEDIUM | LOW | P1 | Part of build instructions |
+| Slack notifications | MEDIUM | LOW | P2 | Slack delivery pattern (existing) |
+| Weekly YOLO digest | LOW | LOW | P2 | Weekly review cron (existing) |
+| Failure post-mortems | LOW | LOW | P2 | Part of build instructions |
+| Tech stack variety tracking | LOW | LOW | P2 | yolo.db column + dashboard chart |
+| Build artifact preview | MEDIUM | HIGH | P3 | Camofox browser (available but complex) |
+| Build quality trending | LOW | MEDIUM | P3 | Recharts (available), needs data |
+| Idea backlog persistence | LOW | MEDIUM | P3 | New yolo.db table |
 
-/calendar (existing - keep as-is)
-    |-- Week/month cron schedule visualization
-    |-- User tasks from coordination.db
-
-/agents/[id] (future - v2.6)
-    |-- Agent detail: token timeline, error log, session history
-
-/crons/[id] (future - v2.6)
-    |-- Cron detail: run history, duration trends, failure analysis
-```
+**Priority key:**
+- P1: Must have for v2.7 launch -- the overnight build loop works and is visible
+- P2: Add after 5-7 successful nightly builds -- enhance the experience
+- P3: Future consideration -- needs data or justification first
 
 ---
 
-## Behavioral Notes
+## Comparable Systems Analysis
 
-### What "Single Pane of Glass" Means for This System
+| Feature | Ralph Wiggum Loop | Codex / Jules | Code Agents (code-agents.ai) | YOLO Dev Approach |
+|---------|-------------------|---------------|------------------------------|-------------------|
+| Trigger | Manual (user starts loop) | Manual (task assignment) | Manual (task queue) | Automated (nightly cron) |
+| Scope | Defined by PRD/prompt | Single task/issue | Issue-based | Autonomous idea selection |
+| Duration | Hours to days | 1-30 minutes | Variable | Single overnight session (~2h) |
+| Evaluation | Completion promise | Test suite pass/fail | PR review | Self-evaluation 1-5 scale |
+| Artifacts | Git commits/PRs | PRs with diffs | PRs | Directory with README |
+| Logging | Git history | Platform dashboard | Platform dashboard | yolo.db + /yolo page |
+| Idea generation | None (human provides) | None (human provides) | None (human provides) | Context-aware autonomous |
 
-For enterprise SPOG, the challenge is aggregating data from dozens of disparate systems via APIs and adapters. For pops-claw, the data is already consolidated: 5 SQLite databases on one machine. The challenge is not aggregation but **presentation** -- turning raw SQL rows into an at-a-glance understanding of system health.
-
-The practical implication: no ETL pipeline, no data warehouse, no API gateway. Just `better-sqlite3.open(dbPath, { readonly: true })` five times and query directly. This is architecturally trivial compared to enterprise SPOG, which means the implementation effort can focus entirely on UI quality.
-
-### Polling vs WebSocket vs SSE for Refresh
-
-- **WebSocket:** Requires a persistent connection, reconnection logic, and a server-side event emitter tied to database changes. Over-engineered for one user checking a dashboard.
-- **Server-Sent Events (SSE):** Simpler than WebSocket but still requires a persistent connection and server-side event stream. Marginal benefit over polling for 30-second intervals.
-- **Polling:** `setInterval(() => fetch('/api/status'), 30000)` in a `useEffect`. Zero infrastructure. Works with Next.js Route Handlers out of the box. If the page is backgrounded, polling pauses naturally (browser tab throttling). This is the correct choice.
-
-### Why Read-Only Dashboard
-
-Every operational dashboard that adds "control" features (restart service, pause cron, modify config) becomes a second control plane. For pops-claw, the canonical control plane is `openclaw` CLI via SSH. Adding write operations from the dashboard means:
-- Two ways to change state, which can conflict
-- Security surface increases (a dashboard bug could modify production config)
-- Testing burden doubles (must verify CLI and dashboard produce identical results)
-
-Read-only eliminates this entire problem class. The dashboard answers "what is happening?" and Slack + CLI answer "what should I do about it?"
-
-### Dark Mode by Default
-
-Operational dashboards are conventionally dark-themed because:
-- Monitoring sessions can be extended; dark backgrounds reduce eye strain
-- Status indicators (green/yellow/red) pop more on dark backgrounds
-- It looks professional and ops-y (social proof: Grafana, Datadog, New Relic all default dark)
-- Single user = no accessibility concerns about contrast preferences
-
-Ship dark mode only. No toggle.
+**Key differentiator for YOLO Dev:** No other system autonomously generates its own project ideas from personal context. Ralph Wiggum, Codex, Jules, and Code Agents all require a human to define the task. YOLO Dev's entire premise is that Bob picks the idea himself, which makes the "what will I wake up to?" experience unique and delightful.
 
 ---
 
 ## Sources
 
-### Dashboard Design Patterns
-- [UXPin: Dashboard Design Principles for 2025](https://www.uxpin.com/studio/blog/dashboard-design-principles/) -- MEDIUM confidence (general principles, applied to this context)
-- [PatternFly Dashboard Guidelines](https://www.patternfly.org/patterns/dashboard/design-guidelines/) -- HIGH confidence (Red Hat's open source design system, operationally focused)
-- [DataCamp: Dashboard Design Best Practices](https://www.datacamp.com/tutorial/dashboard-design-tutorial) -- MEDIUM confidence (general principles)
+### Autonomous Coding Agent Patterns
+- [Ralph Wiggum: Autonomous Loops for Claude Code](https://paddo.dev/blog/ralph-wiggum-autonomous-loops/) -- HIGH confidence (established technique for overnight autonomous coding)
+- [Awesome Claude: Ralph Wiggum](https://awesomeclaude.ai/ralph-wiggum) -- HIGH confidence (community reference)
+- [Code Agents: Ship production code while you sleep](https://code-agents.ai/) -- MEDIUM confidence (commercial product, feature reference)
+- [Martin Fowler: Autonomous Coding Agents (Codex Example)](https://martinfowler.com/articles/exploring-gen-ai/autonomous-agents-codex-example.html) -- HIGH confidence (authoritative analysis)
 
-### AI Agent Monitoring
-- [UptimeRobot: AI Agent Monitoring Best Practices](https://uptimerobot.com/knowledge-hub/monitoring/ai-agent-monitoring-best-practices-tools-and-metrics/) -- MEDIUM confidence (general patterns adapted to single-user context)
-- [Microsoft Azure: Agent Observability Best Practices](https://azure.microsoft.com/en-us/blog/agent-factory-top-5-agent-observability-best-practices-for-reliable-ai/) -- MEDIUM confidence (enterprise patterns, selectively applied)
+### Failure Handling and Recovery
+- [GoCodeo: Error Recovery and Fallback Strategies](https://www.gocodeo.com/post/error-recovery-and-fallback-strategies-in-ai-agent-development) -- MEDIUM confidence (general patterns)
+- [DEV Community: Why Your Overnight AI Agent Fails](https://dev.to/thebasedcapital/why-your-overnight-ai-agent-fails-and-how-episodic-execution-fixes-it-2g50) -- MEDIUM confidence (failure mode analysis)
+- [Agents Arcade: Error Handling in Agentic Systems](https://agentsarcade.com/blog/error-handling-agentic-systems-retries-rollbacks-graceful-failure) -- MEDIUM confidence
 
-### Single Pane of Glass Monitoring
-- [Interlink Software: SPOG Monitoring Guide](https://www.interlinksoftware.com/what-is-single-pane-of-glass-monitoring-and-how-can-enterprises-leverage-it-for-enhanced-visibility) -- MEDIUM confidence (enterprise framing, concept applied to personal infra)
-- [SigNoz: Single Pane of Glass Monitoring](https://signoz.io/blog/single-pane-of-glass-monitoring/) -- MEDIUM confidence (open source perspective)
-- [Cloudi-fi: Complete Guide to Unified Monitoring](https://www.cloudi-fi.com/blog/single-pane-of-glass-complete-guide) -- MEDIUM confidence
+### Build Quality Evaluation
+- [Anthropic: Demystifying Evals for AI Agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) -- HIGH confidence (official Anthropic engineering blog)
+- [OpenObserve: How AI Agents Automated Our QA](https://openobserve.ai/blog/autonomous-qa-testing-ai-agents-claude-code/) -- MEDIUM confidence
 
-### Cron Monitoring
-- [Cronitor: Cron Job Monitoring](https://cronitor.io/cron-job-monitoring) -- HIGH confidence (purpose-built tool, feature set is the industry baseline)
-- [Healthchecks.io](https://healthchecks.io/) -- HIGH confidence (open source reference for cron monitoring features)
-- [Better Stack: Cron Job Monitoring Tools Comparison](https://betterstack.com/community/comparisons/cronjob-monitoring-tools/) -- MEDIUM confidence
+### Dashboard Design (Build History)
+- [Google Antigravity Codelabs: Mission Control Dashboard](https://codelabs.developers.google.com/getting-started-google-antigravity) -- MEDIUM confidence (agent dashboard patterns)
+- [GitHub: Agentic QA Framework](https://github.com/partarstu/agentic-qa-framework) -- MEDIUM confidence (dashboard feature reference)
 
-### Email Metrics
-- [Improvado: Email Dashboard Metrics](https://improvado.io/blog/email-marketing-dashboard) -- MEDIUM confidence (marketing context adapted to operational monitoring)
-- [WarmForge: Monitor Email Bounce Rates](https://www.warmforge.ai/blog/monitor-email-bounce-rates-effectively?via=dangai) -- MEDIUM confidence
-
-### Content Pipeline
-- [Zapier: Kanban Editorial Calendar](https://zapier.com/blog/kanban-editorial-calendar/) -- MEDIUM confidence (editorial workflow patterns)
-
-### Next.js + SQLite
-- [Next.js Learn: Fetching Data](https://nextjs.org/learn/dashboard-app/fetching-data) -- HIGH confidence (official Next.js tutorial)
-- [Next.js SSR with SQLite](https://nextjs-devanshblog.vercel.app/posts/nextjs-ssr) -- MEDIUM confidence (community example)
+### OpenClaw Platform
+- [OpenClaw Docs: Skills](https://docs.openclaw.ai/tools/skills) -- HIGH confidence (official documentation)
+- [OpenClaw Docs: Sandboxing](https://docs.openclaw.ai/gateway/sandboxing) -- HIGH confidence (official documentation)
+- [Docker Blog: Run OpenClaw Securely in Docker Sandboxes](https://www.docker.com/blog/run-openclaw-securely-in-docker-sandboxes/) -- HIGH confidence
 
 ### Internal Sources (HIGH confidence)
-- Phase 26 Research: observability.db schema (llm_calls, agent_runs tables with indexes)
-- Phase 12 Summary: content.db schema (topics, articles, social_posts, pipeline_activity tables)
-- Phase 21 Research: email.db schema (email_conversations, rate limiting, bounce tracking)
-- PROJECT.md: Full system inventory (7 agents, 20 crons, 13 skills, 5 databases)
+- PROJECT.md: Full system inventory, constraints, infrastructure details
+- CLAUDE.md: Project overview, key files, working patterns
+- MEMORY.md: EC2 access, sandbox architecture, cron configuration, lessons learned
+- Previous FEATURES.md (v2.5): Dashboard patterns, data access patterns, anti-feature reasoning
 
 ---
 
-*Feature research for: Mission Control Dashboard v2.5 -- single pane of glass for pops-claw multi-agent system*
-*Researched: 2026-02-20*
-*Replaces: previous FEATURES.md covering content distribution + security hardening (v2.3/v2.4 milestones, now shipped/in-progress)*
+*Feature research for: YOLO Dev v2.7 -- autonomous overnight prototype builder for pops-claw*
+*Researched: 2026-02-24*
+*Replaces: previous FEATURES.md covering Mission Control Dashboard v2.5 (shipped)*
