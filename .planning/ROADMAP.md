@@ -109,7 +109,7 @@ Full details: [milestones/v2.6-ROADMAP.md](milestones/v2.6-ROADMAP.md)
 **Depends on**: Nothing (first phase in v2.7)
 **Requirements**: INFRA-01, INFRA-02, INFRA-03
 **Success Criteria** (what must be TRUE):
-  1. yolo.db exists at ~/clawd/yolo-dev/yolo.db with the builds table schema and can be read/written via sqlite3 CLI from inside the Docker sandbox at /workspace/yolo-dev/yolo.db
+  1. yolo.db exists at ~/clawd/yolo-dev/yolo.db with the builds table schema and can be read/written programmatically (Python sqlite3) from inside the Docker sandbox at /workspace/yolo-dev/yolo.db
   2. ~/clawd/yolo-dev/ directory exists on the host and is bind-mounted to /workspace/yolo-dev/ in the sandbox with read-write access
   3. Bob can create a numbered build directory (e.g., /workspace/yolo-dev/001-test/) with a README.md inside it from within a sandbox session
   4. Gateway has been restarted exactly once with all bind-mount and cron config changes batched together
@@ -173,7 +173,7 @@ Plans:
 | 24-28 | v2.4 | 9/9 | Complete | 2026-02-21 |
 | 29-32 | v2.5 | 9/9 | Complete | 2026-02-22 |
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
-| 38 | v2.7 | 2/2 | Complete | 2026-02-24 |
+| 38 | v2.7 | Complete    | 2026-02-24 | 2026-02-24 |
 | 39 | v2.7 | 0/3 | Not started | - |
 | 40 | v2.7 | 0/1 | Not started | - |
 | 41 | v2.7 | 0/2 | Not started | - |
