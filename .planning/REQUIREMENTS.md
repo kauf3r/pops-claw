@@ -1,73 +1,87 @@
-# Requirements: Pops-Claw v2.6
+# Requirements: YOLO Dev v2.7
 
-**Defined:** 2026-02-23
-**Core Value:** Make Bob's memory system reliable and give Andy visibility into memory health via Mission Control.
+**Defined:** 2026-02-24
+**Core Value:** Bob autonomously builds a working prototype overnight and logs everything to a dashboard Andy checks in the morning.
 
-## v2.6 Requirements
+## v2.7 Requirements
 
-### Memory System
+### Infrastructure
 
-- [x] **MEM-01**: MEMORY.md curated from 304 lines to under 150 lines, reference docs moved to docs/ directory
-- [x] **MEM-02**: Memory flush triggers consistently across session types (daily logs written for all active days, not just long sessions)
-- [x] **MEM-03**: AGENTS.md boot sequence includes explicit retrieval instructions (search daily logs and LEARNINGS.md before tasks)
-- [x] **MEM-04**: LEARNINGS.md activated with seeded entries from existing operational knowledge (not empty framework)
-- [x] **MEM-05**: Content agents (Quill, Sage, Ezra) have bootstrap memory files so they retain context across cron sessions
+- [ ] **INFRA-01**: yolo.db SQLite database created at ~/clawd/yolo-dev/yolo.db with builds table (id, date, slug, name, description, status, tech_stack, lines_of_code, files_created, self_score, self_evaluation, build_log, error_log, started_at, completed_at, duration_seconds)
+- [ ] **INFRA-02**: ~/clawd/yolo-dev/ directory created with bind-mount in openclaw.json sandbox config mapping to /workspace/yolo-dev/
+- [ ] **INFRA-03**: Build artifacts stored in ~/clawd/yolo-dev/{NNN}-{slug}/ with sequential numbering and README.md per build
 
-### Memory Health Monitoring
+### Build Pipeline
 
-- [ ] **MON-01**: Mission Control memory health panel shows per-agent chunk count and last-updated timestamp
-- [ ] **MON-02**: Memory health panel shows MEMORY.md line count vs 200-line auto-load limit
-- [ ] **MON-03**: Memory health panel shows memory flush frequency (flushes per day over last 7 days)
+- [ ] **BUILD-01**: Nightly cron job triggers Bob to execute an overnight build (isolated session, ~11 PM PT, Haiku model to avoid rate limit contention)
+- [ ] **BUILD-02**: YOLO_BUILD.md workspace reference doc defines the full build protocol — idea generation, execution, logging, evaluation
+- [ ] **BUILD-03**: Bob generates 3-5 project ideas informed by personal context (interests, recent voice notes, projects, skills), picks the best with reasoning, logs candidates to ideas.md
+- [ ] **BUILD-04**: YOLO_INTERESTS.md workspace protocol doc seeds idea generation with Andy's domains, technologies, and project types — editable anytime to steer direction
+- [ ] **BUILD-05**: Bob builds a working prototype using Python stdlib + vanilla HTML/JS as default stack, constrained to 100-500 LOC and 2-6 files
+- [ ] **BUILD-06**: Build status tracked in yolo.db with enum: idea → building → testing → success/partial/failed
+- [ ] **BUILD-07**: Bob self-evaluates each build on a 1-5 scale with reasoning (does it run, is the code clean, does it do what was intended)
+- [ ] **BUILD-08**: On failure or partial build, Bob writes POSTMORTEM.md explaining what was attempted, where it broke, and what would fix it
+- [ ] **BUILD-09**: Hard guardrails: 15-turn cap, 30-minute timeout, no pip/npm installs outside /workspace/, avoid repeating the same tech stack 3 builds in a row
 
-### Dashboard Polish
+### Dashboard & Notifications
 
-- [ ] **DASH-01**: Agent board cards show context usage indicators (token consumption as percentage of context window)
-- [ ] **DASH-02**: Agent board visual refinements (carried from v2.5 Phase 31.2 -- layout, spacing, card hierarchy)
+- [ ] **DASH-01**: Mission Control /yolo page displays build history as cards with status badges, self-scores, descriptions, and tech stack — newest first, filterable by status
+- [ ] **DASH-02**: Morning briefing Section 11 includes last night's YOLO build: project name, status, self-score, one-line description
+- [ ] **DASH-03**: Weekly review includes YOLO digest: N builds, best-rated, tech distribution, patterns
+- [ ] **DASH-04**: Slack notification to DM when build starts and completes
 
 ## Future Requirements
 
-### Memory System (v2.7+)
+### Build Enhancements (v2.8+)
 
-- **MEM-F01**: Hybrid search backend (QMD or BM25+vectors+reranking) replacing pure FTS5
-- **MEM-F02**: Automated MARKER retrieval test with pass/fail indicator in Mission Control
-- **MEM-F03**: Memory curation alerts when MEMORY.md exceeds line threshold
-- **MEM-F04**: Handover protocol -- agent writes current context to daily log before session end or model switch
+- **BUILD-10**: Build artifact preview — if build produces index.html, render as iframe preview on /yolo page
+- **BUILD-11**: Build retention policy — auto-cleanup of builds older than 30 days, keep top-rated
+- **BUILD-12**: Tech stack variety enforcement via dashboard distribution chart and reference doc nudge
 
-### Dashboard (v2.7+)
+### Dashboard Enhancements (v2.8+)
 
-- **DASH-F01**: Daily log timeline view (chronological, not just card grid)
-- **DASH-F02**: Dead code cleanup (global-search.tsx Convex stub)
+- **DASH-05**: Build trend chart on /yolo page — success rate over time, average self-score trend
+- **DASH-06**: Clickable build detail view with full build log, ideas.md, and file listing
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| QMD/hybrid search backend | Complexity -- validate FTS5 is actually insufficient first before upgrading |
-| WebSocket real-time memory updates | Memory changes daily, not in real-time -- 30s SWR polling sufficient |
-| Multi-agent memory comparison view | Single-user dashboard -- not needed for ops monitoring |
-| Gateway restart automation | Too risky to automate -- manual restart with DM re-establish is safer |
-| LEARNINGS.md auto-population from agent errors | Risk of noise -- manual curation preferred until pattern is proven |
+| Human approval gate before building | Defeats the overnight autonomous premise. Post-hoc review via dashboard |
+| Multi-agent collaboration on builds | Content pipeline proved multi-agent orchestration needs extensive stabilization |
+| Deployment/hosting of prototypes | EC2 is t3.small with 2GB RAM. Running N services is a resource nightmare |
+| Git repo per build | Adds sandbox complexity (git config, SSH keys). Directory versioning sufficient |
+| Interactive "watch Bob build" mode | Requires WebSocket streaming. Read build log after completion |
+| Build templates/scaffolding | Over-constrains creativity. Let Bob decide structure |
+| Automatic PR for good builds | Mixes experimental space with production repos |
+| Cost budgeting per build | Claude Pro 200 is flat rate. Rate limits handled by model routing |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MEM-01 | Phase 34 | Complete |
-| MEM-02 | Phase 34 | Complete |
-| MEM-03 | Phase 35 | Complete |
-| MEM-04 | Phase 35 | Complete |
-| MEM-05 | Phase 35 | Complete |
-| MON-01 | Phase 36 | Pending |
-| MON-02 | Phase 36 | Pending |
-| MON-03 | Phase 36 | Pending |
-| DASH-01 | Phase 37 | Pending |
-| DASH-02 | Phase 37 | Pending |
+| INFRA-01 | TBD | Pending |
+| INFRA-02 | TBD | Pending |
+| INFRA-03 | TBD | Pending |
+| BUILD-01 | TBD | Pending |
+| BUILD-02 | TBD | Pending |
+| BUILD-03 | TBD | Pending |
+| BUILD-04 | TBD | Pending |
+| BUILD-05 | TBD | Pending |
+| BUILD-06 | TBD | Pending |
+| BUILD-07 | TBD | Pending |
+| BUILD-08 | TBD | Pending |
+| BUILD-09 | TBD | Pending |
+| DASH-01 | TBD | Pending |
+| DASH-02 | TBD | Pending |
+| DASH-03 | TBD | Pending |
+| DASH-04 | TBD | Pending |
 
 **Coverage:**
-- v2.6 requirements: 10 total
-- Mapped to phases: 10
-- Unmapped: 0
+- v2.7 requirements: 16 total
+- Mapped to phases: 0
+- Unmapped: 16
 
 ---
-*Requirements defined: 2026-02-23*
-*Last updated: 2026-02-23 after renumber -- all 10 requirements mapped to phases 34-37 (Phase 33 reserved for content-pipeline on main)*
+*Requirements defined: 2026-02-24*
+*Last updated: 2026-02-24 after initial definition*
