@@ -129,12 +129,11 @@ Plans:
   3. Build produces a working prototype (Python stdlib + vanilla HTML/JS) constrained to 100-500 LOC and 2-6 files, with build status tracked through idea/building/testing/success/partial/failed in yolo.db
   4. Bob self-evaluates the build on a 1-5 scale with written reasoning, and writes POSTMORTEM.md on failure or partial completion
   5. Hard guardrails enforced: 15-turn cap, 30-minute timeout, no pip/npm installs outside /workspace/, tech stack variety (no same stack 3x in a row)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 39-01: TBD
-- [ ] 39-02: TBD
-- [ ] 39-03: TBD
+- [ ] 39-01-PLAN.md -- Create YOLO_BUILD.md + YOLO_INTERESTS.md protocol docs on EC2, seed 001-chronicle into yolo.db
+- [ ] 39-02-PLAN.md -- Register yolo-dev-overnight cron job, manual trigger end-to-end validation
 
 ### Phase 40: YOLO Dashboard
 **Goal**: Andy can view all YOLO builds, their status, scores, and tech stacks on a dedicated Mission Control page
@@ -174,12 +173,12 @@ Plans:
 | 29-32 | v2.5 | 9/9 | Complete | 2026-02-22 |
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
 | 38 | v2.7 | Complete    | 2026-02-24 | 2026-02-24 |
-| 39 | v2.7 | 0/3 | Not started | - |
+| 39 | v2.7 | 0/2 | Not started | - |
 | 40 | v2.7 | 0/1 | Not started | - |
 | 41 | v2.7 | 0/2 | Not started | - |
 
 **Total: 33 phases shipped, 66 plans completed, 7 milestones shipped**
-**v2.7: 4 phases, ~8 plans planned**
+**v2.7: 4 phases, ~7 plans planned**
 
 ---
 *Updated: 2026-02-24 -- Phase 38 Infrastructure Foundation complete (2/2 plans).*
