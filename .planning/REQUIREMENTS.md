@@ -60,28 +60,28 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | TBD | Pending |
-| INFRA-02 | TBD | Pending |
-| INFRA-03 | TBD | Pending |
-| BUILD-01 | TBD | Pending |
-| BUILD-02 | TBD | Pending |
-| BUILD-03 | TBD | Pending |
-| BUILD-04 | TBD | Pending |
-| BUILD-05 | TBD | Pending |
-| BUILD-06 | TBD | Pending |
-| BUILD-07 | TBD | Pending |
-| BUILD-08 | TBD | Pending |
-| BUILD-09 | TBD | Pending |
-| DASH-01 | TBD | Pending |
-| DASH-02 | TBD | Pending |
-| DASH-03 | TBD | Pending |
-| DASH-04 | TBD | Pending |
+| INFRA-01 | Phase 38 | Pending |
+| INFRA-02 | Phase 38 | Pending |
+| INFRA-03 | Phase 38 | Pending |
+| BUILD-01 | Phase 39 | Pending |
+| BUILD-02 | Phase 39 | Pending |
+| BUILD-03 | Phase 39 | Pending |
+| BUILD-04 | Phase 39 | Pending |
+| BUILD-05 | Phase 39 | Pending |
+| BUILD-06 | Phase 39 | Pending |
+| BUILD-07 | Phase 39 | Pending |
+| BUILD-08 | Phase 39 | Pending |
+| BUILD-09 | Phase 39 | Pending |
+| DASH-01 | Phase 40 | Pending |
+| DASH-02 | Phase 41 | Pending |
+| DASH-03 | Phase 41 | Pending |
+| DASH-04 | Phase 41 | Pending |
 
 **Coverage:**
 - v2.7 requirements: 16 total
-- Mapped to phases: 0
-- Unmapped: 16
+- Mapped to phases: 16
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-24*
-*Last updated: 2026-02-24 after initial definition*
+*Last updated: 2026-02-24 -- traceability updated with phase mappings*
