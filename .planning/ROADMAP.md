@@ -83,6 +83,19 @@ Full details: [milestones/v2.5-ROADMAP.md](milestones/v2.5-ROADMAP.md)
 
 </details>
 
+### Phase 33: Content Pipeline Improvements
+
+**Goal:** Fully operational content pipeline with bug fixes, pillar-cluster SEO architecture, topic suggestions queue, updated agent skills, and upgraded Mission Control dashboard.
+
+**Requirements:** [CP2-01, CP2-02, CP2-03, CP2-04, CP2-05, CP2-06, CP2-07, CP2-08, CP2-09, CP2-10, CP2-11, CP2-12]
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 33-01-PLAN.md — Fix content.db schema bugs and add pillar-cluster tables
+- [ ] 33-02-PLAN.md — Update content pipeline skills (strategy, writer, monitoring)
+- [ ] 33-03-PLAN.md — Upgrade Mission Control /content dashboard with KPI bar and funnel
+
 ### v2.6 Agent Memory & Dashboard Polish
 
 - [x] **Phase 34: Memory Curation & Bootstrap** - Curate MEMORY.md under budget, fix flush consistency
@@ -150,6 +163,7 @@ Phases execute in numeric order: 34 -> 35 -> 36 -> 37
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
+| 33. Content Pipeline Improvements | — | 0/3 | Planning | — |
 | 34. Memory Curation & Bootstrap | v2.6 | Complete    | 2026-02-23 | 2026-02-23 |
 | 35. Memory Retrieval Discipline | 2/2 | Complete    | 2026-02-23 | - |
 | 36. Memory Health Monitoring | v2.6 | 0/TBD | Not started | - |
