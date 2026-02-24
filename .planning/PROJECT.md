@@ -67,7 +67,17 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ### Active
 
-(No active milestone — run `/gsd:new-milestone` to start next)
+## Current Milestone: v2.7 YOLO Dev
+
+**Goal:** Give Bob the ability to autonomously pick a wild project idea and build a working prototype overnight, with a YOLO dashboard in Mission Control to track all builds.
+
+**Target features:**
+- Overnight build pipeline triggered by cron
+- Idea generation from project context and interests
+- Autonomous prototype building (Python/HTML default stack)
+- Build logging to yolo.db (SQLite)
+- Mission Control `/yolo` page displaying build history
+- Build artifacts stored at `~/clawd/yolo-dev/`
 
 ### Out of Scope
 
@@ -166,4 +176,4 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Workspace protocol doc for Bob triggers | Standing instructions over skill triggers | ✓ Good — CONTENT_TRIGGERS.md working |
 
 ---
-*Last updated: 2026-02-23 after v2.6 milestone completion*
+*Last updated: 2026-02-24 after v2.7 milestone start*

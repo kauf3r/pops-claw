@@ -2,20 +2,20 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-23)
+See: .planning/PROJECT.md (updated 2026-02-24)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** Planning next milestone
+**Current focus:** v2.7 YOLO Dev — overnight autonomous builder
 
 ## Current Position
 
 Phase: —
 Plan: —
-Status: Between milestones
-Milestone: v2.6 shipped 2026-02-23
-Last activity: 2026-02-23 — v2.6 Content Pipeline Hardening shipped and archived
+Status: Defining requirements
+Milestone: v2.7 YOLO Dev
+Last activity: 2026-02-24 — Milestone v2.7 started
 
-Progress: All milestones through v2.6 complete (33 phases, 66 plans)
+Progress: Defining requirements
 
 ## Performance Metrics
 
@@ -39,25 +39,16 @@ Progress: All milestones through v2.6 complete (33 phases, 66 plans)
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-(Cleared at v2.6 milestone — all v2.6 decisions archived to PROJECT.md)
 
 ### Open Items
 
 - DMARC rua at theandykaufman@gmail.com: aggregate reports expected (Phase 27-01 checkpoint)
 - Email-catchup cron delivery target error: "Action send requires a target" -- deferred
-- Phase 31.1 (Context Usage Indicators) — carried forward from v2.5
-- Phase 31.2 (Agent Board Polish) — carried forward from v2.5
 - Dead code: global-search.tsx returns null (Convex removal stub from Phase 29)
 
 ### Blockers
 
 (None)
-
-### Quick Tasks Completed
-
-| # | Description | Date | Commit | Directory |
-|---|-------------|------|--------|-----------|
-| 3 | Connect content agent into Mission Control dashboard | 2026-02-22 | f2b302f | [3-connect-content-agent-into-mission-contr](./quick/3-connect-content-agent-into-mission-contr/) |
 
 ## Notes
 
@@ -67,6 +58,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - 5 databases: health.db, coordination.db, content.db, email.db, observability.db
 - Mission Control: http://100.72.143.9:3001 (direct Tailscale, no SSH tunnel)
 - systemd service: mission-control.service (auto-starts, OOMScoreAdjust=500)
+- YOLO Dev builds: ~/clawd/yolo-dev/ on EC2
+- YOLO metadata: yolo.db (new SQLite database)
 
 ---
-*Last updated: 2026-02-23 — v2.6 Content Pipeline Hardening shipped and archived.*
+*Last updated: 2026-02-24 — Milestone v2.7 YOLO Dev started.*
