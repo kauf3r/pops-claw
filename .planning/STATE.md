@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-24)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.7 YOLO Dev -- Phase 38 Infrastructure Foundation
+**Current focus:** v2.7 YOLO Dev -- Phase 38 complete, ready for Phase 39
 
 ## Current Position
 
-Phase: 38 of 41 (Infrastructure Foundation)
-Plan: 1 of 2 in current phase
-Status: Executing
+Phase: 38 of 41 (Infrastructure Foundation) -- COMPLETE
+Plan: 2 of 2 in current phase (done)
+Status: Phase complete
 Milestone: v2.7 YOLO Dev
-Last activity: 2026-02-24 -- Completed 38-01 (yolo.db + bind-mount)
+Last activity: 2026-02-24 -- Completed 38-02 (sandbox validation + smoke test)
 
-Progress: [█░░░░░░░░░] 12% (1/8 plans)
+Progress: [██░░░░░░░░] 25% (2/8 plans)
 
 ## Performance Metrics
 
@@ -34,12 +34,16 @@ Progress: [█░░░░░░░░░] 12% (1/8 plans)
 | v2.5 | 4 | 9 | 2 days |
 | v2.6 | 1 | 4 | 2 days |
 | Phase 38 P01 | 2min | 2 tasks | 3 files |
+| Phase 38 P02 | 3min | 2 tasks | 1 file |
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
+
+- Phase 38-02: Sandbox DB access uses Python sqlite3 module (not CLI sqlite3 or better-sqlite3 due to sandbox constraints)
+- Phase 38-02: 000-test/ kept as permanent smoke test marker
 
 ### Open Items
 
@@ -63,4 +67,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - YOLO metadata: yolo.db at ~/clawd/yolo-dev/yolo.db (new SQLite database)
 
 ---
-*Last updated: 2026-02-24 -- Completed 38-01 (yolo.db schema + bind-mount + gateway restart).*
+*Last updated: 2026-02-24 -- Completed 38-02 (sandbox validation + smoke test). Phase 38 complete.*

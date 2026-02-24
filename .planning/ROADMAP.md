@@ -97,7 +97,7 @@ Full details: [milestones/v2.6-ROADMAP.md](milestones/v2.6-ROADMAP.md)
 
 **Milestone Goal:** Bob autonomously picks a wild project idea and builds a working prototype overnight, with a YOLO dashboard in Mission Control to track all builds.
 
-- [ ] **Phase 38: Infrastructure Foundation** - yolo.db, build directory, bind-mounts, single gateway restart
+- [x] **Phase 38: Infrastructure Foundation** - yolo.db, build directory, bind-mounts, single gateway restart
 - [ ] **Phase 39: Build Pipeline** - Skill, cron, reference docs, interests file, guardrails, end-to-end validation
 - [ ] **Phase 40: YOLO Dashboard** - Mission Control /yolo page with build history cards and status filtering
 - [ ] **Phase 41: Briefing & Notifications** - Morning briefing section, weekly digest, Slack DM notifications
@@ -116,8 +116,8 @@ Full details: [milestones/v2.6-ROADMAP.md](milestones/v2.6-ROADMAP.md)
 **Plans**: 2 plans
 
 Plans:
-- [ ] 38-01-PLAN.md -- Create yolo.db with builds table schema, configure bind-mount, restart gateway
-- [ ] 38-02-PLAN.md -- Validate infrastructure end-to-end from sandbox, 000-test/ smoke test
+- [x] 38-01-PLAN.md -- Create yolo.db with builds table schema, configure bind-mount, restart gateway
+- [x] 38-02-PLAN.md -- Validate infrastructure end-to-end from sandbox, 000-test/ smoke test
 
 ### Phase 39: Build Pipeline
 **Goal**: Bob can autonomously generate an idea, build a working prototype, log everything to yolo.db, and deliver a summary -- triggered by a nightly cron
@@ -173,7 +173,7 @@ Plans:
 | 24-28 | v2.4 | 9/9 | Complete | 2026-02-21 |
 | 29-32 | v2.5 | 9/9 | Complete | 2026-02-22 |
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
-| 38 | 1/2 | In Progress|  | - |
+| 38 | v2.7 | 2/2 | Complete | 2026-02-24 |
 | 39 | v2.7 | 0/3 | Not started | - |
 | 40 | v2.7 | 0/1 | Not started | - |
 | 41 | v2.7 | 0/2 | Not started | - |
@@ -182,4 +182,4 @@ Plans:
 **v2.7: 4 phases, ~8 plans planned**
 
 ---
-*Updated: 2026-02-24 -- v2.7 YOLO Dev roadmap created.*
+*Updated: 2026-02-24 -- Phase 38 Infrastructure Foundation complete (2/2 plans).*
