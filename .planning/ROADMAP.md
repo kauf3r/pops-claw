@@ -113,11 +113,11 @@ Full details: [milestones/v2.6-ROADMAP.md](milestones/v2.6-ROADMAP.md)
   2. ~/clawd/yolo-dev/ directory exists on the host and is bind-mounted to /workspace/yolo-dev/ in the sandbox with read-write access
   3. Bob can create a numbered build directory (e.g., /workspace/yolo-dev/001-test/) with a README.md inside it from within a sandbox session
   4. Gateway has been restarted exactly once with all bind-mount and cron config changes batched together
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 38-01: TBD
-- [ ] 38-02: TBD
+- [ ] 38-01-PLAN.md -- Create yolo.db with builds table schema, configure bind-mount, restart gateway
+- [ ] 38-02-PLAN.md -- Validate infrastructure end-to-end from sandbox, 000-test/ smoke test
 
 ### Phase 39: Build Pipeline
 **Goal**: Bob can autonomously generate an idea, build a working prototype, log everything to yolo.db, and deliver a summary -- triggered by a nightly cron
