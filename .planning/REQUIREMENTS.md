@@ -7,8 +7,8 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: yolo.db SQLite database created at ~/clawd/yolo-dev/yolo.db with builds table (id, date, slug, name, description, status, tech_stack, lines_of_code, files_created, self_score, self_evaluation, build_log, error_log, started_at, completed_at, duration_seconds)
-- [ ] **INFRA-02**: ~/clawd/yolo-dev/ directory created with bind-mount in openclaw.json sandbox config mapping to /workspace/yolo-dev/
+- [x] **INFRA-01**: yolo.db SQLite database created at ~/clawd/yolo-dev/yolo.db with builds table (id, date, slug, name, description, status, tech_stack, lines_of_code, files_created, self_score, self_evaluation, build_log, error_log, started_at, completed_at, duration_seconds)
+- [x] **INFRA-02**: ~/clawd/yolo-dev/ directory created with bind-mount in openclaw.json sandbox config mapping to /workspace/yolo-dev/
 - [ ] **INFRA-03**: Build artifacts stored in ~/clawd/yolo-dev/{NNN}-{slug}/ with sequential numbering and README.md per build
 
 ### Build Pipeline
@@ -60,8 +60,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 38 | Pending |
-| INFRA-02 | Phase 38 | Pending |
+| INFRA-01 | Phase 38 | Complete |
+| INFRA-02 | Phase 38 | Complete |
 | INFRA-03 | Phase 38 | Pending |
 | BUILD-01 | Phase 39 | Pending |
 | BUILD-02 | Phase 39 | Pending |

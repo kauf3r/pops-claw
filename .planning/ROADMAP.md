@@ -173,7 +173,7 @@ Plans:
 | 24-28 | v2.4 | 9/9 | Complete | 2026-02-21 |
 | 29-32 | v2.5 | 9/9 | Complete | 2026-02-22 |
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
-| 38 | v2.7 | 0/2 | Not started | - |
+| 38 | 1/2 | In Progress|  | - |
 | 39 | v2.7 | 0/3 | Not started | - |
 | 40 | v2.7 | 0/1 | Not started | - |
 | 41 | v2.7 | 0/2 | Not started | - |
