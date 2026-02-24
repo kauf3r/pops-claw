@@ -60,6 +60,11 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - ✓ Agent board with 7-agent cards: heartbeat status, token usage, model distribution, error counts — v2.5
 - ✓ Memory browser with FTS5 search, office view with SVG agent avatars, 4 Recharts analytics charts — v2.5
 
+- ✓ Content pipeline infrastructure verified — bind-mount correct, 0-byte stubs cleaned, all agents on same content.db — v2.6
+- ✓ Channel:ID format enforced across all cron payloads and session instruction files — two-level delivery pattern — v2.6
+- ✓ On-demand content triggers via Bob DM — write, research, social post retrieval via CONTENT_TRIGGERS.md protocol — v2.6
+- ✓ Mission Control analytics pipeline chart rendering real data with stage-ordered SQL — v2.6
+
 ### Active
 
 (No active milestone — run `/gsd:new-milestone` to start next)
@@ -77,7 +82,7 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ## Context
 
-**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) + **v2.4** (4 days) + **v2.5** (2 days) = full proactive companion + content pipeline + email + security + Mission Control Dashboard.
+**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) + **v2.4** (4 days) + **v2.5** (2 days) + **v2.6** (2 days) = full proactive companion + content pipeline + email + security + Mission Control Dashboard + content pipeline hardening.
 
 **Tech stack:** OpenClaw v2026.2.17, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db + observability.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean). Mission Control: Next.js 14 + Tailwind + better-sqlite3 at ~/clawd/mission-control/.
 
@@ -156,6 +161,9 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Per-subsystem query modules | Independent error handling, not one mega route | ✓ Good — clean boundaries |
 | FTS5 with LIKE fallback | Robust search even with syntax errors | ✓ Good — resilient UX |
 | Recharts for visualization | React-native, no D3 complexity | ✓ Good — charts working |
+| Channel:ID format everywhere | Gateway validates channel IDs at tool call level | ✓ Good — reliable Slack delivery |
+| SQL CASE ordering for pipeline stages | Keep stage sequence in query layer, not app | ✓ Good — clean separation |
+| Workspace protocol doc for Bob triggers | Standing instructions over skill triggers | ✓ Good — CONTENT_TRIGGERS.md working |
 
 ---
-*Last updated: 2026-02-22 after v2.5 milestone completion*
+*Last updated: 2026-02-23 after v2.6 milestone completion*

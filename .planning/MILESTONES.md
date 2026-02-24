@@ -124,3 +124,25 @@
 
 ---
 
+
+## v2.6 Content Pipeline Hardening (Shipped: 2026-02-23)
+
+**Phases:** 33 (1 phase, 4 plans, 8 tasks)
+**Timeline:** 2 days (Feb 22-23, 2026)
+**Commits:** 23 | Files: 19 | Lines: +2,231 / -12
+**Requirements:** 6/6 satisfied | Audit: PASSED
+**Git range:** docs(33) → docs(v2.6)
+
+**Delivered:** Hardened the content pipeline for reliable end-to-end operation — verified infrastructure, established channel:ID format across all cron payloads and session files, enabled on-demand content creation via Bob DM, and fixed Mission Control analytics charts.
+
+**Key accomplishments:**
+1. Verified content.db bind-mount and cleaned 0-byte stubs from 3 agent workspaces
+2. Fixed all Slack channel references to channel:ID format across 10 session files and 5 cron payloads — established two-level channel:ID pattern for reliable delivery
+3. Created CONTENT_TRIGGERS.md workspace protocol enabling Bob to handle on-demand content creation, topic research, and social post retrieval via DM
+4. Fixed Mission Control analytics pipeline chart to render real article status distribution with SQL CASE stage ordering
+5. Closed verification gap: cron payload messages required channel:ID format in addition to session instruction files
+
+**Archive:** [milestones/v2.6-ROADMAP.md](milestones/v2.6-ROADMAP.md) | [milestones/v2.6-REQUIREMENTS.md](milestones/v2.6-REQUIREMENTS.md) | [milestones/v2.6-MILESTONE-AUDIT.md](milestones/v2.6-MILESTONE-AUDIT.md)
+
+---
+
