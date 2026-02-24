@@ -14,14 +14,14 @@
 ### Build Pipeline
 
 - [ ] **BUILD-01**: Nightly cron job triggers Bob to execute an overnight build (isolated session, ~11 PM PT, Haiku model to avoid rate limit contention)
-- [ ] **BUILD-02**: YOLO_BUILD.md workspace reference doc defines the full build protocol — idea generation, execution, logging, evaluation
-- [ ] **BUILD-03**: Bob generates 3-5 project ideas informed by personal context (interests, recent voice notes, projects, skills), picks the best with reasoning, logs candidates to ideas.md
-- [ ] **BUILD-04**: YOLO_INTERESTS.md workspace protocol doc seeds idea generation with Andy's domains, technologies, and project types — editable anytime to steer direction
-- [ ] **BUILD-05**: Bob builds a working prototype using Python stdlib + vanilla HTML/JS as default stack, constrained to 100-500 LOC and 2-6 files
-- [ ] **BUILD-06**: Build status tracked in yolo.db with enum: idea → building → testing → success/partial/failed
-- [ ] **BUILD-07**: Bob self-evaluates each build on a 1-5 scale with reasoning (does it run, is the code clean, does it do what was intended)
-- [ ] **BUILD-08**: On failure or partial build, Bob writes POSTMORTEM.md explaining what was attempted, where it broke, and what would fix it
-- [ ] **BUILD-09**: Hard guardrails: 15-turn cap, 30-minute timeout, no pip/npm installs outside /workspace/, avoid repeating the same tech stack 3 builds in a row
+- [x] **BUILD-02**: YOLO_BUILD.md workspace reference doc defines the full build protocol — idea generation, execution, logging, evaluation
+- [x] **BUILD-03**: Bob generates 3-5 project ideas informed by personal context (interests, recent voice notes, projects, skills), picks the best with reasoning, logs candidates to ideas.md
+- [x] **BUILD-04**: YOLO_INTERESTS.md workspace protocol doc seeds idea generation with Andy's domains, technologies, and project types — editable anytime to steer direction
+- [x] **BUILD-05**: Bob builds a working prototype using Python stdlib + vanilla HTML/JS as default stack, constrained to 100-500 LOC and 2-6 files
+- [x] **BUILD-06**: Build status tracked in yolo.db with enum: idea → building → testing → success/partial/failed
+- [x] **BUILD-07**: Bob self-evaluates each build on a 1-5 scale with reasoning (does it run, is the code clean, does it do what was intended)
+- [x] **BUILD-08**: On failure or partial build, Bob writes POSTMORTEM.md explaining what was attempted, where it broke, and what would fix it
+- [x] **BUILD-09**: Hard guardrails: 15-turn cap, 30-minute timeout, no pip/npm installs outside /workspace/, avoid repeating the same tech stack 3 builds in a row
 
 ### Dashboard & Notifications
 
@@ -64,14 +64,14 @@
 | INFRA-02 | Phase 38 | Complete |
 | INFRA-03 | Phase 38 | Complete |
 | BUILD-01 | Phase 39 | Pending |
-| BUILD-02 | Phase 39 | Pending |
-| BUILD-03 | Phase 39 | Pending |
-| BUILD-04 | Phase 39 | Pending |
-| BUILD-05 | Phase 39 | Pending |
-| BUILD-06 | Phase 39 | Pending |
-| BUILD-07 | Phase 39 | Pending |
-| BUILD-08 | Phase 39 | Pending |
-| BUILD-09 | Phase 39 | Pending |
+| BUILD-02 | Phase 39 | Complete |
+| BUILD-03 | Phase 39 | Complete |
+| BUILD-04 | Phase 39 | Complete |
+| BUILD-05 | Phase 39 | Complete |
+| BUILD-06 | Phase 39 | Complete |
+| BUILD-07 | Phase 39 | Complete |
+| BUILD-08 | Phase 39 | Complete |
+| BUILD-09 | Phase 39 | Complete |
 | DASH-01 | Phase 40 | Pending |
 | DASH-02 | Phase 41 | Pending |
 | DASH-03 | Phase 41 | Pending |
