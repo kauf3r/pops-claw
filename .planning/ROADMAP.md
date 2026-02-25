@@ -147,7 +147,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 40-01-PLAN.md -- Register yolo.db, query module, API route
+- [x] 40-01-PLAN.md -- Register yolo.db, query module, API route
 - [ ] 40-02-PLAN.md -- YoloBuildCard component, /yolo page with filters, navbar link
 
 ### Phase 41: Briefing & Notifications
@@ -176,11 +176,11 @@ Plans:
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
 | 38 | v2.7 | Complete    | 2026-02-24 | 2026-02-24 |
 | 39 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
-| 40 | v2.7 | 0/1 | Not started | - |
+| 40 | v2.7 | 1/2 | In progress | - |
 | 41 | v2.7 | 0/2 | Not started | - |
 
 **Total: 33 phases shipped, 66 plans completed, 7 milestones shipped**
-**v2.7: 4 phases, ~8 plans planned (5 complete)**
+**v2.7: 4 phases, ~8 plans planned (6 complete)**
 
 ---
-*Updated: 2026-02-25 -- Phase 39 Build Pipeline complete (3/3 plans). Next: Phase 40 YOLO Dashboard.*
+*Updated: 2026-02-25 -- Phase 40 Plan 01 complete (API layer). Next: 40-02 (frontend page).*

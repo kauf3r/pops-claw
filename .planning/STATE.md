@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-24)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.7 YOLO Dev -- Phase 39 complete, Phase 40 next
+**Current focus:** v2.7 YOLO Dev -- Phase 40 in progress (Plan 01 complete)
 
 ## Current Position
 
-Phase: 39 of 41 (Build Pipeline) -- COMPLETE
-Plan: 3 of 3 in current phase (all complete)
-Status: Phase Complete
+Phase: 40 of 41 (YOLO Dashboard) -- IN PROGRESS
+Plan: 1 of 2 in current phase
+Status: Executing
 Milestone: v2.7 YOLO Dev
-Last activity: 2026-02-25 -- Completed 39-03 (gap closure: cron trigger fix + 15-turn cap)
+Last activity: 2026-02-25 -- Completed 40-01 (yolo.db registration, query module, API route)
 
-Progress: [██████░░░░] 63% (5/8 plans)
+Progress: [███████░░░] 75% (6/8 plans)
 
 ## Performance Metrics
 
@@ -38,6 +38,7 @@ Progress: [██████░░░░] 63% (5/8 plans)
 | Phase 39 P01 | 4min | 2 tasks | 3 files |
 | Phase 39 P02 | 45min | 2 tasks | 4 files |
 | Phase 39 P03 | 30min | 2 tasks | 4 files |
+| Phase 40 P01 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -53,6 +54,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 39-02: yolo-dev canonical path is ~/clawd/agents/main/yolo-dev/ (served via main workspace mount)
 - Phase 39-03: Isolated cron sessions use virtual sandbox with only explicit binds -- NOT the main workspace mount
 - Phase 39-03: Added explicit bind mount for yolo-dev in openclaw.json (fixed cron-triggered builds)
+- Phase 40-01: Excluded build_log/error_log/self_evaluation from API response (verbose, per CONTEXT.md)
+- Phase 40-01: tech_stack parsed via comma-split (not JSON), matching yolo.db storage format
+- Phase 40-01: Client-side filtering chosen over server-side query params (< 100 builds)
 
 ### Open Items
 
@@ -69,11 +73,11 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - EC2 access via Tailscale: 100.72.143.9
 - Mission Control codebase: ~/clawd/mission-control/ on EC2
 - Stack: Next.js 14.2.15 + Tailwind + better-sqlite3 + SWR + Recharts + cron-parser v5
-- 5 databases: health.db, coordination.db, content.db, email.db, observability.db (yolo.db = 6th)
+- 6 databases: health.db, coordination.db, content.db, email.db, observability.db, yolo.db
 - Mission Control: http://100.72.143.9:3001 (direct Tailscale, no SSH tunnel)
 - systemd service: mission-control.service (auto-starts, OOMScoreAdjust=500)
 - YOLO Dev builds: ~/clawd/yolo-dev/ on EC2
 - YOLO metadata: yolo.db at ~/clawd/yolo-dev/yolo.db (new SQLite database)
 
 ---
-*Last updated: 2026-02-25 -- Completed 39-03 (gap closure). Phase 39 fully complete (3/3 plans). Next: Phase 40 (YOLO Dashboard).*
+*Last updated: 2026-02-25 -- Completed 40-01 (API layer). yolo.db registered, query module + API route deployed. Next: 40-02 (frontend page).*

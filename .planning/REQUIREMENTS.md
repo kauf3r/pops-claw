@@ -25,7 +25,7 @@
 
 ### Dashboard & Notifications
 
-- [ ] **DASH-01**: Mission Control /yolo page displays build history as cards with status badges, self-scores, descriptions, and tech stack — newest first, filterable by status
+- [x] **DASH-01**: Mission Control /yolo page displays build history as cards with status badges, self-scores, descriptions, and tech stack — newest first, filterable by status
 - [ ] **DASH-02**: Morning briefing Section 11 includes last night's YOLO build: project name, status, self-score, one-line description
 - [ ] **DASH-03**: Weekly review includes YOLO digest: N builds, best-rated, tech distribution, patterns
 - [ ] **DASH-04**: Slack notification to DM when build starts and completes
@@ -72,7 +72,7 @@
 | BUILD-07 | Phase 39 | Complete |
 | BUILD-08 | Phase 39 | Complete |
 | BUILD-09 | Phase 39 | Complete |
-| DASH-01 | Phase 40 | Pending |
+| DASH-01 | Phase 40 | Complete |
 | DASH-02 | Phase 41 | Pending |
 | DASH-03 | Phase 41 | Pending |
 | DASH-04 | Phase 41 | Pending |
