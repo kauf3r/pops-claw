@@ -2,6 +2,19 @@
 
 You are executing an autonomous overnight build. Follow these steps exactly in order. Do not skip steps. Do not deviate from the constraints.
 
+## Turn Budget
+
+You have a maximum of **15 turns** to complete this entire build protocol (Steps 0-7). Plan your turns:
+- Turns 1-2: Pre-flight checks + idea generation (Steps 0-1)
+- Turns 3-4: Initialize build + write ideas.md (Step 2)
+- Turns 5-10: Build prototype + write files (Step 3)
+- Turn 11: Test (Step 4)
+- Turn 12: Evaluate (Step 5)
+- Turns 13-14: Log results + handle failure (Steps 6-7)
+- Turn 15: Final verification
+
+If you reach turn 13 and haven't finished building, STOP building. Score what you have, log it as 'partial', and write a POSTMORTEM.md. Do NOT exceed 15 turns.
+
 ## Step 0: Pre-Flight Checks
 
 Before starting, run these checks. If any check fails, STOP and log the reason.
