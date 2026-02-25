@@ -13,7 +13,7 @@
 
 ### Build Pipeline
 
-- [ ] **BUILD-01**: Nightly cron job triggers Bob to execute an overnight build (isolated session, ~11 PM PT, Haiku model to avoid rate limit contention)
+- [x] **BUILD-01**: Nightly cron job triggers Bob to execute an overnight build (isolated session, ~11 PM PT, Haiku model to avoid rate limit contention)
 - [x] **BUILD-02**: YOLO_BUILD.md workspace reference doc defines the full build protocol — idea generation, execution, logging, evaluation
 - [x] **BUILD-03**: Bob generates 3-5 project ideas informed by personal context (interests, recent voice notes, projects, skills), picks the best with reasoning, logs candidates to ideas.md
 - [x] **BUILD-04**: YOLO_INTERESTS.md workspace protocol doc seeds idea generation with Andy's domains, technologies, and project types — editable anytime to steer direction
@@ -63,7 +63,7 @@
 | INFRA-01 | Phase 38 | Complete |
 | INFRA-02 | Phase 38 | Complete |
 | INFRA-03 | Phase 38 | Complete |
-| BUILD-01 | Phase 39 | Pending |
+| BUILD-01 | Phase 39 | Complete |
 | BUILD-02 | Phase 39 | Complete |
 | BUILD-03 | Phase 39 | Complete |
 | BUILD-04 | Phase 39 | Complete |
