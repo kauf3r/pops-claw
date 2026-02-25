@@ -144,10 +144,11 @@ Plans:
   1. Mission Control has a /yolo route accessible from the navbar that displays build history as cards with status badges (color-coded), self-scores, descriptions, and tech stack tags
   2. Build cards are sorted newest-first and can be filtered by status (all/success/partial/failed)
   3. Page auto-refreshes via SWR and displays accurate data from yolo.db within 30 seconds of a build completing
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 40-01: TBD
+- [ ] 40-01-PLAN.md -- Register yolo.db, query module, API route
+- [ ] 40-02-PLAN.md -- YoloBuildCard component, /yolo page with filters, navbar link
 
 ### Phase 41: Briefing & Notifications
 **Goal**: Andy learns about YOLO build results through existing communication channels without checking the dashboard
