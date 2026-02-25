@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-24)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.7 YOLO Dev -- Phase 40 in progress (Plan 01 complete)
+**Current focus:** v2.7 YOLO Dev -- Phase 40 complete, Phase 41 next
 
 ## Current Position
 
-Phase: 40 of 41 (YOLO Dashboard) -- IN PROGRESS
-Plan: 1 of 2 in current phase
-Status: Executing
+Phase: 41 of 41 (Briefing & Notifications) -- NOT STARTED
+Plan: 0 of 2 in current phase
+Status: Ready
 Milestone: v2.7 YOLO Dev
-Last activity: 2026-02-25 -- Completed 40-01 (yolo.db registration, query module, API route)
+Last activity: 2026-02-25 -- Completed 40-02 (/yolo page with build cards, filters, navbar link)
 
-Progress: [███████░░░] 75% (6/8 plans)
+Progress: [████████░░] 88% (7/8 plans)
 
 ## Performance Metrics
 
@@ -39,6 +39,7 @@ Progress: [███████░░░] 75% (6/8 plans)
 | Phase 39 P02 | 45min | 2 tasks | 4 files |
 | Phase 39 P03 | 30min | 2 tasks | 4 files |
 | Phase 40 P01 | 3min | 2 tasks | 3 files |
+| Phase 40 P02 | 5min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -57,6 +58,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 40-01: Excluded build_log/error_log/self_evaluation from API response (verbose, per CONTEXT.md)
 - Phase 40-01: tech_stack parsed via comma-split (not JSON), matching yolo.db storage format
 - Phase 40-01: Client-side filtering chosen over server-side query params (< 100 builds)
+- Phase 40-02: Status border colors: emerald=success, amber=partial, rose=failed, blue=building/testing, zinc=idea
+- Phase 40-02: NavBar.tsx (PascalCase) not nav-bar.tsx -- adapted to existing codebase convention
 
 ### Open Items
 
@@ -80,4 +83,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - YOLO metadata: yolo.db at ~/clawd/yolo-dev/yolo.db (new SQLite database)
 
 ---
-*Last updated: 2026-02-25 -- Completed 40-01 (API layer). yolo.db registered, query module + API route deployed. Next: 40-02 (frontend page).*
+*Last updated: 2026-02-25 -- Completed 40-02 (frontend). /yolo page live with build cards, filter bar, navbar link. Phase 40 complete. Next: Phase 41 (briefing & notifications).*

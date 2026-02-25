@@ -99,7 +99,7 @@ Full details: [milestones/v2.6-ROADMAP.md](milestones/v2.6-ROADMAP.md)
 
 - [x] **Phase 38: Infrastructure Foundation** - yolo.db, build directory, bind-mounts, single gateway restart
 - [x] **Phase 39: Build Pipeline** - Skill, cron, reference docs, interests file, guardrails, end-to-end validation, gap closure (completed 2026-02-25)
-- [ ] **Phase 40: YOLO Dashboard** - Mission Control /yolo page with build history cards and status filtering
+- [x] **Phase 40: YOLO Dashboard** - Mission Control /yolo page with build history cards and status filtering (completed 2026-02-25)
 - [ ] **Phase 41: Briefing & Notifications** - Morning briefing section, weekly digest, Slack DM notifications
 
 ## Phase Details
@@ -148,7 +148,7 @@ Plans:
 
 Plans:
 - [x] 40-01-PLAN.md -- Register yolo.db, query module, API route
-- [ ] 40-02-PLAN.md -- YoloBuildCard component, /yolo page with filters, navbar link
+- [x] 40-02-PLAN.md -- YoloBuildCard component, /yolo page with filters, navbar link
 
 ### Phase 41: Briefing & Notifications
 **Goal**: Andy learns about YOLO build results through existing communication channels without checking the dashboard
@@ -176,11 +176,11 @@ Plans:
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
 | 38 | v2.7 | Complete    | 2026-02-24 | 2026-02-24 |
 | 39 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
-| 40 | v2.7 | 1/2 | In progress | - |
+| 40 | v2.7 | 2/2 | Complete | 2026-02-25 |
 | 41 | v2.7 | 0/2 | Not started | - |
 
 **Total: 33 phases shipped, 66 plans completed, 7 milestones shipped**
-**v2.7: 4 phases, ~8 plans planned (6 complete)**
+**v2.7: 4 phases, ~8 plans planned (7 complete)**
 
 ---
-*Updated: 2026-02-25 -- Phase 40 Plan 01 complete (API layer). Next: 40-02 (frontend page).*
+*Updated: 2026-02-25 -- Phase 40 complete (dashboard + API). Next: Phase 41 (briefing & notifications).*
