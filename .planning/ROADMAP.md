@@ -129,11 +129,12 @@ Plans:
   3. Build produces a working prototype (Python stdlib + vanilla HTML/JS) constrained to 100-500 LOC and 2-6 files, with build status tracked through idea/building/testing/success/partial/failed in yolo.db
   4. Bob self-evaluates the build on a 1-5 scale with written reasoning, and writes POSTMORTEM.md on failure or partial completion
   5. Hard guardrails enforced: 15-turn cap, 30-minute timeout, no pip/npm installs outside /workspace/, tech stack variety (no same stack 3x in a row)
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
 - [x] 39-01-PLAN.md -- Create YOLO_BUILD.md + YOLO_INTERESTS.md protocol docs on EC2, seed 001-chronicle into yolo.db
-- [ ] 39-02-PLAN.md -- Register yolo-dev-overnight cron job, manual trigger end-to-end validation
+- [x] 39-02-PLAN.md -- Register yolo-dev-overnight cron job, manual trigger end-to-end validation
+- [ ] 39-03-PLAN.md -- Gap closure: fix cron-triggered build execution + add 15-turn cap guardrail
 
 ### Phase 40: YOLO Dashboard
 **Goal**: Andy can view all YOLO builds, their status, scores, and tech stacks on a dedicated Mission Control page
