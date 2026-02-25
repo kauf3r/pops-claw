@@ -161,8 +161,8 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 41-01: TBD
-- [ ] 41-02: TBD
+- [ ] 41-01-PLAN.md -- Edit morning-briefing + weekly-review cron payloads with YOLO sections (DASH-02, DASH-03)
+- [ ] 41-02-PLAN.md -- Update YOLO_BUILD.md with Slack DM steps, validate isolated session access, fallback cron if needed (DASH-04)
 
 ## Progress
 
