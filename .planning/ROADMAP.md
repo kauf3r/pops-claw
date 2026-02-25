@@ -176,7 +176,7 @@ Plans:
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
 | 38 | v2.7 | Complete    | 2026-02-24 | 2026-02-24 |
 | 39 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
-| 40 | v2.7 | 2/2 | Complete | 2026-02-25 |
+| 40 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
 | 41 | v2.7 | 0/2 | Not started | - |
 
 **Total: 33 phases shipped, 66 plans completed, 7 milestones shipped**
