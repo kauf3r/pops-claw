@@ -177,7 +177,7 @@ Plans:
 
 Plans:
 - [x] 42-01-PLAN.md -- EC2 health-check script + 5-min cron registration (TOOLS-01)
-- [ ] 42-02-PLAN.md -- TypeScript interfaces + GET /api/tools + POST /api/tools/refresh routes (TOOLS-01)
+- [x] 42-02-PLAN.md -- TypeScript interfaces + GET /api/tools + POST /api/tools/refresh routes (TOOLS-01)
 - [ ] 42-03-PLAN.md -- /tools page UI, navbar link, build, deploy, human verify (TOOLS-01)
 
 ## Progress
@@ -194,10 +194,10 @@ Plans:
 | 39 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
 | 40 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
 | 41 | v2.7 | 0/2 | Not started | - |
-| 42 | v2.7 | 1/3 | In progress | - |
+| 42 | v2.7 | 2/3 | In progress | - |
 
 **Total: 33 phases shipped, 66 plans completed, 7 milestones shipped**
-**v2.7: 5 phases, ~8+ plans planned (7 complete)**
+**v2.7: 5 phases, ~10 plans planned (9 complete)**
 
 ---
-*Updated: 2026-02-26 -- Phase 42 added (CLI tools dashboard). Next: Phase 41 or 42.*
+*Updated: 2026-02-26 -- Completed 42-02 (API routes). Next: 42-03 (UI page).*

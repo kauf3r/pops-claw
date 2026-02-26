@@ -41,6 +41,7 @@ Progress: [█████████░] 90% (9/10 plans)
 | Phase 40 P01 | 3min | 2 tasks | 3 files |
 | Phase 40 P02 | 5min | 3 tasks | 3 files |
 | Phase 42 P01 | 4min | 2 tasks | 2 files + crontab |
+| Phase 42 P02 | 5min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 42-01: Python True/False (not bash true/false) in embedded heredoc for JSON generation
 - Phase 42-01: whisper version via pip show openai-whisper (--version exits 1)
 - Phase 42-01: bd shown as red/not-installed (Mac-only tool, intentional on EC2)
+- Phase 42-02: Fixed jobs.json parsing for { version, jobs } wrapper (plan assumed plain array)
+- Phase 42-02: Cron health uses state.lastRunAtMs (not empty lastRun field)
+- Phase 42-02: Shared types in src/lib/types/tools.ts for API + future UI
 
 ### Open Items
 
@@ -87,4 +91,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - YOLO metadata: yolo.db at ~/clawd/yolo-dev/yolo.db (new SQLite database)
 
 ---
-*Last updated: 2026-02-26 -- Completed 42-01 (health-check script). tools-health.json written every 5min via cron. Next: 42-02 (API routes).*
+*Last updated: 2026-02-26 -- Completed 42-02 (API routes). GET /api/tools and POST /api/tools/refresh live. Next: 42-03 (UI page).*
