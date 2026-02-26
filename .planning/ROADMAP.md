@@ -9,6 +9,7 @@
 - ✅ **v2.4 Content Distribution & Platform Hardening** — Phases 24-28 (shipped 2026-02-21)
 - ✅ **v2.5 Mission Control Dashboard** — Phases 29-32 (shipped 2026-02-22)
 - ✅ **v2.6 Content Pipeline Hardening** — Phase 33 (shipped 2026-02-23)
+- ✅ **v2.7 YOLO Dev** — Phases 38-42 (shipped 2026-02-26)
 
 ## Phases
 
@@ -93,92 +94,18 @@ Full details: [milestones/v2.6-ROADMAP.md](milestones/v2.6-ROADMAP.md)
 
 </details>
 
-### v2.7 YOLO Dev (In Progress)
+<details>
+<summary>✅ v2.7 YOLO Dev (Phases 38-42) — SHIPPED 2026-02-26</summary>
 
-**Milestone Goal:** Bob autonomously picks a wild project idea and builds a working prototype overnight, with a YOLO dashboard in Mission Control to track all builds.
+- [x] Phase 38: Infrastructure Foundation (2/2 plans) — completed 2026-02-24
+- [x] Phase 39: Build Pipeline (3/3 plans) — completed 2026-02-25
+- [x] Phase 40: YOLO Dashboard (2/2 plans) — completed 2026-02-25
+- [x] Phase 41: Briefing & Notifications (2/2 plans) — completed 2026-02-25
+- [x] Phase 42: CLI Tools Dashboard (3/3 plans) — completed 2026-02-26
 
-- [x] **Phase 38: Infrastructure Foundation** - yolo.db, build directory, bind-mounts, single gateway restart
-- [x] **Phase 39: Build Pipeline** - Skill, cron, reference docs, interests file, guardrails, end-to-end validation, gap closure (completed 2026-02-25)
-- [x] **Phase 40: YOLO Dashboard** - Mission Control /yolo page with build history cards and status filtering (completed 2026-02-25)
-- [x] **Phase 41: Briefing & Notifications** - Morning briefing section, weekly digest, Slack DM notifications (completed 2026-02-25)
-- [x] **Phase 42: CLI Tools Dashboard** - Mission Control /tools page with CLI tool versions, health, and quick actions (completed 2026-02-26)
+Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 
-## Phase Details
-
-### Phase 38: Infrastructure Foundation
-**Goal**: Storage layer and sandbox access exist so Bob can write builds and log metadata
-**Depends on**: Nothing (first phase in v2.7)
-**Requirements**: INFRA-01, INFRA-02, INFRA-03
-**Success Criteria** (what must be TRUE):
-  1. yolo.db exists at ~/clawd/yolo-dev/yolo.db with the builds table schema and can be read/written programmatically (Python sqlite3) from inside the Docker sandbox at /workspace/yolo-dev/yolo.db
-  2. ~/clawd/yolo-dev/ directory exists on the host and is bind-mounted to /workspace/yolo-dev/ in the sandbox with read-write access
-  3. Bob can create a numbered build directory (e.g., /workspace/yolo-dev/001-test/) with a README.md inside it from within a sandbox session
-  4. Gateway has been restarted exactly once with all bind-mount and cron config changes batched together
-**Plans**: 2 plans
-
-Plans:
-- [x] 38-01-PLAN.md -- Create yolo.db with builds table schema, configure bind-mount, restart gateway
-- [x] 38-02-PLAN.md -- Validate infrastructure end-to-end from sandbox, 000-test/ smoke test
-
-### Phase 39: Build Pipeline
-**Goal**: Bob can autonomously generate an idea, build a working prototype, log everything to yolo.db, and deliver a summary -- triggered by a nightly cron
-**Depends on**: Phase 38
-**Requirements**: BUILD-01, BUILD-02, BUILD-03, BUILD-04, BUILD-05, BUILD-06, BUILD-07, BUILD-08, BUILD-09
-**Success Criteria** (what must be TRUE):
-  1. A nightly cron fires at ~11 PM PT in an isolated Haiku session and Bob executes a full build cycle without human intervention
-  2. Bob generates 3-5 candidate ideas informed by YOLO_INTERESTS.md and personal context, picks one with reasoning, and logs candidates to ideas.md in the build directory
-  3. Build produces a working prototype (Python stdlib + vanilla HTML/JS) constrained to 100-500 LOC and 2-6 files, with build status tracked through idea/building/testing/success/partial/failed in yolo.db
-  4. Bob self-evaluates the build on a 1-5 scale with written reasoning, and writes POSTMORTEM.md on failure or partial completion
-  5. Hard guardrails enforced: 15-turn cap, 30-minute timeout, no pip/npm installs outside /workspace/, tech stack variety (no same stack 3x in a row)
-**Plans**: 3 plans (all complete)
-
-Plans:
-- [x] 39-01-PLAN.md -- Create YOLO_BUILD.md + YOLO_INTERESTS.md protocol docs on EC2, seed 001-chronicle into yolo.db
-- [x] 39-02-PLAN.md -- Register yolo-dev-overnight cron job, manual trigger end-to-end validation
-- [x] 39-03-PLAN.md -- Gap closure: fix cron-triggered build execution + add 15-turn cap guardrail
-
-### Phase 40: YOLO Dashboard
-**Goal**: Andy can view all YOLO builds, their status, scores, and tech stacks on a dedicated Mission Control page
-**Depends on**: Phase 38 (yolo.db schema), Phase 39 (real build data to verify against)
-**Requirements**: DASH-01
-**Success Criteria** (what must be TRUE):
-  1. Mission Control has a /yolo route accessible from the navbar that displays build history as cards with status badges (color-coded), self-scores, descriptions, and tech stack tags
-  2. Build cards are sorted newest-first and can be filtered by status (all/success/partial/failed)
-  3. Page auto-refreshes via SWR and displays accurate data from yolo.db within 30 seconds of a build completing
-**Plans**: 2 plans
-
-Plans:
-- [x] 40-01-PLAN.md -- Register yolo.db, query module, API route
-- [x] 40-02-PLAN.md -- YoloBuildCard component, /yolo page with filters, navbar link
-
-### Phase 41: Briefing & Notifications
-**Goal**: Andy learns about YOLO build results through existing communication channels without checking the dashboard
-**Depends on**: Phase 39 (builds running), Phase 40 (dashboard exists)
-**Requirements**: DASH-02, DASH-03, DASH-04
-**Success Criteria** (what must be TRUE):
-  1. Morning briefing includes a Section 11 with last night's YOLO build: project name, status, self-score, and one-line description (or graceful "No build last night" when none ran)
-  2. Weekly review includes a YOLO digest: total builds that week, best-rated build, tech stack distribution, and emerging patterns
-  3. Bob sends a Slack DM notification when a build starts ("Starting YOLO build: {name}") and when it completes ("YOLO build complete: {name} -- {status}, score {N}/5")
-**Plans**: 2 plans (all complete)
-
-Plans:
-- [x] 41-01-PLAN.md -- Edit morning-briefing + weekly-review cron payloads with YOLO sections (DASH-02, DASH-03)
-- [x] 41-02-PLAN.md -- Update YOLO_BUILD.md with Slack DM steps, validate isolated session access, fallback cron if needed (DASH-04)
-
-### Phase 42: CLI Tools Dashboard
-**Goal**: Andy can see all CLI tools (bd, openclaw, scripts, cron jobs) with their versions, health status, and quick-action shortcuts on a dedicated Mission Control page
-**Depends on**: Phase 40 (Mission Control exists)
-**Requirements**: TOOLS-01
-**Success Criteria** (what must be TRUE):
-  1. Mission Control has a /tools route accessible from the navbar that displays CLI tools with version numbers, last-run timestamps, and health indicators (green/yellow/red)
-  2. Page shows quick-action shortcuts or documentation links for each tool
-  3. Data refreshes via SWR and reflects current tool state within 30 seconds
-**Plans**: 3 plans
-
-Plans:
-- [x] 42-01-PLAN.md -- EC2 health-check script + 5-min cron registration (TOOLS-01)
-- [x] 42-02-PLAN.md -- TypeScript interfaces + GET /api/tools + POST /api/tools/refresh routes (TOOLS-01)
-- [x] 42-03-PLAN.md -- /tools page UI, navbar link, build, deploy, human verify (TOOLS-01)
+</details>
 
 ## Progress
 
@@ -190,14 +117,9 @@ Plans:
 | 24-28 | v2.4 | 9/9 | Complete | 2026-02-21 |
 | 29-32 | v2.5 | 9/9 | Complete | 2026-02-22 |
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
-| 38 | v2.7 | Complete    | 2026-02-24 | 2026-02-24 |
-| 39 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
-| 40 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
-| 41 | v2.7 | 2/2 | Complete | 2026-02-25 |
-| 42 | v2.7 | 3/3 | Complete | 2026-02-26 |
+| 38-42 | v2.7 | 12/12 | Complete | 2026-02-26 |
 
-**Total: 34 phases shipped, 68 plans completed, 7 milestones shipped**
-**v2.7: 5 phases, 12 plans planned (12 complete)**
+**Total: 39 phases shipped, 78 plans completed, 8 milestones shipped**
 
 ---
-*Updated: 2026-02-26 -- Phase 41 marked complete (executed 2026-02-25, roadmap updated). All v2.7 phases complete.*
+*Updated: 2026-02-26 — v2.7 YOLO Dev shipped and archived.*

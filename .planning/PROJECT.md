@@ -2,11 +2,11 @@
 
 ## What This Is
 
-A proactive AI companion (Bob) running on OpenClaw v2026.2.17, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, and sends/receives email autonomously via Resend API — all proactively, before being asked. Mission Control Dashboard (shipped v2.5) provides a web-based single pane of glass for monitoring the entire system — live database status, agent health, content pipeline, email metrics, memory browsing, office visualization, and analytics charts, all accessible directly via Tailscale.
+A proactive AI companion (Bob) running on OpenClaw v2026.2.17, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, sends/receives email autonomously via Resend API, and builds working prototypes overnight via YOLO Dev — all proactively, before being asked. Mission Control Dashboard provides a web-based single pane of glass for monitoring the entire system — live database status, agent health, content pipeline, email metrics, YOLO build history, CLI tool health, memory browsing, office visualization, and analytics charts, all accessible directly via Tailscale.
 
 ## Core Value
 
-Bob delivers a genuinely useful morning briefing, knows your health data, manages home devices, reviews code, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, communicates via email with a verified domain, and is monitored via Mission Control Dashboard — all for ~$0 incremental cost on existing Claude Pro 200.
+Bob delivers a genuinely useful morning briefing, knows your health data, manages home devices, reviews code, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, communicates via email with a verified domain, builds working prototypes overnight, and is monitored via Mission Control Dashboard — all for ~$0 incremental cost on existing Claude Pro 200.
 
 ## Requirements
 
@@ -65,19 +65,14 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - ✓ On-demand content triggers via Bob DM — write, research, social post retrieval via CONTENT_TRIGGERS.md protocol — v2.6
 - ✓ Mission Control analytics pipeline chart rendering real data with stage-ordered SQL — v2.6
 
+- ✓ YOLO Dev build pipeline — nightly cron, idea generation, autonomous prototype building (Python/HTML), yolo.db logging, self-evaluation with guardrails — v2.7
+- ✓ Mission Control /yolo page — build history cards with status badges, self-scores, tech stack tags, status filtering, SWR auto-refresh — v2.7
+- ✓ Briefing & notification integration — morning briefing Section 11 (YOLO build), weekly YOLO digest, Slack DM build notifications — v2.7
+- ✓ CLI tools observability — /tools page tracking 5 CLI tools, 2 plugins, 3 scripts, 24 cron jobs with health indicators and clipboard actions — v2.7
+
 ### Active
 
-## Current Milestone: v2.7 YOLO Dev
-
-**Goal:** Give Bob the ability to autonomously pick a wild project idea and build a working prototype overnight, with a YOLO dashboard in Mission Control to track all builds.
-
-**Target features:**
-- Overnight build pipeline triggered by cron
-- Idea generation from project context and interests
-- Autonomous prototype building (Python/HTML default stack)
-- Build logging to yolo.db (SQLite)
-- Mission Control `/yolo` page displaying build history
-- Build artifacts stored at `~/clawd/yolo-dev/`
+(No active milestone — run `/gsd:new-milestone` to start next)
 
 ### Out of Scope
 
@@ -89,12 +84,16 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - Content distribution (subscriber digest, pitch copy) — deferred from v2.4 Phase 29
 - Context usage indicators on agent cards — deferred from v2.5 Phase 31.1
 - Agent board visual polish — deferred from v2.5 Phase 31.2
+- Build artifact preview (iframe for index.html builds) — deferred from v2.7
+- Build retention policy (auto-cleanup 30d, keep top-rated) — deferred from v2.7
+- Build trend chart (success rate, avg self-score over time) — deferred from v2.7
+- Clickable build detail view (full build log, ideas.md, files) — deferred from v2.7
 
 ## Context
 
-**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) + **v2.4** (4 days) + **v2.5** (2 days) + **v2.6** (2 days) = full proactive companion + content pipeline + email + security + Mission Control Dashboard + content pipeline hardening.
+**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) + **v2.4** (4 days) + **v2.5** (2 days) + **v2.6** (2 days) + **v2.7** (3 days) = full proactive companion + content pipeline + email + security + Mission Control Dashboard + content pipeline hardening + YOLO Dev + CLI tools.
 
-**Tech stack:** OpenClaw v2026.2.17, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db + observability.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean). Mission Control: Next.js 14 + Tailwind + better-sqlite3 at ~/clawd/mission-control/.
+**Tech stack:** OpenClaw v2026.2.17, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db + observability.db + yolo.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean). Mission Control: Next.js 14 + Tailwind + better-sqlite3 at ~/clawd/mission-control/.
 
 **Infrastructure:**
 - AWS EC2 Ubuntu, Tailscale IP: 100.72.143.9
@@ -107,9 +106,9 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 **Skills deployed (13):** oura, govee, coding-assistant, receipt-scanner, content-strategy, seo-writer, content-editor, wordpress-publisher, social-promoter, resend-email, clawdstrike, secureclaw, save-voice-notes
 
-**Cron jobs (20 total):** morning-briefing, evening-recap, weekly-review, meeting-prep-scan, anomaly-check (2x), daily-standup, monthly-expense-summary, 4 heartbeats, topic-research, writing-check, review-check, publish-check, pipeline-report, stuck-check, airspace-email-monitor, email-catchup
+**Cron jobs (24 total):** morning-briefing, evening-recap, weekly-review, meeting-prep-scan, anomaly-check (2x), daily-standup, monthly-expense-summary, 4 heartbeats, topic-research, writing-check, review-check, publish-check, pipeline-report, stuck-check, airspace-email-monitor, email-catchup, yolo-dev-overnight, voice-notes-processor, tools-health-check, session-prune
 
-**Databases (5):** health.db, coordination.db, content.db, email.db, observability.db
+**Databases (6):** health.db, coordination.db, content.db, email.db, observability.db, yolo.db
 
 **Agent Roster:**
 | Agent ID | Name | Domain | Heartbeat Offset |
@@ -174,6 +173,12 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Channel:ID format everywhere | Gateway validates channel IDs at tool call level | ✓ Good — reliable Slack delivery |
 | SQL CASE ordering for pipeline stages | Keep stage sequence in query layer, not app | ✓ Good — clean separation |
 | Workspace protocol doc for Bob triggers | Standing instructions over skill triggers | ✓ Good — CONTENT_TRIGGERS.md working |
+| Python sqlite3 for sandbox DB access | CLI sqlite3 and better-sqlite3 unavailable in Docker sandbox | ✓ Good — reliable reads/writes |
+| Docker workspace subdirs over nested bind-mounts | Nested bind-mounts unreliable in isolated cron sessions | ✓ Good — fixed cron build execution |
+| Explicit bind-mount for yolo-dev in openclaw.json | Isolated cron sessions use virtual sandbox, need explicit binds | ✓ Good — pattern for future sandbox mounts |
+| Client-side filtering for YOLO builds | <100 builds, simpler than server-side query params | ✓ Good — clean implementation |
+| Health dots over Badge pills | Compact table density for CLI tools dashboard | ✓ Good — readable at a glance |
+| 5-minute health check cron | Balance between freshness and resource usage | ✓ Good — tools-health.json always current |
 
 ---
-*Last updated: 2026-02-24 after v2.7 milestone start*
+*Last updated: 2026-02-26 after v2.7 milestone completion*

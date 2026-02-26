@@ -146,3 +146,27 @@
 
 ---
 
+## v2.7 YOLO Dev (Shipped: 2026-02-26)
+
+**Phases:** 38-42 (5 phases, 12 plans, 17 requirements)
+**Timeline:** 3 days (Feb 24-26, 2026)
+**Commits:** ~37 | Total cron jobs: 24 | Total skills: 13 | Total agents: 7
+**New databases:** yolo.db | New Mission Control pages: /yolo, /tools
+**Git range:** docs(38) → docs(42)
+
+**Delivered:** Gave Bob the ability to autonomously build working prototypes overnight, with a YOLO dashboard and CLI tools dashboard in Mission Control, morning briefing integration, and Slack DM notifications for build events.
+
+**Key accomplishments:**
+1. Autonomous YOLO build pipeline — nightly cron triggers idea generation, prototype building (Python/HTML), yolo.db logging, and self-evaluation with hard guardrails (15-turn cap, 30-min timeout)
+2. Mission Control /yolo page — build history cards with status-colored badges, self-scores, tech stack tags, status filtering, SWR auto-refresh
+3. CLI tools observability — /tools page tracking health of 5 CLI tools, 2 plugins, 3 scripts, and 24 cron jobs with real-time refresh and clipboard quick-actions
+4. Briefing & notification integration — morning briefing Section 11 (YOLO build summary), weekly review YOLO digest, Slack DM notifications for build start/complete
+5. Sandbox reliability — fixed nested Docker bind-mount conflicts for isolated cron sessions, established explicit bind-mount pattern in openclaw.json
+
+**Known Gaps (tech debt):**
+- Phase 41 missing formal VERIFICATION.md (summaries exist, work complete)
+- DASH-04 E2E Slack DM from isolated cron session untested at ship time
+
+**Archive:** [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md) | [milestones/v2.7-REQUIREMENTS.md](milestones/v2.7-REQUIREMENTS.md) | [milestones/v2.7-MILESTONE-AUDIT.md](milestones/v2.7-MILESTONE-AUDIT.md)
+
+---
