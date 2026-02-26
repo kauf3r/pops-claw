@@ -101,6 +101,7 @@ Full details: [milestones/v2.6-ROADMAP.md](milestones/v2.6-ROADMAP.md)
 - [x] **Phase 39: Build Pipeline** - Skill, cron, reference docs, interests file, guardrails, end-to-end validation, gap closure (completed 2026-02-25)
 - [x] **Phase 40: YOLO Dashboard** - Mission Control /yolo page with build history cards and status filtering (completed 2026-02-25)
 - [ ] **Phase 41: Briefing & Notifications** - Morning briefing section, weekly digest, Slack DM notifications
+- [ ] **Phase 42: CLI Tools Dashboard** - Mission Control /tools page with CLI tool versions, health, and quick actions
 
 ## Phase Details
 
@@ -164,6 +165,21 @@ Plans:
 - [ ] 41-01-PLAN.md -- Edit morning-briefing + weekly-review cron payloads with YOLO sections (DASH-02, DASH-03)
 - [ ] 41-02-PLAN.md -- Update YOLO_BUILD.md with Slack DM steps, validate isolated session access, fallback cron if needed (DASH-04)
 
+### Phase 42: CLI Tools Dashboard
+**Goal**: Andy can see all CLI tools (bd, openclaw, scripts, cron jobs) with their versions, health status, and quick-action shortcuts on a dedicated Mission Control page
+**Depends on**: Phase 40 (Mission Control exists)
+**Requirements**: TOOLS-01
+**Success Criteria** (what must be TRUE):
+  1. Mission Control has a /tools route accessible from the navbar that displays CLI tools with version numbers, last-run timestamps, and health indicators (green/yellow/red)
+  2. Page shows quick-action shortcuts or documentation links for each tool
+  3. Data refreshes via SWR and reflects current tool state within 30 seconds
+**Plans**: 3 plans
+
+Plans:
+- [x] 42-01-PLAN.md -- EC2 health-check script + 5-min cron registration (TOOLS-01)
+- [ ] 42-02-PLAN.md -- TypeScript interfaces + GET /api/tools + POST /api/tools/refresh routes (TOOLS-01)
+- [ ] 42-03-PLAN.md -- /tools page UI, navbar link, build, deploy, human verify (TOOLS-01)
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -178,9 +194,10 @@ Plans:
 | 39 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
 | 40 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
 | 41 | v2.7 | 0/2 | Not started | - |
+| 42 | v2.7 | 1/3 | In progress | - |
 
 **Total: 33 phases shipped, 66 plans completed, 7 milestones shipped**
-**v2.7: 4 phases, ~8 plans planned (7 complete)**
+**v2.7: 5 phases, ~8+ plans planned (7 complete)**
 
 ---
-*Updated: 2026-02-25 -- Phase 40 complete (dashboard + API). Next: Phase 41 (briefing & notifications).*
+*Updated: 2026-02-26 -- Phase 42 added (CLI tools dashboard). Next: Phase 41 or 42.*

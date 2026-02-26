@@ -30,6 +30,10 @@
 - [ ] **DASH-03**: Weekly review includes YOLO digest: N builds, best-rated, tech distribution, patterns
 - [ ] **DASH-04**: Slack notification to DM when build starts and completes
 
+### CLI Tools Dashboard
+
+- [ ] **TOOLS-01**: Mission Control /tools page displaying CLI tool versions, health status, and quick-action shortcuts for bd, openclaw, scripts, and other project CLI tools — data from tools-health.json written by periodic EC2 script, four sections: CLI Tools, Plugins, Scripts, Scheduled Jobs
+
 ## Future Requirements
 
 ### Build Enhancements (v2.8+)
@@ -76,10 +80,11 @@
 | DASH-02 | Phase 41 | Pending |
 | DASH-03 | Phase 41 | Pending |
 | DASH-04 | Phase 41 | Pending |
+| TOOLS-01 | Phase 42 | In Progress (Plan 01/3 complete) |
 
 **Coverage:**
-- v2.7 requirements: 16 total
-- Mapped to phases: 16
+- v2.7 requirements: 17 total
+- Mapped to phases: 17
 - Unmapped: 0
 
 ---
