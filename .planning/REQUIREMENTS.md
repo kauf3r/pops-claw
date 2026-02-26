@@ -26,9 +26,9 @@
 ### Dashboard & Notifications
 
 - [x] **DASH-01**: Mission Control /yolo page displays build history as cards with status badges, self-scores, descriptions, and tech stack — newest first, filterable by status
-- [ ] **DASH-02**: Morning briefing Section 11 includes last night's YOLO build: project name, status, self-score, one-line description
-- [ ] **DASH-03**: Weekly review includes YOLO digest: N builds, best-rated, tech distribution, patterns
-- [ ] **DASH-04**: Slack notification to DM when build starts and completes
+- [x] **DASH-02**: Morning briefing Section 11 includes last night's YOLO build: project name, status, self-score, one-line description
+- [x] **DASH-03**: Weekly review includes YOLO digest: N builds, best-rated, tech distribution, patterns
+- [x] **DASH-04**: Slack notification to DM when build starts and completes
 
 ### CLI Tools Dashboard
 
@@ -77,9 +77,9 @@
 | BUILD-08 | Phase 39 | Complete |
 | BUILD-09 | Phase 39 | Complete |
 | DASH-01 | Phase 40 | Complete |
-| DASH-02 | Phase 41 | Pending |
-| DASH-03 | Phase 41 | Pending |
-| DASH-04 | Phase 41 | Pending |
+| DASH-02 | Phase 41 | Complete |
+| DASH-03 | Phase 41 | Complete |
+| DASH-04 | Phase 41 | Complete |
 | TOOLS-01 | Phase 42 | Complete |
 
 **Coverage:**
@@ -89,4 +89,4 @@
 
 ---
 *Requirements defined: 2026-02-24*
-*Last updated: 2026-02-26 -- TOOLS-01 complete (Phase 42 all 3 plans shipped)*
+*Last updated: 2026-02-26 -- All 17 requirements complete. DASH-02/03/04 completed Phase 41 (2026-02-25).*
