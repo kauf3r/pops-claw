@@ -1,51 +1,39 @@
-# Session Handoff: Mission Control
+# Handoff: v2.7 Milestone Completion
 
-## Resume Point
-
-**Phase:** 1 - Workspace Setup
-**Status:** Plans created, execution blocked on SSH auth
+**Paused:** 2026-02-26
+**Reason:** Context window at 86%, complete-milestone workflow too large for remaining space
 
 ## What's Done
+- [x] Phase 41 marked complete in ROADMAP.md (was missing, work done 2026-02-25)
+- [x] REQUIREMENTS.md updated — all 17/17 requirements checked off (DASH-02/03/04 were stale)
+- [x] Fresh milestone audit created: `.planning/v2.7-MILESTONE-AUDIT.md` — status: tech_debt
+- [x] All committed and pushed to origin/main
 
-- [x] Phase 1 planned with 3 plans:
-  - `01-01-PLAN.md` - Directory structure + AGENTS.md + WORKING.md (Wave 1)
-  - `01-02-PLAN.md` - SOUL.md persona files for 4 agents (Wave 2)
-  - `01-03-PLAN.md` - HEARTBEAT.md task files for 4 agents (Wave 2)
-- [x] Plans verified by checker
-- [x] Model profile set to `quality` (Opus)
+## What's Next
+Run `/gsd:complete-milestone` in a fresh session. The workflow needs to:
 
-## What's Blocked
+1. **Verify readiness** — already confirmed: 5 phases, 12 plans, all with summaries
+2. **Gather stats** — git log range, file changes, timeline
+3. **Extract accomplishments** — read SUMMARY.md files from phases 38-42
+4. **Archive milestone:**
+   - Create `.planning/milestones/v2.7-ROADMAP.md` (full phase details)
+   - Create `.planning/milestones/v2.7-REQUIREMENTS.md` (all 17 reqs with outcomes)
+   - Collapse v2.7 section in ROADMAP.md to `<details>` block
+5. **Update PROJECT.md** — move v2.7 features to Validated, update context
+6. **Update STATE.md** — reset for next milestone
+7. **Write RETROSPECTIVE.md** — v2.7 section
+8. **Git tag** — `git tag -a v2.7 -m "v2.7 YOLO Dev"`
+9. **Push** — tag + commits
+10. **Offer next** — `/gsd:new-milestone`
 
-SSH authentication to EC2 (100.72.143.9) via 1Password SSH agent.
+## Key Context
+- Audit status: `tech_debt` (Phase 41 missing VERIFICATION.md, DASH-04 E2E pending)
+- GSD tooling broken (`./lib/test.cjs` missing) — manual workflow execution required
+- v2.7 phases: 38 (infra), 39 (build pipeline), 40 (YOLO dashboard), 41 (briefing/notifications), 42 (CLI tools dashboard)
 
-**SSH Config uses:**
-```
-Host 100.72.143.9
-    IdentityAgent ~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock
-```
-
-**To unblock:** Ensure 1Password is unlocked and SSH key is available to agent.
-
-## To Resume
-
-```bash
-# 1. Test SSH works
-ssh ubuntu@100.72.143.9 'echo connected'
-
-# 2. Resume execution
-/gsd:execute-phase 1
-```
-
-## Context
-
-- EC2 IP: 100.72.143.9 (Tailscale)
-- Workspace: ~/clawd/ on EC2
-- Config: ~/.clawdbot/clawdbot.json on EC2
-- 4 agents: Andy (main), Scout (landos), Vector (rangeos), Sentinel (ops)
-
-## Plans Location
-
-`.planning/phases/01-workspace-setup/`
-
----
-*Created: 2026-02-01*
+## Files to Reference
+- `.planning/ROADMAP.md` — current, all v2.7 phases marked complete
+- `.planning/REQUIREMENTS.md` — current, 17/17 checked
+- `.planning/v2.7-MILESTONE-AUDIT.md` — fresh audit from this session
+- `.planning/STATE.md` — needs updating during completion
+- `.planning/PROJECT.md` — needs evolution review during completion
