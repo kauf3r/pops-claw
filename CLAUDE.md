@@ -2,6 +2,30 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## GSD Tooling Workarounds
+
+The GSD CLI tools frequently have missing modules (e.g., `lib/test.cjs`). When a GSD command fails with a module-not-found error, immediately fall back to reading/writing the planning files directly (CONTEXT.md, PLAN.md, etc.) rather than retrying the broken command. Do not spend time debugging the GSD tooling itself unless explicitly asked.
+
+## Workflow Conventions
+
+- Always run `discuss-phase` before `plan-phase`. The plan-phase workflow requires a CONTEXT.md file produced by discuss-phase.
+- The workflow order is: discuss-phase → plan-phase → execute-phase → audit → complete-milestone.
+
+## Communication Rules
+
+- Before making significant changes (especially deployment configs, database operations, or multi-service fixes), state the plan and wait for user confirmation.
+- Never assume which entity/resource the user is referring to — ask for clarification if ambiguous (e.g., booking owner vs. company name, Vercel project identity).
+
+## Project Structure
+
+- Primary language: TypeScript. Always check TypeScript compilation (`tsc --noEmit` or the project's build command) before committing.
+- When working in worktrees, always verify the current working directory exists and is valid before running commands. If a worktree is deleted, `cd` to the main repo root before continuing.
+
+## Deployment & Data
+
+- When debugging sync/pipeline issues, check for stdout pollution in any function that returns parsed data — stray console.log or token-refresh output can corrupt JSON parsing and cause silent zero-result returns.
+- When accessing Supabase, use the known working credentials/connection method rather than trying multiple approaches.
+
 ## Project Overview
 
 Planning and documentation repository for "pops-claw" - a personal OpenClaw deployment on AWS EC2 with Tailscale-only access.
