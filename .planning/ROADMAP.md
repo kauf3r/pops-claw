@@ -100,7 +100,7 @@ Full details: [milestones/v2.6-ROADMAP.md](milestones/v2.6-ROADMAP.md)
 - [x] **Phase 38: Infrastructure Foundation** - yolo.db, build directory, bind-mounts, single gateway restart
 - [x] **Phase 39: Build Pipeline** - Skill, cron, reference docs, interests file, guardrails, end-to-end validation, gap closure (completed 2026-02-25)
 - [x] **Phase 40: YOLO Dashboard** - Mission Control /yolo page with build history cards and status filtering (completed 2026-02-25)
-- [ ] **Phase 41: Briefing & Notifications** - Morning briefing section, weekly digest, Slack DM notifications
+- [x] **Phase 41: Briefing & Notifications** - Morning briefing section, weekly digest, Slack DM notifications (completed 2026-02-25)
 - [x] **Phase 42: CLI Tools Dashboard** - Mission Control /tools page with CLI tool versions, health, and quick actions (completed 2026-02-26)
 
 ## Phase Details
@@ -159,11 +159,11 @@ Plans:
   1. Morning briefing includes a Section 11 with last night's YOLO build: project name, status, self-score, and one-line description (or graceful "No build last night" when none ran)
   2. Weekly review includes a YOLO digest: total builds that week, best-rated build, tech stack distribution, and emerging patterns
   3. Bob sends a Slack DM notification when a build starts ("Starting YOLO build: {name}") and when it completes ("YOLO build complete: {name} -- {status}, score {N}/5")
-**Plans**: TBD
+**Plans**: 2 plans (all complete)
 
 Plans:
-- [ ] 41-01-PLAN.md -- Edit morning-briefing + weekly-review cron payloads with YOLO sections (DASH-02, DASH-03)
-- [ ] 41-02-PLAN.md -- Update YOLO_BUILD.md with Slack DM steps, validate isolated session access, fallback cron if needed (DASH-04)
+- [x] 41-01-PLAN.md -- Edit morning-briefing + weekly-review cron payloads with YOLO sections (DASH-02, DASH-03)
+- [x] 41-02-PLAN.md -- Update YOLO_BUILD.md with Slack DM steps, validate isolated session access, fallback cron if needed (DASH-04)
 
 ### Phase 42: CLI Tools Dashboard
 **Goal**: Andy can see all CLI tools (bd, openclaw, scripts, cron jobs) with their versions, health status, and quick-action shortcuts on a dedicated Mission Control page
@@ -193,11 +193,11 @@ Plans:
 | 38 | v2.7 | Complete    | 2026-02-24 | 2026-02-24 |
 | 39 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
 | 40 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
-| 41 | v2.7 | 0/2 | Not started | - |
+| 41 | v2.7 | 2/2 | Complete | 2026-02-25 |
 | 42 | v2.7 | 3/3 | Complete | 2026-02-26 |
 
-**Total: 33 phases shipped, 66 plans completed, 7 milestones shipped**
-**v2.7: 5 phases, ~10 plans planned (10 complete)**
+**Total: 34 phases shipped, 68 plans completed, 7 milestones shipped**
+**v2.7: 5 phases, 12 plans planned (12 complete)**
 
 ---
-*Updated: 2026-02-26 -- Completed 42-03 (/tools page UI). Phase 42 complete. Phase 41 (Briefing & Notifications) still pending.*
+*Updated: 2026-02-26 -- Phase 41 marked complete (executed 2026-02-25, roadmap updated). All v2.7 phases complete.*
