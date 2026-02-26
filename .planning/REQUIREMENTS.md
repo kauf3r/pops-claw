@@ -32,7 +32,7 @@
 
 ### CLI Tools Dashboard
 
-- [ ] **TOOLS-01**: Mission Control /tools page displaying CLI tool versions, health status, and quick-action shortcuts for bd, openclaw, scripts, and other project CLI tools — data from tools-health.json written by periodic EC2 script, four sections: CLI Tools, Plugins, Scripts, Scheduled Jobs
+- [x] **TOOLS-01**: Mission Control /tools page displaying CLI tool versions, health status, and quick-action shortcuts for bd, openclaw, scripts, and other project CLI tools — data from tools-health.json written by periodic EC2 script, four sections: CLI Tools, Plugins, Scripts, Scheduled Jobs
 
 ## Future Requirements
 
@@ -80,7 +80,7 @@
 | DASH-02 | Phase 41 | Pending |
 | DASH-03 | Phase 41 | Pending |
 | DASH-04 | Phase 41 | Pending |
-| TOOLS-01 | Phase 42 | In Progress (Plan 01/3 complete) |
+| TOOLS-01 | Phase 42 | Complete |
 
 **Coverage:**
 - v2.7 requirements: 17 total
@@ -89,4 +89,4 @@
 
 ---
 *Requirements defined: 2026-02-24*
-*Last updated: 2026-02-24 -- traceability updated with phase mappings*
+*Last updated: 2026-02-26 -- TOOLS-01 complete (Phase 42 all 3 plans shipped)*

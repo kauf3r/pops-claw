@@ -101,7 +101,7 @@ Full details: [milestones/v2.6-ROADMAP.md](milestones/v2.6-ROADMAP.md)
 - [x] **Phase 39: Build Pipeline** - Skill, cron, reference docs, interests file, guardrails, end-to-end validation, gap closure (completed 2026-02-25)
 - [x] **Phase 40: YOLO Dashboard** - Mission Control /yolo page with build history cards and status filtering (completed 2026-02-25)
 - [ ] **Phase 41: Briefing & Notifications** - Morning briefing section, weekly digest, Slack DM notifications
-- [ ] **Phase 42: CLI Tools Dashboard** - Mission Control /tools page with CLI tool versions, health, and quick actions
+- [x] **Phase 42: CLI Tools Dashboard** - Mission Control /tools page with CLI tool versions, health, and quick actions (completed 2026-02-26)
 
 ## Phase Details
 
@@ -178,7 +178,7 @@ Plans:
 Plans:
 - [x] 42-01-PLAN.md -- EC2 health-check script + 5-min cron registration (TOOLS-01)
 - [x] 42-02-PLAN.md -- TypeScript interfaces + GET /api/tools + POST /api/tools/refresh routes (TOOLS-01)
-- [ ] 42-03-PLAN.md -- /tools page UI, navbar link, build, deploy, human verify (TOOLS-01)
+- [x] 42-03-PLAN.md -- /tools page UI, navbar link, build, deploy, human verify (TOOLS-01)
 
 ## Progress
 
@@ -194,10 +194,10 @@ Plans:
 | 39 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
 | 40 | v2.7 | Complete    | 2026-02-25 | 2026-02-25 |
 | 41 | v2.7 | 0/2 | Not started | - |
-| 42 | v2.7 | 2/3 | In progress | - |
+| 42 | v2.7 | 3/3 | Complete | 2026-02-26 |
 
 **Total: 33 phases shipped, 66 plans completed, 7 milestones shipped**
-**v2.7: 5 phases, ~10 plans planned (9 complete)**
+**v2.7: 5 phases, ~10 plans planned (10 complete)**
 
 ---
-*Updated: 2026-02-26 -- Completed 42-02 (API routes). Next: 42-03 (UI page).*
+*Updated: 2026-02-26 -- Completed 42-03 (/tools page UI). Phase 42 complete. Phase 41 (Briefing & Notifications) still pending.*
