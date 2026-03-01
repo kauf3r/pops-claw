@@ -112,7 +112,7 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 
 **Milestone Goal:** Fix content pipeline and tracking bugs, then polish Mission Control with YOLO detail views, build trends, agent board improvements, and artifact previews.
 
-- [ ] **Phase 43: Bug Fixes** - Fix Ezra publish-check and AeroVironment fly_status tracking
+- [x] **Phase 43: Bug Fixes** (3/3 plans) — completed 2026-03-01
 - [ ] **Phase 44: YOLO Detail Page** - Clickable build detail view with log, errors, evaluation, and file list
 - [ ] **Phase 45: Build Trends** - Success rate and self-score charts on /yolo page
 - [ ] **Phase 46: Agent Board Polish** - Context usage indicators and visual cleanup
@@ -120,15 +120,17 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 
 ## Phase Details
 
-### Phase 43: Bug Fixes
-**Goal**: Content pipeline produces WordPress drafts for approved articles, and AeroVironment tracking data populates correctly
-**Depends on**: Nothing (first phase of v2.8)
-**Requirements**: BUG-01, BUG-02
-**Success Criteria** (what must be TRUE):
-  1. Ezra's publish-check cron creates WordPress drafts for articles with status "approved"
-  2. AeroVironment fly_status column in content.db contains actual values (not null) for tracked articles
-  3. Morning briefing content pipeline section reflects accurate article statuses
-**Plans**: TBD
+### Phase 43: Bug Fixes ✅
+**Goal**: Content pipeline produces WordPress drafts for approved articles, AeroVironment tracking resolved
+**Completed**: 2026-03-01
+**Requirements**: BUG-01 (fixed), BUG-02 (re-scoped to asi-officernd, bead pops-claw-9b3)
+**Plans**: 3/3 (Ezra mount fix, AV re-scope, verification)
+**What was done**:
+  1. Removed 0-byte ghost file shadowing content.db bind-mount in Docker sandbox
+  2. Copied Ezra workspace files to main agent workspace (publish-check runs as agent:main)
+  3. Triggered publish-check — article #20 got WP draft (post ID 1609)
+  4. Added content-db-health.sh regression check (runs every 5 min via tools-health-check)
+  5. BUG-02 re-scoped: fly_status is in Supabase (different project), tracked as pops-claw-9b3
 
 ### Phase 44: YOLO Detail Page
 **Goal**: Users can drill into any YOLO build to see its full story -- log, errors, self-evaluation, and files created
@@ -183,13 +185,13 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 | 29-32 | v2.5 | 9/9 | Complete | 2026-02-22 |
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
 | 38-42 | v2.7 | 12/12 | Complete | 2026-02-26 |
-| 43 | v2.8 | 0/? | Not started | - |
+| 43 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 44 | v2.8 | 0/? | Not started | - |
 | 45 | v2.8 | 0/? | Not started | - |
 | 46 | v2.8 | 0/? | Not started | - |
 | 47 | v2.8 | 0/? | Not started | - |
 
-**Total: 39 phases shipped, 78 plans completed, 8 milestones shipped | v2.8: 5 phases planned**
+**Total: 40 phases shipped, 81 plans completed, 8 milestones shipped | v2.8: 1/5 phases complete**
 
 ---
-*Updated: 2026-03-01 -- v2.8 Bug Fixes & Dashboard Polish roadmap created.*
+*Updated: 2026-03-01 -- Phase 43 Bug Fixes completed.*

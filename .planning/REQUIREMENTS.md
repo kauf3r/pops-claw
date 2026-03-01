@@ -9,8 +9,8 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 
 ### Bug Fixes
 
-- [ ] **BUG-01**: Ezra publish-check creates WordPress drafts for approved articles
-- [ ] **BUG-02**: AeroVironment fly_status values are tracked and displayed (not null)
+- [x] **BUG-01**: Ezra publish-check creates WordPress drafts for approved articles
+- [x] **BUG-02**: ~~AeroVironment fly_status values are tracked and displayed (not null)~~ — Re-scoped: fly_status is in Supabase (airspace-operations-dashboard), not content.db. Tracked as separate task.
 
 ### YOLO Detail Page
 
@@ -60,8 +60,8 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | Phase 43 | Pending |
-| BUG-02 | Phase 43 | Pending |
+| BUG-01 | Phase 43 | Done |
+| BUG-02 | Phase 43 | Re-scoped (pops-claw-9b3) |
 | YOLO-01 | Phase 44 | Pending |
 | YOLO-02 | Phase 44 | Pending |
 | YOLO-03 | Phase 44 | Pending |
