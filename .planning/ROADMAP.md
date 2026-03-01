@@ -114,7 +114,7 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 
 - [x] **Phase 43: Bug Fixes** (3/3 plans) — completed 2026-03-01
 - [x] **Phase 44: YOLO Detail Page** (3/3 plans) — completed 2026-03-01
-- [ ] **Phase 45: Build Trends** - Success rate and self-score charts on /yolo page
+- [x] **Phase 45: Build Trends** (3/3 plans) — completed 2026-03-01
 - [ ] **Phase 46: Agent Board Polish** - Context usage indicators and visual cleanup
 - [ ] **Phase 47: Build Artifacts** - Iframe preview for HTML builds and 30-day retention policy
 
@@ -151,15 +151,18 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
   11. Prominent self-evaluation with ScoreRing SVG component
   12. Status timeline (idea → building → testing → success/failed) with timestamps
 
-### Phase 45: Build Trends
+### Phase 45: Build Trends ✅
 **Goal**: Users can see YOLO build performance trends at a glance on the /yolo page
-**Depends on**: Phase 43
-**Requirements**: TREND-01, TREND-02
-**Success Criteria** (what must be TRUE):
-  1. /yolo page shows a chart of build success rate over time (builds that completed vs failed)
-  2. /yolo page shows a chart of average self-score over time
-  3. Charts update automatically as new builds complete (via SWR refresh)
-**Plans**: TBD
+**Completed**: 2026-03-01
+**Requirements**: TREND-01, TREND-02 (all met)
+**Plans**: 3/3 (API + query, chart components, page integration)
+**What was done**:
+  1. Added `getYoloTrends()` SQL aggregation query (group by date, success rate, avg score)
+  2. Created `/api/yolo/trends` endpoint returning daily trend data
+  3. Built `SuccessRateChart` (Recharts BarChart, emerald bars, 0-100% Y-axis)
+  4. Built `ScoreTrendChart` (Recharts LineChart, blue line+dots, 1-5 Y-axis)
+  5. Integrated 2-col chart grid on /yolo page between header and build cards
+  6. SWR auto-refresh, loading skeletons, empty states all handled
 
 ### Phase 46: Agent Board Polish
 **Goal**: Agent cards convey resource usage at a glance and the board looks polished
@@ -194,11 +197,11 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 | 38-42 | v2.7 | 12/12 | Complete | 2026-02-26 |
 | 43 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 44 | v2.8 | 3/3 | Complete | 2026-03-01 |
-| 45 | v2.8 | 0/? | Not started | - |
+| 45 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 46 | v2.8 | 0/? | Not started | - |
 | 47 | v2.8 | 0/? | Not started | - |
 
-**Total: 41 phases shipped, 84 plans completed, 8 milestones shipped | v2.8: 2/5 phases complete**
+**Total: 42 phases shipped, 87 plans completed, 8 milestones shipped | v2.8: 3/5 phases complete**
 
 ---
 *Updated: 2026-03-01 -- Phase 44 YOLO Detail Page completed.*
