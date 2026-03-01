@@ -113,7 +113,7 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 **Milestone Goal:** Fix content pipeline and tracking bugs, then polish Mission Control with YOLO detail views, build trends, agent board improvements, and artifact previews.
 
 - [x] **Phase 43: Bug Fixes** (3/3 plans) — completed 2026-03-01
-- [ ] **Phase 44: YOLO Detail Page** - Clickable build detail view with log, errors, evaluation, and file list
+- [x] **Phase 44: YOLO Detail Page** (3/3 plans) — completed 2026-03-01
 - [ ] **Phase 45: Build Trends** - Success rate and self-score charts on /yolo page
 - [ ] **Phase 46: Agent Board Polish** - Context usage indicators and visual cleanup
 - [ ] **Phase 47: Build Artifacts** - Iframe preview for HTML builds and 30-day retention policy
@@ -132,17 +132,24 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
   4. Added content-db-health.sh regression check (runs every 5 min via tools-health-check)
   5. BUG-02 re-scoped: fly_status is in Supabase (different project), tracked as pops-claw-9b3
 
-### Phase 44: YOLO Detail Page
-**Goal**: Users can drill into any YOLO build to see its full story -- log, errors, self-evaluation, and files created
-**Depends on**: Phase 43
-**Requirements**: YOLO-01, YOLO-02, YOLO-03, YOLO-04, YOLO-05
-**Success Criteria** (what must be TRUE):
-  1. Clicking a build card on /yolo navigates to /yolo/{slug} with a full detail view
-  2. Build log displays with timestamps showing the progression of the build
-  3. Errors encountered during the build are displayed in a distinct section
-  4. Self-evaluation scores and reasoning are presented clearly
-  5. All files created during the build are listed with filenames
-**Plans**: TBD
+### Phase 44: YOLO Detail Page ✅
+**Goal**: Users can drill into any YOLO build to see its full story — polished beyond MVP with syntax highlighting, navigation, and visual timeline
+**Completed**: 2026-03-01
+**Requirements**: YOLO-01 through YOLO-05 (all met)
+**Plans**: 3/3 (Nav polish, File viewer enhancement, Build detail improvements)
+**What was done**:
+  1. NavBar active state fix (startsWith for child routes)
+  2. Prev/next build navigation with adjacent build API
+  3. Breadcrumb navigation (YOLO > build name)
+  4. Syntax highlighting for Python/JS/HTML/CSS (regex tokenizer, zero deps)
+  5. Copy-to-clipboard on all code blocks
+  6. File size display + total size summary
+  7. Enhanced HTML iframe (80vh, "Open in new tab")
+  8. CLI run hints with terminal-style command display
+  9. Duration formatting (Xm Ys) with null handling
+  10. Timestamps (started_at/completed_at) in metadata grid
+  11. Prominent self-evaluation with ScoreRing SVG component
+  12. Status timeline (idea → building → testing → success/failed) with timestamps
 
 ### Phase 45: Build Trends
 **Goal**: Users can see YOLO build performance trends at a glance on the /yolo page
@@ -186,12 +193,12 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
 | 38-42 | v2.7 | 12/12 | Complete | 2026-02-26 |
 | 43 | v2.8 | 3/3 | Complete | 2026-03-01 |
-| 44 | v2.8 | 0/? | Not started | - |
+| 44 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 45 | v2.8 | 0/? | Not started | - |
 | 46 | v2.8 | 0/? | Not started | - |
 | 47 | v2.8 | 0/? | Not started | - |
 
-**Total: 40 phases shipped, 81 plans completed, 8 milestones shipped | v2.8: 1/5 phases complete**
+**Total: 41 phases shipped, 84 plans completed, 8 milestones shipped | v2.8: 2/5 phases complete**
 
 ---
-*Updated: 2026-03-01 -- Phase 43 Bug Fixes completed.*
+*Updated: 2026-03-01 -- Phase 44 YOLO Detail Page completed.*

@@ -14,11 +14,11 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 
 ### YOLO Detail Page
 
-- [ ] **YOLO-01**: User can click a build card to navigate to /yolo/{slug} detail page
-- [ ] **YOLO-02**: Detail page displays full build log with timestamps
-- [ ] **YOLO-03**: Detail page displays errors encountered during build
-- [ ] **YOLO-04**: Detail page displays self-evaluation scores and reasoning
-- [ ] **YOLO-05**: Detail page lists all files created during build
+- [x] **YOLO-01**: User can click a build card to navigate to /yolo/{slug} detail page
+- [x] **YOLO-02**: Detail page displays full build log with timestamps
+- [x] **YOLO-03**: Detail page displays errors encountered during build
+- [x] **YOLO-04**: Detail page displays self-evaluation scores and reasoning
+- [x] **YOLO-05**: Detail page lists all files created during build
 
 ### Build Trends
 
@@ -62,11 +62,11 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 |-------------|-------|--------|
 | BUG-01 | Phase 43 | Done |
 | BUG-02 | Phase 43 | Re-scoped (pops-claw-9b3) |
-| YOLO-01 | Phase 44 | Pending |
-| YOLO-02 | Phase 44 | Pending |
-| YOLO-03 | Phase 44 | Pending |
-| YOLO-04 | Phase 44 | Pending |
-| YOLO-05 | Phase 44 | Pending |
+| YOLO-01 | Phase 44 | Done |
+| YOLO-02 | Phase 44 | Done |
+| YOLO-03 | Phase 44 | Done |
+| YOLO-04 | Phase 44 | Done |
+| YOLO-05 | Phase 44 | Done |
 | TREND-01 | Phase 45 | Pending |
 | TREND-02 | Phase 45 | Pending |
 | AGENT-01 | Phase 46 | Pending |
