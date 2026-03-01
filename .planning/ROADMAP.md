@@ -10,6 +10,7 @@
 - ✅ **v2.5 Mission Control Dashboard** — Phases 29-32 (shipped 2026-02-22)
 - ✅ **v2.6 Content Pipeline Hardening** — Phase 33 (shipped 2026-02-23)
 - ✅ **v2.7 YOLO Dev** — Phases 38-42 (shipped 2026-02-26)
+- **v2.8 Bug Fixes & Dashboard Polish** — Phases 43-47 (in progress)
 
 ## Phases
 
@@ -107,6 +108,70 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 
 </details>
 
+### v2.8 Bug Fixes & Dashboard Polish (In Progress)
+
+**Milestone Goal:** Fix content pipeline and tracking bugs, then polish Mission Control with YOLO detail views, build trends, agent board improvements, and artifact previews.
+
+- [ ] **Phase 43: Bug Fixes** - Fix Ezra publish-check and AeroVironment fly_status tracking
+- [ ] **Phase 44: YOLO Detail Page** - Clickable build detail view with log, errors, evaluation, and file list
+- [ ] **Phase 45: Build Trends** - Success rate and self-score charts on /yolo page
+- [ ] **Phase 46: Agent Board Polish** - Context usage indicators and visual cleanup
+- [ ] **Phase 47: Build Artifacts** - Iframe preview for HTML builds and 30-day retention policy
+
+## Phase Details
+
+### Phase 43: Bug Fixes
+**Goal**: Content pipeline produces WordPress drafts for approved articles, and AeroVironment tracking data populates correctly
+**Depends on**: Nothing (first phase of v2.8)
+**Requirements**: BUG-01, BUG-02
+**Success Criteria** (what must be TRUE):
+  1. Ezra's publish-check cron creates WordPress drafts for articles with status "approved"
+  2. AeroVironment fly_status column in content.db contains actual values (not null) for tracked articles
+  3. Morning briefing content pipeline section reflects accurate article statuses
+**Plans**: TBD
+
+### Phase 44: YOLO Detail Page
+**Goal**: Users can drill into any YOLO build to see its full story -- log, errors, self-evaluation, and files created
+**Depends on**: Phase 43
+**Requirements**: YOLO-01, YOLO-02, YOLO-03, YOLO-04, YOLO-05
+**Success Criteria** (what must be TRUE):
+  1. Clicking a build card on /yolo navigates to /yolo/{slug} with a full detail view
+  2. Build log displays with timestamps showing the progression of the build
+  3. Errors encountered during the build are displayed in a distinct section
+  4. Self-evaluation scores and reasoning are presented clearly
+  5. All files created during the build are listed with filenames
+**Plans**: TBD
+
+### Phase 45: Build Trends
+**Goal**: Users can see YOLO build performance trends at a glance on the /yolo page
+**Depends on**: Phase 43
+**Requirements**: TREND-01, TREND-02
+**Success Criteria** (what must be TRUE):
+  1. /yolo page shows a chart of build success rate over time (builds that completed vs failed)
+  2. /yolo page shows a chart of average self-score over time
+  3. Charts update automatically as new builds complete (via SWR refresh)
+**Plans**: TBD
+
+### Phase 46: Agent Board Polish
+**Goal**: Agent cards convey resource usage at a glance and the board looks polished
+**Depends on**: Phase 43
+**Requirements**: AGENT-01, AGENT-02
+**Success Criteria** (what must be TRUE):
+  1. Each agent card shows a visual context/token usage indicator (bar, percentage, or similar)
+  2. Agent board has consistent spacing, alignment, and visual styling across all 7 cards
+  3. Usage indicators update on SWR refresh cycle
+**Plans**: TBD
+
+### Phase 47: Build Artifacts
+**Goal**: Users can preview HTML builds inline and old builds are cleaned up automatically
+**Depends on**: Phase 44
+**Requirements**: PREV-01, PREV-02
+**Success Criteria** (what must be TRUE):
+  1. YOLO detail page shows an iframe preview of index.html when the build produced one
+  2. Builds older than 30 days are automatically deleted from disk
+  3. Top-rated builds are retained regardless of age
+**Plans**: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -118,8 +183,13 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 | 29-32 | v2.5 | 9/9 | Complete | 2026-02-22 |
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
 | 38-42 | v2.7 | 12/12 | Complete | 2026-02-26 |
+| 43 | v2.8 | 0/? | Not started | - |
+| 44 | v2.8 | 0/? | Not started | - |
+| 45 | v2.8 | 0/? | Not started | - |
+| 46 | v2.8 | 0/? | Not started | - |
+| 47 | v2.8 | 0/? | Not started | - |
 
-**Total: 39 phases shipped, 78 plans completed, 8 milestones shipped**
+**Total: 39 phases shipped, 78 plans completed, 8 milestones shipped | v2.8: 5 phases planned**
 
 ---
-*Updated: 2026-02-26 — v2.7 YOLO Dev shipped and archived.*
+*Updated: 2026-03-01 -- v2.8 Bug Fixes & Dashboard Polish roadmap created.*

@@ -60,25 +60,25 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | — | Pending |
-| BUG-02 | — | Pending |
-| YOLO-01 | — | Pending |
-| YOLO-02 | — | Pending |
-| YOLO-03 | — | Pending |
-| YOLO-04 | — | Pending |
-| YOLO-05 | — | Pending |
-| TREND-01 | — | Pending |
-| TREND-02 | — | Pending |
-| AGENT-01 | — | Pending |
-| AGENT-02 | — | Pending |
-| PREV-01 | — | Pending |
-| PREV-02 | — | Pending |
+| BUG-01 | Phase 43 | Pending |
+| BUG-02 | Phase 43 | Pending |
+| YOLO-01 | Phase 44 | Pending |
+| YOLO-02 | Phase 44 | Pending |
+| YOLO-03 | Phase 44 | Pending |
+| YOLO-04 | Phase 44 | Pending |
+| YOLO-05 | Phase 44 | Pending |
+| TREND-01 | Phase 45 | Pending |
+| TREND-02 | Phase 45 | Pending |
+| AGENT-01 | Phase 46 | Pending |
+| AGENT-02 | Phase 46 | Pending |
+| PREV-01 | Phase 47 | Pending |
+| PREV-02 | Phase 47 | Pending |
 
 **Coverage:**
 - v2.8 requirements: 13 total
-- Mapped to phases: 0
-- Unmapped: 13 (roadmap pending)
+- Mapped to phases: 13
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-01*
-*Last updated: 2026-03-01 after initial definition*
+*Last updated: 2026-03-01 -- traceability updated with phase mappings*

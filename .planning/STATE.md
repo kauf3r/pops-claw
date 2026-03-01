@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.8 Bug Fixes & Dashboard Polish
+**Current focus:** v2.8 Bug Fixes & Dashboard Polish -- Phase 43 (Bug Fixes)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-01 — Milestone v2.8 started
+Phase: 43 of 47 (Bug Fixes) -- first of 5 in v2.8
+Plan: --
+Status: Ready to plan
+Last activity: 2026-03-01 -- Roadmap created for v2.8
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -43,7 +43,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 ### Open Items
 
 - DMARC rua at theandykaufman@gmail.com: aggregate reports expected (Phase 27-01 checkpoint)
-- Email-catchup cron delivery target error: "Action send requires a target" — deferred
+- Email-catchup cron delivery target error: "Action send requires a target" -- deferred
 - Dead code: global-search.tsx returns null (Convex removal stub from Phase 29)
 - Phase 41 VERIFICATION.md never created (summaries exist, work complete)
 - DASH-04 E2E Slack DM from isolated cron untested (code deployed, next build confirms)
@@ -59,10 +59,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Stack: Next.js 14.2.15 + Tailwind + better-sqlite3 + SWR + Recharts + cron-parser v5
 - 6 databases: health.db, coordination.db, content.db, email.db, observability.db, yolo.db
 - Mission Control: http://100.72.143.9:3001 (direct Tailscale, no SSH tunnel)
-- systemd service: mission-control.service (auto-starts, OOMScoreAdjust=500)
 - YOLO Dev builds: ~/clawd/yolo-dev/ on EC2
 - YOLO metadata: yolo.db at ~/clawd/yolo-dev/yolo.db
-- Disk cleaned 2026-03-01: 80% → 53% (removed rotated syslogs, journal vacuum, npm cache, dead swapfile2, stale sandbox copy)
 
 ---
-*Last updated: 2026-03-01 — v2.8 Bug Fixes & Dashboard Polish started*
+*Last updated: 2026-03-01 -- v2.8 roadmap created, ready to plan Phase 43*
