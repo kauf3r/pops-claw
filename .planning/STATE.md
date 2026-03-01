@@ -2,18 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-26)
+See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.7 shipped — planning next milestone
+**Current focus:** v2.8 Bug Fixes & Dashboard Polish
 
 ## Current Position
 
-Phase: v2.7 complete (all 5 phases shipped)
-Status: Milestone archived
-Last activity: 2026-02-26 — v2.7 YOLO Dev shipped and archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-01 — Milestone v2.8 started
 
-Progress: [██████████] 100% (8 milestones shipped)
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -61,6 +62,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - systemd service: mission-control.service (auto-starts, OOMScoreAdjust=500)
 - YOLO Dev builds: ~/clawd/yolo-dev/ on EC2
 - YOLO metadata: yolo.db at ~/clawd/yolo-dev/yolo.db
+- Disk cleaned 2026-03-01: 80% → 53% (removed rotated syslogs, journal vacuum, npm cache, dead swapfile2, stale sandbox copy)
 
 ---
-*Last updated: 2026-02-26 — v2.7 YOLO Dev shipped and archived. Next: /gsd:new-milestone*
+*Last updated: 2026-03-01 — v2.8 Bug Fixes & Dashboard Polish started*

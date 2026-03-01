@@ -72,7 +72,17 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ### Active
 
-(No active milestone — run `/gsd:new-milestone` to start next)
+**Current Milestone: v2.8 Bug Fixes & Dashboard Polish**
+
+**Goal:** Fix content pipeline and tracking bugs, then polish Mission Control dashboard with YOLO detail views, build trends, agent board improvements, and artifact previews.
+
+**Target features:**
+- Fix Ezra publish-check (approved articles not getting WP drafts)
+- Fix AeroVironment fly_status tracking (all null)
+- YOLO detail page (/yolo/{slug} with build log, errors, self-evaluation)
+- Build trend chart (success rate, avg self-score over time)
+- Agent board polish (context usage indicators, visual cleanup)
+- Build artifact preview (iframe for index.html builds) + retention policy (30d auto-cleanup)
 
 ### Out of Scope
 
@@ -181,4 +191,4 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | 5-minute health check cron | Balance between freshness and resource usage | ✓ Good — tools-health.json always current |
 
 ---
-*Last updated: 2026-02-26 after v2.7 milestone completion*
+*Last updated: 2026-03-01 after v2.8 milestone start*
