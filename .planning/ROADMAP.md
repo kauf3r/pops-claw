@@ -116,7 +116,7 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 - [x] **Phase 44: YOLO Detail Page** (3/3 plans) — completed 2026-03-01
 - [x] **Phase 45: Build Trends** (3/3 plans) — completed 2026-03-01
 - [x] **Phase 46: Agent Board Polish** - Context usage indicators and visual cleanup (completed 2026-03-02)
-- [ ] **Phase 47: Build Artifacts** (2 plans) - Iframe preview verification and 30-day retention policy
+- [x] **Phase 47: Build Artifacts** (2/2 plans) - Iframe preview verification and 30-day retention policy -- completed 2026-03-02
 - [ ] **Phase 48: Pipeline Fix & Verification Backfill** - Fix publish-check query, delete ghost file, backfill verification artifacts for phases 43-45
 
 ## Phase Details
@@ -185,7 +185,7 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
   3. Top-rated builds are retained regardless of age
 **Plans**: 2 plans
 Plans:
-- [ ] 47-01-PLAN.md — Verify iframe preview (PREV-01 already implemented in Phase 44)
+- [x] 47-01-PLAN.md — Verify iframe preview (PREV-01 already implemented in Phase 44) -- completed 2026-03-02
 - [x] 47-02-PLAN.md — Build cleanup script + crontab for 30-day retention (PREV-02) -- completed 2026-03-02
 
 ### Phase 48: Pipeline Fix & Verification Backfill
@@ -215,10 +215,10 @@ Plans:
 | 44 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 45 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 46 | v2.8 | Complete    | 2026-03-02 | - |
-| 47 | v2.8 | 1/2 | In progress | - |
+| 47 | v2.8 | 2/2 | Complete | 2026-03-02 |
 | 48 | v2.8 | 0/? | Not started | - |
 
-**Total: 42 phases shipped, 87 plans completed, 8 milestones shipped | v2.8: 4/7 phases complete**
+**Total: 42 phases shipped, 88 plans completed, 8 milestones shipped | v2.8: 5/7 phases complete**
 
 ---
-*Updated: 2026-03-02 -- Phase 47 planned: 2 plans (iframe verification + build cleanup)*
+*Updated: 2026-03-02 -- Phase 47 complete: 2/2 plans (iframe verification + build cleanup)*

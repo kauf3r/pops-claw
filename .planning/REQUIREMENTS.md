@@ -32,7 +32,7 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 
 ### Build Artifacts
 
-- [ ] **PREV-01**: User can preview index.html build artifacts in an iframe on the detail page
+- [x] **PREV-01**: User can preview index.html build artifacts in an iframe on the detail page
 - [x] **PREV-02**: Builds older than 30 days are automatically cleaned up (top-rated retained)
 
 ## Future Requirements
@@ -71,7 +71,7 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 | TREND-02 | Phase 45 → 48 | Done (verification backfill) |
 | AGENT-01 | Phase 46 | Done |
 | AGENT-02 | Phase 46 | Done |
-| PREV-01 | Phase 47 | Pending |
+| PREV-01 | Phase 47 | Done |
 | PREV-02 | Phase 47 | Done |
 
 **Coverage:**
@@ -81,4 +81,4 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 
 ---
 *Requirements defined: 2026-03-01*
-*Last updated: 2026-03-02 -- PREV-02 marked complete (build cleanup script deployed)*
+*Last updated: 2026-03-02 -- PREV-01 marked complete (iframe preview verified)*
