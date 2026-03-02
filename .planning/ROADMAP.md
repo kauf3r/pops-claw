@@ -186,7 +186,7 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 **Plans**: 2 plans
 Plans:
 - [ ] 47-01-PLAN.md — Verify iframe preview (PREV-01 already implemented in Phase 44)
-- [ ] 47-02-PLAN.md — Build cleanup script + crontab for 30-day retention (PREV-02)
+- [x] 47-02-PLAN.md — Build cleanup script + crontab for 30-day retention (PREV-02) -- completed 2026-03-02
 
 ### Phase 48: Pipeline Fix & Verification Backfill
 **Goal**: Close audit gaps — fix BUG-01 query mismatch, clean up ghost file, backfill missing verification artifacts for phases 43-45, update requirements checkboxes
@@ -215,7 +215,7 @@ Plans:
 | 44 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 45 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 46 | v2.8 | Complete    | 2026-03-02 | - |
-| 47 | v2.8 | 0/2 | Not started | - |
+| 47 | v2.8 | 1/2 | In progress | - |
 | 48 | v2.8 | 0/? | Not started | - |
 
 **Total: 42 phases shipped, 87 plans completed, 8 milestones shipped | v2.8: 4/7 phases complete**

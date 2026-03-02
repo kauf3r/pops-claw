@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: Bug Fixes & Dashboard Polish
-status: unknown
-last_updated: "2026-03-02T17:36:57.774Z"
+status: in-progress
+last_updated: "2026-03-02T21:30:00.000Z"
 progress:
   total_phases: 33
   completed_phases: 26
   total_plans: 55
-  completed_plans: 49
+  completed_plans: 50
 ---
 
 # Project State: Proactive Daily Companion
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.8 Bug Fixes & Dashboard Polish -- Phase 43 (Bug Fixes)
+**Current focus:** v2.8 Bug Fixes & Dashboard Polish -- Phase 47 (Build Artifacts)
 
 ## Current Position
 
-Phase: 43 of 47 (Bug Fixes) -- first of 5 in v2.8
-Plan: --
-Status: Ready to plan
-Last activity: 2026-03-01 -- Roadmap created for v2.8
+Phase: 47 of 48 (Build Artifacts)
+Plan: 2 of 2 (complete)
+Status: Phase 47 plan 02 complete
+Last activity: 2026-03-02 -- Completed 47-02 build cleanup script + crontab
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [######....] 50%
 
 ## Performance Metrics
 
@@ -53,6 +53,10 @@ Progress: [░░░░░░░░░░] 0%
 
 Decisions are logged in PROJECT.md Key Decisions table.
 
+- Phase 47-02: Delete only disk directories, preserve DB rows for trend charts
+- Phase 47-02: Score >= 4 threshold for retention (4=solid, 5=impressive)
+- Phase 47-02: Secondary ~/clawd/yolo-dev/ not in cleanup scope (separate DB, not used by dashboard)
+
 ### Open Items
 
 - DMARC rua at theandykaufman@gmail.com: aggregate reports expected (Phase 27-01 checkpoint)
@@ -76,4 +80,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - YOLO metadata: yolo.db at ~/clawd/yolo-dev/yolo.db
 
 ---
-*Last updated: 2026-03-01 -- v2.8 roadmap created, ready to plan Phase 43*
+*Last updated: 2026-03-02 -- Completed Phase 47 plan 02 (build cleanup script + crontab)*
