@@ -116,7 +116,7 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 - [x] **Phase 44: YOLO Detail Page** (3/3 plans) — completed 2026-03-01
 - [x] **Phase 45: Build Trends** (3/3 plans) — completed 2026-03-01
 - [x] **Phase 46: Agent Board Polish** - Context usage indicators and visual cleanup (completed 2026-03-02)
-- [ ] **Phase 47: Build Artifacts** - Iframe preview for HTML builds and 30-day retention policy
+- [ ] **Phase 47: Build Artifacts** (2 plans) - Iframe preview verification and 30-day retention policy
 - [ ] **Phase 48: Pipeline Fix & Verification Backfill** - Fix publish-check query, delete ghost file, backfill verification artifacts for phases 43-45
 
 ## Phase Details
@@ -183,7 +183,10 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
   1. YOLO detail page shows an iframe preview of index.html when the build produced one
   2. Builds older than 30 days are automatically deleted from disk
   3. Top-rated builds are retained regardless of age
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 47-01-PLAN.md — Verify iframe preview (PREV-01 already implemented in Phase 44)
+- [ ] 47-02-PLAN.md — Build cleanup script + crontab for 30-day retention (PREV-02)
 
 ### Phase 48: Pipeline Fix & Verification Backfill
 **Goal**: Close audit gaps — fix BUG-01 query mismatch, clean up ghost file, backfill missing verification artifacts for phases 43-45, update requirements checkboxes
@@ -212,10 +215,10 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 | 44 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 45 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 46 | v2.8 | Complete    | 2026-03-02 | - |
-| 47 | v2.8 | 0/? | Not started | - |
+| 47 | v2.8 | 0/2 | Not started | - |
 | 48 | v2.8 | 0/? | Not started | - |
 
 **Total: 42 phases shipped, 87 plans completed, 8 milestones shipped | v2.8: 4/7 phases complete**
 
 ---
-*Updated: 2026-03-01 -- Phase 44 YOLO Detail Page completed.*
+*Updated: 2026-03-02 -- Phase 47 planned: 2 plans (iframe verification + build cleanup)*
