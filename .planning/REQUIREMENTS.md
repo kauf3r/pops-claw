@@ -9,7 +9,7 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 
 ### Bug Fixes
 
-- [x] **BUG-01**: Ezra publish-check creates WordPress drafts for approved articles
+- [ ] **BUG-01**: Ezra publish-check creates WordPress drafts for approved articles
 - [x] **BUG-02**: ~~AeroVironment fly_status values are tracked and displayed (not null)~~ — Re-scoped: fly_status is in Supabase (airspace-operations-dashboard), not content.db. Tracked as separate task.
 
 ### YOLO Detail Page
@@ -22,13 +22,13 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 
 ### Build Trends
 
-- [ ] **TREND-01**: /yolo page shows build success rate chart over time
-- [ ] **TREND-02**: /yolo page shows average self-score chart over time
+- [x] **TREND-01**: /yolo page shows build success rate chart over time
+- [x] **TREND-02**: /yolo page shows average self-score chart over time
 
 ### Agent Board
 
-- [ ] **AGENT-01**: Agent cards show context/token usage indicators (visual bar or percentage)
-- [ ] **AGENT-02**: Agent board has consistent visual styling and spacing
+- [x] **AGENT-01**: Agent cards show context/token usage indicators (visual bar or percentage)
+- [x] **AGENT-02**: Agent board has consistent visual styling and spacing
 
 ### Build Artifacts
 
@@ -60,17 +60,17 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | Phase 43 | Done |
+| BUG-01 | Phase 43 → 48 | Partial (query fix needed) |
 | BUG-02 | Phase 43 | Re-scoped (pops-claw-9b3) |
-| YOLO-01 | Phase 44 | Done |
-| YOLO-02 | Phase 44 | Done |
-| YOLO-03 | Phase 44 | Done |
-| YOLO-04 | Phase 44 | Done |
-| YOLO-05 | Phase 44 | Done |
-| TREND-01 | Phase 45 | Pending |
-| TREND-02 | Phase 45 | Pending |
-| AGENT-01 | Phase 46 | Pending |
-| AGENT-02 | Phase 46 | Pending |
+| YOLO-01 | Phase 44 → 48 | Done (verification backfill) |
+| YOLO-02 | Phase 44 → 48 | Done (verification backfill) |
+| YOLO-03 | Phase 44 → 48 | Done (verification backfill) |
+| YOLO-04 | Phase 44 → 48 | Done (verification backfill) |
+| YOLO-05 | Phase 44 → 48 | Done (verification backfill) |
+| TREND-01 | Phase 45 → 48 | Done (verification backfill) |
+| TREND-02 | Phase 45 → 48 | Done (verification backfill) |
+| AGENT-01 | Phase 46 | Done |
+| AGENT-02 | Phase 46 | Done |
 | PREV-01 | Phase 47 | Pending |
 | PREV-02 | Phase 47 | Pending |
 
@@ -81,4 +81,4 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 
 ---
 *Requirements defined: 2026-03-01*
-*Last updated: 2026-03-01 -- traceability updated with phase mappings*
+*Last updated: 2026-03-02 -- audit gap closure: BUG-01 reset to partial, TREND/AGENT checkboxes updated, Phase 48 added to traceability*

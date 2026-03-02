@@ -10,7 +10,7 @@
 - ✅ **v2.5 Mission Control Dashboard** — Phases 29-32 (shipped 2026-02-22)
 - ✅ **v2.6 Content Pipeline Hardening** — Phase 33 (shipped 2026-02-23)
 - ✅ **v2.7 YOLO Dev** — Phases 38-42 (shipped 2026-02-26)
-- **v2.8 Bug Fixes & Dashboard Polish** — Phases 43-47 (in progress)
+- **v2.8 Bug Fixes & Dashboard Polish** — Phases 43-48 (in progress)
 
 ## Phases
 
@@ -117,6 +117,7 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 - [x] **Phase 45: Build Trends** (3/3 plans) — completed 2026-03-01
 - [x] **Phase 46: Agent Board Polish** - Context usage indicators and visual cleanup (completed 2026-03-02)
 - [ ] **Phase 47: Build Artifacts** - Iframe preview for HTML builds and 30-day retention policy
+- [ ] **Phase 48: Pipeline Fix & Verification Backfill** - Fix publish-check query, delete ghost file, backfill verification artifacts for phases 43-45
 
 ## Phase Details
 
@@ -184,6 +185,18 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
   3. Top-rated builds are retained regardless of age
 **Plans**: TBD
 
+### Phase 48: Pipeline Fix & Verification Backfill
+**Goal**: Close audit gaps — fix BUG-01 query mismatch, clean up ghost file, backfill missing verification artifacts for phases 43-45, update requirements checkboxes
+**Depends on**: Phase 43, 44, 45
+**Requirements**: BUG-01 (fix partial), TREND-01, TREND-02, YOLO-01-05 (verification backfill)
+**Gap Closure**: Closes gaps from v2.8 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. PUBLISH_SESSION.md query handles both NULL and empty string wp_post_id
+  2. Ghost content.db file at agents/main/ deleted
+  3. Phases 43, 44, 45 each have VERIFICATION.md and SUMMARY.md
+  4. REQUIREMENTS.md checkboxes updated for all completed requirements
+**Plans**: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -200,8 +213,9 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 | 45 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 46 | v2.8 | Complete    | 2026-03-02 | - |
 | 47 | v2.8 | 0/? | Not started | - |
+| 48 | v2.8 | 0/? | Not started | - |
 
-**Total: 42 phases shipped, 87 plans completed, 8 milestones shipped | v2.8: 3/5 phases complete**
+**Total: 42 phases shipped, 87 plans completed, 8 milestones shipped | v2.8: 4/7 phases complete**
 
 ---
 *Updated: 2026-03-01 -- Phase 44 YOLO Detail Page completed.*
