@@ -117,7 +117,7 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 - [x] **Phase 45: Build Trends** (3/3 plans) — completed 2026-03-01
 - [x] **Phase 46: Agent Board Polish** - Context usage indicators and visual cleanup (completed 2026-03-02)
 - [x] **Phase 47: Build Artifacts** (2/2 plans) - Iframe preview verification and 30-day retention policy -- completed 2026-03-02
-- [ ] **Phase 48: Pipeline Fix & Verification Backfill** - Fix publish-check query, delete ghost file, backfill verification artifacts for phases 43-45
+- [ ] **Phase 48: Pipeline Fix & Verification Backfill** (2 plans) - Fix publish-check query, delete ghost file, backfill verification artifacts for phases 43-45
 
 ## Phase Details
 
@@ -198,7 +198,10 @@ Plans:
   2. Ghost content.db file at agents/main/ deleted
   3. Phases 43, 44, 45 each have VERIFICATION.md and SUMMARY.md
   4. REQUIREMENTS.md checkboxes updated for all completed requirements
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 48-01-PLAN.md — EC2 fixes: SQL query fix, data cleanup, ghost file deletion (BUG-01)
+- [ ] 48-02-PLAN.md — Verification backfill for phases 43-45 + REQUIREMENTS.md update
 
 ## Progress
 
@@ -216,9 +219,9 @@ Plans:
 | 45 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 46 | v2.8 | Complete    | 2026-03-02 | - |
 | 47 | v2.8 | Complete    | 2026-03-02 | 2026-03-02 |
-| 48 | v2.8 | 0/? | Not started | - |
+| 48 | v2.8 | 0/2 | Not started | - |
 
 **Total: 42 phases shipped, 88 plans completed, 8 milestones shipped | v2.8: 5/7 phases complete**
 
 ---
-*Updated: 2026-03-02 -- Phase 47 complete: 2/2 plans (iframe verification + build cleanup)*
+*Updated: 2026-03-02 -- Phase 48 planned: 2 plans (EC2 fixes + verification backfill)*
