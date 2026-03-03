@@ -46,6 +46,50 @@
 
 ---
 
+## Milestone: v2.8 — Bug Fixes & Dashboard Polish
+
+**Shipped:** 2026-03-03
+**Phases:** 6 | **Plans:** 14
+
+### What Was Built
+- Content pipeline fix — ghost content.db deleted, bind-mount fixed, SQL query patched for NULL/empty-string wp_post_id
+- YOLO detail page — /yolo/{slug} with 12 features beyond MVP (syntax highlighting, ScoreRing, status timeline, iframe preview, prev/next nav, copy-to-clipboard)
+- Build trend charts — success rate BarChart + avg score LineChart on /yolo page
+- Agent board polish — token usage bars, cache hit rate %, 24h cost, uniform card height
+- Build cleanup automation — 30-day retention with score >= 4 protection
+- Verification backfill — VERIFICATION.md + SUMMARY.md for 3 phases with live EC2 SSH evidence
+
+### What Worked
+- **Audit-driven gap closure** — first milestone to run audit mid-stream, find gaps, create closure phases (47+48), and re-audit to PASSED
+- **Deferred items from v2.5+v2.7 naturally fit** — context usage indicators, agent board polish, build artifacts, trend charts all landed in a single cohesive milestone
+- **Live SSH evidence for verification** — gathering evidence from running EC2 rather than plan docs produces audit-quality proof
+- **Phase 43 bug fix cascaded** — fixing the content pipeline ghost file exposed the SQL query gap, which Phase 48 closed
+
+### What Was Inefficient
+- **Phases 43-45 shipped without VERIFICATION.md or SUMMARY.md** — required Phase 48 backfill; should have written artifacts during execution
+- **Two audit passes needed** — first audit found 4 unsatisfied requirements and 3 unverified phases; could have caught earlier if verification was part of each phase
+- **BUG-02 re-scoping** — AeroVironment fly_status was in wrong repo (Supabase, not content.db); investigation time wasted before re-scope
+- **Phase 46 plans listed as "TBD"** — planning was informal; worked fine for a 1-plan phase but inconsistent with other phases
+
+### Patterns Established
+- **Defensive SQL for nullable text columns** — `(col IS NULL OR col = '')` pattern avoids silent data misses in SQLite
+- **Verification backfill pattern** — SSH evidence gathering batch → write all docs locally; viable catch-up for missed artifacts
+- **Audit → gap closure → re-audit cycle** — milestone audit as a first-class workflow gate, not just documentation
+- **Inline page for single-use views** — 837-line monolithic page.tsx is pragmatic when there's only one consumer
+
+### Key Lessons
+1. **Write VERIFICATION.md during phase execution, not after** — backfilling 3 phases in Phase 48 worked but was avoidable overhead
+2. **Run milestone audit before the last phase, not after** — catching gaps earlier reduces closure phase count
+3. **Deferred items cluster well** — v2.5/v2.7 deferrals created a natural "polish" milestone; this is a good pattern for debt paydown
+4. **Re-scoping is a valid outcome** — BUG-02 moved to correct repo cleanly; don't force-fit requirements that belong elsewhere
+
+### Cost Observations
+- Model mix: ~35% opus (planning/audit), ~55% sonnet (execution), ~10% haiku (cron)
+- Sessions: ~6 sessions across 5 days
+- Notable: Phase 48 was the most efficient (4 plans worth of work in 2 plans, 7 min total execution)
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -59,10 +103,12 @@
 | v2.5 | 4 | 9 | 2 days | Dashboard foundation, new stack |
 | v2.6 | 1 | 4 | 2 days | Pipeline hardening, debugging |
 | v2.7 | 5 | 12 | 3 days | Autonomous features, pattern reuse |
+| v2.8 | 6 | 14 | 5 days | Bug fixes, dashboard polish, audit gap closure |
 
 ### Top Lessons (Verified Across Milestones)
 
 1. **Protocol docs > skill triggers** for complex autonomous behavior (verified v2.6 CONTENT_TRIGGERS.md + v2.7 YOLO_BUILD.md)
 2. **Explicit bind-mounts in openclaw.json** required for any sandbox file access (verified v2.0 gh/sqlite3 + v2.6 content.db + v2.7 yolo-dev)
 3. **Pattern reuse compounds** — each milestone is faster because conventions carry forward (SWR, API routes, db-paths, channel:ID format)
-4. **Milestone audits catch real gaps** — v2.7 audit surfaced Phase 41 verification debt before ship
+4. **Milestone audits catch real gaps** — v2.7 surfaced Phase 41 verification debt; v2.8 surfaced 4 unsatisfied reqs + 3 missing verification docs
+5. **Write verification artifacts during execution** — backfilling is possible but wasteful (verified v2.8 Phase 48 backfill)

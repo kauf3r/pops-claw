@@ -10,7 +10,7 @@
 - ✅ **v2.5 Mission Control Dashboard** — Phases 29-32 (shipped 2026-02-22)
 - ✅ **v2.6 Content Pipeline Hardening** — Phase 33 (shipped 2026-02-23)
 - ✅ **v2.7 YOLO Dev** — Phases 38-42 (shipped 2026-02-26)
-- **v2.8 Bug Fixes & Dashboard Polish** — Phases 43-48 (in progress)
+- ✅ **v2.8 Bug Fixes & Dashboard Polish** — Phases 43-48 (shipped 2026-03-03)
 
 ## Phases
 
@@ -108,100 +108,19 @@ Full details: [milestones/v2.7-ROADMAP.md](milestones/v2.7-ROADMAP.md)
 
 </details>
 
-### v2.8 Bug Fixes & Dashboard Polish (In Progress)
+<details>
+<summary>✅ v2.8 Bug Fixes & Dashboard Polish (Phases 43-48) — SHIPPED 2026-03-03</summary>
 
-**Milestone Goal:** Fix content pipeline and tracking bugs, then polish Mission Control with YOLO detail views, build trends, agent board improvements, and artifact previews.
+- [x] Phase 43: Bug Fixes (3/3 plans) — completed 2026-03-01
+- [x] Phase 44: YOLO Detail Page (3/3 plans) — completed 2026-03-01
+- [x] Phase 45: Build Trends (3/3 plans) — completed 2026-03-01
+- [x] Phase 46: Agent Board Polish (1/1 plan) — completed 2026-03-02
+- [x] Phase 47: Build Artifacts (2/2 plans) — completed 2026-03-02
+- [x] Phase 48: Pipeline Fix & Verification Backfill (2/2 plans) — completed 2026-03-03
 
-- [x] **Phase 43: Bug Fixes** (3/3 plans) — completed 2026-03-01
-- [x] **Phase 44: YOLO Detail Page** (3/3 plans) — completed 2026-03-01
-- [x] **Phase 45: Build Trends** (3/3 plans) — completed 2026-03-01
-- [x] **Phase 46: Agent Board Polish** - Context usage indicators and visual cleanup (completed 2026-03-02)
-- [x] **Phase 47: Build Artifacts** (2/2 plans) - Iframe preview verification and 30-day retention policy -- completed 2026-03-02
-- [x] **Phase 48: Pipeline Fix & Verification Backfill** (2/2 plans) - Fix publish-check query, delete ghost file, backfill verification artifacts for phases 43-45 -- completed 2026-03-03
+Full details: [milestones/v2.8-ROADMAP.md](milestones/v2.8-ROADMAP.md)
 
-## Phase Details
-
-### Phase 43: Bug Fixes ✅
-**Goal**: Content pipeline produces WordPress drafts for approved articles, AeroVironment tracking resolved
-**Completed**: 2026-03-01
-**Requirements**: BUG-01 (fixed), BUG-02 (re-scoped to asi-officernd, bead pops-claw-9b3)
-**Plans**: 3/3 (Ezra mount fix, AV re-scope, verification)
-**What was done**:
-  1. Removed 0-byte ghost file shadowing content.db bind-mount in Docker sandbox
-  2. Copied Ezra workspace files to main agent workspace (publish-check runs as agent:main)
-  3. Triggered publish-check — article #20 got WP draft (post ID 1609)
-  4. Added content-db-health.sh regression check (runs every 5 min via tools-health-check)
-  5. BUG-02 re-scoped: fly_status is in Supabase (different project), tracked as pops-claw-9b3
-
-### Phase 44: YOLO Detail Page ✅
-**Goal**: Users can drill into any YOLO build to see its full story — polished beyond MVP with syntax highlighting, navigation, and visual timeline
-**Completed**: 2026-03-01
-**Requirements**: YOLO-01 through YOLO-05 (all met)
-**Plans**: 3/3 (Nav polish, File viewer enhancement, Build detail improvements)
-**What was done**:
-  1. NavBar active state fix (startsWith for child routes)
-  2. Prev/next build navigation with adjacent build API
-  3. Breadcrumb navigation (YOLO > build name)
-  4. Syntax highlighting for Python/JS/HTML/CSS (regex tokenizer, zero deps)
-  5. Copy-to-clipboard on all code blocks
-  6. File size display + total size summary
-  7. Enhanced HTML iframe (80vh, "Open in new tab")
-  8. CLI run hints with terminal-style command display
-  9. Duration formatting (Xm Ys) with null handling
-  10. Timestamps (started_at/completed_at) in metadata grid
-  11. Prominent self-evaluation with ScoreRing SVG component
-  12. Status timeline (idea → building → testing → success/failed) with timestamps
-
-### Phase 45: Build Trends ✅
-**Goal**: Users can see YOLO build performance trends at a glance on the /yolo page
-**Completed**: 2026-03-01
-**Requirements**: TREND-01, TREND-02 (all met)
-**Plans**: 3/3 (API + query, chart components, page integration)
-**What was done**:
-  1. Added `getYoloTrends()` SQL aggregation query (group by date, success rate, avg score)
-  2. Created `/api/yolo/trends` endpoint returning daily trend data
-  3. Built `SuccessRateChart` (Recharts BarChart, emerald bars, 0-100% Y-axis)
-  4. Built `ScoreTrendChart` (Recharts LineChart, blue line+dots, 1-5 Y-axis)
-  5. Integrated 2-col chart grid on /yolo page between header and build cards
-  6. SWR auto-refresh, loading skeletons, empty states all handled
-
-### Phase 46: Agent Board Polish
-**Goal**: Agent cards convey resource usage at a glance and the board looks polished
-**Depends on**: Phase 43
-**Requirements**: AGENT-01, AGENT-02
-**Success Criteria** (what must be TRUE):
-  1. Each agent card shows a visual context/token usage indicator (bar, percentage, or similar)
-  2. Agent board has consistent spacing, alignment, and visual styling across all 7 cards
-  3. Usage indicators update on SWR refresh cycle
-**Plans**: TBD
-
-### Phase 47: Build Artifacts
-**Goal**: Users can preview HTML builds inline and old builds are cleaned up automatically
-**Depends on**: Phase 44
-**Requirements**: PREV-01, PREV-02
-**Success Criteria** (what must be TRUE):
-  1. YOLO detail page shows an iframe preview of index.html when the build produced one
-  2. Builds older than 30 days are automatically deleted from disk
-  3. Top-rated builds are retained regardless of age
-**Plans**: 2 plans
-Plans:
-- [x] 47-01-PLAN.md — Verify iframe preview (PREV-01 already implemented in Phase 44) -- completed 2026-03-02
-- [x] 47-02-PLAN.md — Build cleanup script + crontab for 30-day retention (PREV-02) -- completed 2026-03-02
-
-### Phase 48: Pipeline Fix & Verification Backfill
-**Goal**: Close audit gaps — fix BUG-01 query mismatch, clean up ghost file, backfill missing verification artifacts for phases 43-45, update requirements checkboxes
-**Depends on**: Phase 43, 44, 45
-**Requirements**: BUG-01 (fix partial), TREND-01, TREND-02, YOLO-01-05 (verification backfill)
-**Gap Closure**: Closes gaps from v2.8 milestone audit
-**Success Criteria** (what must be TRUE):
-  1. PUBLISH_SESSION.md query handles both NULL and empty string wp_post_id
-  2. Ghost content.db file at agents/main/ deleted
-  3. Phases 43, 44, 45 each have VERIFICATION.md and SUMMARY.md
-  4. REQUIREMENTS.md checkboxes updated for all completed requirements
-**Plans**: 2 plans
-Plans:
-- [x] 48-01-PLAN.md — EC2 fixes: SQL query fix, data cleanup, ghost file deletion (BUG-01) -- completed 2026-03-03
-- [x] 48-02-PLAN.md — Verification backfill for phases 43-45 + REQUIREMENTS.md update -- completed 2026-03-03
+</details>
 
 ## Progress
 
@@ -214,14 +133,9 @@ Plans:
 | 29-32 | v2.5 | 9/9 | Complete | 2026-02-22 |
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
 | 38-42 | v2.7 | 12/12 | Complete | 2026-02-26 |
-| 43 | v2.8 | 3/3 | Complete | 2026-03-01 |
-| 44 | v2.8 | 3/3 | Complete | 2026-03-01 |
-| 45 | v2.8 | 3/3 | Complete | 2026-03-01 |
-| 46 | v2.8 | Complete    | 2026-03-02 | - |
-| 47 | v2.8 | Complete    | 2026-03-02 | 2026-03-02 |
-| 48 | v2.8 | Complete    | 2026-03-03 | 2026-03-03 |
+| 43-48 | v2.8 | 14/14 | Complete | 2026-03-03 |
 
-**Total: 42 phases shipped, 90 plans completed, 8 milestones shipped | v2.8: 6/6 phases complete -- READY TO SHIP**
+**Total: 48 phases shipped, 92 plans completed, 9 milestones shipped**
 
 ---
-*Updated: 2026-03-03 -- Phase 48 complete (2/2 plans), all v2.8 audit gaps closed*
+*Updated: 2026-03-03 — v2.8 Bug Fixes & Dashboard Polish shipped*

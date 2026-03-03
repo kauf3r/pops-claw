@@ -1,5 +1,27 @@
 # Milestones
 
+## v2.8 Bug Fixes & Dashboard Polish (Shipped: 2026-03-03)
+
+**Phases:** 43-48 (6 phases, 14 plans, 13 requirements)
+**Timeline:** 5 days (Feb 26 – Mar 2, 2026)
+**Commits:** 33 | Files: 41 | Lines: +4,316 / -17
+**Requirements:** 13/13 satisfied | Audit: PASSED
+**Git range:** docs(43) → docs(phase-48)
+
+**Delivered:** Fixed content pipeline bugs, polished Mission Control dashboard with YOLO detail views, build trends, agent board improvements, artifact previews, and automated build cleanup — all verified with live EC2 evidence.
+
+**Key accomplishments:**
+1. Fixed content pipeline — deleted ghost content.db, fixed Ezra bind-mount, patched SQL query for NULL/empty-string wp_post_id
+2. Built YOLO detail page with 12 features beyond MVP — syntax highlighting, prev/next nav, ScoreRing, status timeline, iframe preview, copy-to-clipboard
+3. Added build trend charts — success rate BarChart + avg score LineChart on /yolo page with SWR auto-refresh
+4. Polished agent board — token usage bars, cache hit rate %, 24h cost display, uniform card height
+5. Automated build cleanup — 30-day retention script with score >= 4 protection, daily crontab
+6. Closed all audit gaps — backfilled verification artifacts for 3 phases, full 13/13 requirements verified with live EC2 SSH evidence
+
+**Archive:** [milestones/v2.8-ROADMAP.md](milestones/v2.8-ROADMAP.md) | [milestones/v2.8-REQUIREMENTS.md](milestones/v2.8-REQUIREMENTS.md) | [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT.md)
+
+---
+
 ## v2.0 Proactive Daily Companion (Shipped: 2026-02-09)
 
 **Phases:** 1-11 (22 plans, 70 requirements)
