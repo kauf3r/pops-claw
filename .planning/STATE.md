@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: Bug Fixes & Dashboard Polish
-status: unknown
-last_updated: "2026-03-02T22:56:18.569Z"
+status: in-progress
+last_updated: "2026-03-03T02:23:53Z"
 progress:
   total_phases: 35
   completed_phases: 27
   total_plans: 57
-  completed_plans: 51
+  completed_plans: 52
 ---
 
 # Project State: Proactive Daily Companion
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.8 Bug Fixes & Dashboard Polish -- Phase 47 (Build Artifacts)
+**Current focus:** v2.8 Bug Fixes & Dashboard Polish -- Phase 48 (Pipeline Fix & Verification Backfill)
 
 ## Current Position
 
-Phase: 47 of 48 (Build Artifacts) -- COMPLETE
-Plan: 2 of 2 (complete)
-Status: Phase 47 complete, ready for Phase 48
-Last activity: 2026-03-02 -- Completed 47-01 iframe verification (PREV-01 confirmed)
+Phase: 48 of 48 (Pipeline Fix & Verification Backfill) -- IN PROGRESS
+Plan: 1 of 2 (48-01 complete, 48-02 pending)
+Status: 48-01 EC2 fixes complete (BUG-01 resolved), ready for 48-02
+Last activity: 2026-03-03 -- Completed 48-01 SQL query fix + ghost file deletion
 
-Progress: [########..] 51/55 plans
+Progress: [########..] 52/55 plans
 
 ## Performance Metrics
 
@@ -57,6 +57,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 47-02: Delete only disk directories, preserve DB rows for trend charts
 - Phase 47-02: Score >= 4 threshold for retention (4=solid, 5=impressive)
 - Phase 47-02: Secondary ~/clawd/yolo-dev/ not in cleanup scope (separate DB, not used by dashboard)
+- Phase 48-01: Fixed both main AND ezra PUBLISH_SESSION.md copies (plan only specified main)
+- Phase 48-01: Data cleanup UPDATE affected 0 rows (empty-string wp_post_id values already clean)
 
 ### Open Items
 
@@ -81,4 +83,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - YOLO metadata: yolo.db at ~/clawd/yolo-dev/yolo.db
 
 ---
-*Last updated: 2026-03-02 -- Phase 47 complete (2/2 plans: iframe verification + build cleanup)*
+*Last updated: 2026-03-03 -- Phase 48-01 complete (EC2 fixes: SQL query + ghost file deletion)*

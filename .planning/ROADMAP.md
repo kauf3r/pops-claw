@@ -200,7 +200,7 @@ Plans:
   4. REQUIREMENTS.md checkboxes updated for all completed requirements
 **Plans**: 2 plans
 Plans:
-- [ ] 48-01-PLAN.md — EC2 fixes: SQL query fix, data cleanup, ghost file deletion (BUG-01)
+- [x] 48-01-PLAN.md — EC2 fixes: SQL query fix, data cleanup, ghost file deletion (BUG-01) -- completed 2026-03-03
 - [ ] 48-02-PLAN.md — Verification backfill for phases 43-45 + REQUIREMENTS.md update
 
 ## Progress
@@ -219,9 +219,9 @@ Plans:
 | 45 | v2.8 | 3/3 | Complete | 2026-03-01 |
 | 46 | v2.8 | Complete    | 2026-03-02 | - |
 | 47 | v2.8 | Complete    | 2026-03-02 | 2026-03-02 |
-| 48 | v2.8 | 0/2 | Not started | - |
+| 48 | v2.8 | 1/2 | In progress | - |
 
 **Total: 42 phases shipped, 88 plans completed, 8 milestones shipped | v2.8: 5/7 phases complete**
 
 ---
-*Updated: 2026-03-02 -- Phase 48 planned: 2 plans (EC2 fixes + verification backfill)*
+*Updated: 2026-03-03 -- Phase 48: 1/2 plans complete (48-01 EC2 fixes done)*
