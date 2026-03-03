@@ -60,7 +60,7 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | Phase 43 → 48 | Complete (query fixed + ghost file deleted) |
+| BUG-01 | Phase 43 → 48 | Complete (query fixed + ghost file deleted + verified with live EC2 evidence) |
 | BUG-02 | Phase 43 | Re-scoped (pops-claw-9b3) |
 | YOLO-01 | Phase 44 → 48 | Done (verification backfill) |
 | YOLO-02 | Phase 44 → 48 | Done (verification backfill) |
@@ -81,4 +81,4 @@ Requirements for v2.8 Bug Fixes & Dashboard Polish. Each maps to roadmap phases.
 
 ---
 *Requirements defined: 2026-03-01*
-*Last updated: 2026-03-03 -- BUG-01 marked complete (SQL query fix + ghost file deletion)*
+*Last updated: 2026-03-03 -- Verification backfill complete (phases 43-45 have VERIFICATION.md + SUMMARY.md)*
