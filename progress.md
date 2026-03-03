@@ -429,5 +429,31 @@
 | Skill detected | openclaw skills list | oura listed | Oura Ring: ready, openclaw-managed | PASS |
 | Gateway active | systemctl status | active (running) | active (running) v2026.2.6-3 | PASS |
 
+## Session: 2026-03-03
+
+### Operational Health Check (post-v2.8)
+
+**35 GREEN / 9 YELLOW / 6 RED**
+
+Fixed:
+- coordination.db REINDEX (was: wrong # of entries in idx_activity_agent)
+
+Open beads created:
+- pops-claw-9n4: Fix prune-sessions.sh (sessions.json format changed to object)
+- pops-claw-uxk: Fix tools-health-check.sh (ValueError crash + path mismatch)
+- pops-claw-pz7: Re-authorize AirSpace GOG account (missing from gog auth list)
+- pops-claw-eoh: Fix "Action send requires a target" (4+ crons can't deliver)
+- pops-claw-v76: Prevent Docker ghost content.db recreation (P3)
+
+Key findings:
+- RAM: 48% used + 46% swap on t3.small — tight but stable
+- Disk: 61% (23G/38G) — trending up
+- All 4 heartbeat agents active, 23/23 crons registered
+- content.db healthy, 22 articles (10 approved, 6 writing)
+- No security alerts, UFW clean, all ports expected
+- Mission Control serving, $2.90/day API cost
+- 0 emails in last 7 days (Resend pipeline may need attention)
+- 3 "scheduled" agents (ezra, quill, sage) — no heartbeat crons, expected
+
 ---
 *Update after completing each phase or encountering errors*
