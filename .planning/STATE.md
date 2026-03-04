@@ -1,14 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.8
-milestone_name: Bug Fixes & Dashboard Polish
-status: shipped
-last_updated: "2026-03-03T02:55:00.000Z"
+milestone: v2.0
+milestone_name: milestone
+status: completed
+last_updated: "2026-03-04T21:51:45.187Z"
+last_activity: 2026-03-03 — v2.8 milestone archived
 progress:
-  total_phases: 48
-  completed_phases: 48
-  total_plans: 92
-  completed_plans: 92
+  total_phases: 1
+  completed_phases: 0
+  total_plans: 2
+  completed_plans: 1
 ---
 
 # Project State: Proactive Daily Companion
@@ -22,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 
 ## Current Position
 
-Milestone: v2.8 Bug Fixes & Dashboard Polish — SHIPPED 2026-03-03
-Status: All 9 milestones complete (48 phases, 92 plans)
-Last activity: 2026-03-03 — v2.8 milestone archived
+Phase 49: Install top 5 ClawhHub skills on EC2
+Current Plan: 49-02 (49-01 complete)
+Last activity: 2026-03-04 — 49-01 plan executed (CLI deps + 5 skills installed)
 
-Progress: [##########] 92/92 plans
+Progress: [#########-] 93/94 plans (49-01 of 2 complete)
 
 ## Performance Metrics
 
@@ -47,11 +48,19 @@ Progress: [##########] 92/92 plans
 | v2.7 | 5 | 12 | 3 days |
 | v2.8 | 6 | 14 | 5 days |
 
+**Phase 49 Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| 49-01 | 4min | 2 | 8 |
+
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
+- [Phase 49]: Installed blogwatcher pre-built binary from GitHub releases (v0.0.2) instead of deferring
+- [Phase 49]: All 5 ClawhHub skills passed inspect security review before install
 
 ### Open Items
 
@@ -61,6 +70,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - Phase 41 VERIFICATION.md never created (summaries exist, work complete)
 - DASH-04 E2E Slack DM from isolated cron untested (code deployed, next build confirms)
 - Secondary ~/clawd/yolo-dev/ directory (92KB) not managed by cleanup script
+
+### Roadmap Evolution
+
+- Phase 49 added: Install top 5 ClawhHub skills on EC2
 
 ### Blockers
 
@@ -77,4 +90,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - YOLO metadata: yolo.db at ~/clawd/yolo-dev/yolo.db
 
 ---
-*Last updated: 2026-03-03 — v2.8 shipped*
+*Last updated: 2026-03-04 — Phase 49 Plan 01 complete*
