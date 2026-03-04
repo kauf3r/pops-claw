@@ -2,14 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
+current_plan: 49-02 complete (2/2 plans done)
 status: completed
-last_updated: "2026-03-04T21:51:45.187Z"
-last_activity: 2026-03-03 — v2.8 milestone archived
+last_updated: "2026-03-04T22:01:54.786Z"
+last_activity: 2026-03-04 — 49-02 plan executed (env config + gateway verify + skill recognition)
 progress:
   total_phases: 1
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State: Proactive Daily Companion
@@ -23,16 +24,16 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 
 ## Current Position
 
-Phase 49: Install top 5 ClawhHub skills on EC2
-Current Plan: 49-02 (49-01 complete)
-Last activity: 2026-03-04 — 49-01 plan executed (CLI deps + 5 skills installed)
+Phase 49: Install top 5 ClawhHub skills on EC2 -- COMPLETE
+Current Plan: 49-02 complete (2/2 plans done)
+Last activity: 2026-03-04 — 49-02 plan executed (env config + gateway verify + skill recognition)
 
-Progress: [#########-] 93/94 plans (49-01 of 2 complete)
+Progress: [##########] 94/94 plans (2/2 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 92 (across v2.0-v2.8)
+- Total plans completed: 94 (across v2.0-v2.8 + Phase 49)
 
 **By Milestone:**
 
@@ -53,6 +54,7 @@ Progress: [#########-] 93/94 plans (49-01 of 2 complete)
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | 49-01 | 4min | 2 | 8 |
+| 49-02 | 6min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -61,6 +63,9 @@ Progress: [#########-] 93/94 plans (49-01 of 2 complete)
 Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 49]: Installed blogwatcher pre-built binary from GitHub releases (v0.0.2) instead of deferring
 - [Phase 49]: All 5 ClawhHub skills passed inspect security review before install
+- [Phase 49]: Added GEMINI_API_KEY to sandbox docker.env for agent-side skill access
+- [Phase 49]: Fixed real-estate-lead-machine SKILL.md with YAML frontmatter for OpenClaw recognition
+- [Phase 49]: Used NEEDS_USER_INPUT placeholders for TRANSCRIPT_API_KEY and APIFY_API_TOKEN
 
 ### Open Items
 
@@ -90,4 +95,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - YOLO metadata: yolo.db at ~/clawd/yolo-dev/yolo.db
 
 ---
-*Last updated: 2026-03-04 — Phase 49 Plan 01 complete*
+*Last updated: 2026-03-04 — Phase 49 Plan 02 complete (2/2 plans, phase done)*

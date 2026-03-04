@@ -135,18 +135,20 @@ Full details: [milestones/v2.8-ROADMAP.md](milestones/v2.8-ROADMAP.md)
 | 38-42 | v2.7 | 12/12 | Complete | 2026-02-26 |
 | 43-48 | v2.8 | 14/14 | Complete | 2026-03-03 |
 
-**Total: 48 phases shipped, 92 plans completed, 9 milestones shipped**
+| 49 | - | 2/2 | Complete | 2026-03-04 |
+
+**Total: 49 phases shipped, 94 plans completed, 9 milestones shipped**
 
 ### Phase 49: Install top 5 ClawhHub skills on EC2
 
 **Goal:** Install youtube-full, summarize, nano-banana-pro, blogwatcher, real-estate-lead-machine via npx clawhub install, verify, and restart gateway
 **Requirements**: SKILL-INSTALL, CLI-DEPS, ENV-CONFIG, GATEWAY-VERIFY
 **Depends on:** Phase 48
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 49-01-PLAN.md — Install CLI dependencies and all 5 ClawhHub skills
-- [ ] 49-02-PLAN.md — Configure environment, restart gateway, verify skill recognition
+- [x] 49-02-PLAN.md — Configure environment, restart gateway, verify skill recognition
 
 ---
-*Updated: 2026-03-04 — Phase 49 Plan 01 complete*
+*Updated: 2026-03-04 — Phase 49 complete (2/2 plans)*
