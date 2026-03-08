@@ -7,14 +7,14 @@
 
 ### Compaction Config
 
-- [ ] **COMP-01**: reserveTokensFloor raised from 24K to 40K in openclaw.json
-- [ ] **COMP-02**: softThresholdTokens raised from 1.5K to 8K in openclaw.json
+- [x] **COMP-01**: reserveTokensFloor raised from 24K to 40K in openclaw.json
+- [x] **COMP-02**: softThresholdTokens raised from 1.5K to 8K in openclaw.json
 - [ ] **COMP-03**: Gateway restarted and memory flush verified to fire in a test session
 
 ### Memory Search
 
-- [ ] **SRCH-01**: QMD collections bootstrapped with `qmd update && qmd embed`, verified with test query
-- [ ] **SRCH-02**: Hybrid search weights configured (vectorWeight: 0.7, textWeight: 0.3) in memorySearch config
+- [x] **SRCH-01**: QMD collections bootstrapped with `qmd update && qmd embed`, verified with test query
+- [x] **SRCH-02**: Hybrid search weights configured (vectorWeight: 0.7, textWeight: 0.3) in memorySearch config
 
 ### Memory Content
 
@@ -54,11 +54,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| COMP-01 | Phase 51 | Pending |
-| COMP-02 | Phase 51 | Pending |
+| COMP-01 | Phase 51 | Complete |
+| COMP-02 | Phase 51 | Complete |
 | COMP-03 | Phase 51 | Pending |
-| SRCH-01 | Phase 51 | Pending |
-| SRCH-02 | Phase 51 | Pending |
+| SRCH-01 | Phase 51 | Complete |
+| SRCH-02 | Phase 51 | Complete |
 | CONT-01 | Phase 52 | Pending |
 | CONT-02 | Phase 52 | Pending |
 | CONT-03 | Phase 52 | Pending |

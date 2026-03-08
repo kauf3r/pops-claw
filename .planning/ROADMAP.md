@@ -201,7 +201,7 @@ Phases execute in numeric order: 51 -> 52 -> 53 -> 54
 | 38-42 | v2.7 | 12/12 | Complete | 2026-02-26 |
 | 43-48 | v2.8 | 14/14 | Complete | 2026-03-03 |
 | 49 | - | 2/2 | Complete | 2026-03-04 |
-| 51. Compaction Config & QMD Bootstrap | v2.9 | 0/2 | Planned | - |
+| 51. Compaction Config & QMD Bootstrap | v2.9 | 1/2 | In Progress | - |
 | 52. MEMORY.md & Content Seeding | v2.9 | 0/TBD | Not started | - |
 | 53. Retrieval Protocol & Flush Scheduling | v2.9 | 0/TBD | Not started | - |
 | 54. Memory Health Monitoring | v2.9 | 0/TBD | Not started | - |

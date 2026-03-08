@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Memory System Overhaul
-status: planning
-stopped_at: Phase 51 context gathered
-last_updated: "2026-03-08T18:52:28.104Z"
-last_activity: 2026-03-08 — Roadmap created (4 phases, 12 requirements mapped)
+status: executing
+stopped_at: Completed 51-01-PLAN.md
+last_updated: "2026-03-08T19:22:01.662Z"
+last_activity: 2026-03-08 — Plan 51-01 complete (config + QMD bootstrap)
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 2
+  completed_plans: 1
+  percent: 50
 ---
 
 # Project State: Proactive Daily Companion
@@ -21,21 +21,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-08)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.9 Memory System Overhaul — Phase 51 ready to plan
+**Current focus:** v2.9 Memory System Overhaul — Phase 51 Plan 01 complete, Plan 02 next
 
 ## Current Position
 
 Phase: 51 of 54 (Compaction Config & QMD Bootstrap)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-03-08 — Roadmap created (4 phases, 12 requirements mapped)
+Plan: 1 of 2 complete
+Status: Executing
+Last activity: 2026-03-08 — Plan 51-01 complete (config + QMD bootstrap)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 94 (across v2.0-v2.8 + Phase 49)
+- Total plans completed: 95 (across v2.0-v2.8 + Phase 49 + 51-01)
 
 **By Milestone:**
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 | v2.6 | 1 | 4 | 2 days |
 | v2.7 | 5 | 12 | 3 days |
 | v2.8 | 6 | 14 | 5 days |
+| Phase 51 P01 | 4min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -61,6 +62,10 @@ Recent decisions affecting current work:
 - [v2.9 Roadmap]: Gateway restart batched into Phase 51 only — all subsequent phases are hot-loadable
 - [v2.9 Roadmap]: 4-phase structure (config -> content -> behavior -> monitoring) follows fix-order dependency chain
 - [v2.9 Roadmap]: All phases skip research — repair work on fully-inspected live system
+- [51-01]: softThresholdTokens is nested at memoryFlush.softThresholdTokens (not compaction root)
+- [51-01]: memory-root-main and memory-alt-main empty until Phase 52 creates MEMORY.md
+- [51-01]: QMD embed CUDA fails on t3.small, CPU fallback works fine (~1s per chunk)
+- [Phase 51]: softThresholdTokens nested at memoryFlush.softThresholdTokens, not compaction root
 
 ### Open Items
 
@@ -83,9 +88,9 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-03-08T18:52:28.102Z
-Stopped at: Phase 51 context gathered
-Resume file: .planning/phases/51-compaction-config-qmd-bootstrap/51-CONTEXT.md
+Last session: 2026-03-08T19:21:57.410Z
+Stopped at: Completed 51-01-PLAN.md
+Resume file: .planning/phases/51-compaction-config-qmd-bootstrap/51-02-PLAN.md
 
 ---
-*Last updated: 2026-03-08 — v2.9 roadmap created*
+*Last updated: 2026-03-08 — Plan 51-01 complete*
