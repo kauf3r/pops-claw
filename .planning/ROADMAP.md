@@ -151,7 +151,10 @@ Full details: [milestones/v2.8-ROADMAP.md](milestones/v2.8-ROADMAP.md)
   3. Gateway restart completes cleanly and Bob responds to a Slack DM within 2 minutes post-restart
   4. Hybrid search weights (vectorWeight: 0.7, textWeight: 0.3) are set in memorySearch config
   5. `journalctl --user -u openclaw-gateway.service` shows no compaction loop errors for 30+ minutes post-restart
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 51-01-PLAN.md — Backup + update openclaw.json config, bootstrap QMD collections
+- [ ] 51-02-PLAN.md — Gateway restart, soak test, QMD verification, compaction trigger test
 
 ### Phase 52: MEMORY.md & Content Seeding
 **Goal**: QMD memory-root-main collection has curated, current knowledge that Bob can retrieve
@@ -198,7 +201,7 @@ Phases execute in numeric order: 51 -> 52 -> 53 -> 54
 | 38-42 | v2.7 | 12/12 | Complete | 2026-02-26 |
 | 43-48 | v2.8 | 14/14 | Complete | 2026-03-03 |
 | 49 | - | 2/2 | Complete | 2026-03-04 |
-| 51. Compaction Config & QMD Bootstrap | v2.9 | 0/TBD | Not started | - |
+| 51. Compaction Config & QMD Bootstrap | v2.9 | 0/2 | Planned | - |
 | 52. MEMORY.md & Content Seeding | v2.9 | 0/TBD | Not started | - |
 | 53. Retrieval Protocol & Flush Scheduling | v2.9 | 0/TBD | Not started | - |
 | 54. Memory Health Monitoring | v2.9 | 0/TBD | Not started | - |
@@ -206,4 +209,4 @@ Phases execute in numeric order: 51 -> 52 -> 53 -> 54
 **Total: 49 phases shipped, 94 plans completed, 9 milestones shipped**
 
 ---
-*Updated: 2026-03-08 -- v2.9 roadmap created (Phases 51-54, 12 requirements)*
+*Updated: 2026-03-08 -- Phase 51 planned (2 plans, 2 waves)*
