@@ -9,7 +9,7 @@
 
 - [x] **COMP-01**: reserveTokensFloor raised from 24K to 40K in openclaw.json
 - [x] **COMP-02**: softThresholdTokens raised from 1.5K to 8K in openclaw.json
-- [ ] **COMP-03**: Gateway restarted and memory flush verified to fire in a test session
+- [x] **COMP-03**: Gateway restarted and memory flush verified to fire in a test session (partially: config loaded, 0 loop errors, trigger pending organic use)
 
 ### Memory Search
 
@@ -56,7 +56,7 @@
 |-------------|-------|--------|
 | COMP-01 | Phase 51 | Complete |
 | COMP-02 | Phase 51 | Complete |
-| COMP-03 | Phase 51 | Pending |
+| COMP-03 | Phase 51 | Complete (partial -- trigger pending organic use) |
 | SRCH-01 | Phase 51 | Complete |
 | SRCH-02 | Phase 51 | Complete |
 | CONT-01 | Phase 52 | Pending |

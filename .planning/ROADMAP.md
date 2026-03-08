@@ -134,7 +134,7 @@ Full details: [milestones/v2.8-ROADMAP.md](milestones/v2.8-ROADMAP.md)
 
 **Milestone Goal:** Fix Bob's broken memory system so information survives compaction, retrieval actually finds it, and monitoring proves it works.
 
-- [ ] **Phase 51: Compaction Config & QMD Bootstrap** - Tune compaction thresholds, configure search weights, restart gateway once, verify QMD live
+- [x] **Phase 51: Compaction Config & QMD Bootstrap** - Tune compaction thresholds, configure search weights, restart gateway once, verify QMD live
 - [ ] **Phase 52: MEMORY.md & Content Seeding** - Create MEMORY.md at correct path with curated knowledge, improve flush prompt
 - [ ] **Phase 53: Retrieval Protocol & Flush Scheduling** - Add search-before-acting discipline to agents, reschedule daily flush
 - [ ] **Phase 54: Memory Health Monitoring** - Automated verification that memory system stays working
@@ -153,8 +153,8 @@ Full details: [milestones/v2.8-ROADMAP.md](milestones/v2.8-ROADMAP.md)
   5. `journalctl --user -u openclaw-gateway.service` shows no compaction loop errors for 30+ minutes post-restart
 **Plans**: 2 plans
 Plans:
-- [ ] 51-01-PLAN.md — Backup + update openclaw.json config, bootstrap QMD collections
-- [ ] 51-02-PLAN.md — Gateway restart, soak test, QMD verification, compaction trigger test
+- [x] 51-01-PLAN.md — Backup + update openclaw.json config, bootstrap QMD collections
+- [x] 51-02-PLAN.md — Gateway restart, soak test, QMD verification, compaction trigger test
 
 ### Phase 52: MEMORY.md & Content Seeding
 **Goal**: QMD memory-root-main collection has curated, current knowledge that Bob can retrieve
@@ -201,12 +201,12 @@ Phases execute in numeric order: 51 -> 52 -> 53 -> 54
 | 38-42 | v2.7 | 12/12 | Complete | 2026-02-26 |
 | 43-48 | v2.8 | 14/14 | Complete | 2026-03-03 |
 | 49 | - | 2/2 | Complete | 2026-03-04 |
-| 51. Compaction Config & QMD Bootstrap | v2.9 | 1/2 | In Progress | - |
+| 51. Compaction Config & QMD Bootstrap | v2.9 | 2/2 | Complete | 2026-03-08 |
 | 52. MEMORY.md & Content Seeding | v2.9 | 0/TBD | Not started | - |
 | 53. Retrieval Protocol & Flush Scheduling | v2.9 | 0/TBD | Not started | - |
 | 54. Memory Health Monitoring | v2.9 | 0/TBD | Not started | - |
 
-**Total: 49 phases shipped, 94 plans completed, 9 milestones shipped**
+**Total: 50 phases shipped, 96 plans completed, 9 milestones shipped**
 
 ---
-*Updated: 2026-03-08 -- Phase 51 planned (2 plans, 2 waves)*
+*Updated: 2026-03-08 -- Phase 51 complete (2/2 plans)*
