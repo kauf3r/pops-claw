@@ -1,34 +1,33 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: milestone
-current_plan: 49-02 complete (2/2 plans done)
-status: completed
-last_updated: "2026-03-04T22:01:54.786Z"
-last_activity: 2026-03-04 — 49-02 plan executed (env config + gateway verify + skill recognition)
+milestone: v2.9
+milestone_name: Memory System Overhaul
+current_plan: —
+status: defining_requirements
+last_updated: "2026-03-08"
+last_activity: 2026-03-08 — Milestone v2.9 started
 progress:
-  total_phases: 1
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State: Proactive Daily Companion
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-03)
+See: .planning/PROJECT.md (updated 2026-03-08)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.8 shipped — run `/gsd:new-milestone` to start next
+**Current focus:** v2.9 Memory System Overhaul — defining requirements
 
 ## Current Position
 
-Phase 49: Install top 5 ClawhHub skills on EC2 -- COMPLETE
-Current Plan: 49-02 complete (2/2 plans done)
-Last activity: 2026-03-04 — 49-02 plan executed (env config + gateway verify + skill recognition)
-
-Progress: [##########] 94/94 plans (2/2 complete)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-08 — Milestone v2.9 started
 
 ## Performance Metrics
 
@@ -95,4 +94,4 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - YOLO metadata: yolo.db at ~/clawd/yolo-dev/yolo.db
 
 ---
-*Last updated: 2026-03-04 — Phase 49 Plan 02 complete (2/2 plans, phase done)*
+*Last updated: 2026-03-08 — Milestone v2.9 Memory System Overhaul started*

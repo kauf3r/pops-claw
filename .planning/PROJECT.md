@@ -79,7 +79,17 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ### Active
 
-(No active milestone — run `/gsd:new-milestone` to start next)
+## Current Milestone: v2.9 Memory System Overhaul
+
+**Goal:** Fix Bob's broken memory system — compaction config, QMD bootstrapping, retrieval discipline, daily logs, and memory health monitoring.
+
+**Target features:**
+- Tune compaction config (reserveTokensFloor, softThresholdTokens, contextTokens)
+- Bootstrap QMD collections and verify indexing
+- Seed MEMORY.md with curated long-term knowledge
+- Add retrieval protocol to AGENTS.md ("search memory before acting")
+- Fix memory flush so daily logs actually get written
+- Add memory health monitoring to verify the system works
 
 ### Out of Scope
 
@@ -188,4 +198,4 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Verification backfill via live SSH evidence | More reliable than inferring from plan docs | ✓ Good — audit-quality evidence |
 
 ---
-*Last updated: 2026-03-03 after v2.8 milestone*
+*Last updated: 2026-03-08 after v2.9 milestone start*
