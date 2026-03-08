@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Memory System Overhaul
 current_plan: —
-status: defining_requirements
+status: ready_to_plan
 last_updated: "2026-03-08"
-last_activity: 2026-03-08 — Milestone v2.9 started
+last_activity: 2026-03-08 — Roadmap created (4 phases, 12 requirements)
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-08)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.9 Memory System Overhaul — defining requirements
+**Current focus:** v2.9 Memory System Overhaul — Phase 51 ready to plan
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-08 — Milestone v2.9 started
+Phase: 51 of 54 (Compaction Config & QMD Bootstrap)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-08 — Roadmap created (4 phases, 12 requirements mapped)
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -48,23 +50,16 @@ Last activity: 2026-03-08 — Milestone v2.9 started
 | v2.7 | 5 | 12 | 3 days |
 | v2.8 | 6 | 14 | 5 days |
 
-**Phase 49 Metrics:**
-
-| Plan | Duration | Tasks | Files |
-|------|----------|-------|-------|
-| 49-01 | 4min | 2 | 8 |
-| 49-02 | 6min | 2 | 5 |
-
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-- [Phase 49]: Installed blogwatcher pre-built binary from GitHub releases (v0.0.2) instead of deferring
-- [Phase 49]: All 5 ClawhHub skills passed inspect security review before install
-- [Phase 49]: Added GEMINI_API_KEY to sandbox docker.env for agent-side skill access
-- [Phase 49]: Fixed real-estate-lead-machine SKILL.md with YAML frontmatter for OpenClaw recognition
-- [Phase 49]: Used NEEDS_USER_INPUT placeholders for TRANSCRIPT_API_KEY and APIFY_API_TOKEN
+Recent decisions affecting current work:
+
+- [v2.9 Roadmap]: Gateway restart batched into Phase 51 only — all subsequent phases are hot-loadable
+- [v2.9 Roadmap]: 4-phase structure (config -> content -> behavior -> monitoring) follows fix-order dependency chain
+- [v2.9 Roadmap]: All phases skip research — repair work on fully-inspected live system
 
 ### Open Items
 
@@ -75,23 +70,21 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - DASH-04 E2E Slack DM from isolated cron untested (code deployed, next build confirms)
 - Secondary ~/clawd/yolo-dev/ directory (92KB) not managed by cleanup script
 
-### Roadmap Evolution
-
-- Phase 49 added: Install top 5 ClawhHub skills on EC2
-
 ### Blockers
 
 (None)
 
-## Notes
+### Key Constraints (v2.9)
 
-- EC2 access via Tailscale: 100.72.143.9
-- Mission Control codebase: ~/clawd/mission-control/ on EC2
-- Stack: Next.js 14.2.15 + Tailwind + better-sqlite3 + SWR + Recharts + cron-parser v5
-- 6 databases: health.db, coordination.db, content.db, email.db, observability.db, yolo.db
-- Mission Control: http://100.72.143.9:3001 (direct Tailscale, no SSH tunnel)
-- YOLO Dev builds: ~/clawd/yolo-dev/ on EC2
-- YOLO metadata: yolo.db at ~/clawd/yolo-dev/yolo.db
+- Post-restart: user must DM Bob to re-establish session before crons work
+- Schedule restart outside briefing windows (avoid 5:50-6:10 AM PT and heartbeat :00/:02/:04/:06)
+- Monitor journalctl for compaction loop regression (v2026.3.1 issue #32106) after restart
+
+## Session Continuity
+
+Last session: 2026-03-08
+Stopped at: Roadmap created, ready for Phase 51 planning
+Resume file: None
 
 ---
-*Last updated: 2026-03-08 — Milestone v2.9 Memory System Overhaul started*
+*Last updated: 2026-03-08 — v2.9 roadmap created*

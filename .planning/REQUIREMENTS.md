@@ -54,24 +54,24 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| COMP-01 | — | Pending |
-| COMP-02 | — | Pending |
-| COMP-03 | — | Pending |
-| SRCH-01 | — | Pending |
-| SRCH-02 | — | Pending |
-| CONT-01 | — | Pending |
-| CONT-02 | — | Pending |
-| CONT-03 | — | Pending |
-| RETR-01 | — | Pending |
-| RETR-02 | — | Pending |
-| HLTH-01 | — | Pending |
-| HLTH-02 | — | Pending |
+| COMP-01 | Phase 51 | Pending |
+| COMP-02 | Phase 51 | Pending |
+| COMP-03 | Phase 51 | Pending |
+| SRCH-01 | Phase 51 | Pending |
+| SRCH-02 | Phase 51 | Pending |
+| CONT-01 | Phase 52 | Pending |
+| CONT-02 | Phase 52 | Pending |
+| CONT-03 | Phase 52 | Pending |
+| RETR-01 | Phase 53 | Pending |
+| RETR-02 | Phase 53 | Pending |
+| HLTH-01 | Phase 54 | Pending |
+| HLTH-02 | Phase 54 | Pending |
 
 **Coverage:**
 - v2.9 requirements: 12 total
-- Mapped to phases: 0
-- Unmapped: 12 ⚠️
+- Mapped to phases: 12
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-08 after initial definition*
+*Last updated: 2026-03-08 — Phase mappings added (12/12 covered)*

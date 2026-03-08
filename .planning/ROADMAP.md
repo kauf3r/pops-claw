@@ -11,6 +11,7 @@
 - ✅ **v2.6 Content Pipeline Hardening** — Phase 33 (shipped 2026-02-23)
 - ✅ **v2.7 YOLO Dev** — Phases 38-42 (shipped 2026-02-26)
 - ✅ **v2.8 Bug Fixes & Dashboard Polish** — Phases 43-48 (shipped 2026-03-03)
+- [ ] **v2.9 Memory System Overhaul** — Phases 51-54 (in progress)
 
 ## Phases
 
@@ -122,7 +123,69 @@ Full details: [milestones/v2.8-ROADMAP.md](milestones/v2.8-ROADMAP.md)
 
 </details>
 
+<details>
+<summary>Phase 49: Install ClawhHub Skills — COMPLETE 2026-03-04</summary>
+
+- [x] Phase 49: Install top 5 ClawhHub skills on EC2 (2/2 plans) — completed 2026-03-04
+
+</details>
+
+### v2.9 Memory System Overhaul (In Progress)
+
+**Milestone Goal:** Fix Bob's broken memory system so information survives compaction, retrieval actually finds it, and monitoring proves it works.
+
+- [ ] **Phase 51: Compaction Config & QMD Bootstrap** - Tune compaction thresholds, configure search weights, restart gateway once, verify QMD live
+- [ ] **Phase 52: MEMORY.md & Content Seeding** - Create MEMORY.md at correct path with curated knowledge, improve flush prompt
+- [ ] **Phase 53: Retrieval Protocol & Flush Scheduling** - Add search-before-acting discipline to agents, reschedule daily flush
+- [ ] **Phase 54: Memory Health Monitoring** - Automated verification that memory system stays working
+
+## Phase Details
+
+### Phase 51: Compaction Config & QMD Bootstrap
+**Goal**: Bob's compaction threshold fires during normal sessions and QMD search returns real results
+**Depends on**: Nothing (first phase of v2.9)
+**Requirements**: COMP-01, COMP-02, COMP-03, SRCH-01, SRCH-02
+**Success Criteria** (what must be TRUE):
+  1. `softThresholdTokens` is 8000 and `reserveTokensFloor` is 40K in openclaw.json (verified via SSH read)
+  2. `qmd search "Andy"` returns non-empty results from memory-dir-main collection
+  3. Gateway restart completes cleanly and Bob responds to a Slack DM within 2 minutes post-restart
+  4. Hybrid search weights (vectorWeight: 0.7, textWeight: 0.3) are set in memorySearch config
+  5. `journalctl --user -u openclaw-gateway.service` shows no compaction loop errors for 30+ minutes post-restart
+**Plans**: TBD
+
+### Phase 52: MEMORY.md & Content Seeding
+**Goal**: QMD memory-root-main collection has curated, current knowledge that Bob can retrieve
+**Depends on**: Phase 51 (QMD must be bootstrapped and search verified before seeding content)
+**Requirements**: CONT-01, CONT-02, CONT-03
+**Success Criteria** (what must be TRUE):
+  1. `~/clawd/agents/main/MEMORY.md` exists and contains current system state (all 6 DBs, v2.8 features, agent roster, content pipeline status)
+  2. `qmd search "content pipeline"` returns results from memory-root-main collection (not just memory-dir-main)
+  3. Memory flush prompt produces daily summaries with 10+ lines including DB state queries, not 1-3 line "quiet day" entries
+**Plans**: TBD
+
+### Phase 53: Retrieval Protocol & Flush Scheduling
+**Goal**: Bob actively searches memory before acting on recurring topics, and daily flush captures the full day's activity
+**Depends on**: Phase 52 (retrieval must search populated collections; flush must have content to summarize)
+**Requirements**: RETR-01, RETR-02
+**Success Criteria** (what must be TRUE):
+  1. AGENTS.md contains a retrieval protocol with specific trigger categories (preferences, history, project context), example queries, and a consequence clause
+  2. Daily memory flush cron fires at 23:00 UTC (end of day PT) instead of 07:00 UTC, producing summaries that reflect the day's actual activity
+**Plans**: TBD
+
+### Phase 54: Memory Health Monitoring
+**Goal**: Silent memory degradation is impossible -- broken memory gets flagged automatically
+**Depends on**: Phase 53 (monitoring validates all prior fixes are working together)
+**Requirements**: HLTH-01, HLTH-02
+**Success Criteria** (what must be TRUE):
+  1. Health check script verifies: yesterday's daily log exists, QMD indexed it, and a test search query returns results
+  2. Health check runs on cron (daily) and sends a Slack DM alert if any check fails
+  3. Health check passes cleanly for 24+ hours after deployment (no false positives)
+**Plans**: TBD
+
 ## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 51 -> 52 -> 53 -> 54
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -134,21 +197,13 @@ Full details: [milestones/v2.8-ROADMAP.md](milestones/v2.8-ROADMAP.md)
 | 33 | v2.6 | 4/4 | Complete | 2026-02-23 |
 | 38-42 | v2.7 | 12/12 | Complete | 2026-02-26 |
 | 43-48 | v2.8 | 14/14 | Complete | 2026-03-03 |
-
 | 49 | - | 2/2 | Complete | 2026-03-04 |
+| 51. Compaction Config & QMD Bootstrap | v2.9 | 0/TBD | Not started | - |
+| 52. MEMORY.md & Content Seeding | v2.9 | 0/TBD | Not started | - |
+| 53. Retrieval Protocol & Flush Scheduling | v2.9 | 0/TBD | Not started | - |
+| 54. Memory Health Monitoring | v2.9 | 0/TBD | Not started | - |
 
 **Total: 49 phases shipped, 94 plans completed, 9 milestones shipped**
 
-### Phase 49: Install top 5 ClawhHub skills on EC2
-
-**Goal:** Install youtube-full, summarize, nano-banana-pro, blogwatcher, real-estate-lead-machine via npx clawhub install, verify, and restart gateway
-**Requirements**: SKILL-INSTALL, CLI-DEPS, ENV-CONFIG, GATEWAY-VERIFY
-**Depends on:** Phase 48
-**Plans:** 2/2 plans complete
-
-Plans:
-- [x] 49-01-PLAN.md — Install CLI dependencies and all 5 ClawhHub skills
-- [x] 49-02-PLAN.md — Configure environment, restart gateway, verify skill recognition
-
 ---
-*Updated: 2026-03-04 — Phase 49 complete (2/2 plans)*
+*Updated: 2026-03-08 -- v2.9 roadmap created (Phases 51-54, 12 requirements)*
