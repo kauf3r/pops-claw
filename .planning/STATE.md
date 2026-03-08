@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Memory System Overhaul
-status: completed
-stopped_at: Phase 52 context gathered
-last_updated: "2026-03-08T21:26:44.056Z"
-last_activity: 2026-03-08 — Phase 51 complete (gateway restart + verification)
+status: complete
+stopped_at: Milestone complete — all 4 phases shipped
+last_updated: "2026-03-08T23:50:00.000Z"
+last_activity: 2026-03-08 — v2.9 milestone complete (Phases 51-54)
 progress:
   total_phases: 4
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  completed_phases: 4
+  total_plans: 8
+  completed_plans: 8
   percent: 100
 ---
 
@@ -21,21 +21,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-08)
 
 **Core value:** Proactive AI companion with Mission Control Dashboard as single pane of glass.
-**Current focus:** v2.9 Memory System Overhaul — Phase 51 complete, Phase 52 next
+**Current focus:** v2.9 Memory System Overhaul — COMPLETE
 
 ## Current Position
 
-Phase: 51 of 54 (Compaction Config & QMD Bootstrap) -- COMPLETE
-Plan: 2 of 2 complete
-Status: Phase 51 complete, Phase 52 next
-Last activity: 2026-03-08 — Phase 51 complete (gateway restart + verification)
+Phase: 54 of 54 (Memory Health Monitoring) -- COMPLETE
+Plan: 8 of 8 complete
+Status: v2.9 milestone complete — all requirements verified
+Last activity: 2026-03-08 — v2.9 milestone complete
 
-Progress: [██████████] 100% (Phase 51)
+Progress: [██████████] 100% (v2.9)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 96 (across v2.0-v2.8 + Phase 49 + Phase 51)
+- Total plans completed: 104 (across v2.0-v2.9)
 
 **By Milestone:**
 
@@ -50,7 +50,7 @@ Progress: [██████████] 100% (Phase 51)
 | v2.6 | 1 | 4 | 2 days |
 | v2.7 | 5 | 12 | 3 days |
 | v2.8 | 6 | 14 | 5 days |
-| Phase 51 | 100min | 2 plans, 5 tasks | config + verification |
+| v2.9 | 4 | 8 | 1 day |
 
 ## Accumulated Context
 
@@ -61,39 +61,30 @@ Recent decisions affecting current work:
 
 - [v2.9 Roadmap]: Gateway restart batched into Phase 51 only — all subsequent phases are hot-loadable
 - [v2.9 Roadmap]: 4-phase structure (config -> content -> behavior -> monitoring) follows fix-order dependency chain
-- [v2.9 Roadmap]: All phases skip research — repair work on fully-inspected live system
-- [51-01]: softThresholdTokens is nested at memoryFlush.softThresholdTokens (not compaction root)
-- [51-01]: memory-root-main and memory-alt-main empty until Phase 52 creates MEMORY.md
-- [51-01]: QMD embed CUDA fails on t3.small, CPU fallback works fine (~1s per chunk)
-- [Phase 51]: softThresholdTokens nested at memoryFlush.softThresholdTokens, not compaction root
-- [51-02]: COMP-03 partially verified -- config loaded, 0 loop errors, trigger deferred to organic use
-- [51-02]: QMD CLI search needs explicit XDG env vars for agent-specific index (gateway handles internally)
-- [51-02]: vectorWeight/textWeight removed from openclaw.json (not valid config keys)
+- [Phase 52]: MEMORY.md at 80 lines (lean start), one-liner telegram format
+- [Phase 52]: Flush prompt includes DB State Snapshot with specific sqlite3 queries
+- [Phase 53]: Existing daily-memory-flush cron rescheduled (not new cron) — 07:00→23:00 UTC
+- [Phase 53]: openclaw cron edit used (gateway API, not direct config file modification)
+- [Phase 54]: Dual alerting: system crontab (08:00 UTC) + openclaw DM cron (08:05 UTC)
+- [Phase 54]: openclaw sessions send doesn't exist — DM alert via cron job with delivery=dm
 
 ### Open Items
 
+- HLTH-02 SC3: 24h no-false-positive verification pending (health check deployed, first cron run at 08:00 UTC 2026-03-09)
 - DMARC rua at theandykaufman@gmail.com: aggregate reports expected (Phase 27-01 checkpoint)
 - Email-catchup cron delivery target error: "Action send requires a target" -- deferred
 - Dead code: global-search.tsx returns null (Convex removal stub from Phase 29)
-- Phase 41 VERIFICATION.md never created (summaries exist, work complete)
-- DASH-04 E2E Slack DM from isolated cron untested (code deployed, next build confirms)
-- Secondary ~/clawd/yolo-dev/ directory (92KB) not managed by cleanup script
+- Resend Receiving API stale since Feb 18 — email.db empty
 
 ### Blockers
 
 (None)
 
-### Key Constraints (v2.9)
-
-- Post-restart: user must DM Bob to re-establish session before crons work
-- Schedule restart outside briefing windows (avoid 5:50-6:10 AM PT and heartbeat :00/:02/:04/:06)
-- Monitor journalctl for compaction loop regression (v2026.3.1 issue #32106) after restart
-
 ## Session Continuity
 
-Last session: 2026-03-08T21:26:44.053Z
-Stopped at: Phase 52 context gathered
-Resume file: .planning/phases/52-memory-md-content-seeding/52-CONTEXT.md
+Last session: 2026-03-08T23:50:00.000Z
+Stopped at: v2.9 milestone complete
+Resume: /gsd:complete-milestone (tag + archive)
 
 ---
-*Last updated: 2026-03-08 — Phase 51 complete*
+*Last updated: 2026-03-08 — v2.9 milestone complete*

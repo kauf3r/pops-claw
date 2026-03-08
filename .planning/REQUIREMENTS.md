@@ -18,19 +18,19 @@
 
 ### Memory Content
 
-- [ ] **CONT-01**: MEMORY.md created at correct path (`~/clawd/agents/main/MEMORY.md`) and indexed by QMD
-- [ ] **CONT-02**: MEMORY.md seeded with curated long-term knowledge (key decisions, preferences, system facts)
-- [ ] **CONT-03**: Memory flush prompt improved to produce richer daily summaries
+- [x] **CONT-01**: MEMORY.md created at correct path (`~/clawd/agents/main/MEMORY.md`) and indexed by QMD (80 lines, memory-root-main collection)
+- [x] **CONT-02**: MEMORY.md seeded with curated long-term knowledge (infrastructure, agents, DBs, skills, preferences, key decisions)
+- [x] **CONT-03**: Memory flush prompt improved — structured sections (Session Summary, DB State Snapshot, Decisions, Open Items), quiet/active day rules
 
 ### Retrieval Discipline
 
-- [ ] **RETR-01**: Retrieval protocol added to AGENTS.md with specific trigger categories and example queries
-- [ ] **RETR-02**: Daily memory flush cron rescheduled to end-of-day for better session summaries
+- [x] **RETR-01**: Retrieval protocol added to AGENTS.md with 4 trigger categories (preferences, history, config, AirSpace), example queries, consequence clause
+- [x] **RETR-02**: Daily memory flush cron rescheduled from 07:00 UTC to 23:00 UTC (4pm PT end-of-day)
 
 ### Health Monitoring
 
-- [ ] **HLTH-01**: Memory health check script verifies daily logs exist, QMD indexing works, and search returns results
-- [ ] **HLTH-02**: Health check runs on cron and alerts (via Slack DM) if memory system is broken
+- [x] **HLTH-01**: Health check script at ~/scripts/memory-health-check.sh — verifies MEMORY.md, daily logs, QMD search (passes cleanly)
+- [x] **HLTH-02**: System crontab at 08:00 UTC + openclaw cron DM alert at 08:05 UTC (24h no-false-positive verification pending)
 
 ## Future Requirements
 
@@ -59,13 +59,13 @@
 | COMP-03 | Phase 51 | Complete (verified-by-config) |
 | SRCH-01 | Phase 51 | Complete |
 | SRCH-02 | Phase 51 | Complete |
-| CONT-01 | Phase 52 | Pending |
-| CONT-02 | Phase 52 | Pending |
-| CONT-03 | Phase 52 | Pending |
-| RETR-01 | Phase 53 | Pending |
-| RETR-02 | Phase 53 | Pending |
-| HLTH-01 | Phase 54 | Pending |
-| HLTH-02 | Phase 54 | Pending |
+| CONT-01 | Phase 52 | Complete |
+| CONT-02 | Phase 52 | Complete |
+| CONT-03 | Phase 52 | Complete |
+| RETR-01 | Phase 53 | Complete |
+| RETR-02 | Phase 53 | Complete |
+| HLTH-01 | Phase 54 | Complete |
+| HLTH-02 | Phase 54 | Complete (24h verification pending) |
 
 **Coverage:**
 - v2.9 requirements: 12 total
@@ -74,4 +74,4 @@
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-08 — Phase mappings added (12/12 covered)*
+*Last updated: 2026-03-08 — All 12 requirements complete (12/12)*

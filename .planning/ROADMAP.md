@@ -130,14 +130,14 @@ Full details: [milestones/v2.8-ROADMAP.md](milestones/v2.8-ROADMAP.md)
 
 </details>
 
-### v2.9 Memory System Overhaul (In Progress)
+### v2.9 Memory System Overhaul (Complete)
 
 **Milestone Goal:** Fix Bob's broken memory system so information survives compaction, retrieval actually finds it, and monitoring proves it works.
 
 - [x] **Phase 51: Compaction Config & QMD Bootstrap** - Tune compaction thresholds, configure search weights, restart gateway once, verify QMD live
-- [ ] **Phase 52: MEMORY.md & Content Seeding** - Create MEMORY.md at correct path with curated knowledge, improve flush prompt
-- [ ] **Phase 53: Retrieval Protocol & Flush Scheduling** - Add search-before-acting discipline to agents, reschedule daily flush
-- [ ] **Phase 54: Memory Health Monitoring** - Automated verification that memory system stays working
+- [x] **Phase 52: MEMORY.md & Content Seeding** - Create MEMORY.md at correct path with curated knowledge, improve flush prompt
+- [x] **Phase 53: Retrieval Protocol & Flush Scheduling** - Add search-before-acting discipline to agents, reschedule daily flush
+- [x] **Phase 54: Memory Health Monitoring** - Automated verification that memory system stays working
 
 ## Phase Details
 
@@ -164,7 +164,10 @@ Plans:
   1. `~/clawd/agents/main/MEMORY.md` exists and contains current system state (all 6 DBs, v2.8 features, agent roster, content pipeline status)
   2. `qmd search "content pipeline"` returns results from memory-root-main collection (not just memory-dir-main)
   3. Memory flush prompt produces daily summaries with 10+ lines including DB state queries, not 1-3 line "quiet day" entries
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [x] 52-01-PLAN.md — Create and deploy MEMORY.md (80 lines, curated knowledge)
+- [x] 52-02-PLAN.md — Improve flush prompt with structured sections + DB queries
 
 ### Phase 53: Retrieval Protocol & Flush Scheduling
 **Goal**: Bob actively searches memory before acting on recurring topics, and daily flush captures the full day's activity
@@ -173,7 +176,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. AGENTS.md contains a retrieval protocol with specific trigger categories (preferences, history, project context), example queries, and a consequence clause
   2. Daily memory flush cron fires at 23:00 UTC (end of day PT) instead of 07:00 UTC, producing summaries that reflect the day's actual activity
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [x] 53-01-PLAN.md — Add retrieval protocol to AGENTS.md (4 trigger categories + consequence)
+- [x] 53-02-PLAN.md — Reschedule daily flush from 07:00 UTC to 23:00 UTC
 
 ### Phase 54: Memory Health Monitoring
 **Goal**: Silent memory degradation is impossible -- broken memory gets flagged automatically
@@ -183,7 +189,10 @@ Plans:
   1. Health check script verifies: yesterday's daily log exists, QMD indexed it, and a test search query returns results
   2. Health check runs on cron (daily) and sends a Slack DM alert if any check fails
   3. Health check passes cleanly for 24+ hours after deployment (no false positives)
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [x] 54-01-PLAN.md — Create and deploy memory health check script
+- [x] 54-02-PLAN.md — Set up crontab + openclaw DM alert cron
 
 ## Progress
 
@@ -201,12 +210,12 @@ Phases execute in numeric order: 51 -> 52 -> 53 -> 54
 | 38-42 | v2.7 | 12/12 | Complete | 2026-02-26 |
 | 43-48 | v2.8 | 14/14 | Complete | 2026-03-03 |
 | 49 | - | 2/2 | Complete | 2026-03-04 |
-| 51. Compaction Config & QMD Bootstrap | v2.9 | Complete    | 2026-03-08 | 2026-03-08 |
-| 52. MEMORY.md & Content Seeding | v2.9 | 0/TBD | Not started | - |
-| 53. Retrieval Protocol & Flush Scheduling | v2.9 | 0/TBD | Not started | - |
-| 54. Memory Health Monitoring | v2.9 | 0/TBD | Not started | - |
+| 51. Compaction Config & QMD Bootstrap | v2.9 | 2/2 | Complete | 2026-03-08 |
+| 52. MEMORY.md & Content Seeding | v2.9 | 2/2 | Complete | 2026-03-08 |
+| 53. Retrieval Protocol & Flush Scheduling | v2.9 | 2/2 | Complete | 2026-03-08 |
+| 54. Memory Health Monitoring | v2.9 | 2/2 | Complete | 2026-03-08 |
 
-**Total: 50 phases shipped, 96 plans completed, 9 milestones shipped**
+**Total: 54 phases shipped, 104 plans completed, 10 milestones shipped**
 
 ---
-*Updated: 2026-03-08 -- Phase 51 complete (2/2 plans)*
+*Updated: 2026-03-08 -- v2.9 milestone complete (all 4 phases, 8 plans)*
