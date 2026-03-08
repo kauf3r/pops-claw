@@ -1,195 +1,182 @@
-# Project Research Summary: v2.7 YOLO Dev
+# Project Research Summary
 
-**Project:** pops-claw -- Autonomous Overnight Prototype Builder
-**Domain:** AI agent autonomous code generation + Mission Control dashboard integration
-**Researched:** 2026-02-24
-**Confidence:** HIGH
+**Project:** pops-claw v2.9 — Memory System Overhaul
+**Domain:** OpenClaw QMD memory backend repair on live EC2 deployment
+**Researched:** 2026-03-08
+**Confidence:** HIGH (based on direct SSH inspection of live system)
 
 ## Executive Summary
 
-YOLO Dev is architecturally the simplest milestone since v2.1 because every capability it needs already exists in the pops-claw system. Bob runs in a Docker sandbox with Python 3, bash, curl, git, and sqlite3. He already writes files to bind-mounted directories, executes shell commands, and logs structured data to SQLite. Mission Control already reads 5 SQLite databases and renders pages using the same query-module + API-route + SWR pattern. The content pipeline (v2.1) established the exact model YOLO Dev replicates: a skill teaches the behavior, a cron triggers it nightly, a reference doc provides session context, SQLite stores all metadata, and a dashboard page displays results. YOLO Dev is a new behavior on an existing platform, not a new platform.
+This is a targeted repair milestone, not a greenfield build. Bob's memory system is partially functional but broken in three specific ways that prevent useful long-term recall: (1) MEMORY.md lives at the wrong path and is invisible to QMD's memory-root-main collection, (2) the compaction flush threshold is misconfigured (softThresholdTokens=1500 vs. an appropriate 8000), causing session summaries to rarely fire, and (3) there is no retrieval protocol in AGENTS.md — Bob never searches memory before acting, making the indexed data behaviorally irrelevant even when search technically works. Research confirmed via direct SSH inspection that memory-dir-main is working (21 daily logs indexed, BM25 search returns results), but the higher-value collections (memory-root, memory-alt) are empty because no MEMORY.md exists at the expected path.
 
-The recommended approach is pure constraint-driven design. Prototypes use Python stdlib and static HTML/CSS/JS only -- no pip packages, no Node.js, no frameworks. This is not a limitation; it is the feature. Constraints force complete-in-one-session builds, prevent yak-shaving on dependency management, and keep the Docker sandbox lightweight enough to run alongside 20 existing cron jobs on a t3.small with 2GB RAM. The skill instructs Bob on idea selection (from a curated idea bank + generated options), prototype building, programmatic smoke testing, and SQLite logging -- all within a hard 15-turn session limit. The overnight autonomous coding pattern is well-established in the AI agent community (the "Ralph Wiggum" loop) and the guardrails from that research (iteration limits, time limits, scope constraints) are directly incorporated into the YOLO Dev skill design.
+The recommended approach is fix-order-driven: compaction threshold first (requires the only gateway restart), then MEMORY.md creation and content seeding, then retrieval protocol, then flush prompt quality improvements, then health monitoring. This order batches the gateway disruption, avoids adding a retrieval protocol that references empty collections, and defers monitoring until there is something worth monitoring. No new infrastructure is required — zero new packages, no new databases, no Docker changes, no new agents.
 
-The critical risks are resource-driven: OOM from unbounded Docker memory, rate limit exhaustion from long Sonnet builds starving daytime crons, and disk accumulation from undeleted build artifacts. All three are addressable with pre-emptive configuration in Phase 1 -- Docker memory caps, Haiku model selection, and a 5-build retention policy. The one gap that cannot be resolved by research is skill prompt quality: how good Bob's builds are depends on the YOLO_SESSION.md instructions, which must be tuned empirically after the first week of nightly runs.
+The primary risk is QMD collection bootstrapping, which has documented systemic issues (Issues #11308, #23613). Bootstrap must be verified via live query after each step rather than assuming "gateway started = QMD working." Secondary risk is OOM during any future context window expansion — if contextTokens is raised toward 200K, it must be incremented carefully and monitored against t3.small RAM (2GB + 2GB swap) during morning briefing windows when gateway, QMD embedding model, and Mission Control all compete for resources.
+
+---
 
 ## Key Findings
 
 ### Recommended Stack
 
-YOLO Dev adds zero new npm packages and zero new Docker infrastructure to the existing system. The entire capability is built from five elements: a new OpenClaw skill, a new cron job, two workspace reference docs, a new SQLite database (yolo.db), and a new Mission Control page -- all following patterns already validated in production.
+No new stack additions. The full tech stack exists on EC2 and is working. The work is config edits, file writes, and CLI commands.
 
-**Core technologies:**
-- OpenClaw skill (`yolo-dev`): Teaches Bob the build protocol. Same SKILL.md format as 13 existing skills.
-- OpenClaw cron (`yolo-dev-overnight`): Nightly trigger at midnight PT (06:00 UTC). Same JSON schema as 20 existing crons. Model: Haiku (not Sonnet) to protect rate limit budget.
-- Workspace docs (`YOLO_SESSION.md`, `YOLO_IDEAS.md`): Session instructions and idea bank. Same protocol-doc pattern as MEETING_PREP.md, STANDUP.md.
-- SQLite (`yolo.db`): Build metadata database at `~/clawd/yolo.db`, bind-mounted to `/workspace/yolo.db`. Same pattern as content.db, email.db. Written by Bob via sqlite3 CLI, read by Mission Control via better-sqlite3.
-- Next.js 14 / better-sqlite3 / SWR (all existing): `/yolo` page in Mission Control following the Phase 29-30 established dashboard pattern.
+**Core technologies in play:**
+- **QMD v1.1.0** (`~/.bun/bin/qmd`): indexing and storage backend, BM25+vector search — confirmed working for memory-dir-main; do not upgrade
+- **Bun v1.3.10**: QMD runtime dependency — working, do not modify
+- **embeddinggemma-300M**: local embedding model in `~/.cache/qmd/models/` — already downloaded, powers `searchMode: "search"` (BM25+vectors). Keep this; never switch to `"query"` mode on t3.small (LLM reranker is too slow, adds 500MB RAM)
+- **OpenClaw v2026.3.2**: gateway, compaction orchestration, memoryFlush trigger — has collection-conflict recovery fix from Issue #23613
+- **Gemini embedding API** (`memorySearch.provider: gemini`): retrieval enhancement layer on top of QMD storage — complementary, not competing; do NOT remove; QMD BM25 still works if Gemini is unavailable
+- **Next.js 14.2.15** (Mission Control): optional health panel target — zero new npm packages needed; pattern matches existing pages
 
-**Schema decision:** Design yolo.db from the dashboard down, not from the build up. Capture rich metadata on day one: `status`, `duration_seconds`, `iteration_count`, `error_count`, `lines_of_code`, `tech_stack`, `idea_source`, `artifact_path`, `is_runnable`, `smoke_test_passed`. Retrofitting this via ALTER TABLE creates NULLs in early rows and requires schema migrations.
+**Critical version note:** v2026.3.1 had a compaction loop regression with memoryFlush (Issue #32106). v2026.3.2 should have fixed it, but monitor `journalctl` after raising softThresholdTokens.
 
 ### Expected Features
 
-**Must have (table stakes -- v2.7 launch):**
-- Nightly cron trigger at midnight PT, isolated session, Haiku model
-- Idea selection from YOLO_IDEAS.md (curated bank) or Bob-generated, with anti-repetition tracking
-- Prototype build in `/workspace/yolo-dev/{date}-{slug}/` -- Python stdlib or static HTML
-- Programmatic smoke test after build (run the code, check exit code or HTTP response)
-- Build logging to yolo.db with rich metadata
-- Slack summary delivery to channel (not DM -- channel delivery survives gateway restarts)
-- Mission Control `/yolo` page with build history cards, status badges, stats row
-- Morning briefing Section 11: last night's YOLO result (name, status, score, LOC)
-- Build retention: auto-delete builds older than the last 5 on every run
+Research confirmed via SSH — diagnosis-driven, not speculative.
 
-**Should have (add after 5-7 successful nights):**
-- Slack start/complete notifications to #ops or #yolo-dev
-- Weekly YOLO digest in the existing weekly-review cron
-- Tech stack variety tracking in dashboard (prevent same stack 3 nights in a row)
-- Build failure post-mortems (`POSTMORTEM.md` in failed build directory)
+**Must have (broken without these):**
+- **MEMORY.md at correct path** (`~/clawd/agents/main/MEMORY.md`) — QMD memory-root-main collection searches this exact path; file currently at wrong location (`~/clawd/MEMORY.md`), giving 0 files in the collection
+- **Updated MEMORY.md content** — existing file is 4+ weeks stale (last updated 2026-02-23); missing QMD backend switch, v2.8 features, all 6 databases, content pipeline status, resend outage, memory/ directory pattern and daily log behavior
+- **Compaction threshold tuned** — softThresholdTokens raised 1500 → 8000; at 1500, flush fires only when 22,500 tokens of reserved context are consumed, which almost never happens in heartbeat or briefing sessions
+- **Retrieval protocol in AGENTS.md** — without explicit instruction to run `qmd search` before acting, Bob has the tool but never uses it systematically; this is the highest-behavioral-impact fix
+- **Improved memoryFlush prompt** — current prompt is shallow; should instruct DB queries (content.db, coordination.db, email.db) even on quiet days to produce 10-15 line minimum logs vs. current 1-3 line "quiet day" entries
 
-**Defer to v2.8+:**
-- Build artifact screenshot/preview in dashboard (requires Camofox browser during overnight build -- high complexity)
-- Build quality trend sparklines (need 20+ data points to be meaningful)
-- Idea backlog table in yolo.db (separate from the ideas flat file)
-- Theme nights ("Python night", "CLI night") -- fun but premature before basic loop works
+**Should have (reliability and observability):**
+- **Memory health monitoring cron** — daily check: yesterday's log was written, QMD indexed it, test search returns results; alert to Slack if any check fails; prevents silent memory death
+- **Daily cron rescheduled from 7 AM UTC to 23 UTC** — captures the day's activity rather than the previous night's sparse data
+- **QMD embed cleanup** — `qmd status` shows 1 pending file; run `qmd embed` to clear backlog; low priority but eliminates warning
 
-**Anti-features (do not build):**
-- Human approval gate (defeats autonomous purpose)
-- Multi-agent collaboration on builds (adds coordination overhead; single-agent is sufficient)
-- Deployment/hosting of built prototypes (security surface, resource risk on t3.small)
-- Git repo per build (over-engineering for throwaway prototypes)
-- Build queue / Redis (one build per cron, sequential, fail gracefully)
+**Defer to v3.0+:**
+- Per-agent MEMORY.md files for interactive sub-agents (landos, rangeos, ops) — high maintenance, not blocking v2.9
+- Monthly memory compaction / archive of old daily logs — not a problem at 21 files; revisit at 100+
+- Cross-agent memory sharing — not in QMD architecture, requires custom implementation
+- Mission Control memory browser page — nice to have once retrieval protocol is functional
 
 ### Architecture Approach
 
-YOLO Dev is a cron-triggered skill execution following the same pattern as the content pipeline. The data flow is: cron fires -> OpenClaw creates isolated Bob session -> Bob reads YOLO_SESSION.md -> Bob selects idea from YOLO_IDEAS.md -> Bob builds prototype in `/workspace/yolo-dev/{slug}/` -> Bob runs smoke test -> Bob logs to yolo.db via sqlite3 CLI -> Bob posts summary to Slack channel -> Mission Control reads yolo.db and displays on `/yolo` page.
+Three clearly separated layers: write (compaction flush + daily cron), index (QMD), and read (agent retrieval). All three layers are partially functional. The fixes target the write layer (compaction threshold, flush prompt quality, MEMORY.md file presence) and read layer (retrieval protocol). The index layer (QMD) is already working correctly for memory-dir-main — the 15-minute update interval, BM25 search, and embedding pipeline are all functional.
 
 **Major components:**
-1. `yolo-dev` skill (`~/.openclaw/skills/yolo-dev/SKILL.md`): Brain of the system. Defines idea selection, build constraints (stdlib only, max 200 LOC, single file preferred), smoke test protocol, DB logging format, Slack delivery format.
-2. Cron + Session Doc (`YOLO_SESSION.md`): Trigger mechanism. Cron fires with short message; Bob reads the session doc for full instructions. Same as all 20 existing crons.
-3. Build artifacts directory (`~/clawd/yolo-dev/`): Persistent storage for all build outputs. Bind-mounted to `/workspace/yolo-dev/` in sandbox. Convention: `{YYYY-MM-DD}-{slug}/` directory per build.
-4. `yolo.db` (SQLite, 6th database): Build metadata. Two tables: `builds` (summary) and `build_files` (file manifest). Indexed on `date DESC` and `status`.
-5. Mission Control `/yolo` page: Standard query-module + API-route + SWR pattern. Stats row (total builds, success rate, total LOC, streak) + scrollable build card list.
+1. **compaction.memoryFlush** (in-session flush): fires when session context nears limit; currently broken — softThresholdTokens=1500 is too low to trigger in any normal session; fix: raise to 8000
+2. **daily-memory-flush cron** (daily baseline flush): reliable, writing 21 files since Feb 2; thin content (1-3 lines on quiet days) because in-session flush never primes it; fix: better prompt + reschedule from 7 AM UTC to 23 UTC
+3. **QMD memory-dir-main collection**: working, indexes daily logs every 15m, BM25 search returns results; no changes needed
+4. **QMD memory-root-main collection**: broken (0 files); fix is simple — create MEMORY.md at `~/clawd/agents/main/MEMORY.md` and QMD auto-indexes it within 15 minutes
+5. **AGENTS.md retrieval protocol**: missing; fix: add explicit section with specific trigger categories, query templates, and consequence clause
+6. **Memory health monitoring**: missing; fix: new cron that verifies file writes, QMD indexing, and search results
 
-**Two new bind-mounts in openclaw.json** (must be added together, require one gateway restart):
-- `/home/ubuntu/clawd/yolo.db:/workspace/yolo.db:rw`
-- `/home/ubuntu/clawd/yolo-dev:/workspace/yolo-dev:rw`
-
-**Key pattern to follow:** `yolo.db` must be created on the HOST before the first bind-mount is activated. `sqlite3 ~/clawd/yolo.db "SELECT 1;"` is the one-time setup step. The Docker bind-mount requires the host-side file to exist first.
+**Key confirmed fact from SSH inspection:** The effective agent workspace for "main" is `~/clawd/agents/main/` (not `~/clawd/`). Docker /workspace/ maps to this per-agent directory. All file operations must target this path.
 
 ### Critical Pitfalls
 
-1. **OOM kills the gateway overnight** -- A YOLO build that installs pip dependencies (numpy, pandas) can spike memory past the 4GB ceiling (2GB RAM + 2GB swap), triggering the Linux OOM killer. Mitigation: set Docker memory limit (`--memory=1g --memory-swap=1.5g`) in the cron or agent config; restrict the build stack to Python stdlib only; add a pre-build memory check (`free -m` > 500MB available). This must be configured in Phase 1 before any build runs.
+1. **QMD appears configured but was never bootstrapped** — `memory.backend: "qmd"` in config and a clean gateway start do NOT guarantee QMD is indexing. Always verify with a live query (`qmd search "Andy"`) that returns non-empty results before declaring bootstrap complete. Silent fallback to Gemini/builtin means memory appears to work while returning nothing relevant.
 
-2. **Rate limit exhaustion starves daytime crons** -- A long Sonnet build at midnight consuming 15-20 high-token turns can exhaust the Claude Pro 200 rolling 5-hour window, causing the 6 AM morning briefing to fail or degrade. Mitigation: use Haiku (not Sonnet) as the cron model -- Haiku has a separate rate pool and is sufficient for Python stdlib prototypes. Set a hard 15-turn session limit in the cron configuration.
+2. **Memory flush misconfigured — produces no files** — softThresholdTokens=1500 with reserveTokensFloor=24000 means flush fires only when 22,500 tokens of reserved window are consumed. Heartbeat sessions (Haiku, ~200-400 tokens) and most briefings never reach this. Fix: raise to 8000. After change, verify by triggering a session long enough to accumulate context and confirming a new `.md` file appears in `~/clawd/agents/main/memory/`.
 
-3. **Disk accumulation corrupts SQLite databases** -- Without a retention policy, build artifacts (code + optional venvs) accumulate. The EC2 starts at 55% disk usage with ~13GB free. At 100-500KB per build, 100 builds is manageable; at 100-500MB (with dependencies), 10 builds can fill the disk. When disk drops below 5% free, SQLite WAL checkpointing fails silently, leading to database corruption. Mitigation: implement a 5-build retention policy as part of the build teardown from day one; prohibit pip/npm installs (no venv accumulation); add disk threshold to health-check.sh.
+3. **Gateway restart breaks cron DM delivery until Bob receives a message first** — every gateway restart clears sessions, breaking cron `sessions_send` to DM channels silently. After every restart: DM Bob from Slack immediately, wait for response, only then validate subsequent cron behavior. Schedule restarts outside of briefing windows (avoid 5:50-6:10 AM PT and heartbeat :00/:02/:04/:06 windows).
 
-4. **Debug-retry infinite loop burns all resources** -- LLMs attempting to fix code errors will retry indefinitely without explicit guardrails. A 50-turn build session that never produces output is the #1 failure mode for autonomous coding agents. Mitigation: hard 15-turn limit (configured in cron or skill instructions) and hard 30-minute wall-clock timeout (`timeout 1800`). Log `iteration_count` in yolo.db -- builds exceeding 10 iterations are early warning indicators.
+4. **MEMORY.md seeded at wrong path** — host path confusion between `~/clawd/MEMORY.md` (legacy) and `~/clawd/agents/main/MEMORY.md` (QMD target) is easy when editing over SSH. Always write to `~/clawd/agents/main/MEMORY.md` and verify with `ls -la` before triggering QMD re-index.
 
-5. **Cron schedule collision with existing 20 jobs** -- The YOLO build is a 30-minute heavy session that fires during a window where heartbeat crons (every 15 min, 4 agents) are also running. Multiple concurrent LLM sessions on a 2GB system creates memory pressure and SQLITE_BUSY conflicts on shared databases. Mitigation: schedule the build at 06:00 UTC (midnight PT, 6 hours before the morning briefing at 2 PM UTC), use `isolated: true` to prevent session sharing, verify no other cron fires within 10 minutes of the build start.
+5. **Retrieval protocol too vague to change Bob's behavior** — "search memory before acting" is insufficient. Must specify: which categories trigger a search, what query template to use, and what consequence applies if search is skipped. Without specificity, the protocol becomes a suggestion that loses to task momentum.
 
-6. **Docker read-only filesystem prevents builds** -- Bob cannot `pip install` or write to system paths inside the container. If the skill doesn't explicitly constrain the tech stack to writable paths (`/workspace/`), Bob will attempt system installs, fail with permission errors, and enter a debug loop. Mitigation: the skill must explicitly state what IS available (Python stdlib, bash, sqlite3 CLI) and what is NOT (pip install, npm install, system paths). Test the sandbox environment before writing the skill.
+6. **QMD embedding saturates CPU during heartbeat cron windows** — embeddinggemma-300M runs on CPU; re-indexing after a memory flush can take 30-120s. If this overlaps with heartbeat crons (:00/:02/:04/:06), cron latency spikes. Mitigation: increase QMD update interval from 15m to 30-60m after enabling flush; monitor heartbeat `lastDurationMs` for 48 hours.
 
-7. **DM delivery fails after gateway restart** -- The gateway restart required for YOLO Dev configuration clears all DM sessions. If the build tries to post to Bob's DM channel without an active session, the notification silently fails. Mitigation: deliver build summaries to a Slack channel (e.g., #ops or #yolo-dev) using the `channel:ID` format from v2.6, not DM. Include a file-based fallback: write summary to `/workspace/yolo-results-latest.md` that the morning briefing can pick up.
+---
 
 ## Implications for Roadmap
 
-Based on all research findings, the dependency-aware phase structure is:
+Based on combined research, the dependency chain is clear and dictates a specific 4-phase structure:
 
-### Phase 1: Infrastructure Foundation
-**Rationale:** All other phases depend on the storage layer and Docker configuration existing. This is also the only phase requiring a gateway restart -- batch everything into one.
-**Delivers:** yolo-dev directory, yolo.db (schema pre-created), bind-mounts configured, cron job stub added, gateway restarted once.
-**Addresses features:** Build artifact storage, DB logging infrastructure, bind-mount for sandbox access.
-**Avoids pitfalls:** Pitfall 1 (OOM) by adding Docker memory limits; Pitfall 3 (disk) by pre-configuring retention policy; Pitfall 7 (DM failure) by choosing channel delivery; Pitfall 6 (sandbox limitations) by verifying environment before writing skill.
-**Schema must include:** `id`, `date`, `project_name`, `slug`, `description`, `tech_stack`, `status`, `artifacts_path`, `idea_source`, `lines_of_code`, `files_created`, `iteration_count`, `error_count`, `duration_minutes`, `is_runnable`, `smoke_test_passed`, `build_log`, `error_message`, `created_at`, `updated_at`. Design this from the dashboard, not from the build process.
+### Phase 1: Compaction Config and QMD Bootstrap Verification
+**Rationale:** Requires the only mandatory gateway restart. Batching this disruption first means all subsequent phases can be completed without another restart. Also the highest-impact fix — without the threshold change, the flush never fires regardless of how good the prompt is. QMD bootstrap must be explicitly verified, not assumed.
+**Delivers:** softThresholdTokens raised (1500 → 8000); memoryFlush prompt optionally improved; gateway restarted; QMD collections verified via live query (`qmd search "Andy"` returns results); Bob's DM session re-established post-restart.
+**Addresses:** Table stakes features — compaction threshold, QMD bootstrap verification
+**Avoids:** Pitfall #2 (flush misconfigured), Pitfall #4 (gateway restart session loss), Pitfall #1 (QMD configured but not bootstrapped)
+**Research flag:** SKIP — all config values confirmed via SSH inspection; QMD CLI commands verified against v1.1.0 docs.
 
-### Phase 2: Skill + Cron + Reference Docs
-**Rationale:** Bob needs explicit instructions (skill + session doc) before the first build can run. This phase can be deployed without a gateway restart -- skill files and workspace docs are hot-loaded.
-**Delivers:** `yolo-dev` skill, `YOLO_SESSION.md` cron reference doc, `YOLO_IDEAS.md` idea bank seeded with 5-10 starter ideas, first manual cron trigger to validate the end-to-end loop.
-**Uses stack:** Existing skill system, workspace protocol doc pattern.
-**Implements:** Skill component, cron trigger, session reference doc.
-**Avoids pitfalls:** Pitfall 2 (rate limits) by configuring Haiku model and 15-turn limit; Pitfall 4 (debug loop) by including hard turn and time limits in the skill; Pitfall 5 (cron collision) by verifying schedule doesn't overlap existing jobs; Pitfall 9 (unverified builds) by requiring programmatic smoke tests.
-**Key design decisions:** The YOLO_SESSION.md is the most important artifact in this milestone. It defines scope constraints (stdlib only, 100-200 LOC target, single file preferred), anti-repetition mechanics (include list of past build slugs in context), smoke test protocol (run the code, capture output, verify exit 0), and delivery format (channel:ID, not DM).
+### Phase 2: MEMORY.md Fix and Content Seeding
+**Rationale:** QMD memory-root-main collection is empty because the file is at the wrong path. This must be fixed before adding a retrieval protocol — no point instructing Bob to search memory if the primary collection has 0 files. Content must be current before retrieval goes live, or Bob acts on 4-week-stale data.
+**Delivers:** `~/clawd/agents/main/MEMORY.md` created with curated, current facts (Andy profile, system state, all 6 DBs, content pipeline status, resend outage, v2.8 features, memory/ directory behavior). Legacy `~/clawd/MEMORY.md` decommissioned or symlinked. QMD auto-indexes within 15 minutes; verify with test query.
+**Avoids:** Pitfall #5 (MEMORY.md at wrong path), anti-feature of copying stale content without curation
+**Research flag:** SKIP for mechanics (file write + QMD auto-indexes). Content curation is judgment based on project state, not research.
 
-### Phase 3: Mission Control /yolo Page
-**Rationale:** Dashboard can be built in parallel with Phase 2 (it only requires the schema to exist, not actual data). However, building it after Phase 2's first manual test ensures there is real data to test the UI against.
-**Delivers:** `/yolo` route in Mission Control with stats row, build history cards, build detail view with logs.
-**Uses stack:** Next.js 14, better-sqlite3, SWR, shadcn/ui, Recharts -- all existing.
-**Implements:** Query module (`queries/yolo.ts`), API route (`/api/dashboard/yolo`), page component (`/app/yolo/page.tsx`), navbar link.
-**Avoids pitfalls:** Pitfall 8 (schema design) -- the dashboard exposes whether the schema is rich enough; any gaps surface immediately during UI implementation.
-**Standard pattern, no research needed:** Identical to Phase 29-30 dashboard implementation.
+### Phase 3: Retrieval Protocol and Flush Quality
+**Rationale:** Now that QMD has something worth retrieving (Phase 2), add the behavioral instruction that makes Bob use it. Simultaneously improve the daily flush prompt to produce richer daily logs (DB state queries on quiet days, consistent section structure). These two changes are coupled — better logs make retrieval more valuable, and both depend on Phase 2's collections being populated.
+**Delivers:** AGENTS.md retrieval protocol (specific trigger categories, query templates, consequence clause). Improved `compaction.memoryFlush.prompt` that queries coordination.db and content.db. Daily cron rescheduled from 7 AM UTC to 23 UTC to capture day's activity. `~/clawd/agents/main/DAILY_FLUSH.md` updated with richer content instructions.
+**Avoids:** Pitfall #6 (retrieval protocol too vague)
+**Research flag:** SKIP — AGENTS.md patterns are established; flush prompt is a config edit; cron reschedule is a one-field JSON change.
 
-### Phase 4: Morning Briefing + Cleanup Cron
-**Rationale:** Polish and maintenance layer. Only meaningful after the core loop has run successfully for 3-5 nights and the data is real.
-**Delivers:** YOLO section in morning briefing (last night's build summary), automated build artifact cleanup script (keep last 5), yolo-build added to Mission Control's cron calendar display.
-**Addresses features:** Morning briefing integration (P1 feature), tech stack variety tracking, weekly YOLO digest (if 5+ builds exist).
-**Avoids pitfalls:** Pitfall 3 (disk accumulation) with automated retention; ensures the morning briefing section is never empty (graceful "No build yet" default).
+### Phase 4: Memory Health Monitoring
+**Rationale:** After Phases 1-3, the memory system should be functional. Phase 4 adds observability to detect if it silently degrades. Monitoring is last because there must be something worth monitoring (populated collections, regular flush output) before a health check is meaningful. Also lowest risk — read-only diagnostic operations.
+**Delivers:** Daily health monitoring cron — verifies yesterday's log was written, QMD indexed it, test search returns results, alerts to Slack on failure. QMD embed cleanup (1 pending file). Optionally: Mission Control memory health panel (line count per agent, 7-day flush sparkline using `fs.statSync`, warning badges at 80% and 95% of 200-line budget).
+**Avoids:** Pitfall #1 (QMD silently not working), Pitfall #7 (CPU saturation — detect before it degrades crons)
+**Research flag:** SKIP for health cron (established cron pattern from 24 existing crons). CONSIDER research during planning for the Mission Control panel if the sparkline implementation is unclear — but the established page pattern (API route + SWR) is well-documented internally.
 
 ### Phase Ordering Rationale
 
-- Phase 1 is a prerequisite for everything: bind-mounts must exist before Bob can write, yolo.db must exist before Bob can log, cron stub must be in openclaw.json for Phase 2 to test.
-- Phases 1 and 2 share a single gateway restart: batch all openclaw.json changes (bind-mounts + cron entry) into one restart in Phase 1; Phase 2 skill and workspace files are hot-loaded without restart.
-- Phase 3 is independent of the gateway: Mission Control is a separate Next.js service. It can be built while Phase 2's first build is running.
-- Phase 4 requires validated data: adding the morning briefing section without real builds produces misleading "No builds yet" output every morning. Wait for 3-5 successful builds before integrating.
-- The gateway restart in Phase 1 must be followed immediately by a DM to Bob to re-establish his session before the YOLO cron fires.
+- **Gateway restart is the only disruptive operation** — Phase 1 owns it; subsequent phases avoid it
+- **Empty collections precede retrieval protocol** — adding retrieval before fixing MEMORY.md path would train Bob to search a broken system and retrieve nothing
+- **Compaction threshold precedes flush prompt** — a perfectly worded prompt at softThresholdTokens=1500 still rarely fires; fix the trigger before improving the output
+- **Monitoring is last** — cannot validate monitoring against a broken baseline; validate the system first, then verify it stays working
 
 ### Research Flags
 
-Phases needing deeper research during planning:
-- **Phase 2 (Skill Design):** The quality of YOLO_SESSION.md cannot be predicted by research -- it must be iterated after seeing actual build outputs. Plan for a skill refinement pass after the first week. The initial skill should be conservative (tight scope, simple ideas) and loosen constraints as empirical results show what Bob can reliably accomplish.
-- **Phase 2 (Model Selection):** Verify whether Haiku produces acceptable code quality for the prototype scope defined. If Haiku builds are consistently poor-quality or fail smoke tests, escalate to Sonnet with a tighter turn limit (10 instead of 15) and monitor rate limits.
+All phases can skip `/gsd:research-phase` — this milestone is repair work on a known, fully-inspected system:
 
-Phases with established patterns (skip research):
-- **Phase 1:** Bind-mount + SQLite schema + cron stub. All documented in prior milestones. Copy from content.db pattern.
-- **Phase 3:** Mission Control page. Direct copy of Phase 29-30 implementation. `queries/yolo.ts` is nearly identical to `queries/metrics.ts`.
-- **Phase 4:** Morning briefing section. Direct copy of any existing briefing section pattern. Cleanup cron is a shell script following `prune-sessions.sh`.
+- **Phase 1:** All config values confirmed via SSH (openclaw.json, QMD v1.1.0 CLI). No unknowns.
+- **Phase 2:** File write mechanics straightforward. Content curation is judgment (project state), not research.
+- **Phase 3:** Established AGENTS.md and reference doc patterns. Config edit only for prompt. No external dependencies.
+- **Phase 4 (cron):** Health check cron follows established pattern from 24 existing crons. No new tooling.
+- **Phase 4 (Mission Control panel):** File-stat-based sparkline (`fs.statSync`) is novel but matches existing Next.js patterns. If time-constrained, skip the MC panel and deliver cron health check only — the cron delivers all functional value.
+
+---
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Zero new dependencies. Every technology validated in production across 6 milestones. No version conflicts possible. |
-| Features | HIGH | All features map directly to existing system patterns. The one uncertain feature (build quality) is explicitly deferred to empirical tuning. |
-| Architecture | HIGH | YOLO Dev follows the content pipeline pattern exactly. Four prior milestones have proven the cron + skill + SQLite + dashboard pattern. |
-| Pitfalls | HIGH | Critical pitfalls are derived from known system constraints (2GB RAM, 13GB free disk, Claude Pro 200 rate limits, Docker read-only FS). These are facts, not predictions. |
+| Stack | HIGH | All components confirmed via direct SSH inspection on 2026-03-08; versions verified; zero new dependencies needed |
+| Features | HIGH | Diagnosis performed against live system via SSH; broken/working status confirmed per component, not inferred |
+| Architecture | HIGH (current state) / MEDIUM (internals) | File paths, collection counts, config values all confirmed via SSH. QMD+Gemini interaction and exact compaction trigger math are partially inferred from behavior |
+| Pitfalls | HIGH | Derived from production system history (MEMORY.md), prior milestone pitfall docs (v2.6, v2.7), and direct evidence of current failure modes |
 
-**Overall confidence: HIGH**
+**Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Skill prompt quality (empirical, not researchable):** How good Bob's nightly builds are depends entirely on the YOLO_SESSION.md instructions and cannot be determined without running actual builds. Plan for a mandatory skill refinement pass after 5-7 nights of builds. Track `iteration_count` and `smoke_test_passed` in yolo.db as quality signals from day one.
+- **Exact nesting path for compaction config in openclaw.json** — needs `python3 -m json.tool ~/.openclaw/openclaw.json` to confirm the path is `agents.defaults.compaction.memoryFlush.softThresholdTokens` or a variant. LOW risk; verification is the first step of Phase 1.
+- **Whether v2026.3.1 compaction regression persists in v2026.3.2** — Issue #32106 (aggressive compaction loop with memoryFlush). Needs monitoring after gateway restart. Mitigation: watch `journalctl --user -u openclaw-gateway.service` for the first 24 hours.
+- **Whether daily-memory-flush cron has `workspaceAccess: "ro"` set** — if so, memoryFlush writes would be silently skipped in isolated cron sessions. Needs SSH inspection before Phase 3. Low probability (file evidence confirms cron IS writing files), but should be verified explicitly.
+- **QMD+Gemini retrieval routing** — whether Gemini generates query embeddings for QMD BM25 or operates as a separate retrieval path. Not publicly documented. Does not block any phase; affects expected retrieval quality ceiling only.
+- **contextTokens expansion safety** — current contextTokens=100000; model max is 200K. Any expansion must be incremented (not jumped), monitored via `free -m` during briefing windows. Explicitly out of scope for v2.9.
 
-- **Python version in sandbox (needs EC2 verification):** Research indicates Python 3.11 (Debian Bookworm) but the exact available version should be verified via `python3 --version` inside an exec'd container before writing the skill. Some stdlib features differ between 3.8 and 3.11.
-
-- **Haiku code quality threshold (empirical):** Research recommends Haiku for rate limit safety, but whether Haiku can reliably generate working 100-200 LOC Python prototypes is unknown. If the first 3-5 builds are consistently poor with Haiku, escalate model selection and adjust cron schedule to protect rate limits differently.
-
-- **Idea bank seeding (requires human input):** YOLO_IDEAS.md needs to be populated with 10-20 initial ideas that reflect Andy's actual interests. Research identified categories (CLI tools, data visualizers, API mashups, automation scripts, simple games) but the specific ideas should be generated collaboratively rather than pre-populated by research.
-
-- **Cron schedule verification:** The 06:00 UTC schedule must be checked against all 20 existing cron jobs to confirm no collision within a 30-minute window. This requires inspecting the current openclaw.json or cron-jobs.json on EC2.
+---
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- PROJECT.md (internal) -- full system inventory, constraints, infrastructure details
-- MEMORY.md (internal) -- EC2 access, sandbox architecture, bind-mount patterns, cron lessons
-- Phase 12 (internal) -- content DB + agent setup, established DB + bind-mount + skill pattern
-- Phase 29-30 (internal) -- Mission Control dashboard query module + API route + SWR pattern
-- Phase 33 (internal) -- cron reference doc + channel:ID delivery pattern
-- v2.6 ROADMAP.md (internal) -- most recent milestone structure and phase conventions
-- Anthropic engineering blog: Demystifying Evals for AI Agents -- build quality evaluation patterns
+- Live EC2 SSH inspection (2026-03-08) — openclaw.json full config, QMD status, collection listing, index.yml, daily log contents, `qmd search "Andy"` verified working
+- OpenClaw Memory Docs (`docs.openclaw.ai/concepts/memory`) — QMD backend config keys, memoryFlush behavior, workspaceAccess constraint, default collection names
+- OpenClaw Session Management Docs (`docs.openclaw.ai/reference/session-management-compaction`) — reserveTokensFloor, softThresholdTokens, flush threshold formula
+- QMD GitHub (`github.com/tobi/qmd`) — `qmd collection add`, `qmd update`, `qmd embed` CLI commands verified for v1.1.0
+- Project MEMORY.md — QMD v1.1.0 install, Bun v1.3.10, searchMode=search, update interval=15m, collection counts, agent workspace structure
+- Project memory/ directory listing — 21 files, Feb 2 through Mar 7, confirmed file existence and content sizing
 
 ### Secondary (MEDIUM confidence)
-- Ralph Wiggum autonomous loop pattern -- overnight AI coding agent guardrails
-- OpenClaw official docs (sandboxing, skills, cron) -- configuration schema details
-- Martin Fowler: Exploring Gen AI / Codex autonomous agents -- task scoping for code agents
-- DEV Community: Why Your Overnight AI Agent Fails -- failure mode catalog
+- OpenClaw Issue #11308 — QMD systemic issues, collection management bugs
+- OpenClaw Issue #23613 — "Collection not found: memory-root-main" bug and workaround (fixed in v2026.3.2)
+- OpenClaw Issue #17034 — softThresholdTokens doesn't scale with context window; community-recommended values for 200K window
+- OpenClaw Issue #32106 — v2026.3.1 aggressive compaction loop regression with memoryFlush
+- OpenClaw Issue #37634 — workspaceAccess: "none" skips memoryFlush writes silently
+- VelvetShark OpenClaw Memory Masterclass — softThresholdTokens=8000 for 200K window, community validated
+- Jose Casanova: Fix OpenClaw Memory Search with QMD — bootstrap command sequence verified against v1.1.0
 
-### Tertiary (LOW confidence -- verify on EC2)
-- Python version in Docker sandbox (verify before writing skill)
-- sqlite3 CLI behavior with bind-mounted DB files (behavior documented but verify with empty file)
-- Exact cron schedule overlap with existing 20 jobs (inspect cron-jobs.json)
+### Tertiary (LOW confidence, needs EC2 verification during execution)
+- Exact openclaw.json nesting path for compaction.softThresholdTokens — confirm via direct file read in Phase 1
+- Whether v2026.3.1 compaction regression persists in v2026.3.2 — confirm via post-restart monitoring
+- daily-memory-flush cron workspaceAccess setting — confirm via SSH inspection before Phase 3
 
 ---
-*Research completed: 2026-02-24*
+
+*Research completed: 2026-03-08*
 *Ready for roadmap: yes*

@@ -1,180 +1,291 @@
-# Technology Stack: v2.7 YOLO Dev
+# Stack Research: v2.9 Memory System Overhaul
 
-**Project:** pops-claw -- Overnight Autonomous Builder
-**Researched:** 2026-02-24
-**Confidence:** HIGH (sandbox patterns validated in prior milestones), MEDIUM (overnight loop guardrails)
+**Project:** pops-claw — Bob's Broken Memory System Fix
+**Researched:** 2026-03-08
+**Confidence:** HIGH (existing deployment validated), MEDIUM (QMD collection bootstrapping — known-buggy area), LOW (specific openclaw.json config values — version-specific behavior)
 
 ---
 
 ## Executive Summary
 
-YOLO Dev adds zero new npm dependencies to Mission Control and zero new infrastructure to the EC2 host. The entire capability is built from: (1) a new OpenClaw skill + cron for Bob, (2) a new yolo.db SQLite database following the exact same pattern as the 5 existing databases, (3) Python/bash scripts executing inside the existing Docker sandbox, and (4) a new `/yolo` page in Mission Control following the established query-module + API-route + SWR pattern from v2.5.
+v2.9 adds zero new infrastructure. The full tech stack already exists on EC2. The work is:
+1. Config edits to `~/.openclaw/openclaw.json` (compaction tuning + QMD paths)
+2. CLI commands run on EC2 to bootstrap QMD collections (`qmd collection add`, `qmd update`, `qmd embed`)
+3. Markdown file writes to agent workspaces (MEMORY.md seeding, AGENTS.md retrieval protocol)
+4. A new API route + panel in Mission Control for memory health visibility
 
-The sandbox already has Python 3, bash, curl, git, and jq. Bob already writes files to `/workspace/` (bind-mounted to `~/clawd/agents/main/`). The overnight build pipeline is a cron job that triggers Bob with a YOLO_DEV.md reference doc, Bob generates code, writes files to `~/clawd/yolo-dev/<project>/`, logs progress to yolo.db, and posts the result to Slack. No new runtimes needed. No new Docker images. No new agents.
+**The single biggest risk:** QMD's collection bootstrapping is a known-buggy area in OpenClaw. Issue #11308 documents "systemic issues requiring comprehensive fix." The collection-name conflict recovery and duplicate-document recovery fixes landed in recent releases — v2026.3.2 should have them, but manual verification after each bootstrap step is mandatory.
+
+---
+
+## What NOT to Change (Working Fine)
+
+| Component | Current State | Why to Leave It Alone |
+|-----------|--------------|----------------------|
+| `memory.backend = "qmd"` | Already set | QMD is correctly configured as the backend. The problem is empty collections, not backend selection |
+| `memory.searchMode = "search"` | Already set to BM25+vectors | Correct for t3.small CPU — avoids the slow LLM reranker. Do not switch to `query` mode |
+| `contextPruning: cache-ttl` | Already set with 1h TTL | Working. Leave alone |
+| Gemini embeddings config | Already set in `memorySearch.provider: gemini` | Fallback path. QMD uses its own embeddinggemma-300M model for local embeddings |
+| `embeddinggemma-300M` model files | Already in `~/.cache/qmd/models/` | Models downloaded. No re-download needed |
+| QMD v1.1.0 install | `~/.bun/bin/qmd` | Already installed. No upgrade needed |
+| Bun v1.3.10 | `~/.bun/bin/bun` | Required runtime for QMD. Working |
+| Docker sandbox / bind-mounts | All 6 DBs bind-mounted | No changes needed |
+| 7-agent roster, 24 cron jobs, 13 skills | All verified v2.8 | No changes needed |
 
 ---
 
 ## Recommended Stack
 
-### Core: Skill + Cron (Zero New Dependencies)
+### Core: QMD Collection Bootstrap (Zero New Dependencies)
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| OpenClaw Skill | N/A | `yolo-dev` skill in `~/.openclaw/skills/yolo-dev/SKILL.md` | Teaches Bob how to ideate, scaffold, build, test, and log YOLO projects. Same pattern as all 13 existing skills |
-| OpenClaw Cron | N/A | `yolo-build` cron triggering nightly at 1 AM PT (08:00 UTC) | Triggers Bob to pick an idea and build it overnight. Same cron system as 20 existing jobs |
-| Reference Doc | N/A | `~/clawd/agents/main/YOLO_DEV.md` | Standing instructions for overnight builds, idea bank, constraints. Same pattern as CONTENT_TRIGGERS.md |
+| Component | Current State | Target State | Config Location |
+|-----------|-------------|-------------|----------------|
+| QMD memory-dir-main collection | 19 files (from MEMORY.md context) | 19+ files indexed with valid embeddings | QMD auto-manages at `~/.openclaw/agents/main/qmd/` |
+| QMD memory-root-main collection | Exists, 0 documents indexed | Documents indexed via `qmd update && qmd embed` | Same XDG dir |
+| QMD memory-alt-main collection | Exists, 0 documents indexed | Documents indexed | Same XDG dir |
+| QMD update interval | 15m (current) | 15m (no change) | `memory.qmd.update.interval` in openclaw.json |
 
-**Rationale:** Bob is already an autonomous agent that writes files, executes code, and logs to SQLite. YOLO Dev is a new *behavior*, not a new *system*. The skill teaches Bob the behavior; the cron triggers it; the reference doc provides context.
+**Bootstrap sequence (run on EC2 as ubuntu user):**
 
-### Database: yolo.db (SQLite, 6th Database)
+```bash
+# Step 1: Verify current collection state
+~/.bun/bin/qmd collection list --json
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| SQLite (via `sqlite3` CLI) | Already installed | yolo.db at `~/clawd/yolo-dev/yolo.db` | Same pattern as 5 existing databases. Bob writes via sqlite3 CLI in sandbox (bind-mounted). Mission Control reads via better-sqlite3 |
-| better-sqlite3 | 12.6.2 (already installed) | Dashboard reads yolo.db | Already the Mission Control DB driver. Add yolo.db to the existing DB_PATHS registry |
+# Step 2: If collections exist but have 0 documents, force re-index
+~/.bun/bin/qmd update
 
-**Schema Design:**
+# Step 3: Force re-embed (generates vectors for all documents)
+~/.bun/bin/qmd embed
 
-```sql
--- ~/clawd/yolo-dev/yolo.db
+# Step 4: Verify indexing worked
+~/.bun/bin/qmd collection list --json
+# Should show document counts > 0 for memory-root-main, memory-alt-main, memory-dir-main
 
-CREATE TABLE builds (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  project_name TEXT NOT NULL,           -- e.g. "wifi-signal-mapper"
-  slug TEXT NOT NULL UNIQUE,            -- URL/folder-safe: "wifi-signal-mapper"
-  description TEXT NOT NULL,            -- 1-2 sentence pitch
-  idea_source TEXT,                     -- what inspired it: "morning-briefing", "voice-note", "random"
-  tech_stack TEXT NOT NULL,             -- "python", "html+js", "python+flask"
-  status TEXT NOT NULL DEFAULT 'ideating',  -- ideating|building|testing|completed|failed|abandoned
-  started_at TEXT NOT NULL DEFAULT (datetime('now')),
-  completed_at TEXT,
-  build_duration_seconds INTEGER,       -- wall clock from start to completion
-  files_created INTEGER DEFAULT 0,      -- count of files generated
-  lines_of_code INTEGER DEFAULT 0,      -- total LOC across all files
-  error_message TEXT,                   -- if failed, what went wrong
-  demo_url TEXT,                        -- if servable, how to access
-  slack_message_ts TEXT,                -- Slack message ID for the build report
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
-CREATE TABLE build_logs (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  build_id INTEGER NOT NULL REFERENCES builds(id),
-  phase TEXT NOT NULL,                  -- "ideation"|"scaffolding"|"implementation"|"testing"|"packaging"
-  message TEXT NOT NULL,                -- what happened
-  timestamp TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
-CREATE TABLE build_files (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  build_id INTEGER NOT NULL REFERENCES builds(id),
-  file_path TEXT NOT NULL,              -- relative to project dir: "app.py", "templates/index.html"
-  language TEXT,                        -- "python", "html", "javascript", "css"
-  line_count INTEGER DEFAULT 0,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
--- Indexes for dashboard queries
-CREATE INDEX idx_builds_status ON builds(status);
-CREATE INDEX idx_builds_created ON builds(created_at DESC);
-CREATE INDEX idx_build_logs_build ON build_logs(build_id);
-CREATE INDEX idx_build_files_build ON build_files(build_id);
+# Step 5: Test search works end-to-end
+~/.bun/bin/qmd search "Andy" --collection memory-dir-main
+# Should return results from MEMORY.md and daily logs
 ```
 
-**Why this schema:** Three tables track the full lifecycle. `builds` is the main record (what was built, outcome, metrics). `build_logs` captures the step-by-step narrative (useful for debugging and for the dashboard timeline view). `build_files` inventories artifacts (useful for "what did it create?" display). The `slug` column becomes the folder name under `~/clawd/yolo-dev/`.
+**If collections are missing entirely** (QMD bug: collection-name conflict leaves orphan entry):
 
-**Why NOT a single table:** Build logs are append-only and high-volume (10-50 entries per build). Mixing them with the builds table would make dashboard queries for "list all builds" pull unnecessary log data. The three-table design matches the content pipeline pattern (topics, articles, pipeline_activity).
+```bash
+# Remove all managed collections and let OpenClaw recreate them
+~/.bun/bin/qmd collection list --json
+# Note all collection names, then remove them:
+~/.bun/bin/qmd collection remove memory-root-main
+~/.bun/bin/qmd collection remove memory-alt-main
+~/.bun/bin/qmd collection remove memory-dir-main
 
-### Sandbox Runtime: Already Sufficient
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Python 3 | 3.11 (Debian Bookworm) | Default prototyping language | Already in the sandbox image (`openclaw-sandbox:bookworm-slim` includes python3). No pip needed for stdlib-only prototypes |
-| bash | 5.2 | Script execution, file manipulation | Already in sandbox |
-| curl | Already installed | HTTP testing, API interaction | Already in sandbox |
-| git | Already installed | Version tracking of builds (optional) | Already in sandbox |
-| sqlite3 CLI | Debian 12-compatible binary | Write to yolo.db from sandbox | Already bind-mounted at `/usr/bin/sqlite3` (Phase 6 fix: glibc-compatible binary at `~/clawd/sqlite3-compat`) |
-| Node.js | **NOT in default sandbox** | For JS/HTML prototypes that need a dev server | **See "What NOT to Add" -- stdlib Python + static HTML covers 90% of prototypes** |
-
-**Key insight:** The default sandbox image includes Python 3 but NOT pip, NOT Node.js, NOT Go, NOT Rust. This is fine. YOLO Dev prototypes should use Python stdlib (http.server, json, sqlite3, urllib, etc.) and static HTML/CSS/JS. If a prototype needs pip packages, Bob can install them via `python3 -m ensurepip && pip install X` in the sandbox (requires `readOnlyRoot: false` which is already the case based on the setupCommand pattern used for other tools). But the SKILL.md should strongly prefer stdlib-only prototypes.
-
-### Build Artifact Storage: Filesystem
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Filesystem | N/A | `~/clawd/yolo-dev/<slug>/` on EC2 host | Bind-mounted into sandbox as `/workspace/yolo-dev/<slug>/`. Each build gets its own directory. Simple, inspectable, no extra infrastructure |
-
-**Directory structure per build:**
-
-```
-~/clawd/yolo-dev/
-+-- yolo.db                        # Build metadata database
-+-- wifi-signal-mapper/            # Build 1
-|   +-- README.md                  # Auto-generated by Bob
-|   +-- app.py                     # Main application
-|   +-- templates/
-|       +-- index.html
-+-- habit-streak-tracker/          # Build 2
-|   +-- README.md
-|   +-- tracker.py
-|   +-- data/
-+-- ...
+# Restart gateway — OpenClaw will recreate collections on boot
+systemctl --user restart openclaw-gateway.service
+# Wait 60 seconds, then verify:
+~/.bun/bin/qmd collection list --json
 ```
 
-**Why filesystem over S3/cloud:** Single machine, personal use, inspectable via SSH. The files are already on the EC2 instance. Adding cloud storage adds cost and complexity for zero benefit.
+**If `qmd collection add` fails with "collection already occupies same path + pattern"** (Issue #23613 workaround — fixed in recent releases but may still trigger):
 
-### Mission Control: /yolo Page (Zero New Dependencies)
+```bash
+# Identify conflicting collection
+~/.bun/bin/qmd collection list --json | python3 -m json.tool
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Next.js 14 | 14.2.15 (existing) | `/yolo` page route | Same framework, same patterns as existing 7 pages |
-| better-sqlite3 | 12.6.2 (existing) | Read yolo.db | Add to existing DB_PATHS registry, same singleton pattern |
-| SWR | 2.3.3 (existing) | Poll `/api/yolo/builds` | Same polling pattern as all other dashboard data |
-| shadcn/ui | Existing | Card, Badge, Table components | Already installed. Status badges (building/completed/failed) use existing Badge variants |
-| Recharts | 3.7.0 (existing) | Build frequency chart, LOC trends | Already installed via shadcn charts |
-| date-fns | 3.6.0 (existing) | Relative timestamps ("built 2 days ago") | Already installed |
+# Remove the conflicting one by name
+~/.bun/bin/qmd collection remove <conflicting-name>
 
-**New files to create on EC2:**
-
-```
-~/clawd/mission-control/src/
-+-- app/
-|   +-- yolo/
-|   |   +-- page.tsx                # /yolo page (server component, initial render)
-|   +-- api/
-|       +-- yolo/
-|           +-- builds/
-|           |   +-- route.ts        # GET /api/yolo/builds (list all builds)
-|           +-- builds/[id]/
-|               +-- route.ts        # GET /api/yolo/builds/:id (build detail + logs + files)
-+-- lib/
-|   +-- db-paths.ts                 # ADD "yolo" to DB_NAMES, DB_PATHS, DB_LABELS
-|   +-- queries/
-|       +-- yolo.ts                 # Prepared statements for yolo.db queries
-+-- components/
-    +-- yolo/
-        +-- build-card.tsx          # Individual build card with status badge
-        +-- build-timeline.tsx      # Build log timeline for detail view
-        +-- build-stats.tsx         # Aggregate stats (total builds, success rate, LOC)
+# Restart gateway to trigger clean re-add
+systemctl --user restart openclaw-gateway.service
 ```
 
-**Dashboard integration pattern (same as all existing pages):**
+**Confidence:** MEDIUM. The bootstrap commands are correct per QMD v1.1.0 docs and community guides. The specific error paths depend on current collection state, which requires SSH inspection to determine.
 
-1. Add `yolo` to `DB_PATHS` in `db-paths.ts`: `yolo: "/home/ubuntu/clawd/yolo-dev/yolo.db"`
-2. Create query module `queries/yolo.ts` with prepared statements
-3. Create API route `/api/yolo/builds/route.ts` that calls query functions
-4. Create page `/yolo/page.tsx` that reads server-side + passes to client
-5. Add `/yolo` to the navigation sidebar
-6. SWR polls `/api/yolo/builds` every 60 seconds
+---
 
-### Cron Delivery: Slack + Morning Briefing
+### Config: Compaction Tuning
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Slack Socket Mode | Existing | Post build results to DM or #ops | Same delivery pattern as all other cron outputs |
-| Morning Briefing | Existing | Add "YOLO Dev" section to briefing | New Section 11 (or append to existing): last night's build result, project name, status, LOC |
+These are the only `openclaw.json` changes needed. Current values are known; target values are research-backed recommendations.
 
-**No new Slack channels.** Build results post to Bob's DM (same as evening recap). Morning briefing includes a YOLO summary line.
+| Parameter | Current Value | Target Value | Why |
+|-----------|-------------|-------------|-----|
+| `compaction.reserveTokensFloor` | Unknown (default ~20000) | `20000` | Keep at default. Lower values risk context overflow; higher values trigger compaction too early on 200K window |
+| `compaction.softThresholdTokens` | `3000` (set in Phase 34) | `8000` | 3000 is too low per Issue #17034 — softThresholdTokens doesn't scale; at 3000 the flush triggers far too late (near window edge) leaving no room to write memories. 8000 gives ~170K tokens of working space in a 200K window |
+| `compaction.memoryFlush.enabled` | `true` | `true` (no change) | Already enabled |
+| `compaction.memoryFlush.prompt` | Unknown | `"Write any lasting notes to memory/YYYY-MM-DD.md; reply with NO_REPLY if nothing to store."` | Standard prompt per OpenClaw docs. Verify this matches current config |
+| `compaction.contextTokens` | Unknown (default) | Do not set | This is a read-only computed field, not a config. Do not touch |
+
+**Why softThresholdTokens 8000 specifically:**
+- Formula: `flush_threshold = contextWindow - reserveTokensFloor - softThresholdTokens`
+- With contextWindow=200000, reserveTokensFloor=20000, softThresholdTokens=8000: flush triggers at 172000 tokens
+- Bob's heartbeat sessions rarely reach 172K — this is why the flush rarely fires
+- **The real fix for daily logs is the `daily-memory-flush` cron (already deployed), not compaction tuning**
+- softThresholdTokens=8000 is a safety net for long DM sessions; the cron is the primary flush mechanism
+
+**Confidence for compaction values:** MEDIUM. Values are from community benchmarks (Issue #17034, VelvetShark guide). The exact optimal values depend on Bob's session length distribution, which requires observability.db analysis.
+
+**openclaw.json patch (Python3 snippet to apply on EC2):**
+
+```python
+import json, shutil, sys
+path = '/home/ubuntu/.openclaw/openclaw.json'
+shutil.copy(path, path + '.bak')
+with open(path) as f:
+    cfg = json.load(f)
+
+# Navigate to compaction section
+# Adjust path based on actual config structure
+agents = cfg.setdefault('agents', {})
+defaults = agents.setdefault('defaults', {})
+compaction = defaults.setdefault('compaction', {})
+
+# Only change softThresholdTokens — others already correct
+compaction['softThresholdTokens'] = 8000
+
+with open(path, 'w') as f:
+    json.dump(cfg, f, indent=2)
+print('Done. Verify with: grep softThresholdTokens ~/.openclaw/openclaw.json')
+```
+
+---
+
+### Config: QMD Paths in openclaw.json
+
+Verify (and if missing, add) the `memory.qmd.paths` config. This tells OpenClaw which directories to index beyond the default workspace memory files.
+
+**Target config (verify this exists in openclaw.json):**
+
+```json
+{
+  "memory": {
+    "backend": "qmd",
+    "qmd": {
+      "update": {
+        "interval": "15m"
+      },
+      "searchMode": "search",
+      "limits": {
+        "maxResults": 6,
+        "timeoutMs": 4000
+      }
+    }
+  }
+}
+```
+
+**What to check for and add if missing:**
+- `memory.qmd.update.interval` — must exist, currently `15m`, leave at `15m`
+- `memory.qmd.searchMode` — must be `"search"` (BM25+vectors), NOT `"query"` (LLM reranker — too slow for t3.small)
+- `memory.qmd.limits.timeoutMs` — recommend `4000` (4 seconds). Default may be lower; timeouts cause search to silently return empty results
+
+**Confidence:** MEDIUM. Config key names from official docs (`docs.openclaw.ai/concepts/memory`) and Issue #10042. The exact nesting path requires verifying against current openclaw.json.
+
+---
+
+### Config: Memory Flush — Isolated Cron Sessions
+
+**Critical finding:** Memory flush is silently skipped for isolated cron sessions with read-only workspace access.
+
+Per OpenClaw docs and Issue #37634: `workspaceAccess: "ro"` or `"none"` causes memoryFlush to be skipped — the agent can't write `memory/YYYY-MM-DD.md` to a read-only workspace.
+
+**What this means for Phase 34's `daily-memory-flush` cron:**
+- The `daily-memory-flush` cron was deployed with `isolated: true`
+- If it runs with default sandbox config (workspaceAccess unset or "ro"), the cron fires but memoryFlush writes are silently skipped
+- This is separate from the compaction-triggered memoryFlush — the cron sends a message asking Bob to write; if Bob's sandbox allows file writes, this works regardless of memoryFlush setting
+- Bob writes via explicit tool call (write_file), not via the compaction flush mechanism — so the cron approach works as long as the workspace is writable (which it is in the existing Docker setup with rw bind-mounts)
+
+**Action:** Verify `daily-memory-flush` cron has NOT set `workspaceAccess: "ro"`. If it's not set explicitly, it inherits from `agents.defaults.sandbox` which has rw bind-mounts, so it should work.
+
+```bash
+# Verify on EC2:
+python3 -c "
+import json
+with open('/home/ubuntu/.openclaw/openclaw.json') as f:
+    cfg = json.load(f)
+crons = cfg.get('crons', [])
+flush_cron = [c for c in crons if 'memory-flush' in c.get('id','') or 'memory-flush' in c.get('name','')]
+import pprint; pprint.pprint(flush_cron)
+"
+```
+
+---
+
+### Mission Control: Memory Health Panel
+
+**Pattern:** Identical to existing Mission Control pages. Zero new npm packages.
+
+| Component | Status | Location |
+|-----------|--------|----------|
+| `/api/memory/health` route | New | `src/app/api/memory/health/route.ts` |
+| Memory health panel | New | Added to top of `src/app/memory/page.tsx` |
+| SWR polling | Existing 30s provider | No changes to SWR config |
+| shadcn/ui Card, Badge | Already installed | Card per agent |
+| MEMORY.md file reads | Direct `fs.readFileSync` | Count lines from `~/clawd/agents/{agent}/MEMORY.md` |
+| `git log` for flush history | `child_process.execSync` | Shell out from API route |
+| Chart component | Recharts (already installed) | 7-bar sparkline for flush frequency |
+
+**Budget visualization data source:**
+
+```typescript
+// src/app/api/memory/health/route.ts
+import { execSync } from "child_process";
+import { readFileSync, existsSync } from "fs";
+
+const AGENT_WORKSPACES = {
+  main: "/home/ubuntu/clawd/agents/main",
+  landos: "/home/ubuntu/clawd/agents/landos",
+  rangeos: "/home/ubuntu/clawd/agents/rangeos",
+  ops: "/home/ubuntu/clawd/agents/ops",
+  quill: "/home/ubuntu/clawd/agents/quill",
+  sage: "/home/ubuntu/clawd/agents/sage",
+  ezra: "/home/ubuntu/clawd/agents/ezra",
+};
+
+// Line count: readFileSync + split('\n').length
+// Staleness: git log --since="7 days ago" --format="%ai" -- agents/{id}/memory/*.md
+// Flush frequency: parse git log output into 7-day histogram
+```
+
+**Key design decisions (from Phase 36 CONTEXT.md):**
+- Warning at 160 lines (80% of 200-line budget), critical at 190 lines (95%)
+- Staleness badge: 3+ days with no flush = yellow, not an error
+- All 7 agents shown; agents without MEMORY.md show gray "No Memory" card
+- Separate `/api/memory/health` endpoint from existing `/api/memory` browse endpoint
+- Sparkline: 7-bar chart, 1 bar per day, hidden on mobile
+
+**git log for flush data:**
+
+```bash
+# Command to shell out from API route (repo root = /home/ubuntu/Desktop/Projects/pops-claw or ~/clawd/)
+git -C /home/ubuntu/Desktop/Projects/pops-claw log \
+  --since="7 days ago" \
+  --format="%as" \
+  -- "agents/main/memory/*.md"
+```
+
+**Note:** The git repo is at `/Users/andykaufman/Desktop/Projects/pops-claw` (local Mac), not on EC2. Memory files are on EC2 but not git-tracked there. The health API route must read MEMORY.md line counts via filesystem, not git. For flush frequency, use `ls -lt ~/clawd/agents/main/memory/*.md` and parse timestamps, OR read modification times via `fs.statSync`.
+
+**Revised flush sparkline approach** (no git dependency on EC2):
+
+```typescript
+import { readdirSync, statSync } from "fs";
+import { join } from "path";
+
+function getFlushHistory(workspace: string): number[] {
+  // Returns array of 7 numbers (flushes per day, oldest to newest)
+  const memDir = join(workspace, "memory");
+  if (!existsSync(memDir)) return [0, 0, 0, 0, 0, 0, 0];
+
+  const now = Date.now();
+  const files = readdirSync(memDir).filter(f => f.match(/^\d{4}-\d{2}-\d{2}\.md$/));
+  const counts = new Array(7).fill(0);
+
+  for (const file of files) {
+    const stat = statSync(join(memDir, file));
+    const daysAgo = Math.floor((now - stat.mtimeMs) / 86400000);
+    if (daysAgo < 7) counts[6 - daysAgo]++;
+  }
+  return counts;
+}
+```
+
+**Confidence:** HIGH. Pattern is established across 7 existing Mission Control pages. The only novel element is shelling out for file stats, which is standard Node.js.
 
 ---
 
@@ -182,15 +293,12 @@ CREATE INDEX idx_build_files_build ON build_files(build_id);
 
 | Category | Recommended | Alternative | Why Not |
 |----------|-------------|-------------|---------|
-| Build runtime | Python 3 (stdlib) in existing sandbox | Install Node.js in sandbox via setupCommand | Adds startup latency, requires `readOnlyRoot: false` + `network: bridge` (already true). Python stdlib covers 90% of prototype needs. If Node is genuinely needed for a specific build, Bob can install it on-demand |
-| Build runtime | Existing sandbox image | Build custom Docker image with full dev tooling | Custom images require maintenance, disk space (1-2GB+), and rebuilds on updates. The existing image plus on-demand installs is sufficient for prototyping |
-| Database | yolo.db (SQLite) | Extend coordination.db with yolo tables | coordination.db is for agent coordination, not feature data. Each domain gets its own DB (content.db, email.db, etc.) -- yolo.db follows this pattern |
-| Database | SQLite via CLI | Python sqlite3 module | Bob already uses sqlite3 CLI for all other databases. Consistency > convenience |
-| Artifact storage | Filesystem (~/clawd/yolo-dev/) | Git repo per project | Over-engineering for throwaway prototypes. Git adds complexity Bob would need to manage. If a project is worth keeping, Andy can `git init` manually |
-| Dashboard | New /yolo page in Mission Control | Separate yolo dashboard | Defeats the "single pane of glass" principle. Mission Control is where system state lives |
-| Agent | Bob (main agent) | New "Yolo" agent | Adding an 8th agent increases rate limit pressure, adds heartbeat overhead, needs Slack binding. Bob already has all the tools and context. A skill is sufficient |
-| Trigger | Nightly cron (1 AM PT) | On-demand via Slack DM | Cron ensures builds happen automatically (the whole point of "overnight"). On-demand can be added later as a secondary trigger via YOLO_DEV.md protocol doc (same pattern as CONTENT_TRIGGERS.md) |
-| Build framework | No framework (raw files) | Cookiecutter / copier templates | Templates constrain creativity. YOLO Dev is explicitly about wild ideas -- Bob should scaffold from scratch each time, informed by the skill's guidelines |
+| QMD collection bootstrap | Manual `qmd update && qmd embed` CLI | Restart gateway and wait for auto-bootstrap | Auto-bootstrap silently fails due to collection-name conflicts (Issue #23613). Manual commands give immediate feedback |
+| Compaction flush | `softThresholdTokens: 8000` | Lower (3000) or higher (20000) | 3000 is current setting that's too low; 20000 risks never triggering on short sessions. 8000 is community consensus for 200K window |
+| Memory flush for daily logs | `daily-memory-flush` cron (already deployed) | Rely on compaction-triggered flush | Compaction flush only fires near context limit — heartbeat sessions never get there. Cron is the reliable mechanism |
+| Flash sparkline data source | `fs.statSync` on memory/ files | `git log` | EC2 does not have the pops-claw git repo checked out — git log would fail |
+| searchMode | `"search"` (BM25+vectors) | `"query"` (LLM reranker) | t3.small CPU cannot handle LLM reranker latency (3-10s per query). `"search"` is fast (<200ms) |
+| Memory health data | API route reads disk directly | Add new SQLite table for memory stats | No new DB needed — MEMORY.md is a file, not a database record. Direct file reads are simpler and more accurate |
 
 ---
 
@@ -198,182 +306,130 @@ CREATE INDEX idx_build_files_build ON build_files(build_id);
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| Node.js in sandbox image | Adds 100MB+ to image, startup cost. Python stdlib covers prototyping needs | Python 3 (already there). For HTML/JS projects, Bob writes static files and uses `python3 -m http.server` |
-| pip packages pre-installed | Most prototypes should use stdlib. Pre-installed packages rot and bloat the image | On-demand `python3 -m ensurepip && pip install X` when genuinely needed (rare) |
-| New OpenClaw agent | Rate limit pressure, heartbeat overhead, Slack channel setup | Bob with a `yolo-dev` skill. One agent, one skill, one cron |
-| GitHub integration | Auto-pushing prototypes to GitHub adds OAuth setup, repo management, PR creation | Filesystem only. If a prototype is worth sharing, Andy pushes manually |
-| CI/CD for prototypes | Testing infrastructure for throwaway code is over-engineering | Bob tests his own code by running it. The skill includes a "testing" phase where Bob executes the prototype |
-| Custom Docker image | Maintenance burden, disk space, rebuild-on-update | Existing `clawdbot-sandbox:with-browser` image. It has python3, bash, curl, git |
-| Deployment/hosting | Serving prototypes publicly adds security surface and infrastructure | Prototypes run locally. If demo-able, `python3 -m http.server 8080` inside sandbox, accessible via SSH tunnel |
-| Build queuing system | Redis/RabbitMQ for build queues is enterprise-grade overkill | One build per cron run. Sequential. If it fails, it fails. Retry next night |
-| @tanstack/react-table | Interactive sortable/filterable tables for build history | shadcn Table component (static). Build history is at most dozens of rows. No interactivity needed |
-| WebSocket for build streaming | Real-time build log streaming to dashboard | SWR polling. Builds happen overnight when Andy is asleep. No one is watching live |
+| `memory.qmd.searchMode: "query"` | LLM reranker kills t3.small CPU (10-30s per query, t3.small has 2 vCPU). Community confirmed "query mode unusable on constrained hardware" | `"search"` — BM25+vectors, fast on any hardware |
+| New QMD models (reranker) | embeddinggemma-300M is already downloaded. Adding qmd-query-expansion-1.7B (already installed per MEMORY.md) via "query" mode adds latency, not recall quality | Leave models as-is. `"search"` mode uses embeddinggemma-300M which is already present |
+| Per-agent QMD XDG dirs | OpenClaw auto-manages these at `~/.openclaw/agents/<agentId>/qmd/`. Manual intervention causes drift | Let OpenClaw manage. Only intervene when collections are provably empty or corrupt |
+| `memory.qmd.paths` custom entries | Adding custom paths to QMD config risks triggering the "collection already occupies same path" bug (Issue #23613) | Let OpenClaw manage default paths (memory-root, memory-alt, memory-dir). Seed content into these paths via MEMORY.md and memory/ files |
+| WebSocket for memory health panel | Single user, overnight use case | SWR 30s polling — same as all other Mission Control panels |
+| Per-agent memory databases | QMD XDG isolation already provides per-agent scope | Shared QMD binary, per-agent XDG home. No new databases |
+| `openclaw memory search` CLI for verification | OpenClaw CLI memory search is the thing that's broken. Don't verify the fix using the broken tool | Use `qmd search "test" --collection memory-dir-main` directly to verify QMD indexing, then test `openclaw memory search` after |
 
 ---
 
-## Integration Points with Existing System
+## Version Compatibility
 
-### yolo.db Access Pattern
+| Component | Version | Notes |
+|-----------|---------|-------|
+| OpenClaw | v2026.3.2 | Has collection-name conflict recovery fix (Issue #23613 workaround). Has duplicate-document recovery fix. **Regression in v2026.3.1 (aggressive compaction loop with memoryFlush) — check if this is still present in v2026.3.2** |
+| QMD | v1.1.0 | Installed at `~/.bun/bin/qmd`. `qmd collection add`, `qmd update`, `qmd embed` are valid v1.1.0 commands |
+| Bun | v1.3.10 | Required by QMD. Working. No upgrade needed |
+| embeddinggemma-300M | Current | Already in `~/.cache/qmd/models/`. Used for vector embeddings in `"search"` mode |
+| qmd-query-expansion-1.7B | Current | Already downloaded per MEMORY.md. Needed for `"query"` mode LLM reranking. NOT used in `"search"` mode |
+| Next.js | 14.2.15 | Mission Control. No upgrade needed for health panel |
+| better-sqlite3 | 12.6.2 | Not used for memory health panel (reads files, not SQLite) |
+| Node.js `fs` + `child_process` | Built-in | Used by health API route for file reads and timestamp parsing |
 
-**Writer:** Bob (main agent) via sqlite3 CLI inside Docker sandbox
-- Path inside sandbox: `/workspace/yolo-dev/yolo.db`
-- Bob creates the DB + schema on first build (idempotent CREATE TABLE IF NOT EXISTS)
-
-**Reader:** Mission Control via better-sqlite3
-- Path on host: `/home/ubuntu/clawd/yolo-dev/yolo.db`
-- Read-only, WAL mode, same singleton pattern as 5 existing databases
-
-**Bind-mount:** yolo-dev directory needs to be bind-mounted into the sandbox.
-- Current bind-mounts include `~/clawd/agents/main/` -> `/workspace/`
-- Since yolo-dev lives at `~/clawd/yolo-dev/` (NOT inside `agents/main/`), it needs its own bind-mount entry in `openclaw.json`:
-
-```json
-{
-  "agents": {
-    "defaults": {
-      "sandbox": {
-        "docker": {
-          "binds": [
-            "/home/ubuntu/clawd/yolo-dev:/workspace/yolo-dev:rw"
-          ]
-        }
-      }
-    }
-  }
-}
-```
-
-This adds the yolo-dev directory as a writable mount inside the sandbox at `/workspace/yolo-dev/`. Bob can create project directories, write code files, and update yolo.db from inside the sandbox.
-
-### Morning Briefing Integration
-
-Add a YOLO Dev section to the morning briefing reference doc (MORNING_BRIEFING.md or equivalent). The section queries yolo.db for the most recent build:
-
-```sql
-SELECT project_name, status, description, build_duration_seconds,
-       files_created, lines_of_code, error_message
-FROM builds
-ORDER BY created_at DESC
-LIMIT 1;
-```
-
-Displays as:
-```
-## 11. YOLO Dev
-Last night's build: **wifi-signal-mapper** (completed)
-"Maps WiFi signal strength across rooms using ping latency"
-Duration: 23 min | Files: 4 | LOC: 187
-```
-
-### Sandbox Environment Constraints
-
-| Constraint | Impact on YOLO Dev | Mitigation |
-|------------|-------------------|------------|
-| 2GB RAM (t3.small) | Python prototypes must be lightweight | Skill instructs: no ML, no large datasets, no heavy computation |
-| 40GB EBS disk | Build artifacts accumulate | Auto-cleanup: delete builds older than 30 days, keep last 20 builds |
-| Docker bridge networking | Prototypes CAN make HTTP requests | Useful for API-consuming prototypes. Security acceptable (sandbox still isolated from host) |
-| No GPU | No ML/AI training workloads | Skill explicitly excludes ML prototypes. Claude API calls from prototypes NOT supported (no API key in sandbox... and shouldn't be) |
-| readOnlyRoot may be true | Can't pip install if root FS is readonly | If needed, set `readOnlyRoot: false` in agent-specific sandbox override. Currently the sandbox uses setupCommand which implies writable root |
-
-### Cleanup Strategy
-
-Build artifacts at `~/clawd/yolo-dev/` will accumulate. Add a cleanup cron or integrate into existing `prune-sessions.sh` pattern:
-
-```bash
-# ~/scripts/prune-yolo-builds.sh
-# Keep last 20 builds, delete the rest
-cd ~/clawd/yolo-dev
-ls -dt */ | tail -n +21 | xargs rm -rf
-# Also purge yolo.db entries for deleted builds
-sqlite3 ~/clawd/yolo-dev/yolo.db "DELETE FROM build_files WHERE build_id NOT IN (SELECT id FROM builds ORDER BY created_at DESC LIMIT 20)"
-sqlite3 ~/clawd/yolo-dev/yolo.db "DELETE FROM build_logs WHERE build_id NOT IN (SELECT id FROM builds ORDER BY created_at DESC LIMIT 20)"
-sqlite3 ~/clawd/yolo-dev/yolo.db "DELETE FROM builds WHERE id NOT IN (SELECT id FROM builds ORDER BY created_at DESC LIMIT 20)"
-```
+**Known v2026.3.1 regression (verify fixed in v2026.3.2):**
+Issue #32106: `softThresholdTokens` changes in v2026.3.1 caused aggressive compaction loops when memoryFlush was enabled. The current v2026.3.2 deployment should have this fixed, but after changing `softThresholdTokens`, monitor for unexpected compaction storms in `journalctl --user -u openclaw-gateway.service`.
 
 ---
 
 ## Installation / Setup Summary
 
 ```bash
-# On EC2 (100.72.143.9)
+# On EC2 (100.72.143.9) via SSH
 
-# 1. Create yolo-dev directory
-mkdir -p ~/clawd/yolo-dev
+# === STEP 1: QMD Collection Bootstrap ===
+# Check current state
+~/.bun/bin/qmd collection list --json
 
-# 2. Add bind-mount to openclaw.json (via jq or python3)
-# Add "/home/ubuntu/clawd/yolo-dev:/workspace/yolo-dev:rw" to
-# agents.defaults.sandbox.docker.binds array
+# Force re-index existing files
+~/.bun/bin/qmd update && ~/.bun/bin/qmd embed
 
-# 3. Deploy yolo-dev skill
-mkdir -p ~/.openclaw/skills/yolo-dev
-# Write SKILL.md to ~/.openclaw/skills/yolo-dev/SKILL.md
+# Verify documents indexed
+~/.bun/bin/qmd collection list --json
+# Confirm non-zero doc counts for memory-root-main, memory-alt-main, memory-dir-main
 
-# 4. Deploy YOLO_DEV.md reference doc
-# Write to ~/clawd/agents/main/YOLO_DEV.md
+# Test search end-to-end
+~/.bun/bin/qmd search "Andy" --collection memory-dir-main
 
-# 5. Add yolo-build cron to openclaw.json
-# Schedule: "0 8 * * *" (08:00 UTC = 1 AM PT)
-# Agent: main, Model: sonnet, Isolated: true
+# === STEP 2: Compaction Config Tune ===
+# Verify current softThresholdTokens
+grep softThresholdTokens ~/.openclaw/openclaw.json
+# If still 3000, change to 8000:
+python3 -c "
+import json, shutil
+path = '/home/ubuntu/.openclaw/openclaw.json'
+shutil.copy(path, path + '.bak')
+cfg = json.load(open(path))
+# Navigate to compaction config — path varies by config structure
+# Edit the softThresholdTokens value
+# cfg['agents']['defaults']['compaction']['softThresholdTokens'] = 8000
+# Save
+open(path, 'w').write(json.dumps(cfg, indent=2))
+"
 
-# 6. Restart gateway (batch with any other config changes)
+# === STEP 3: MEMORY.md Seeding ===
+# Write curated long-term memory for Bob (see Phase plan for content)
+# Target: ~/clawd/agents/main/MEMORY.md with 50-80 lines of curated facts
+# Verify word count is sane
+wc -l ~/clawd/agents/main/MEMORY.md
+
+# === STEP 4: Restart Gateway (batch all config changes) ===
 systemctl --user restart openclaw-gateway.service
+# Wait for healthy status
+journalctl --user -u openclaw-gateway.service --since '1 min ago' | tail -20
 
-# 7. DM Bob to re-establish session
+# === STEP 5: Verify Memory Search Works ===
+# After restart, test via openclaw CLI
+/home/ubuntu/.npm-global/bin/openclaw memory search "Andy preferences"
+# Should return results from MEMORY.md
 
-# Mission Control (also on EC2, ~/clawd/mission-control/):
-
-# 8. Update db-paths.ts to include yolo
-# 9. Create queries/yolo.ts
-# 10. Create /api/yolo/builds route
-# 11. Create /yolo page
-# 12. Add /yolo to nav
-# 13. Rebuild: cd ~/clawd/mission-control && npm run build
-# 14. Restart: systemctl --user restart mission-control.service
+# === STEP 6: Mission Control Health Panel ===
+# Edit on EC2: ~/clawd/mission-control/
+# New file: src/app/api/memory/health/route.ts
+# Modify: src/app/memory/page.tsx (add panel at top)
+cd ~/clawd/mission-control
+npm run build
+systemctl --user restart mission-control.service
 ```
 
 **Packages to install:** None.
 **Packages to remove:** None.
 **Docker images to build:** None.
 **New agents to configure:** None.
-
----
-
-## Version Compatibility
-
-| Package | Version | Already Installed | Notes |
-|---------|---------|-------------------|-------|
-| better-sqlite3 | 12.6.2 | Yes | Opens yolo.db same as 5 existing DBs |
-| SWR | 2.3.3 | Yes | Polls /api/yolo/builds |
-| Next.js | 14.2.15 | Yes | /yolo page route |
-| shadcn/ui | Latest | Yes | Card, Badge, Table for build display |
-| Recharts | 3.7.0 | Yes | Build frequency chart |
-| date-fns | 3.6.0 | Yes | "2 days ago" timestamps |
-| Python 3 | 3.11 | Yes (in sandbox) | Prototype runtime |
-| sqlite3 CLI | Debian 12 compat | Yes (bind-mounted) | yolo.db writes from sandbox |
-| cron-parser | 5.x | Yes | Calendar page shows yolo-build cron |
+**New databases to create:** None.
+**New cron jobs to add:** None (daily-memory-flush cron already deployed in Phase 34).
 
 ---
 
 ## Sources
 
 ### HIGH confidence
-- [OpenClaw Sandboxing Docs](https://docs.openclaw.ai/gateway/sandboxing) -- sandbox configuration, bind-mounts, default tools, setupCommand
-- [OpenClaw Agent Workspace Docs](https://docs.openclaw.ai/concepts/agent-workspace) -- workspace file access, writable paths
-- Phase 6 Summary (project internal) -- sqlite3 glibc compatibility fix, bind-mount patterns
-- Phase 29 Research (project internal) -- better-sqlite3 singleton pattern, DB_PATHS registry, WAL mode
-- PROJECT.md (project internal) -- existing 5 databases, 13 skills, 20 crons, sandbox architecture
-- MEMORY.md (project internal) -- sandbox details, bind-mount patterns, Docker image `clawdbot-sandbox:with-browser`
+- [OpenClaw Memory Docs](https://docs.openclaw.ai/concepts/memory) — QMD backend config keys, memoryFlush behavior, workspaceAccess constraint, default collection names
+- [OpenClaw Session Management Docs](https://docs.openclaw.ai/reference/session-management-compaction) — reserveTokensFloor, softThresholdTokens, flush threshold formula
+- [QMD GitHub: tobi/qmd](https://github.com/tobi/qmd) — `qmd collection add`, `qmd update`, `qmd embed` CLI commands verified
+- PROJECT.md (internal) — confirmed QMD v1.1.0 at `~/.bun/bin/qmd`, searchMode=search, update interval=15m, embeddinggemma-300M present, 0 documents indexed
+- MEMORY.md (internal) — confirmed QMD backend switch date, collection counts, memory file counts per agent
 
 ### MEDIUM confidence
-- [Docker Blog: OpenClaw Sandbox Security](https://www.docker.com/blog/run-openclaw-securely-in-docker-sandboxes/) -- sandbox image contents, security considerations
-- [OpenClaw GitHub: Dockerfile.sandbox](https://github.com/openclaw/openclaw/blob/main/Dockerfile.sandbox) -- default sandbox image includes python3, bash, curl, git, jq, ripgrep
-- [Ralph Wiggum Pattern for Autonomous Builds](https://beyond.addy.ie/2026-trends/) -- autonomous loop patterns, guardrails, iteration limits
+- [OpenClaw Issue #11308](https://github.com/openclaw/openclaw/issues/11308) — QMD systemic issues, collection management bugs
+- [OpenClaw Issue #23613](https://github.com/openclaw/openclaw/issues/23613) — "Collection not found: memory-root-main" bug and workaround
+- [OpenClaw Issue #17034](https://github.com/openclaw/openclaw/issues/17034) — softThresholdTokens doesn't scale with context window size; community values
+- [OpenClaw Issue #32106](https://github.com/openclaw/openclaw/issues/32106) — v2026.3.1 aggressive compaction loop regression with memoryFlush
+- [OpenClaw Issue #37634](https://github.com/openclaw/openclaw/issues/37634) — workspaceAccess: "none" keeps workspace off-limits, memoryFlush skipped
+- [OpenClaw Discussion #25633](https://github.com/openclaw/openclaw/discussions/25633) — "Memory is broken by default" community discussion with config recommendations
+- [VelvetShark OpenClaw Memory Masterclass](https://velvetshark.com/openclaw-memory-masterclass) — softThresholdTokens=8000 for 200K window, community validated
+- [Jose Casanova: Fix OpenClaw Memory Search with QMD](https://www.josecasanova.com/blog/openclaw-qmd-memory) — bootstrap command sequence verified
+- Phase 34 VERIFICATION.md (internal) — confirmed softThresholdTokens=3000 current, daily-memory-flush cron deployed
 
-### LOW confidence
-- None. All recommendations are based on existing validated patterns in this project.
+### LOW confidence (WebSearch only, needs EC2 verification)
+- Exact openclaw.json nesting path for `compaction.softThresholdTokens` — needs `cat ~/.openclaw/openclaw.json | python3 -m json.tool` to confirm
+- Whether v2026.3.1 compaction regression is present in v2026.3.2 — needs monitoring after gateway restart
+- Whether `daily-memory-flush` cron currently has `workspaceAccess` explicitly set — needs inspection
 
 ---
 
-*Stack research for: pops-claw v2.7 YOLO Dev -- overnight autonomous builder*
-*Researched: 2026-02-24*
-*Replaces: previous STACK.md covering v2.5 Mission Control Dashboard stack*
+*Stack research for: pops-claw v2.9 Memory System Overhaul — fixing broken QMD collections, compaction config, and memory flush*
+*Researched: 2026-03-08*
+*Replaces: previous STACK.md covering v2.7 YOLO Dev autonomous builder*
