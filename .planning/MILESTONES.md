@@ -1,5 +1,28 @@
 # Milestones
 
+## v2.9 Memory System Overhaul (Shipped: 2026-03-08)
+
+**Phases:** 51-54 (4 phases, 8 plans, 12 requirements)
+**Timeline:** 1 day (Mar 8, 2026)
+**Commits:** 5 | Files: 11 | Lines: +460 / -64
+**Requirements:** 12/12 satisfied | Audit: PASSED (commit-verified)
+**Git range:** docs(state) → docs(v2.9)
+**New tools:** QMD v1.1.0 (memory search backend), Bun v1.3.10
+
+**Delivered:** Fixed Bob's broken memory system end-to-end — tuned compaction thresholds, bootstrapped QMD vector search, seeded curated knowledge in MEMORY.md, added retrieval discipline to agents, rescheduled daily flush for full-day capture, and deployed automated health monitoring with Slack DM alerts.
+
+**Key accomplishments:**
+1. Tuned compaction config (softThreshold 8K, reserve 40K) and bootstrapped QMD collections — 21 files indexed, search returning 62-79% relevance
+2. Created MEMORY.md (80 lines curated knowledge) at correct path, indexed by QMD memory-root-main collection
+3. Redesigned flush prompt with structured sections (Session Summary, DB State Snapshot, Decisions, Open Items) and embedded sqlite3 queries for all 6 databases
+4. Added retrieval protocol to AGENTS.md — 4 trigger categories (preferences, history, config, AirSpace) with consequence clause
+5. Rescheduled daily memory flush from 07:00 UTC to 23:00 UTC (end-of-day PT) for full activity capture
+6. Built automated memory health check (MEMORY.md + daily logs + QMD search) with dual alerting: system crontab + openclaw DM
+
+**Archive:** [milestones/v2.9-ROADMAP.md](milestones/v2.9-ROADMAP.md) | [milestones/v2.9-REQUIREMENTS.md](milestones/v2.9-REQUIREMENTS.md)
+
+---
+
 ## v2.8 Bug Fixes & Dashboard Polish (Shipped: 2026-03-03)
 
 **Phases:** 43-48 (6 phases, 14 plans, 13 requirements)

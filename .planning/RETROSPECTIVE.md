@@ -90,6 +90,49 @@
 
 ---
 
+## Milestone: v2.9 — Memory System Overhaul
+
+**Shipped:** 2026-03-08
+**Phases:** 4 | **Plans:** 8
+
+### What Was Built
+- Compaction config tuning (softThreshold 8K, reserve 40K) with QMD collection bootstrapping (21 files indexed)
+- MEMORY.md (80 lines curated knowledge) deployed to Bob's workspace, indexed by QMD memory-root-main
+- Redesigned flush prompt with structured sections + embedded sqlite3 queries for all 6 databases
+- Retrieval protocol in AGENTS.md (4 trigger categories, example queries, consequence clause)
+- Daily memory flush rescheduled from 07:00 UTC to 23:00 UTC (end-of-day capture)
+- Automated health check script + dual alerting (system crontab + openclaw DM)
+
+### What Worked
+- **Single-day milestone delivery** — fastest milestone yet (8 plans in 1 day), because all EC2 operations followed established SSH+jq patterns
+- **Fix-order dependency chain** — config → content → behavior → monitoring structure meant each phase naturally built on the previous one
+- **Hot-loadable changes** — only Phase 51 required a gateway restart; Phases 52-54 were all hot-deployable (SCP files, edit cron, add script)
+- **Commit-verified audit** — requirements verified inline during execution, no separate audit pass needed
+
+### What Was Inefficient
+- **Phases 52-54 missing SUMMARY.md** — work was done and committed but summaries not written during execution; had to backfill during milestone completion
+- **SRCH-02 scope mismatch** — requirement specified hybrid search weights at openclaw.json level, but OpenClaw v2026.3.2 doesn't expose this config; marked N/A instead of revising requirement earlier
+- **HLTH-02 SC3 pending** — 24h no-false-positive verification couldn't complete same day; accepted as known gap
+
+### Patterns Established
+- **QMD CLI env var pattern** — `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` must point to agent-specific paths for correct index access
+- **Structured flush prompt** — embedded SQL queries in compaction prompt template for concrete daily summaries
+- **Protocol doc for agent behavior** — retrieval protocol in AGENTS.md follows same pattern as CONTENT_TRIGGERS.md and YOLO_BUILD.md
+- **Dual alerting** — system crontab for reliability + openclaw cron for user notification (5-min stagger)
+
+### Key Lessons
+1. **Write SUMMARY.md during execution** — this is the third consecutive milestone (v2.7, v2.8, v2.9) where summaries were backfilled; must become habit
+2. **Hot-loadable design saves time** — batching the single restart into Phase 51 and making everything else hot-deployable was a significant efficiency win
+3. **Config-focused milestones are fast** — no new code written, just config tuning and file deployment; 1-day delivery vs typical 2-5 days
+4. **Requirement scope should match platform capabilities** — SRCH-02's hybrid weights couldn't be configured at the level specified; requirements should be validated against platform docs before committing
+
+### Cost Observations
+- Model mix: ~60% opus (planning/verification), ~40% sonnet (execution)
+- Sessions: 2 sessions in 1 day
+- Notable: Zero new code written — entirely config, scripts, and protocol docs
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -104,6 +147,7 @@
 | v2.6 | 1 | 4 | 2 days | Pipeline hardening, debugging |
 | v2.7 | 5 | 12 | 3 days | Autonomous features, pattern reuse |
 | v2.8 | 6 | 14 | 5 days | Bug fixes, dashboard polish, audit gap closure |
+| v2.9 | 4 | 8 | 1 day | Memory system overhaul, config-only milestone |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -111,4 +155,6 @@
 2. **Explicit bind-mounts in openclaw.json** required for any sandbox file access (verified v2.0 gh/sqlite3 + v2.6 content.db + v2.7 yolo-dev)
 3. **Pattern reuse compounds** — each milestone is faster because conventions carry forward (SWR, API routes, db-paths, channel:ID format)
 4. **Milestone audits catch real gaps** — v2.7 surfaced Phase 41 verification debt; v2.8 surfaced 4 unsatisfied reqs + 3 missing verification docs
-5. **Write verification artifacts during execution** — backfilling is possible but wasteful (verified v2.8 Phase 48 backfill)
+5. **Write verification artifacts during execution** — backfilling is possible but wasteful (verified v2.8 Phase 48 backfill, v2.9 summary backfill)
+6. **Config-only milestones are fast** — no new code = single-day delivery (verified v2.9: 8 plans in 1 day)
+7. **Hot-loadable design reduces restart risk** — batch restarts into one phase, make everything else deployable without disruption (verified v2.9 Phase 51)

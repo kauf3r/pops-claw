@@ -2,11 +2,11 @@
 
 ## What This Is
 
-A proactive AI companion (Bob) running on OpenClaw v2026.2.17, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, sends/receives email autonomously via Resend API, and builds working prototypes overnight via YOLO Dev — all proactively, before being asked. Mission Control Dashboard provides a web-based single pane of glass for monitoring the entire system — live database status, agent health with token usage and cache metrics, content pipeline, email metrics, YOLO build history with detail pages and trend charts, CLI tool health, memory browsing, office visualization, and analytics charts, all accessible directly via Tailscale.
+A proactive AI companion (Bob) running on OpenClaw v2026.3.2, deployed on AWS EC2 with Tailscale-only access. Bob delivers daily briefings with health/calendar/email/weather/tasks/devices/GitHub data, controls smart home devices, reviews PRs, tracks expenses, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, sends/receives email autonomously via Resend API, and builds working prototypes overnight via YOLO Dev — all proactively, before being asked. Memory system powered by QMD (vector + BM25 hybrid search) with curated MEMORY.md, structured daily flush, retrieval protocol, and automated health monitoring. Mission Control Dashboard provides a web-based single pane of glass for monitoring the entire system — live database status, agent health with token usage and cache metrics, content pipeline, email metrics, YOLO build history with detail pages and trend charts, CLI tool health, memory browsing, office visualization, and analytics charts, all accessible directly via Tailscale.
 
 ## Core Value
 
-Bob delivers a genuinely useful morning briefing, knows your health data, manages home devices, reviews code, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, communicates via email with a verified domain, builds working prototypes overnight with detailed dashboards and trend analytics, and is monitored via Mission Control Dashboard — all for ~$0 incremental cost on existing Claude Pro 200.
+Bob delivers a genuinely useful morning briefing, knows your health data, manages home devices, reviews code, coordinates a 7-agent multi-agent system, runs an autonomous content marketing pipeline, communicates via email with a verified domain, builds working prototypes overnight with detailed dashboards and trend analytics, remembers context across sessions via QMD-backed memory with health monitoring, and is monitored via Mission Control Dashboard — all for ~$0 incremental cost on existing Claude Pro 200.
 
 ## Requirements
 
@@ -77,19 +77,16 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - ✓ Build artifact cleanup — 30-day retention with score >= 4 protection, daily crontab — v2.8
 - ✓ Iframe preview for HTML YOLO builds — sandboxed, with "Open in new tab" — v2.8
 
+- ✓ Compaction thresholds tuned (softThreshold 8K, reserve 40K) and QMD collections bootstrapped (21 files indexed, 62-79% search relevance) — v2.9
+- ✓ MEMORY.md (80 lines curated knowledge) deployed and indexed by QMD memory-root-main collection — v2.9
+- ✓ Flush prompt redesigned with structured sections (Session Summary, DB State Snapshot, Decisions, Open Items) + embedded sqlite3 queries — v2.9
+- ✓ Retrieval protocol added to AGENTS.md (4 trigger categories: preferences, history, config, AirSpace) — v2.9
+- ✓ Daily memory flush rescheduled to 23:00 UTC (end-of-day PT) for full activity capture — v2.9
+- ✓ Automated memory health check with dual alerting (system crontab 08:00 UTC + openclaw DM 08:05 UTC) — v2.9
+
 ### Active
 
-## Current Milestone: v2.9 Memory System Overhaul
-
-**Goal:** Fix Bob's broken memory system — compaction config, QMD bootstrapping, retrieval discipline, daily logs, and memory health monitoring.
-
-**Target features:**
-- Tune compaction config (reserveTokensFloor, softThresholdTokens, contextTokens)
-- Bootstrap QMD collections and verify indexing
-- Seed MEMORY.md with curated long-term knowledge
-- Add retrieval protocol to AGENTS.md ("search memory before acting")
-- Fix memory flush so daily logs actually get written
-- Add memory health monitoring to verify the system works
+(No active requirements — next milestone not yet defined)
 
 ### Out of Scope
 
@@ -102,9 +99,9 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ## Context
 
-**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) + **v2.4** (4 days) + **v2.5** (2 days) + **v2.6** (2 days) + **v2.7** (3 days) + **v2.8** (5 days) = full proactive companion + content pipeline + email + security + Mission Control Dashboard + content pipeline hardening + YOLO Dev + CLI tools + bug fixes + dashboard polish.
+**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) + **v2.4** (4 days) + **v2.5** (2 days) + **v2.6** (2 days) + **v2.7** (3 days) + **v2.8** (5 days) + **v2.9** (1 day) = full proactive companion + content pipeline + email + security + Mission Control Dashboard + content pipeline hardening + YOLO Dev + bug fixes + dashboard polish + memory system overhaul.
 
-**Tech stack:** OpenClaw v2026.2.17, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db + observability.db + yolo.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean). Mission Control: Next.js 14 + Tailwind + better-sqlite3 at ~/clawd/mission-control/.
+**Tech stack:** OpenClaw v2026.3.2, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db + observability.db + yolo.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean), QMD v1.1.0 (memory search backend, Bun runtime). Mission Control: Next.js 14 + Tailwind + better-sqlite3 at ~/clawd/mission-control/.
 
 **Infrastructure:**
 - AWS EC2 Ubuntu, Tailscale IP: 100.72.143.9
@@ -115,9 +112,9 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - Service: openclaw-gateway.service (systemd user)
 - Gateway remote URL: `gateway.remote.url: ws://100.72.143.9:18789` in openclaw.json — required because gateway binds to tailnet IP (not loopback), so CLI commands fail with 1006 abnormal closure without it. Added Phase 20 when inbound email required tailnet bind.
 
-**Skills deployed (13):** oura, govee, coding-assistant, receipt-scanner, content-strategy, seo-writer, content-editor, wordpress-publisher, social-promoter, resend-email, clawdstrike, secureclaw, save-voice-notes
+**Skills deployed (18):** oura, govee, coding-assistant, receipt-scanner, content-strategy, seo-writer, content-editor, wordpress-publisher, social-promoter, resend-email, clawdstrike, secureclaw, save-voice-notes, agentmail, agent-browser, youtube-analyzer + 2 more ClawhHub
 
-**Cron jobs (24 total):** morning-briefing, evening-recap, weekly-review, meeting-prep-scan, anomaly-check (2x), daily-standup, monthly-expense-summary, 4 heartbeats, topic-research, writing-check, review-check, publish-check, pipeline-report, stuck-check, airspace-email-monitor, email-catchup, yolo-dev-overnight, voice-notes-processor, tools-health-check, session-prune
+**Cron jobs (25 total):** morning-briefing, evening-recap, weekly-review, meeting-prep-scan, anomaly-check (2x), daily-standup, monthly-expense-summary, 4 heartbeats, topic-research, writing-check, review-check, publish-check, pipeline-report, stuck-check, airspace-email-monitor, email-catchup, yolo-dev-overnight, voice-notes-processor, tools-health-check, session-prune, daily-memory-flush, memory-health-alert
 
 **Databases (6):** health.db, coordination.db, content.db, email.db, observability.db, yolo.db
 
@@ -196,6 +193,14 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Score >= 4 retention threshold for YOLO cleanup | 4=solid, 5=impressive per YOLO_BUILD.md | ✓ Good — preserves quality builds |
 | Delete disk dirs, keep DB rows for cleanup | Trend charts need DB rows intact | ✓ Good — charts unaffected by cleanup |
 | Verification backfill via live SSH evidence | More reliable than inferring from plan docs | ✓ Good — audit-quality evidence |
+| QMD over builtin SQLite for memory search | Vector + BM25 hybrid, better relevance | ✓ Good — 62-79% relevance on test queries |
+| softThresholdTokens 8K, reserveTokensFloor 40K | Flush during sessions, preserve context | ✓ Good — config loaded, 0 loop errors |
+| MEMORY.md lean start (80 lines) | Test organic growth via flush before expanding | ✓ Good — indexed by QMD |
+| Flush prompt with embedded DB queries | Concrete numbers, not vibes | ✓ Good — structured daily summaries |
+| Retrieval protocol in AGENTS.md | Standing instruction, not skill trigger | ✓ Good — consistent with protocol doc pattern |
+| Daily flush at 23:00 UTC (end of day PT) | Capture full day's activity | ✓ Good — replaces midnight flush |
+| Dual alerting (crontab + openclaw DM) | System-level reliability + user notification | ✓ Good — 5-min gap for completion |
+| Gateway restart batched in Phase 51 only | Minimize disruption, other phases hot-loadable | ✓ Good — single restart for all config |
 
 ---
-*Last updated: 2026-03-08 after v2.9 milestone start*
+*Last updated: 2026-03-08 after v2.9 milestone complete*
