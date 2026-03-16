@@ -1,291 +1,342 @@
-# Stack Research: v2.9 Memory System Overhaul
+# Stack Research: v2.10 Self-Improvement Companion
 
-**Project:** pops-claw — Bob's Broken Memory System Fix
-**Researched:** 2026-03-08
-**Confidence:** HIGH (existing deployment validated), MEDIUM (QMD collection bootstrapping — known-buggy area), LOW (specific openclaw.json config values — version-specific behavior)
+**Project:** pops-claw — Bob as Self-Improvement Companion
+**Researched:** 2026-03-16
+**Confidence:** HIGH (existing patterns), MEDIUM (ClawhHub skills — need install/test), LOW (OpenClaw v2026.3.13 upgrade — behavioral changes possible)
 
 ---
 
 ## Executive Summary
 
-v2.9 adds zero new infrastructure. The full tech stack already exists on EC2. The work is:
-1. Config edits to `~/.openclaw/openclaw.json` (compaction tuning + QMD paths)
-2. CLI commands run on EC2 to bootstrap QMD collections (`qmd collection add`, `qmd update`, `qmd embed`)
-3. Markdown file writes to agent workspaces (MEMORY.md seeding, AGENTS.md retrieval protocol)
-4. A new API route + panel in Mission Control for memory health visibility
+v2.10 adds **one new SQLite database** (`growth.db`) and **2-4 ClawhHub skills**. No new infrastructure, no new agents, no new runtimes. The self-improvement features are built on patterns already proven across 9 milestones: workspace protocol docs for agent behavior, cron jobs for proactive nudges, SQLite for structured data, Oura API for health context, voice notes pipeline for input, and Slack DM for delivery.
 
-**The single biggest risk:** QMD's collection bootstrapping is a known-buggy area in OpenClaw. Issue #11308 documents "systemic issues requiring comprehensive fix." The collection-name conflict recovery and duplicate-document recovery fixes landed in recent releases — v2026.3.2 should have them, but manual verification after each bootstrap step is mandatory.
+The biggest leverage point is **not adding complexity**. ClawhHub has a `habit-flow-skill` (by tralves) with proactive coaching and cron sync, but it introduces its own Node.js scripts and TypeScript dependencies. **Build custom instead** — Bob already has the patterns for habit/goal tracking via workspace protocol docs + cron, same as CONTENT_TRIGGERS.md and VOICE_NOTES_PROTOCOL.md. Custom skills mean zero dependency risk and full control over the data model.
+
+OpenClaw has released v2026.3.12 and v2026.3.13 since the current v2026.3.11. Key features worth upgrading for: `openclaw backup create` (safety net for config changes), Docker timezone override (`OPENCLAW_TZ`), and dashboard v2 (optional — doesn't affect Bob's agent behavior). The upgrade is low-risk but should be batched at milestone start before feature work begins.
 
 ---
 
 ## What NOT to Change (Working Fine)
 
-| Component | Current State | Why to Leave It Alone |
-|-----------|--------------|----------------------|
-| `memory.backend = "qmd"` | Already set | QMD is correctly configured as the backend. The problem is empty collections, not backend selection |
-| `memory.searchMode = "search"` | Already set to BM25+vectors | Correct for t3.small CPU — avoids the slow LLM reranker. Do not switch to `query` mode |
-| `contextPruning: cache-ttl` | Already set with 1h TTL | Working. Leave alone |
-| Gemini embeddings config | Already set in `memorySearch.provider: gemini` | Fallback path. QMD uses its own embeddinggemma-300M model for local embeddings |
-| `embeddinggemma-300M` model files | Already in `~/.cache/qmd/models/` | Models downloaded. No re-download needed |
-| QMD v1.1.0 install | `~/.bun/bin/qmd` | Already installed. No upgrade needed |
-| Bun v1.3.10 | `~/.bun/bin/bun` | Required runtime for QMD. Working |
-| Docker sandbox / bind-mounts | All 6 DBs bind-mounted | No changes needed |
-| 7-agent roster, 24 cron jobs, 13 skills | All verified v2.8 | No changes needed |
+| Component | Current State | Why Leave It |
+|-----------|--------------|-------------|
+| QMD v1.1.0 memory backend | 122 files indexed, search working | Memory system just overhauled in v2.9. Do not touch |
+| 7-agent roster | main, landos, rangeos, ops, quill, sage, ezra | Self-improvement features run on `main` agent only |
+| 25 cron jobs | All verified | New crons will be added, not replacing existing |
+| Voice notes pipeline | Google Drive -> Whisper -> coordination.db | Extend, do not rebuild. Morning commute prompts feed INTO this pipeline |
+| Oura skill | Already deployed, health.db working | Read Oura data for weekly reviews; do not change the skill |
+| Slack Socket Mode | Working | All self-improvement interactions via Slack DM |
+| Mission Control (Next.js 14) | Working at port 3001 | Add growth dashboard page later (Phase 2+), not Phase 1 |
+| Docker sandbox / bind-mounts | All 6 DBs bind-mounted | Add growth.db bind-mount to the list |
+| Compaction config | softThresholdTokens=8000, reserveTokensFloor=40000 | Tuned in v2.9. Do not touch |
 
 ---
 
 ## Recommended Stack
 
-### Core: QMD Collection Bootstrap (Zero New Dependencies)
+### 1. New Database: growth.db (SQLite)
 
-| Component | Current State | Target State | Config Location |
-|-----------|-------------|-------------|----------------|
-| QMD memory-dir-main collection | 19 files (from MEMORY.md context) | 19+ files indexed with valid embeddings | QMD auto-manages at `~/.openclaw/agents/main/qmd/` |
-| QMD memory-root-main collection | Exists, 0 documents indexed | Documents indexed via `qmd update && qmd embed` | Same XDG dir |
-| QMD memory-alt-main collection | Exists, 0 documents indexed | Documents indexed | Same XDG dir |
-| QMD update interval | 15m (current) | 15m (no change) | `memory.qmd.update.interval` in openclaw.json |
+**Why a new database instead of extending coordination.db:** Separation of concerns. coordination.db handles agent-to-agent coordination, task management, and system state. growth.db holds personal growth data (habits, goals, journal entries, mood logs). Different backup cadences, different query patterns, different data lifecycle.
 
-**Bootstrap sequence (run on EC2 as ubuntu user):**
+**Schema design:**
 
-```bash
-# Step 1: Verify current collection state
-~/.bun/bin/qmd collection list --json
+```sql
+-- Habits: what you track
+CREATE TABLE habits (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    frequency TEXT NOT NULL DEFAULT 'daily',  -- daily, weekday, weekly, custom
+    custom_days TEXT,  -- JSON array of day numbers [1,3,5] for custom
+    category TEXT,  -- health, productivity, mindfulness, social, learning
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    archived_at TEXT,  -- soft delete
+    streak_best INTEGER DEFAULT 0,
+    streak_current INTEGER DEFAULT 0
+);
 
-# Step 2: If collections exist but have 0 documents, force re-index
-~/.bun/bin/qmd update
+-- Habit completions: when you did it
+CREATE TABLE habit_completions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    habit_id INTEGER NOT NULL REFERENCES habits(id),
+    completed_at TEXT NOT NULL DEFAULT (datetime('now')),
+    date TEXT NOT NULL,  -- YYYY-MM-DD (one completion per habit per day)
+    notes TEXT,  -- optional context
+    source TEXT DEFAULT 'slack',  -- slack, voice, cron
+    UNIQUE(habit_id, date)
+);
 
-# Step 3: Force re-embed (generates vectors for all documents)
-~/.bun/bin/qmd embed
+-- Goals: OKR-style tracking
+CREATE TABLE goals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT,
+    type TEXT NOT NULL DEFAULT 'outcome',  -- outcome, keyresult, milestone
+    parent_id INTEGER REFERENCES goals(id),  -- key results link to objectives
+    target_value REAL,  -- numeric target (e.g., "run 100 miles")
+    current_value REAL DEFAULT 0,
+    unit TEXT,  -- miles, books, sessions, percent
+    status TEXT NOT NULL DEFAULT 'active',  -- active, completed, paused, abandoned
+    due_date TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    completed_at TEXT
+);
 
-# Step 4: Verify indexing worked
-~/.bun/bin/qmd collection list --json
-# Should show document counts > 0 for memory-root-main, memory-alt-main, memory-dir-main
+-- Goal check-ins: progress updates
+CREATE TABLE goal_checkins (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    goal_id INTEGER NOT NULL REFERENCES goals(id),
+    value_delta REAL,  -- how much progress this check-in
+    notes TEXT,
+    checked_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 
-# Step 5: Test search works end-to-end
-~/.bun/bin/qmd search "Andy" --collection memory-dir-main
-# Should return results from MEMORY.md and daily logs
+-- Journal entries: reflections and mood
+CREATE TABLE journal_entries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,  -- YYYY-MM-DD
+    prompt TEXT,  -- what prompt triggered this entry
+    content TEXT NOT NULL,
+    mood INTEGER,  -- 1-5 scale
+    energy INTEGER,  -- 1-5 scale
+    tags TEXT,  -- JSON array of tags
+    source TEXT DEFAULT 'slack',  -- slack, voice, cron
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Weekly reviews: structured retrospectives
+CREATE TABLE weekly_reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    week_start TEXT NOT NULL,  -- YYYY-MM-DD (Monday)
+    went_well TEXT,  -- JSON array
+    to_improve TEXT,  -- JSON array
+    insights TEXT,  -- AI-generated pattern analysis
+    oura_summary TEXT,  -- sleep/readiness/HRV patterns for the week
+    habit_summary TEXT,  -- completion rates per habit
+    goal_summary TEXT,  -- progress snapshot
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(week_start)
+);
+
+-- Indexes for common queries
+CREATE INDEX idx_habit_completions_date ON habit_completions(date);
+CREATE INDEX idx_habit_completions_habit ON habit_completions(habit_id);
+CREATE INDEX idx_journal_entries_date ON journal_entries(date);
+CREATE INDEX idx_goal_checkins_goal ON goal_checkins(goal_id);
+CREATE INDEX idx_goals_status ON goals(status);
 ```
 
-**If collections are missing entirely** (QMD bug: collection-name conflict leaves orphan entry):
+**Why this schema specifically:**
+- `habit_completions` has a UNIQUE(habit_id, date) constraint to prevent double-logging (voice note + manual both register for same day)
+- `goals` uses self-referential parent_id for OKR hierarchy (Objectives -> Key Results)
+- `journal_entries` stores the prompt that triggered the entry, enabling prompt effectiveness analysis over time
+- `weekly_reviews` has dedicated Oura/habit/goal summary columns so the review is self-contained (readable without joining)
+- All timestamps in UTC, all dates in YYYY-MM-DD for consistency with existing DBs
 
-```bash
-# Remove all managed collections and let OpenClaw recreate them
-~/.bun/bin/qmd collection list --json
-# Note all collection names, then remove them:
-~/.bun/bin/qmd collection remove memory-root-main
-~/.bun/bin/qmd collection remove memory-alt-main
-~/.bun/bin/qmd collection remove memory-dir-main
-
-# Restart gateway — OpenClaw will recreate collections on boot
-systemctl --user restart openclaw-gateway.service
-# Wait 60 seconds, then verify:
-~/.bun/bin/qmd collection list --json
-```
-
-**If `qmd collection add` fails with "collection already occupies same path + pattern"** (Issue #23613 workaround — fixed in recent releases but may still trigger):
-
-```bash
-# Identify conflicting collection
-~/.bun/bin/qmd collection list --json | python3 -m json.tool
-
-# Remove the conflicting one by name
-~/.bun/bin/qmd collection remove <conflicting-name>
-
-# Restart gateway to trigger clean re-add
-systemctl --user restart openclaw-gateway.service
-```
-
-**Confidence:** MEDIUM. The bootstrap commands are correct per QMD v1.1.0 docs and community guides. The specific error paths depend on current collection state, which requires SSH inspection to determine.
+**Confidence:** HIGH. Schema follows patterns from coordination.db, content.db, and email.db already in production.
 
 ---
 
-### Config: Compaction Tuning
+### 2. Workspace Protocol Documents (Zero Dependencies)
 
-These are the only `openclaw.json` changes needed. Current values are known; target values are research-backed recommendations.
+Following the proven pattern of CONTENT_TRIGGERS.md, VOICE_NOTES_PROTOCOL.md, MEETING_PREP.md, and other workspace protocol docs.
 
-| Parameter | Current Value | Target Value | Why |
-|-----------|-------------|-------------|-----|
-| `compaction.reserveTokensFloor` | Unknown (default ~20000) | `20000` | Keep at default. Lower values risk context overflow; higher values trigger compaction too early on 200K window |
-| `compaction.softThresholdTokens` | `3000` (set in Phase 34) | `8000` | 3000 is too low per Issue #17034 — softThresholdTokens doesn't scale; at 3000 the flush triggers far too late (near window edge) leaving no room to write memories. 8000 gives ~170K tokens of working space in a 200K window |
-| `compaction.memoryFlush.enabled` | `true` | `true` (no change) | Already enabled |
-| `compaction.memoryFlush.prompt` | Unknown | `"Write any lasting notes to memory/YYYY-MM-DD.md; reply with NO_REPLY if nothing to store."` | Standard prompt per OpenClaw docs. Verify this matches current config |
-| `compaction.contextTokens` | Unknown (default) | Do not set | This is a read-only computed field, not a config. Do not touch |
+| Document | Location | Purpose |
+|----------|----------|---------|
+| `HABIT_TRACKER.md` | `~/clawd/agents/main/` | Standing instruction for habit CRUD via Slack DM. Commands: "log exercise", "my habits", "streak report" |
+| `GOAL_TRACKER.md` | `~/clawd/agents/main/` | OKR management. Commands: "set goal", "check in [goal]", "goal status" |
+| `JOURNAL_PROTOCOL.md` | `~/clawd/agents/main/` | Journal entry handling. Recognizes "journal:", "reflect:", mood/energy keywords |
+| `WEEKLY_REVIEW.md` | `~/clawd/agents/main/` | Structured weekly review template. Pulls Oura data, habit stats, goal progress |
+| `COMMUTE_PROMPTS.md` | `~/clawd/agents/main/` | Morning commute reflection prompt generation and voice note response handling |
 
-**Why softThresholdTokens 8000 specifically:**
-- Formula: `flush_threshold = contextWindow - reserveTokensFloor - softThresholdTokens`
-- With contextWindow=200000, reserveTokensFloor=20000, softThresholdTokens=8000: flush triggers at 172000 tokens
-- Bob's heartbeat sessions rarely reach 172K — this is why the flush rarely fires
-- **The real fix for daily logs is the `daily-memory-flush` cron (already deployed), not compaction tuning**
-- softThresholdTokens=8000 is a safety net for long DM sessions; the cron is the primary flush mechanism
+**Why workspace protocol docs over ClawhHub skills:**
+1. Bob already loads workspace files on every session startup — zero friction
+2. Full control over data model (growth.db schema, query patterns)
+3. No external dependencies to break during upgrades
+4. Protocol docs can reference Python scripts for DB access (same pattern as content pipeline)
+5. ClawhHub skills like `habit-flow-skill` bring their own Node.js scripts + TypeScript — unnecessary complexity for a custom deployment
 
-**Confidence for compaction values:** MEDIUM. Values are from community benchmarks (Issue #17034, VelvetShark guide). The exact optimal values depend on Bob's session length distribution, which requires observability.db analysis.
-
-**openclaw.json patch (Python3 snippet to apply on EC2):**
-
-```python
-import json, shutil, sys
-path = '/home/ubuntu/.openclaw/openclaw.json'
-shutil.copy(path, path + '.bak')
-with open(path) as f:
-    cfg = json.load(f)
-
-# Navigate to compaction section
-# Adjust path based on actual config structure
-agents = cfg.setdefault('agents', {})
-defaults = agents.setdefault('defaults', {})
-compaction = defaults.setdefault('compaction', {})
-
-# Only change softThresholdTokens — others already correct
-compaction['softThresholdTokens'] = 8000
-
-with open(path, 'w') as f:
-    json.dump(cfg, f, indent=2)
-print('Done. Verify with: grep softThresholdTokens ~/.openclaw/openclaw.json')
-```
+**Confidence:** HIGH. This pattern is battle-tested across 9 milestones.
 
 ---
 
-### Config: QMD Paths in openclaw.json
+### 3. New Cron Jobs (4-5 new jobs)
 
-Verify (and if missing, add) the `memory.qmd.paths` config. This tells OpenClaw which directories to index beyond the default workspace memory files.
+| Cron ID | Schedule | Agent | Delivery | Purpose |
+|---------|----------|-------|----------|---------|
+| `morning-reflection-prompt` | `0 14 * * 1-5` (7am PT weekdays) | main | dm (Slack) | Deliver 1-2 reflection/discussion prompts for morning commute. Personalized based on yesterday's journal, current goals, recent Oura trends |
+| `habit-accountability` | `0 1 * * *` (6pm PT daily) | main | dm (Slack) | End-of-day habit check-in. Lists unlogged habits for today, streak status, gentle nudge |
+| `journal-prompt` | `0 23 * * *` (4pm PT daily) | main | dm (Slack) | Afternoon journal prompt. Varies by day: gratitude (Mon), energy audit (Tue), challenge reframe (Wed), wins (Thu), intention (Fri) |
+| `weekly-review` | `0 16 * * 0` (9am PT Sunday) | main | dm (Slack) | Structured weekly review. Compiles Oura data, habit completion rates, goal progress, journal themes. Asks for "went well / to improve" input |
+| `growth-health-check` | `0 12 * * 1` (5am PT Monday) | main | silent | Validates growth.db integrity, checks for stale goals, orphaned habits. Alerts only on issues |
 
-**Target config (verify this exists in openclaw.json):**
+**Schedule rationale:**
+- Morning prompts at 7am PT = before typical commute window
+- Habit accountability at 6pm PT = end of workday, before evening routines
+- Journal prompt at 4pm PT = afternoon reflection break, pairs with daily-memory-flush at 4pm PT
+- Weekly review on Sunday 9am PT = weekend reflection time
+- All use `isolated: true` for cron sessions (fresh context, reads workspace protocol doc)
 
+**Model routing:** All use Sonnet (default). No Opus needed — these are structured template-driven prompts, not creative analysis. Haiku is too terse for coaching-quality messages.
+
+**Confidence:** HIGH. Same cron patterns as existing 25 jobs.
+
+---
+
+### 4. OpenClaw Platform Upgrade: v2026.3.11 -> v2026.3.13
+
+**Should upgrade before feature work begins.** Key improvements since v2026.3.11:
+
+| Version | Feature | Relevance to v2.10 |
+|---------|---------|---------------------|
+| v2026.3.12 | `openclaw backup create` / `openclaw backup verify` | Safety net before config changes. Use `--only-config` to snapshot openclaw.json |
+| v2026.3.12 | Dashboard v2 (modular views, command palette) | Nice-to-have for Bob interaction. Does not affect agent behavior |
+| v2026.3.12 | `/fast` mode for quick model interactions | Could speed up habit logging responses. Optional |
+| v2026.3.12 | Ephemeral device tokens | Security improvement. Reduces long-lived credential risk |
+| v2026.3.12 | Cron + Windows reliability fixes | Cron stability relevant for 4-5 new crons |
+| v2026.3.13 | Docker `OPENCLAW_TZ` timezone override | Useful for cron schedule clarity. Set to `America/Los_Angeles` |
+| v2026.3.13 | Compaction token counting fix | Prevents over-aggressive compaction. Direct relevance to long DM sessions with habit/journal entries |
+| v2026.3.13 | Dashboard v2 tool-heavy render fix | Prevents UI freeze during tool-heavy runs |
+
+**Upgrade procedure (established pattern):**
+```bash
+# On EC2 via SSH
+openclaw backup create --only-config  # NEW in v2026.3.12 - use after upgrade
+npm install -g openclaw@latest
+openclaw doctor --fix
+systemctl --user restart openclaw-gateway.service
+# Verify
+/home/ubuntu/.npm-global/bin/openclaw --version
+# Should show v2026.3.13
+```
+
+**Risk:** LOW. v2026.3.12 and v2026.3.13 are incremental releases, not breaking changes. The security fix in v2026.3.11 is already applied. The compaction fix in v2026.3.13 is beneficial.
+
+**Docker timezone config (add to openclaw.json after upgrade):**
 ```json
 {
-  "memory": {
-    "backend": "qmd",
-    "qmd": {
-      "update": {
-        "interval": "15m"
-      },
-      "searchMode": "search",
-      "limits": {
-        "maxResults": 6,
-        "timeoutMs": 4000
+  "agents": {
+    "defaults": {
+      "sandbox": {
+        "docker": {
+          "env": {
+            "OPENCLAW_TZ": "America/Los_Angeles"
+          }
+        }
       }
     }
   }
 }
 ```
 
-**What to check for and add if missing:**
-- `memory.qmd.update.interval` — must exist, currently `15m`, leave at `15m`
-- `memory.qmd.searchMode` — must be `"search"` (BM25+vectors), NOT `"query"` (LLM reranker — too slow for t3.small)
-- `memory.qmd.limits.timeoutMs` — recommend `4000` (4 seconds). Default may be lower; timeouts cause search to silently return empty results
-
-**Confidence:** MEDIUM. Config key names from official docs (`docs.openclaw.ai/concepts/memory`) and Issue #10042. The exact nesting path requires verifying against current openclaw.json.
+**Confidence:** MEDIUM. Release notes are clear. Behavioral changes in compaction token counting need monitoring after upgrade.
 
 ---
 
-### Config: Memory Flush — Isolated Cron Sessions
+### 5. ClawhHub Skills Assessment
 
-**Critical finding:** Memory flush is silently skipped for isolated cron sessions with read-only workspace access.
+Researched the ClawhHub marketplace for self-improvement, habit tracking, goal setting, and productivity skills. Here is the honest assessment:
 
-Per OpenClaw docs and Issue #37634: `workspaceAccess: "ro"` or `"none"` causes memoryFlush to be skipped — the agent can't write `memory/YYYY-MM-DD.md` to a read-only workspace.
+| Skill | Slug | Verdict | Rationale |
+|-------|------|---------|-----------|
+| **habit-flow-skill** | `tralves/habit-flow-skill` | **DO NOT INSTALL** | Brings its own Node.js scripts (`sync_reminders.ts`), TypeScript deps, persona system. Overlaps with workspace protocol doc pattern. Adds complexity without value for a custom deployment |
+| **habit-tracker** | `openclaw/habit-tracker` | **DO NOT INSTALL** | Generic persistent-memory approach. Does not use SQLite. Streak tracking is text-in-memory, not queryable |
+| **self-improvement** | `navendugoyal19/self-improvement` | **CONSIDER** | Captures learnings, errors, corrections. Lightweight SKILL.md (no external deps). Could be useful for Bob's own self-improvement, not Andy's. Low priority |
+| **self-improving-agent** | `pskoett/self-improving-agent` | **CONSIDER** | Structured incident logging. Complementary to Bob's existing learning system. Could enhance Bob's ability to improve his self-improvement coaching over time |
+| **task-tracker** | `kesslerio/task-tracker` | **DO NOT INSTALL** | Overlaps with existing coordination.db task system + user_calendar_tasks. Would create competing task tracking systems |
+| **goal-setting-okrs** | (community skill) | **DO NOT INSTALL** | Generic OKR templates. Custom GOAL_TRACKER.md with growth.db is more integrated and queryable |
 
-**What this means for Phase 34's `daily-memory-flush` cron:**
-- The `daily-memory-flush` cron was deployed with `isolated: true`
-- If it runs with default sandbox config (workspaceAccess unset or "ro"), the cron fires but memoryFlush writes are silently skipped
-- This is separate from the compaction-triggered memoryFlush — the cron sends a message asking Bob to write; if Bob's sandbox allows file writes, this works regardless of memoryFlush setting
-- Bob writes via explicit tool call (write_file), not via the compaction flush mechanism — so the cron approach works as long as the workspace is writable (which it is in the existing Docker setup with rw bind-mounts)
+**Recommendation:** Install 0-1 ClawhHub skills. The `self-improving-agent` skill is the only one worth considering, and only in a later phase after core habit/goal/journal features are stable. Custom workspace protocol docs + growth.db + crons are the right approach for v2.10.
 
-**Action:** Verify `daily-memory-flush` cron has NOT set `workspaceAccess: "ro"`. If it's not set explicitly, it inherits from `agents.defaults.sandbox` which has rw bind-mounts, so it should work.
-
-```bash
-# Verify on EC2:
-python3 -c "
-import json
-with open('/home/ubuntu/.openclaw/openclaw.json') as f:
-    cfg = json.load(f)
-crons = cfg.get('crons', [])
-flush_cron = [c for c in crons if 'memory-flush' in c.get('id','') or 'memory-flush' in c.get('name','')]
-import pprint; pprint.pprint(flush_cron)
-"
-```
+**Confidence:** MEDIUM. Assessed based on skill descriptions, GitHub SKILL.md files, and community reviews. Have not tested any of these on the actual deployment.
 
 ---
 
-### Mission Control: Memory Health Panel
+### 6. Oura API Integration for Weekly Reviews
 
-**Pattern:** Identical to existing Mission Control pages. Zero new npm packages.
+**Already have:** The `oura` skill and `health.db` with sleep, readiness, HRV, and heart rate data. Morning briefing Section 3 already pulls Oura data.
 
-| Component | Status | Location |
-|-----------|--------|----------|
-| `/api/memory/health` route | New | `src/app/api/memory/health/route.ts` |
-| Memory health panel | New | Added to top of `src/app/memory/page.tsx` |
-| SWR polling | Existing 30s provider | No changes to SWR config |
-| shadcn/ui Card, Badge | Already installed | Card per agent |
-| MEMORY.md file reads | Direct `fs.readFileSync` | Count lines from `~/clawd/agents/{agent}/MEMORY.md` |
-| `git log` for flush history | `child_process.execSync` | Shell out from API route |
-| Chart component | Recharts (already installed) | 7-bar sparkline for flush frequency |
+**What to add for weekly reviews:** A Python script that queries health.db for the past 7 days and generates a structured summary. No new API calls needed — health.db already has the data from existing cron ingest.
 
-**Budget visualization data source:**
+```python
+# ~/scripts/weekly-oura-summary.py
+# Reads health.db for past 7 days
+# Returns JSON: avg_sleep_score, avg_readiness, hrv_trend, sleep_debt, best_day, worst_day
+# Called by weekly-review cron via workspace protocol doc
 
-```typescript
-// src/app/api/memory/health/route.ts
-import { execSync } from "child_process";
-import { readFileSync, existsSync } from "fs";
+import sqlite3, json
+from datetime import date, timedelta
 
-const AGENT_WORKSPACES = {
-  main: "/home/ubuntu/clawd/agents/main",
-  landos: "/home/ubuntu/clawd/agents/landos",
-  rangeos: "/home/ubuntu/clawd/agents/rangeos",
-  ops: "/home/ubuntu/clawd/agents/ops",
-  quill: "/home/ubuntu/clawd/agents/quill",
-  sage: "/home/ubuntu/clawd/agents/sage",
-  ezra: "/home/ubuntu/clawd/agents/ezra",
-};
+DB = "/home/ubuntu/clawd/health.db"
 
-// Line count: readFileSync + split('\n').length
-// Staleness: git log --since="7 days ago" --format="%ai" -- agents/{id}/memory/*.md
-// Flush frequency: parse git log output into 7-day histogram
+def weekly_summary():
+    end = date.today()
+    start = end - timedelta(days=7)
+    conn = sqlite3.connect(DB)
+    # Query sleep, readiness, HRV for date range
+    # ... (implementation in plan phase)
+    conn.close()
+    return summary_dict
+
+if __name__ == "__main__":
+    print(json.dumps(weekly_summary()))
 ```
 
-**Key design decisions (from Phase 36 CONTEXT.md):**
-- Warning at 160 lines (80% of 200-line budget), critical at 190 lines (95%)
-- Staleness badge: 3+ days with no flush = yellow, not an error
-- All 7 agents shown; agents without MEMORY.md show gray "No Memory" card
-- Separate `/api/memory/health` endpoint from existing `/api/memory` browse endpoint
-- Sparkline: 7-bar chart, 1 bar per day, hidden on mobile
+**Confidence:** HIGH. Same pattern as existing scripts that read health.db.
 
-**git log for flush data:**
+---
 
-```bash
-# Command to shell out from API route (repo root = /home/ubuntu/Desktop/Projects/pops-claw or ~/clawd/)
-git -C /home/ubuntu/Desktop/Projects/pops-claw log \
-  --since="7 days ago" \
-  --format="%as" \
-  -- "agents/main/memory/*.md"
-```
+### 7. Voice Notes Pipeline Extension for Commute Prompts
 
-**Note:** The git repo is at `/Users/andykaufman/Desktop/Projects/pops-claw` (local Mac), not on EC2. Memory files are on EC2 but not git-tracked there. The health API route must read MEMORY.md line counts via filesystem, not git. For flush frequency, use `ls -lt ~/clawd/agents/main/memory/*.md` and parse timestamps, OR read modification times via `fs.statSync`.
+**Current flow:** Phone -> Google Drive "Voice Notes" -> process-voice-notes.py -> coordination.db (voice_notes table)
 
-**Revised flush sparkline approach** (no git dependency on EC2):
+**Extended flow for commute responses:**
+1. `morning-reflection-prompt` cron delivers 1-2 prompts to Slack DM at 7am PT
+2. Andy records voice note response on commute via Monologue app
+3. Voice note appears in Google Drive "Voice Notes" folder
+4. Existing `voice-notes-processor` cron (every 2 hours) picks it up, transcribes via Whisper, stores in coordination.db
+5. **NEW:** Bob's next heartbeat (or a dedicated cron) reads new voice_notes entries, checks if they are responses to morning prompts (time window: 7am-10am PT), and creates a journal entry in growth.db from the transcript
 
-```typescript
-import { readdirSync, statSync } from "fs";
-import { join } from "path";
+**What to add:**
+- Column in voice_notes table OR a linking table: `voice_note_id -> journal_entry_id`
+- Logic in COMMUTE_PROMPTS.md: "If a voice note arrives within 3 hours of the morning prompt, treat it as a journal response. Extract mood/energy signals. Create journal entry in growth.db."
+- No changes to process-voice-notes.py itself — the transcript storage is fine as-is
 
-function getFlushHistory(workspace: string): number[] {
-  // Returns array of 7 numbers (flushes per day, oldest to newest)
-  const memDir = join(workspace, "memory");
-  if (!existsSync(memDir)) return [0, 0, 0, 0, 0, 0, 0];
+**Alternative considered:** Have Bob directly transcribe voice notes in real-time. **Rejected** because the existing pipeline (Google Drive -> Whisper -> DB) is working and free. Real-time would require a webhook or Slack audio integration, adding complexity.
 
-  const now = Date.now();
-  const files = readdirSync(memDir).filter(f => f.match(/^\d{4}-\d{2}-\d{2}\.md$/));
-  const counts = new Array(7).fill(0);
+**Confidence:** HIGH. Extends existing pipeline with one new interpretation layer.
 
-  for (const file of files) {
-    const stat = statSync(join(memDir, file));
-    const daysAgo = Math.floor((now - stat.mtimeMs) / 86400000);
-    if (daysAgo < 7) counts[6 - daysAgo]++;
+---
+
+### 8. growth.db Bind-Mount Configuration
+
+Add growth.db to the Docker sandbox bind-mounts in openclaw.json, following the exact pattern of the other 6 databases.
+
+```json
+{
+  "agents": {
+    "defaults": {
+      "sandbox": {
+        "docker": {
+          "binds": [
+            "/home/ubuntu/clawd/growth.db:/workspace/growth.db"
+          ]
+        }
+      }
+    }
   }
-  return counts;
 }
 ```
 
-**Confidence:** HIGH. Pattern is established across 7 existing Mission Control pages. The only novel element is shelling out for file stats, which is standard Node.js.
+**Note:** This goes in the existing `binds` array alongside coordination.db, health.db, content.db, email.db, observability.db, and yolo.db. Do not replace; append.
+
+**Create the database before configuring the bind-mount:**
+```bash
+# On EC2
+sqlite3 /home/ubuntu/clawd/growth.db < /home/ubuntu/scripts/growth-schema.sql
+```
+
+**Confidence:** HIGH. Same pattern as 6 existing database bind-mounts.
 
 ---
 
@@ -293,12 +344,13 @@ function getFlushHistory(workspace: string): number[] {
 
 | Category | Recommended | Alternative | Why Not |
 |----------|-------------|-------------|---------|
-| QMD collection bootstrap | Manual `qmd update && qmd embed` CLI | Restart gateway and wait for auto-bootstrap | Auto-bootstrap silently fails due to collection-name conflicts (Issue #23613). Manual commands give immediate feedback |
-| Compaction flush | `softThresholdTokens: 8000` | Lower (3000) or higher (20000) | 3000 is current setting that's too low; 20000 risks never triggering on short sessions. 8000 is community consensus for 200K window |
-| Memory flush for daily logs | `daily-memory-flush` cron (already deployed) | Rely on compaction-triggered flush | Compaction flush only fires near context limit — heartbeat sessions never get there. Cron is the reliable mechanism |
-| Flash sparkline data source | `fs.statSync` on memory/ files | `git log` | EC2 does not have the pops-claw git repo checked out — git log would fail |
-| searchMode | `"search"` (BM25+vectors) | `"query"` (LLM reranker) | t3.small CPU cannot handle LLM reranker latency (3-10s per query). `"search"` is fast (<200ms) |
-| Memory health data | API route reads disk directly | Add new SQLite table for memory stats | No new DB needed — MEMORY.md is a file, not a database record. Direct file reads are simpler and more accurate |
+| Habit tracking | Custom workspace protocol + growth.db | ClawhHub `habit-flow-skill` | Brings TypeScript deps, persona system, its own cron sync scripts. Overkill for a single-user deployment with established patterns |
+| Goal tracking | Custom GOAL_TRACKER.md + growth.db | ClawhHub `goal-setting-okrs` | Generic templates. Custom gives queryable SQLite data and integration with morning briefing |
+| Journal storage | growth.db `journal_entries` table | Markdown files in memory/ | DB is queryable (mood trends, prompt effectiveness). Files are not. Weekly review needs aggregate queries |
+| Weekly review data | Python script reading health.db + growth.db | LLM-only analysis from memory | Concrete numbers (completion rates, sleep averages) are more useful than vibes from memory recall |
+| Morning commute prompts | Cron -> Slack DM -> voice note response | Talk Mode (v2026.3.12) | Talk Mode requires phone connected to OpenClaw. Slack DM + Monologue voice note is already working and phone-native |
+| New database | growth.db (separate) | Extend coordination.db | Different data domain, different lifecycle. coordination.db is system data; growth.db is personal data |
+| OpenClaw upgrade | v2026.3.13 | Stay on v2026.3.11 | Missing backup CLI, Docker TZ override, compaction fix. Low-risk upgrade with clear benefits |
 
 ---
 
@@ -306,31 +358,33 @@ function getFlushHistory(workspace: string): number[] {
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| `memory.qmd.searchMode: "query"` | LLM reranker kills t3.small CPU (10-30s per query, t3.small has 2 vCPU). Community confirmed "query mode unusable on constrained hardware" | `"search"` — BM25+vectors, fast on any hardware |
-| New QMD models (reranker) | embeddinggemma-300M is already downloaded. Adding qmd-query-expansion-1.7B (already installed per MEMORY.md) via "query" mode adds latency, not recall quality | Leave models as-is. `"search"` mode uses embeddinggemma-300M which is already present |
-| Per-agent QMD XDG dirs | OpenClaw auto-manages these at `~/.openclaw/agents/<agentId>/qmd/`. Manual intervention causes drift | Let OpenClaw manage. Only intervene when collections are provably empty or corrupt |
-| `memory.qmd.paths` custom entries | Adding custom paths to QMD config risks triggering the "collection already occupies same path" bug (Issue #23613) | Let OpenClaw manage default paths (memory-root, memory-alt, memory-dir). Seed content into these paths via MEMORY.md and memory/ files |
-| WebSocket for memory health panel | Single user, overnight use case | SWR 30s polling — same as all other Mission Control panels |
-| Per-agent memory databases | QMD XDG isolation already provides per-agent scope | Shared QMD binary, per-agent XDG home. No new databases |
-| `openclaw memory search` CLI for verification | OpenClaw CLI memory search is the thing that's broken. Don't verify the fix using the broken tool | Use `qmd search "test" --collection memory-dir-main` directly to verify QMD indexing, then test `openclaw memory search` after |
+| ClawhHub `habit-flow-skill` | Brings TypeScript runtime, 7 persona configurations, its own cron management scripts. Conflicts with established workspace protocol pattern | Custom HABIT_TRACKER.md workspace doc |
+| ClawhHub `task-tracker` | Conflicts with existing coordination.db task system and user_calendar_tasks | Existing task system for tasks; new GOAL_TRACKER.md for goals |
+| New agent for self-improvement | 7 agents is already at the comfortable limit for t3.small. Self-improvement features are personal to Andy -> main agent | Run everything on `main` agent (Andy/Bob) |
+| Notion/Airtable for habit data | Adds external dependency, API complexity, cost | SQLite growth.db — same pattern as 6 existing DBs |
+| React Native / mobile app | Massive scope creep. Out of scope per PROJECT.md | Slack DM + Monologue voice notes cover mobile interaction |
+| Whisper large model | Current `tiny` model is sufficient for voice note transcription. Large model would be slow on t3.small CPU | Keep `tiny` model. Transcription quality is adequate for journal entries |
+| OpenAI API for anything | Quota exhausted per MEMORY.md. DALL-E/Whisper API skills still broken | Local Whisper, Gemini for embeddings, Claude for everything else |
+| Dashboard v2 adoption | OpenClaw's built-in dashboard v2 (v2026.3.12) is for direct gateway interaction. Mission Control is the monitoring dashboard | Keep Mission Control. Dashboard v2 is opt-in for Bob interaction but doesn't replace MC |
+| Separate voice note transcription for journal | Existing pipeline handles all voice notes uniformly | Post-process voice_notes in coordination.db to identify journal responses |
 
 ---
 
 ## Version Compatibility
 
-| Component | Version | Notes |
-|-----------|---------|-------|
-| OpenClaw | v2026.3.2 | Has collection-name conflict recovery fix (Issue #23613 workaround). Has duplicate-document recovery fix. **Regression in v2026.3.1 (aggressive compaction loop with memoryFlush) — check if this is still present in v2026.3.2** |
-| QMD | v1.1.0 | Installed at `~/.bun/bin/qmd`. `qmd collection add`, `qmd update`, `qmd embed` are valid v1.1.0 commands |
-| Bun | v1.3.10 | Required by QMD. Working. No upgrade needed |
-| embeddinggemma-300M | Current | Already in `~/.cache/qmd/models/`. Used for vector embeddings in `"search"` mode |
-| qmd-query-expansion-1.7B | Current | Already downloaded per MEMORY.md. Needed for `"query"` mode LLM reranking. NOT used in `"search"` mode |
-| Next.js | 14.2.15 | Mission Control. No upgrade needed for health panel |
-| better-sqlite3 | 12.6.2 | Not used for memory health panel (reads files, not SQLite) |
-| Node.js `fs` + `child_process` | Built-in | Used by health API route for file reads and timestamp parsing |
-
-**Known v2026.3.1 regression (verify fixed in v2026.3.2):**
-Issue #32106: `softThresholdTokens` changes in v2026.3.1 caused aggressive compaction loops when memoryFlush was enabled. The current v2026.3.2 deployment should have this fixed, but after changing `softThresholdTokens`, monitor for unexpected compaction storms in `journalctl --user -u openclaw-gateway.service`.
+| Component | Current Version | Target Version | Notes |
+|-----------|----------------|---------------|-------|
+| OpenClaw | v2026.3.11 | v2026.3.13 | Upgrade for backup CLI, Docker TZ, compaction fix |
+| QMD | v1.1.0 | v1.1.0 (no change) | Memory system stable after v2.9 overhaul |
+| Bun | v1.3.10 | v1.3.10 (no change) | QMD runtime, no change needed |
+| Node.js | 18.x+ | 18.x+ (no change) | EC2 runtime |
+| Python | 3.x | 3.x (no change) | Scripts (voice notes, Oura summary, growth.db init) |
+| SQLite | 3.x | 3.x (no change) | growth.db uses same engine as 6 existing DBs |
+| Next.js | 14.2.15 | 14.2.15 (no change) | Mission Control. Growth dashboard page added later |
+| better-sqlite3 | 12.6.2 | 12.6.2 (no change) | Mission Control DB reads. Add growth.db config path |
+| Whisper | tiny model | tiny model (no change) | Voice note transcription |
+| Recharts | Installed | No change | Future growth trend charts in Mission Control |
+| shadcn/ui | Installed | No change | Future growth dashboard components |
 
 ---
 
@@ -339,97 +393,104 @@ Issue #32106: `softThresholdTokens` changes in v2026.3.1 caused aggressive compa
 ```bash
 # On EC2 (100.72.143.9) via SSH
 
-# === STEP 1: QMD Collection Bootstrap ===
-# Check current state
-~/.bun/bin/qmd collection list --json
+# === STEP 0: OpenClaw Upgrade (do first) ===
+npm install -g openclaw@latest
+openclaw doctor --fix
+/home/ubuntu/.npm-global/bin/openclaw --version
+# Verify: v2026.3.13
 
-# Force re-index existing files
-~/.bun/bin/qmd update && ~/.bun/bin/qmd embed
+# Create config backup using NEW backup CLI
+/home/ubuntu/.npm-global/bin/openclaw backup create --only-config
 
-# Verify documents indexed
-~/.bun/bin/qmd collection list --json
-# Confirm non-zero doc counts for memory-root-main, memory-alt-main, memory-dir-main
+# === STEP 1: Create growth.db ===
+# Upload schema SQL to EC2, then:
+sqlite3 /home/ubuntu/clawd/growth.db < /home/ubuntu/scripts/growth-schema.sql
+# Verify:
+sqlite3 /home/ubuntu/clawd/growth.db ".tables"
+# Should show: habits, habit_completions, goals, goal_checkins, journal_entries, weekly_reviews
 
-# Test search end-to-end
-~/.bun/bin/qmd search "Andy" --collection memory-dir-main
-
-# === STEP 2: Compaction Config Tune ===
-# Verify current softThresholdTokens
-grep softThresholdTokens ~/.openclaw/openclaw.json
-# If still 3000, change to 8000:
+# === STEP 2: Add growth.db bind-mount to openclaw.json ===
 python3 -c "
 import json, shutil
 path = '/home/ubuntu/.openclaw/openclaw.json'
-shutil.copy(path, path + '.bak')
-cfg = json.load(open(path))
-# Navigate to compaction config — path varies by config structure
-# Edit the softThresholdTokens value
-# cfg['agents']['defaults']['compaction']['softThresholdTokens'] = 8000
-# Save
-open(path, 'w').write(json.dumps(cfg, indent=2))
+shutil.copy(path, path + '.bak-v2.10')
+with open(path) as f:
+    cfg = json.load(f)
+binds = cfg['agents']['defaults']['sandbox']['docker']['binds']
+new_bind = '/home/ubuntu/clawd/growth.db:/workspace/growth.db'
+if new_bind not in binds:
+    binds.append(new_bind)
+# Add Docker timezone if upgrading
+cfg['agents']['defaults']['sandbox']['docker'].setdefault('env', {})['OPENCLAW_TZ'] = 'America/Los_Angeles'
+with open(path, 'w') as f:
+    json.dump(cfg, f, indent=2)
+print('Done. growth.db bind-mount added.')
 "
 
-# === STEP 3: MEMORY.md Seeding ===
-# Write curated long-term memory for Bob (see Phase plan for content)
-# Target: ~/clawd/agents/main/MEMORY.md with 50-80 lines of curated facts
-# Verify word count is sane
-wc -l ~/clawd/agents/main/MEMORY.md
+# === STEP 3: Deploy workspace protocol docs ===
+# Write HABIT_TRACKER.md, GOAL_TRACKER.md, JOURNAL_PROTOCOL.md,
+# WEEKLY_REVIEW.md, COMMUTE_PROMPTS.md to ~/clawd/agents/main/
+# (Content defined in plan phase)
 
-# === STEP 4: Restart Gateway (batch all config changes) ===
+# === STEP 4: Deploy helper scripts ===
+# weekly-oura-summary.py -> ~/scripts/
+# growth-db-utils.py -> ~/scripts/  (CRUD helpers called by Bob via Python)
+
+# === STEP 5: Add cron jobs to openclaw.json ===
+# morning-reflection-prompt, habit-accountability, journal-prompt,
+# weekly-review, growth-health-check
+# (Exact payloads defined in plan phase)
+
+# === STEP 6: Restart gateway (batch all config changes) ===
 systemctl --user restart openclaw-gateway.service
-# Wait for healthy status
 journalctl --user -u openclaw-gateway.service --since '1 min ago' | tail -20
 
-# === STEP 5: Verify Memory Search Works ===
-# After restart, test via openclaw CLI
-/home/ubuntu/.npm-global/bin/openclaw memory search "Andy preferences"
-# Should return results from MEMORY.md
-
-# === STEP 6: Mission Control Health Panel ===
-# Edit on EC2: ~/clawd/mission-control/
-# New file: src/app/api/memory/health/route.ts
-# Modify: src/app/memory/page.tsx (add panel at top)
-cd ~/clawd/mission-control
-npm run build
-systemctl --user restart mission-control.service
+# === STEP 7: Verify ===
+# Test habit logging via Slack DM: "log exercise"
+# Test goal creation: "set goal: read 12 books this quarter"
+# Test journal prompt arrives at scheduled time
+# Verify growth.db has data: sqlite3 ~/clawd/growth.db "SELECT * FROM habits;"
 ```
 
-**Packages to install:** None.
+**Packages to install:** None (npm). `openclaw@latest` global upgrade only.
 **Packages to remove:** None.
 **Docker images to build:** None.
 **New agents to configure:** None.
-**New databases to create:** None.
-**New cron jobs to add:** None (daily-memory-flush cron already deployed in Phase 34).
+**New databases to create:** 1 (growth.db).
+**New cron jobs to add:** 4-5.
+**New workspace protocol docs:** 5.
+**New Python scripts:** 2-3 (weekly-oura-summary.py, growth-db-utils.py, optionally growth-schema.sql as standalone).
+**ClawhHub skills to install:** 0.
 
 ---
 
 ## Sources
 
 ### HIGH confidence
-- [OpenClaw Memory Docs](https://docs.openclaw.ai/concepts/memory) — QMD backend config keys, memoryFlush behavior, workspaceAccess constraint, default collection names
-- [OpenClaw Session Management Docs](https://docs.openclaw.ai/reference/session-management-compaction) — reserveTokensFloor, softThresholdTokens, flush threshold formula
-- [QMD GitHub: tobi/qmd](https://github.com/tobi/qmd) — `qmd collection add`, `qmd update`, `qmd embed` CLI commands verified
-- PROJECT.md (internal) — confirmed QMD v1.1.0 at `~/.bun/bin/qmd`, searchMode=search, update interval=15m, embeddinggemma-300M present, 0 documents indexed
-- MEMORY.md (internal) — confirmed QMD backend switch date, collection counts, memory file counts per agent
+- [OpenClaw Cron Jobs Documentation](https://docs.openclaw.ai/automation/cron-jobs) — cron schedule types, isolated sessions, delivery options
+- [OpenClaw Skills Overview](https://docs.openclaw.ai/tools/clawhub) — skill structure, installation, workspace loading
+- [OpenClaw GitHub Releases](https://github.com/openclaw/openclaw/releases) — v2026.3.12 and v2026.3.13 release notes, backup CLI, Docker TZ, compaction fix
+- [Oura API v2 Documentation](https://cloud.ouraring.com/v2/docs) — daily readiness, sleep, heart rate endpoints
+- PROJECT.md (internal) — confirmed current stack: v2026.3.11, 7 agents, 25 crons, 6 DBs, voice notes pipeline
+- MEMORY.md (internal) — confirmed voice notes pipeline flow, Oura integration, cron configuration, Docker bind-mount patterns
 
 ### MEDIUM confidence
-- [OpenClaw Issue #11308](https://github.com/openclaw/openclaw/issues/11308) — QMD systemic issues, collection management bugs
-- [OpenClaw Issue #23613](https://github.com/openclaw/openclaw/issues/23613) — "Collection not found: memory-root-main" bug and workaround
-- [OpenClaw Issue #17034](https://github.com/openclaw/openclaw/issues/17034) — softThresholdTokens doesn't scale with context window size; community values
-- [OpenClaw Issue #32106](https://github.com/openclaw/openclaw/issues/32106) — v2026.3.1 aggressive compaction loop regression with memoryFlush
-- [OpenClaw Issue #37634](https://github.com/openclaw/openclaw/issues/37634) — workspaceAccess: "none" keeps workspace off-limits, memoryFlush skipped
-- [OpenClaw Discussion #25633](https://github.com/openclaw/openclaw/discussions/25633) — "Memory is broken by default" community discussion with config recommendations
-- [VelvetShark OpenClaw Memory Masterclass](https://velvetshark.com/openclaw-memory-masterclass) — softThresholdTokens=8000 for 200K window, community validated
-- [Jose Casanova: Fix OpenClaw Memory Search with QMD](https://www.josecasanova.com/blog/openclaw-qmd-memory) — bootstrap command sequence verified
-- Phase 34 VERIFICATION.md (internal) — confirmed softThresholdTokens=3000 current, daily-memory-flush cron deployed
+- [ClawhHub habit-flow-skill SKILL.md](https://github.com/openclaw/skills/blob/main/skills/tralves/habit-flow-skill/SKILL.md) — skill features, proactive coaching, cron sync scripts. Assessed as too complex for this deployment
+- [ClawhHub self-improvement skill](https://github.com/openclaw/skills/blob/main/skills/navendugoyal19/self-improvement/SKILL.md) — incident logging, correction capture. Lightweight but low priority
+- [kesslerio/task-tracker](https://github.com/kesslerio/task-tracker-openclaw-skill) — task management with weekly reviews. Overlaps with existing coordination.db
+- [OpenClaw v2026.3.12 Release Notes](https://blockchain.news/ainews/openclaw-v2026-3-12-release-dashboard-v2-fast-mode-plugin-architecture-for-ollama-sglang-vllm-and-ephemeral-device-tokens) — dashboard v2, fast mode, backup CLI details
+- [OpenClaw v2026.3.11 Security Fix](https://www.elegantsoftwaresolutions.com/blog/openclaw-v2026-3-11-security-fix-guide) — WebSocket origin validation, current version behavior
+- [oura-ring PyPI](https://pypi.org/project/oura-ring/) — Python client for Oura API v2. Not needed (already have health.db with data)
+- [OpenClaw Workspace Best Practices](https://openclaw.com.au/best-practices) — memory organization, heartbeat patterns, cron scheduling
+- [OpenClaw Proactive Agent Patterns](https://medium.com/@rentierdigital/the-complete-openclaw-architecture-that-actually-scales-memory-cron-jobs-dashboard-and-the-c96e00ab3f35) — cron-triggered agentic loop, heartbeat architecture
 
-### LOW confidence (WebSearch only, needs EC2 verification)
-- Exact openclaw.json nesting path for `compaction.softThresholdTokens` — needs `cat ~/.openclaw/openclaw.json | python3 -m json.tool` to confirm
-- Whether v2026.3.1 compaction regression is present in v2026.3.2 — needs monitoring after gateway restart
-- Whether `daily-memory-flush` cron currently has `workspaceAccess` explicitly set — needs inspection
+### LOW confidence
+- [VoltAgent awesome-openclaw-skills](https://github.com/VoltAgent/awesome-openclaw-skills) — skill catalog with 5,400+ skills. Used for discovery, not verification
+- [DoneClaw Best ClawhHub Skills](https://doneclaw.com/blog/best-openclaw-skills-clawhub/) — editorial list, used for skill discovery
+- [DataCamp Best ClawHub Skills](https://www.datacamp.com/blog/best-clawhub-skills) — editorial list, used for cross-reference
 
 ---
 
-*Stack research for: pops-claw v2.9 Memory System Overhaul — fixing broken QMD collections, compaction config, and memory flush*
-*Researched: 2026-03-08*
-*Replaces: previous STACK.md covering v2.7 YOLO Dev autonomous builder*
+*Stack research for: pops-claw v2.10 Self-Improvement Companion — habit tracking, goal tracking, journal prompts, weekly reviews, morning commute prompts*
+*Researched: 2026-03-16*
+*Replaces: previous STACK.md covering v2.9 Memory System Overhaul*

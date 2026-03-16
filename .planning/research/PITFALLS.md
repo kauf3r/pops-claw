@@ -1,163 +1,208 @@
 # Pitfalls Research
 
-**Domain:** OpenClaw memory system repair — QMD bootstrapping, compaction tuning, retrieval enforcement, and memory health monitoring on an existing resource-constrained deployment
-**Researched:** 2026-03-08
-**Confidence:** HIGH (derived from production history documented in MEMORY.md, known system state documented in PROJECT.md and MEMORY.md, prior milestone PITFALLS.md covering v2.6-era memory work, and direct evidence of current failure modes including zero memory flush files, QMD never bootstrapped, and broken compaction thresholds)
+**Domain:** Self-improvement companion features added to existing OpenClaw AI agent system (v2.10)
+**Researched:** 2026-03-16
+**Confidence:** HIGH (grounded in production system metrics, behavioral research on habit tracker abandonment, and 9-milestone history of this specific deployment)
 
-> This file supersedes the v2.7-era PITFALLS.md which covered YOLO Dev overnight builds.
-> The v2.6-era pitfalls (MEMORY.md curation, flush thresholds, gateway restart session loss,
-> bootstrap truncation, LEARNINGS.md noise) are incorporated and updated here for the v2.9
-> memory system overhaul context.
+> This file supersedes the v2.9 memory system PITFALLS.md.
+> v2.9 pitfalls (QMD bootstrap, compaction tuning, OOM, gateway restart) remain relevant
+> as infrastructure constraints and are referenced where they compound with v2.10 risks.
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: QMD Appears Configured But Collections Were Never Bootstrapped
+### Pitfall 1: The Self-Improvement System Itself Becomes Another Thing to Maintain
 
 **What goes wrong:**
-`openclaw.json` has `memory.backend = "qmd"` and all the right config keys. The gateway starts without errors. `openclaw doctor` shows no issues. But when Bob does memory-intensive tasks, nothing is retrieved — because QMD's collections directory is either empty or contains only the 3 auto-created but never-indexed directories. The `memory-dir-main` collection shows 19 files counted but zero embeddings because the initial indexing run that creates embeddings from existing files never completed or never ran. QMD silently falls back to the builtin backend without alerting.
+You add habit tracking, journal prompts, goal tracking, weekly reviews, and commute prompts. That is 5 new feature surfaces layered onto a system already running 25 crons, 7 agents, 6 databases, and 21 skills. Within 2-3 weeks, the self-improvement features start feeling like obligations rather than tools. The daily journal prompt goes unanswered. The habit nudge becomes noise. The weekly review is skipped because "it was a busy week." The system dutifully continues sending prompts and nudges into the void, creating guilt rather than growth. Research shows 92% of habit tracking attempts fail within 60 days, and 52% of users drop off within 30 days.
 
 **Why it happens:**
-QMD requires two distinct steps: (1) configure the backend in openclaw.json, and (2) trigger the initial embedding run that scans workspace files and populates the vector store. The configuration step alone does not bootstrap collections. The auto-create behavior creates directories and schema but not vectors. If the first embedding run was killed (OOM, timeout, etc.) or never triggered, the collections exist structurally but contain no searchable content.
+Self-improvement tools fail when they add friction to the user's day rather than removing it. The system is designed by the builder (you) during a motivated planning phase. Two weeks later, the motivation curve dips, and every prompt becomes an interruption. The system cannot distinguish between "user is busy today" and "user has abandoned this." It keeps nudging. The nudges create guilt. The guilt creates avoidance. The avoidance becomes permanent abandonment. This is the "what-the-hell effect" documented in behavioral psychology: one missed day triggers total abandonment, especially with streak-based tracking.
 
 **How to avoid:**
-After any QMD config change or fresh install: (1) verify QMD is actually running with `qmd status`, (2) explicitly trigger a full re-index run, (3) query for known content (e.g., a phrase from MEMORY.md) and confirm the query returns results. Do NOT assume "gateway started = QMD is working."
+- Start with ONE feature (habit tracker OR journal prompts, not both). Ship it. Use it for 14 days. Only add the next feature if the first one is actually being used.
+- Build a "silence escalation" ladder: if a prompt gets no response for 2 days, reduce frequency. After 5 days of silence, pause that feature entirely and send a single "I've paused your habit nudges. DM me when you want to restart." No guilt, no pressure.
+- Never launch all 5 features simultaneously. The v2.10 milestone should be phased over 4-6 weeks of actual usage, not 4-6 days of implementation.
 
 **Warning signs:**
-- `qmd status` returns "idle" with `lastIndexedAt: null` or a timestamp from many months ago
-- Query for known MEMORY.md content returns 0 results
-- `memory-dir-main` collection shows file count > 0 but queries return nothing
-- Bob says "I don't have context about X" when MEMORY.md explicitly contains X
+- More than 3 unanswered prompts in a row for any feature
+- "I'll catch up on it later" responses to Bob's nudges
+- Features implemented in rapid succession without 7+ days of actual usage between each
+- Planning doc says "and then we'll also add..." more than twice
 
-**Phase to address:** Compaction & QMD Bootstrap phase. Must verify via live query before declaring success.
+**Phase to address:** First phase of v2.10. Scope must be constrained to 1-2 features maximum. The phasing IS the prevention.
 
 ---
 
-### Pitfall 2: Memory Flush Produces No Files Because compaction.memoryFlush Is Misconfigured
+### Pitfall 2: Streak-Based Habit Tracking Creates Fragile Motivation That Collapses on First Miss
 
 **What goes wrong:**
-`compaction.memoryFlush` is enabled in openclaw.json, but Bob's sessions end without creating any memory files in the workspace. The `memory-dir-main` collection stays at 19 files indefinitely. The daily memory log intended to accumulate facts about user patterns never appears.
+Habit tracker uses streaks (consecutive days) as the primary metric. User builds a 23-day meditation streak. Day 24, a travel day, meditation is skipped. The streak resets to 0. Research from Health Psychology shows people who break a streak are 47% more likely to abandon the behavior entirely. People who think in binary terms (perfect/broken) are 3.2x more likely to abandon goals after a single perceived failure. The "what-the-hell effect" turns a single missed day into total abandonment.
 
 **Why it happens:**
-There are three common misconfiguration points that all look correct but silently fail:
-1. `softThresholdTokens` is set higher than typical session token usage — flush never triggers because the session always stays under the threshold.
-2. The `memoryFlush` prompt in `compaction.memoryFlush` is malformed or uses the wrong key name — OpenClaw ignores unrecognized keys silently.
-3. The output path for flushed memories points to a location not bind-mounted into the sandbox, so the file write succeeds inside Docker but disappears when the container stops.
-
-The current state (contextTokens=100000, softThresholdTokens=1500) means every Haiku heartbeat session (which stays well under 1500 tokens) never triggers compaction. Opus sessions for morning briefings (easily 10,000-50,000 tokens) would trigger it, but only if the session actually reaches softThresholdTokens before ending — brief cron-triggered sessions may terminate before accumulating enough context.
+Streaks exploit loss aversion — the longer the streak, the more painful the break. This works as motivation UNTIL the inevitable break. Then the same loss aversion that drove the streak makes the zero feel catastrophic. The psychological cost of "lost progress" overwhelms the rational understanding that 23 out of 24 days is excellent consistency. Andy's ENFP-A profile (Prospecting 81%, Adaptability #5) means rigid streak systems will clash with his natural flexibility. Prospecting types resist rigid systems and are more likely to feel trapped by them.
 
 **How to avoid:**
-Set `softThresholdTokens` to a value that matches real session patterns: 8000-15000 for primary sessions, keep 1500 only if you want nearly every session to flush. Explicitly test by running a session that accumulates context, then checking whether a memory file was written. Verify the output path is bind-mounted.
+- Use consistency rate (%) instead of streaks as the primary metric. "You meditated 6 of the last 7 days (86%)" is resilient to single misses.
+- If showing streaks at all, show "best streak" and "current streak" as secondary stats, not the headline number.
+- Implement "grace days" — one missed day per week doesn't break anything. The system treats 6/7 as a perfect week.
+- Never reset to zero. Show total completions alongside any streak metric.
+- A 2023 Journal of Behavioral Medicine study found users of non-streak trackers were 3.2x more likely to maintain consistent tracking at 6 months.
 
 **Warning signs:**
-- Memory file count in `memory-dir-main` never increases day over day
-- No files matching `YYYY-MM-DD-*.md` pattern appear in `~/clawd/agents/main/`
-- Bob cannot recall information from sessions more than 24 hours ago
-- Dashboard memory browser shows the same files for days
+- User stops logging habits after a missed day (the missed day is the canary)
+- Habit tracker conversation starts including words like "behind," "catch up," or "make up for"
+- Bob's nudge after a break sounds like "your streak ended" rather than "you've completed X of the last Y days"
 
-**Phase to address:** Compaction config tuning phase. Set threshold based on measured session token usage, not a guess.
+**Phase to address:** Habit tracker design phase. Consistency-rate-first design is a hard requirement, not a nice-to-have.
 
 ---
 
-### Pitfall 3: contextTokens Increase Causes OOM on t3.small During Long Briefing Sessions
+### Pitfall 3: Cron Proliferation Exhausts Claude Pro 200 Rate Limits
 
 **What goes wrong:**
-contextTokens is bumped from 100,000 to 200,000 (matching the model's actual maximum). Morning briefing sessions now include all 6 database query results + 7 agent states + email content + calendar events. With QMD retrieval now working, relevant memory chunks are also injected into context. The combined context window pushes memory usage on the t3.small (2GB RAM + 2GB swap) past the ceiling during peak usage. The gateway OOMs, which also kills all 24 cron jobs. The session-prune cron (4 AM UTC) may collide with the morning briefing (6 AM PT = 14:00 UTC), doubling memory pressure.
+v2.10 adds new crons: daily habit nudge, daily journal prompt, morning commute prompt, weekly review, weekly goal check-in. That is 5+ new crons on top of 25 existing ones. The new crons use Sonnet or Opus because they need to generate personalized, contextual prompts (not simple Haiku-level messages). During peak morning hours (6-9 AM PT), the existing morning briefing (Opus), meeting-prep-scan (Sonnet), heartbeats x4 (Haiku), and the new habit nudge + journal prompt + commute prompt all fire within a 90-minute window. Claude Pro 200 has undisclosed rate limits per model tier, and this burst pattern risks hitting them — causing silent failures, queued responses, or degraded quality.
 
 **Why it happens:**
-200K token context windows require large KV cache allocations on the Anthropic API side, but more immediately, the local OpenClaw gateway must buffer the full conversation in memory to manage session state, tool calls, and the compaction decision logic. On a resource-constrained instance, the combination of: large context buffer + Docker container memory + QMD embedding model (~300MB) + gateway process + Mission Control Next.js process exceeds available RAM + swap.
+Each feature is designed in isolation. The habit nudge "needs to fire at 7 AM to catch the morning routine." The journal prompt "should arrive with the morning briefing." The commute prompt "must be ready by 8 AM." Nobody maps the aggregate load. The existing system already has the morning briefing at 6 AM PT and meeting-prep at 8 AM and 1 PM PT. Adding 3 more crons to the 6-9 AM window creates a burst that the rate limiter may throttle.
 
 **How to avoid:**
-Do NOT jump from 100,000 to 200,000 in one step. Increase incrementally: 100,000 → 130,000, then monitor gateway memory usage for 48 hours with `free -m` in a cron-logged health check. Only increase further if stable. Consider session-specific context overrides (set higher only for main/morning-briefing, leave Haiku heartbeats at 50,000). Alternatively, keep 200,000 as the theoretical maximum but set `reserveTokensFloor` to prevent actual utilization that high.
+- Map ALL existing crons on a timeline before adding any new ones. Identify the 6-9 AM PT burst window.
+- Bundle new self-improvement content into the existing morning briefing as new sections (Section 12: Today's Habits, Section 13: Reflection Prompt) rather than creating separate crons. This is the single most impactful mitigation — zero new crons, zero new rate limit pressure.
+- If separate crons are needed, use Haiku for notification-style messages ("Time to log your morning habits") and reserve Sonnet for the weekly review that requires synthesis.
+- Stagger any new crons at :15, :25, :35 — avoid the :00/:02/:04/:06 heartbeat window and the :00 morning briefing.
 
 **Warning signs:**
-- `free -m` shows available < 200MB during briefing windows (6-8 AM PT)
-- Gateway crashes coincide with morning briefing + other cron overlap windows
-- `journalctl --user -u openclaw-gateway.service` shows OOM kills
-- Bob's responses truncate or sessions end abruptly during long briefings
+- Any new cron scheduled between 6:00 and 6:30 AM PT (morning briefing window)
+- More than 2 new crons using Sonnet or Opus tier
+- Total cron count exceeding 30 (currently 25 — budget is tight)
+- Bob's responses arriving late or truncated during morning hours
 
-**Phase to address:** Compaction + context token tuning phase. Increase incrementally with monitoring, not in one jump.
+**Phase to address:** Architecture/design phase. Cron timeline mapping is a prerequisite before any implementation. The "bundle into morning briefing" pattern should be the default, with separate crons justified only by strong timing requirements.
 
 ---
 
-### Pitfall 4: Gateway Restart Breaks All Cron-to-DM Delivery Until Bob Sends a Message First
+### Pitfall 4: Journal Prompt Fatigue — Same Prompts, Declining Engagement
 
 **What goes wrong:**
-Config changes (compaction thresholds, contextTokens, memory backend) require a gateway restart. After restart, cron jobs that target Bob's DM channel via `sessions_send` fail silently — no Slack message, no error logged, job shows `status: ok` in the cron state. The morning briefing fires at 6 AM PT but nothing arrives. This is an existing documented issue but is especially dangerous during v2.9 because the milestone requires multiple gateway restarts (one per config phase).
+Bob sends a daily journal prompt. Week 1: "What are you grateful for today?" Week 2: "What's one thing you'd improve about yesterday?" Week 3: the prompts start feeling repetitive. The user gives shorter answers. By week 5, the prompts go unanswered. Research shows that after 12 weeks of AI-generated daily prompts, "grateful," "proud," and "energized" appeared 92 times in journal entries, while "angry," "confused," "unsure," and "tired" appeared zero times — the system optimized for positivity, not genuine reflection.
 
 **Why it happens:**
-OpenClaw sessions are tied to the gateway process. When the gateway restarts, all active sessions are cleared (including the DM-linked session Bob uses to deliver cron outputs to Slack). The cron job runs successfully (fires, agent responds), but the response targets the now-dead session's channel binding. Bob must send or receive a direct Slack message to re-establish the session link before cron DM delivery works again.
+Three failure modes compound:
+1. **Template exhaustion:** LLMs generating daily prompts converge on a narrow set of themes. "Gratitude" and "goals" dominate. Deeper prompts (conflict, fear, uncertainty, boredom) are avoided because the model optimizes for engagement, not growth.
+2. **Context blindness:** The prompt doesn't adapt to what's actually happening in the user's life. A generic "what are you grateful for?" on a day when coordination.db shows 3 overdue tasks and Oura shows poor sleep is tone-deaf.
+3. **Response fatigue:** Even good prompts become stale through daily repetition. The act of responding to a daily prompt becomes rote rather than reflective.
 
 **How to avoid:**
-After every gateway restart during v2.9: immediately send Bob a DM from Slack ("hey, gateway restarted"). Wait for a response. Only then schedule or verify subsequent cron behavior. Do gateway restarts at times that don't overlap with cron windows — avoid 5:50-6:10 AM PT (morning briefing window) and :00/:02/:04/:06 heartbeat windows.
+- Context-aware prompts only. Bob should reference today's Oura data, calendar, and task state when generating the prompt. "Your HRV was 15% below your baseline — how are you feeling physically?" beats "What are you grateful for today?"
+- Rotate prompt categories on a weekly cycle: Monday (goals), Tuesday (energy/health), Wednesday (relationships), Thursday (creative), Friday (weekly retrospective). Never the same category two days in a row.
+- Include "negative space" prompts regularly: "What's frustrating you right now?", "What are you avoiding?", "What decision are you postponing?" These feel uncomfortable to generate but produce the most valuable reflection.
+- Allow "skip" without guilt. Bob should accept "pass" or "not today" without follow-up. No "are you sure?" No streak penalty.
+- Vary the medium: some days a prompt, some days a multiple-choice check-in ("Energy level: 1-5"), some days just "How's it going?" in conversational tone.
 
 **Warning signs:**
-- Gateway restarted AND no morning briefing arrived AND it's past 6:30 AM PT
-- `openclaw cron list` shows jobs ran (`lastStatus: ok`) but Slack shows no messages
-- Bob doesn't respond to DMs immediately after a restart (session not yet established)
+- Journal responses getting shorter (>50% reduction in word count over 2 weeks)
+- "Good" or "fine" as complete responses
+- Same themes appearing in >40% of prompts over a 2-week window
+- No prompts referencing health data, calendar events, or recent task completions
 
-**Phase to address:** Every phase that includes a gateway restart. This is a workflow prerequisite, not a code fix.
+**Phase to address:** Journal prompt design phase. Prompt generation system must have access to Oura, calendar, and task state. Static prompt lists are unacceptable.
 
 ---
 
-### Pitfall 5: MEMORY.md Seeding Bootstraps the Wrong Agent's Collection
+### Pitfall 5: t3.small Resource Ceiling — Another SQLite DB + Crons Tips the Balance
 
 **What goes wrong:**
-MEMORY.md is written to `~/clawd/agents/main/MEMORY.md` (bind-mounted to `/workspace/MEMORY.md`). QMD collections are per-agent. The `memory-dir-main` collection indexes `~/clawd/agents/main/`. If MEMORY.md is mistakenly placed in `~/clawd/` (the parent workspace) or in another agent's directory (e.g., `~/clawd/agents/ops/`), QMD indexes it for the wrong agent. Bob queries the main collection and finds nothing. Sentinel or other agents may unexpectedly find Bob's memory context.
+v2.10 adds a new `habits.db` (or extends coordination.db with new tables). The existing system runs 6 SQLite databases in WAL mode. Mission Control reads all of them via better-sqlite3. The gateway writes to them via Docker bind-mounts. QMD runs embedding models consuming ~300MB. Adding a 7th database, new cron jobs with Sonnet/Opus calls, and potentially a new Mission Control page increases the memory footprint on a machine with 2GB RAM + 2GB swap that has already experienced OOM events. The 2GB swap means the system technically has 4GB but swap access is 10-100x slower than RAM, causing latency spikes during page faults.
 
 **Why it happens:**
-The bind-mount structure is: host `~/clawd/agents/main/` = sandbox `/workspace/`. Bob sees `/workspace/MEMORY.md`. But when writing the file over SSH (not from inside the sandbox), the host path must be used. Confusion between `~/clawd/MEMORY.md` and `~/clawd/agents/main/MEMORY.md` is easy when making manual edits.
+Each individual addition is small. A new SQLite database is ~20KB. A new cron is negligible. A new Mission Control page adds maybe 5MB to the Next.js process. But the system is already near its ceiling — previous milestones have documented OOM events (Pitfall 3 in v2.9 PITFALLS.md), and the 2GB swap was added as a mitigation, not a solution. The problem is cumulative: 6 DBs in WAL mode each hold a read-ahead cache, the gateway buffers session state, QMD holds vector indices in memory, Docker containers have their own memory overhead, and Mission Control's Node.js process runs continuously.
 
 **How to avoid:**
-Always write workspace files for Bob to `~/clawd/agents/main/` on the host (not `~/clawd/`). Verify placement: `ls -la ~/clawd/agents/main/MEMORY.md`. Check that QMD's memory-dir-main source path matches.
+- Do NOT create a new database file. Add habit/goal/journal tables to the existing `coordination.db` which is already bind-mounted to all agents and read by Mission Control. One less WAL-mode file, one less file handle, zero new bind-mount configuration.
+- Measure memory baseline before v2.10 work starts: `free -m` during peak (6-9 AM PT) and off-peak. Document the headroom.
+- Set a hard rule: if available memory during peak drops below 300MB, stop adding features and optimize first.
+- If a new Mission Control page is added, ensure it uses the existing SWR polling pattern (30s) and doesn't add a new database connection pool.
 
 **Warning signs:**
-- MEMORY.md exists but `qmd query "Bob's memory"` returns 0 results from main
-- `ls ~/clawd/agents/main/` does not show MEMORY.md
-- Other agents' collections show unexpectedly large file counts
+- `free -m` shows available < 400MB during off-peak hours (already in trouble)
+- Swap usage consistently above 500MB (system is paging constantly)
+- Gateway latency increases during morning briefing window
+- Mission Control pages loading slowly (Next.js process competing for memory)
 
-**Phase to address:** MEMORY.md seeding phase. Verify path before triggering QMD re-index.
+**Phase to address:** Database/schema design phase. "Extend coordination.db" is the default. "New database file" requires explicit justification and a memory impact assessment.
 
 ---
 
-### Pitfall 6: Retrieval Protocol in AGENTS.md Is Ignored Because It's Too Vague
+### Pitfall 6: Voice Notes Pipeline Backlog Compounds — 28 Unprocessed Notes Already Exist
 
 **What goes wrong:**
-A line is added to AGENTS.md (or the session instruction file) that says "search memory before acting." Bob reads it but interprets it loosely — he searches memory for some tasks but skips it for quick responses, cron-triggered briefings, or when the system prompt already feels long. Over time, the retrieval protocol becomes a suggestion rather than a rule. Memory is written to but never actually improves Bob's behavior.
+The morning commute prompt feature assumes voice notes will be processed and available for Bob to reference. But `process-voice-notes.py` already has a 28-note backlog in Google Drive. The Whisper transcription service uses OpenAI API, and the OpenAI API quota is exhausted (documented in MEMORY.md). Adding "respond to commute prompts via voice notes" without fixing the existing pipeline creates a situation where the user records voice responses that never get transcribed, never get stored in coordination.db, and never influence Bob's understanding. The feature appears to work (recording is easy) but the feedback loop is broken.
 
 **Why it happens:**
-Agent behavior is shaped by specificity. "Search memory before acting" is ambiguous — search for what? When? Using which tool? With what query pattern? Without specific trigger conditions and specific query templates, the agent defaults to its prior behavior pattern. Instructions that compete with "move fast to complete the task" lose.
+Voice input is the easiest part of a voice pipeline. Recording a voice note takes 30 seconds. Transcribing it requires an API call. Storing and indexing it requires a working pipeline. The voice-memory-v2 Vercel app is dormant with 28 unprocessed .m4a files. The OpenAI Whisper API is quota-exhausted. The `process-voice-notes.py` cron runs every 2 hours but has nothing to process because the pipeline upstream is broken. Designing "commute prompts answered via voice notes" without first confirming transcription works end-to-end is building on a broken foundation.
 
 **How to avoid:**
-Make the protocol specific and conditional. Example: "Before answering any question about [Andy's health, preferences, calendar history, project decisions], run: `qmd query '[topic] [context]'` and incorporate results into your response." List the specific categories that require memory lookup. Provide example queries. Add a consequence clause: "If you skip memory search for personal questions, flag it explicitly in your response."
+- Fix the voice notes pipeline BEFORE designing any voice-input features. Clear the 28-note backlog. Verify Whisper transcription works (or switch to a free/local alternative).
+- If OpenAI API quota cannot be restored, evaluate local Whisper (whisper.cpp runs on CPU but will be slow on t3.small) or Superwhisper ($8/mo, already noted in PROJECT.md constraints as optional).
+- Alternatively, accept that voice notes are OUT OF SCOPE for v2.10 (they're listed in PROJECT.md as "evaluate at day 60") and design commute prompts with text-based response only.
+- The simplest path: commute prompts delivered via Slack DM, responded to via text in Slack. No voice pipeline dependency at all.
 
 **Warning signs:**
-- Bob consistently fails to reference information that exists in MEMORY.md
-- Bob answers personal preference questions without checking memory
-- Briefings don't show evidence of cross-session continuity (same intro phrasing every day)
+- Any design doc that says "user responds via voice note" without addressing the transcription pipeline
+- voice-memory-v2 backlog growing (currently 28, check periodically)
+- `process-voice-notes.py` cron showing 0 files processed for consecutive runs
+- OpenAI API quota still exhausted at time of implementation
 
-**Phase to address:** Retrieval protocol enforcement phase. Must be specific, not aspirational.
+**Phase to address:** Pre-implementation audit phase. Voice pipeline health is a gate check before any voice-input feature is scoped.
 
 ---
 
-### Pitfall 7: QMD Embedding Model Saturates CPU, Degrading Heartbeat Crons
+### Pitfall 7: Notification Fatigue — Bob Becomes the Nag You Ignore
 
 **What goes wrong:**
-QMD's embedding model (embeddinggemma-300M + query-expansion-1.7B) runs on CPU on the t3.small. When a memory flush produces a new file and triggers re-indexing, QMD begins embedding computation. This is a CPU-intensive operation that can run 30-120 seconds. If a heartbeat cron fires during this window (staggered at :00/:02/:04/:06), Bob's response latency spikes. In worst case, the heartbeat times out or the Slack delivery window closes before the response arrives.
+Bob currently sends: morning briefing, evening recap, heartbeat acknowledgments, content pipeline notifications, email notifications, YOLO build results, memory health alerts, and meeting prep summaries. Adding habit nudges, journal prompts, goal check-ins, and commute prompts means Bob could send 8-12 proactive messages per day. Research shows the average smartphone user receives 46-63 push notifications per day, and 55% of users cite "notification overwhelm" as their primary reason for digital detoxes. At some point, Bob's messages stop being helpful and start being noise. The user begins ignoring ALL of Bob's messages — including the useful morning briefing — because the Slack DM channel is flooded.
 
 **Why it happens:**
-t3.small has 2 vCPUs. The gateway process, QMD embedding process, and Docker container all compete for the same 2 cores. Memory flush → re-index is triggered automatically after files are written. The update interval is 15 minutes, meaning re-indexing can overlap with any cron job that fires in that 15-minute window.
+Each notification is individually justified. The morning briefing is essential. The habit nudge is helpful. The journal prompt is valuable. The commute prompt is timely. But the aggregate effect is that Bob's Slack DM becomes a wall of unread messages. The user opens the DM, sees 6 messages from Bob, and closes it without reading any of them. Frequent notifications increase cognitive load by 37% and reduce task completion efficiency by 28%.
 
 **How to avoid:**
-Set QMD's update interval to 30-60 minutes instead of 15 minutes. Schedule QMD's update window (if configurable) to avoid the heartbeat cron windows (the :00-:10 and :30-:40 minute marks). If QMD supports nice/ionice settings, apply them. Monitor: after enabling flush, check whether heartbeat cron latency increases.
+- Set a hard cap: Bob sends a maximum of 4 proactive messages per day via DM. Morning briefing counts as 1 (even though it's long). Everything else competes for the remaining 3 slots.
+- Bundle aggressively. Self-improvement content goes INTO the morning briefing, not alongside it. "Section 12: Today's Focus" with habit status + reflection prompt + commute topic is one message, not three.
+- Use a priority queue. If there's a meeting prep alert AND a habit nudge AND a journal prompt all due at 8 AM, send meeting prep (time-sensitive), defer habit nudge to 10 AM, skip journal prompt for today.
+- Deliver some content via email instead of DM (the dual-delivery infrastructure from v2.2 already exists). Journal prompts could be a quiet email, not a Slack notification.
+- Implement "quiet hours" — no proactive messages between 6 PM and 6 AM PT except urgent alerts.
 
 **Warning signs:**
-- Heartbeat cron `lastDurationMs` increases from ~5 seconds to 30+ seconds after memory flush is enabled
-- QMD re-indexing shown in `qmd status` during heartbeat windows
-- Slack shows delayed or missing heartbeat messages during QMD activity
+- More than 5 unread messages from Bob in the Slack DM at any given time
+- User responds to morning briefing but ignores subsequent messages
+- Bob sends more than 4 proactive DMs in a single day
+- User starts muting the Bob DM channel
 
-**Phase to address:** Memory health monitoring phase — after enabling flush, measure impact on cron latency before declaring success.
+**Phase to address:** Architecture/design phase. Message budget and bundling strategy must be defined before any notification is implemented.
+
+---
+
+### Pitfall 8: Weekly Review Duplicates Existing Weekly Review Cron
+
+**What goes wrong:**
+v2.10 targets "weekly review — structured retrospective with Oura energy patterns, what went well / improve." The system already has a `weekly-review` cron that runs weekly. Without careful scoping, the new "self-improvement weekly review" either duplicates the existing review (creating two weekly summaries) or attempts to extend it in ways that make the existing review fragile. Worse, two separate weekly reviews on the same day (one for system status, one for personal reflection) feels like homework.
+
+**Why it happens:**
+New milestone features are designed by looking at what's missing, not what already exists. The existing weekly review covers system health, agent status, and operational metrics. The new one is supposed to cover energy patterns and personal reflection. They feel different in design, but to the user they're both "long messages from Bob on Sunday that require reading." The distinction is clear in a planning doc but invisible in the Slack DM.
+
+**How to avoid:**
+- EXTEND the existing weekly review, don't create a second one. Add new sections: "Energy Patterns" (Oura weekly trends), "Habit Consistency" (this week's tracking summary), "Reflection" (what went well / what to improve). One weekly review, richer content.
+- If the combined review becomes too long (>2000 words), split into two parts delivered 2 hours apart: "Weekly Ops Review" at 9 AM and "Weekly Reflection" at 11 AM. Still one cron, two deliveries.
+- Inventory ALL existing crons that touch self-improvement-adjacent domains (morning briefing health section, evening recap, weekly review) and map overlaps before designing new content.
+
+**Warning signs:**
+- Two separate crons both named something like "weekly-review" and "weekly-reflection"
+- User receives two long weekly messages from Bob on the same day
+- New cron duplicates data already in existing weekly review (Oura data appears in both)
+
+**Phase to address:** Design phase. Existing cron inventory and overlap mapping is a prerequisite.
 
 ---
 
@@ -167,53 +212,56 @@ Shortcuts that seem reasonable but create long-term problems.
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Copy last MEMORY.md to new one without pruning | Fast seeding | Stale/false memories degrade QMD retrieval precision as vector store grows with contradictory chunks | Never — always curate before seeding |
-| Set softThresholdTokens=1500 for all agents | Every session flushes | Haiku heartbeats (200-400 tokens) never flush; Opus sessions flush too aggressively, creating noise | Only acceptable as a temporary test value |
-| Skip QMD query verification after bootstrap | Saves 5 minutes | Silent zero-result retrieval means the entire memory system is non-functional without anyone knowing | Never — always run at least one test query |
-| Keep contextTokens at 200K permanently | Maximizes context | OOM risk on peak-load days when briefing + heartbeats + QMD re-index all overlap | Acceptable only after 48-hour stability validation |
-| Use the same memory flush path for all 7 agents | Simpler config | Content agents (Quill, Sage, Ezra) that are cron-only produce flush files that confuse QMD's main collection | Never for cron-only agents — disable flush on agents with no continuous sessions |
+| Store habits in a flat JSON file instead of SQLite | Fast to implement, no schema design | No querying, no trends, no Mission Control integration, manual backup | Never — coordination.db already exists and is bind-mounted everywhere |
+| Hardcode habit list in a reference doc | Bob reads it and knows what to track | Cannot dynamically add/remove habits, no history of changes, no versioning | Only as a v0 prototype for first 3 days of testing |
+| Create one cron per self-improvement feature | Clean separation of concerns | 5 new crons on 25 existing = 30 total. Each one is a rate limit ticket. Morning window becomes a traffic jam | Never — bundle into existing crons (morning briefing, evening recap, weekly review) |
+| Skip Oura data integration for journal prompts | Simpler prompt generation | Prompts become generic and repetitive. The whole point of having Oura data is context-aware prompts. Without it, Bob is no better than a static prompt list | Never — Oura integration already exists in morning briefing. Reuse it |
+| Use OpenAI Whisper for voice note transcription | Best quality, already coded | API quota exhausted, costs money, external dependency. On t3.small, even local Whisper-tiny adds CPU load | Only if quota is restored AND no local alternative is acceptable |
+| Separate habits.db database file | Clean data boundary | 7th SQLite file in WAL mode, new bind-mount config, new Mission Control connection, memory overhead | Only if coordination.db schema becomes unwieldy (unlikely for <10 tables) |
 
 ---
 
 ## Integration Gotchas
 
-Common mistakes when connecting memory components.
+Common mistakes when connecting self-improvement features to existing infrastructure.
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| QMD + Docker sandbox | Assuming QMD CLI is available inside sandbox | QMD runs on HOST, not in Docker. Bob queries via OpenClaw's memory tool abstraction. Do not try to run `qmd query` inside the sandbox directly |
-| QMD + openclaw.json | Setting `memory.backend = "qmd"` without verifying QMD binary path | Check `qmd --version` first; QMD wrapper must be at `~/.bun/bin/qmd` and Bun must be in PATH for the systemd user service |
-| compaction + cron sessions | Expecting memory flush to run in isolated cron sessions | Isolated cron sessions (separate Docker container) may not trigger compaction — compaction typically fires at session end in the primary session context |
-| AGENTS.md + session instructions | Adding retrieval protocol to AGENTS.md but not to cron system prompts | AGENTS.md updates the standing instructions for interactive sessions. Cron jobs use their own payload/reference docs. Update CRON instruction files separately if retrieval should happen during cron sessions |
-| QMD + Gemini fallback | Assuming QMD failure silently returns empty results | QMD failure triggers Gemini embeddings fallback, which has different result quality. Monitor which backend is actually being used: `qmd status` should show "active", not "fallback" |
-| Memory flush + bind-mount | Writing flush output to `/workspace/memory/` inside sandbox | `/workspace/` = `~/clawd/agents/main/` on host. Memory flush files must land in this directory to be indexed by QMD's `memory-dir-main` collection |
+| Habit tracker + Slack DM | Creating a custom "habit log" syntax that Bob must parse from free-text DMs | Use structured responses: Bob asks "Did you meditate today? (yes/no)" and parses the binary. Free-text habit logging fails because LLM parsing is inconsistent across sessions |
+| Journal prompts + Oura API | Fetching Oura data in the journal prompt cron separately from morning briefing | Reuse the Oura data already fetched by morning briefing. Store today's health summary in coordination.db during briefing, reference it in journal prompt. One API call, not two |
+| Goal tracker + morning briefing | Adding a 14th section to an already 11-section morning briefing | Cap morning briefing at 12 sections maximum. Goal status should replace or merge with the tasks section, not append after it |
+| Weekly review + memory flush | Running weekly review and daily memory flush on the same day without coordination | Weekly review day (Sunday) should trigger both the review AND an enhanced flush that captures the review content. Schedule flush 2 hours after review to capture it |
+| Commute prompts + meeting prep | Both target 7-8 AM PT window | Merge: meeting prep for the day IS the commute topic on days with meetings. Standalone reflection prompt only on meeting-free mornings |
+| Habit data + Mission Control | Creating a new /habits page before the data model stabilizes | Add habit data to the existing /analytics page first. New page only after 30+ days of data and confirmed schema |
 
 ---
 
 ## Performance Traps
 
-Patterns that work initially but degrade over time.
+Patterns that work initially but degrade as usage accumulates.
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| QMD vector store grows unbounded | Query latency increases, memory usage grows | Prune/compact memory files periodically; archive old daily logs beyond 90 days | After 500+ memory files, query latency on CPU-only t3.small noticeably increases |
-| sessions.json grows to 1.7MB+ | Prune cron takes longer, gateway startup slower | `prune-sessions.sh` at 4 AM is already in place — verify it's clearing old sessions | Already at 1.7MB/74 sessions per MEMORY.md — prune is critical to maintain |
-| MEMORY.md becomes authoritative instead of curated | Bob repeats stale facts, outdated preferences override new behavior | Treat MEMORY.md as living document; review monthly | From first day if seeded with unvalidated content |
-| softThresholdTokens too low triggers every session | Explosion of memory flush files, QMD re-indexes constantly, CPU saturated | Set threshold above median session token usage | Immediate — any threshold below typical Opus session size (10K+ tokens) |
-| contextTokens at 200K with QMD injection | Memory chunks + tool outputs + session history fills context, compaction triggers too early | Cap QMD retrieval results (top-3 to top-5 chunks, not top-20), keep retrieved context under 5K tokens | From first QMD-enabled session if retrieval limits are not set |
+| Querying all habit history for trend calculation | Response latency increases, morning briefing slows | Use rolling 30-day window for daily queries, 90-day for weekly. Archive older data to a summary row | After 6 months of daily habit data (~180 rows per habit) |
+| QMD indexing journal entries as memory files | QMD collection grows with low-signal entries, search quality degrades | Journal entries go in coordination.db, NOT as .md files in the workspace. Only curated insights go to QMD | After 60+ journal entries dilute the memory-dir-main collection |
+| Morning briefing Opus session grows with more sections | Token usage per briefing increases, pushing against rate limits | Set a token budget for the briefing (target: under 4000 output tokens). New sections must displace, not append | When briefing consistently exceeds 3000 words |
+| Habit nudge cron retries on failure | Failed nudge retries at next interval, stacking with the next scheduled nudge | Single-attempt delivery with bestEffort=true. If it fails, skip. No retry. The next scheduled nudge covers it | First time cron delivery fails during rate limit window |
+| Dashboard SWR polling habits table | More tables polled = more reads = more file handle contention | Habits data included in existing coordination.db poll, not a separate endpoint | When Mission Control polls 7+ database files simultaneously |
 
 ---
 
-## Security Mistakes
+## UX Pitfalls
 
-Domain-specific security issues for this memory system.
+Common user experience mistakes in self-improvement companion design.
 
-| Mistake | Risk | Prevention |
-|---------|------|------------|
-| Seeding MEMORY.md with API keys or credentials | QMD embeds credentials into vector store; retrievable by Bob in any session including compromised ones | Never put credentials in MEMORY.md — use `~/.openclaw/.env` and openclaw.json only |
-| Retrieval protocol queries personal health data broadly | Bob retrieves sensitive Oura Ring / weight data in sessions not requiring it | Scope retrieval queries narrowly; don't do "search all memory" queries in briefing sessions |
-| Memory flush output readable by other agents | If flush path overlaps with multi-agent bind-mount, content agents can read main agent memory | Verify memory flush path is `~/clawd/agents/main/` not `~/clawd/` (parent is bind-mounted by multiple agents) |
-| MEMORY.md committed to git without scrubbing | Git history exposes health metrics, financial data, personal preferences permanently | MEMORY.md is already gitignored (in `~/clawd/`), but verify before any git operations |
+| Pitfall | User Impact | Better Approach |
+|---------|-------------|-----------------|
+| Tracking too many habits at once | Overwhelm. Research shows juggling multiple goals reduces motivation to stick with any of them. 16 habits to track weekly leads to immediate abandonment | Start with maximum 3 habits. Add one new habit only after 14 consecutive days of tracking the existing ones |
+| Asking "how are you feeling?" every day | Becomes rote. User types "good" without thinking. Zero insight value after week 1 | Ask specific, data-informed questions: "Your sleep was 5.2 hours — shorter than usual. What kept you up?" Context transforms generic into meaningful |
+| Goal check-in as interrogation | Weekly "did you make progress on Q1 OKR 2.3?" feels like a performance review from your own AI | Frame as reflection, not accountability: "Your goal was to run 3x/week. You ran twice. What got in the way?" Curious, not judgmental |
+| Delivering self-improvement content in the same channel as ops alerts | User associates the DM with "stuff I need to act on" not "time for reflection." Journal prompts get treated as tasks to complete, not invitations to reflect | Consider time-boxing: self-improvement messages only in a designated window (7-8 AM), operational messages at other times. Or use email for reflective content, Slack for actionable content |
+| No way to pause without quitting | Life gets busy. User wants to pause habit tracking for a week (vacation, illness, crunch). No pause mechanism means the choice is "keep going" or "stop entirely" | Explicit pause: "Bob, pause habits for 5 days." Bob acknowledges, stops nudging, resumes automatically. No streak penalty, no judgment |
+| Celebrating every small win | Constant "Great job!" after checking a habit box feels patronizing by day 5 | Celebrate weekly milestones only. Daily acknowledgment should be neutral: "Logged." Weekly: "86% consistency this week, up from 71% last week" — data, not cheerleading |
 
 ---
 
@@ -221,29 +269,32 @@ Domain-specific security issues for this memory system.
 
 Things that appear complete but are missing critical pieces.
 
-- [ ] **QMD bootstrap:** Config is set and gateway starts cleanly — verify by running `qmd query "Andy morning briefing preferences"` and confirming non-empty results before declaring bootstrap complete
-- [ ] **Memory flush enabled:** `compaction.memoryFlush` is set in openclaw.json — verify by triggering a session long enough to hit softThresholdTokens, then checking `ls -la ~/clawd/agents/main/*.md` for new files with today's date
-- [ ] **contextTokens increased:** Value updated in openclaw.json and gateway restarted — verify by checking `free -m` during morning briefing window for 2 consecutive days, confirming no OOM events in journalctl
-- [ ] **MEMORY.md seeded:** File written to EC2 — verify via `ls -la ~/clawd/agents/main/MEMORY.md` AND `qmd query "Andy" | head` confirms it's indexed
-- [ ] **Retrieval protocol in AGENTS.md:** Text added to standing instructions — verify by asking Bob to recall something from MEMORY.md cold (fresh session), confirming he cites it without being prompted
-- [ ] **Memory health monitoring:** Cron or mission control page added — verify it actually catches the zero-file case (mock a failure, confirm alert fires)
-- [ ] **QMD using correct backend:** `qmd status` shows "active" (not "fallback" to Gemini), collection counts are non-zero, last-indexed timestamp is recent
+- [ ] **Habit tracker:** Habits can be logged via DM — verify that habit data actually persists to coordination.db AND can be queried for weekly trends (not just today's status)
+- [ ] **Journal prompts:** Bob sends a daily prompt — verify the prompt references today's actual Oura/calendar data (not a generic question). Check 5 consecutive days for variety
+- [ ] **Goal tracker:** Goals are stored and check-ins happen — verify goal progress appears in the morning briefing AND weekly review (not just in a standalone check-in)
+- [ ] **Weekly review extension:** New sections added to weekly review — verify the review doesn't exceed 2500 words (beyond that, users skim or skip)
+- [ ] **Commute prompts:** Prompt delivered by 7:30 AM — verify it arrives BEFORE morning briefing (not buried after it) and adapts to today's calendar (meeting-heavy days get meeting prep, not generic reflection)
+- [ ] **Streak resilience:** User misses a day of habit tracking — verify the system does NOT show "streak broken" or reset to zero. Should show consistency rate instead
+- [ ] **Silence handling:** User ignores 3 consecutive journal prompts — verify Bob reduces frequency automatically (not continues sending daily prompts into the void)
+- [ ] **Data in Mission Control:** Habit data visible somewhere in the dashboard — verify it's on an existing page (analytics or home), not requiring a new page that nobody visits
+- [ ] **No new database files:** All self-improvement data stored in coordination.db — verify no new .db files were created on the EC2 instance
+- [ ] **Cron count check:** Post-implementation `openclaw cron list` — verify total cron count is 27 or fewer (25 existing + maximum 2 new, with strong justification for each)
 
 ---
 
 ## Recovery Strategies
 
-When pitfalls occur despite prevention.
+When pitfalls occur despite prevention, how to recover.
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| QMD bootstrap never ran / collections empty | LOW | Run `qmd index --collection memory-dir-main --force`; wait for completion; verify with test query |
-| Memory flush writing files but QMD not indexing them | LOW | Check `qmd status` for errors; restart QMD daemon if needed; manually trigger re-index |
-| Gateway OOM after contextTokens increase | MEDIUM | SSH via Tailscale → `systemctl --user restart openclaw-gateway.service` → DM Bob to re-establish session → reduce contextTokens → restart again |
-| Stale MEMORY.md degrading QMD retrieval quality | LOW | Edit MEMORY.md on host to remove contradictions → trigger re-index → verify queries return correct results |
-| Cron DM delivery broken after gateway restart | LOW | DM Bob from Slack immediately → wait for response → verify next cron fires correctly |
-| Memory flush creates noise (too many files) | LOW | Raise softThresholdTokens to reduce flush frequency; add QMD ignore pattern for noise files; prune oldest flush files |
-| CPU saturation from QMD re-indexing during crons | MEDIUM | Increase QMD update interval to 30-60 min; stagger config to avoid heartbeat windows; monitor for 48h |
+| User abandons habit tracking after 2 weeks | LOW | Pause all habit nudges. After 7 days, send single message: "Want to try a different approach? Fewer habits, different timing?" Redesign based on what caused abandonment |
+| Journal prompts become repetitive/generic | LOW | Replace template-based prompts with Oura-data-driven prompts. Delete existing prompt logic and rebuild with context injection. Takes 1 phase of work |
+| Rate limits hit during morning window | MEDIUM | Immediate: shift new crons to 10 AM+ window. Permanent: bundle all self-improvement content into morning briefing sections. May require briefing restructuring |
+| Notification fatigue — user muting Bob | HIGH | Drastic reduction: cut to morning briefing + evening recap only for 2 weeks. Slowly reintroduce one feature at a time with explicit user consent. This is a trust-rebuilding exercise |
+| OOM from resource accumulation | MEDIUM | SSH in, `free -m`, identify the largest consumer. Usually: reduce Mission Control polling frequency, increase QMD update interval, drop any new database connections. `systemctl --user restart openclaw-gateway.service` as immediate fix |
+| Weekly review too long / user skips it | LOW | Split into "quick stats" (300 words, always delivered) + "deep reflection" (opt-in, delivered only if user replies "yes" to "Want the full reflection?"). Two-part delivery, user controls depth |
+| Voice pipeline still broken when commute prompts launch | LOW | Switch commute prompts to text-only response via Slack DM. Document voice as deferred to v2.11 or later. No user-facing impact if expectations are set correctly |
 
 ---
 
@@ -253,28 +304,51 @@ How roadmap phases should address these pitfalls.
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| QMD not bootstrapped (#1) | Compaction & QMD Bootstrap phase | `qmd query "Andy preferences"` returns results before phase closes |
-| Memory flush misconfigured (#2) | Compaction config tuning phase | New memory file appears in `~/clawd/agents/main/` after a qualifying session |
-| contextTokens OOM (#3) | Compaction config tuning phase | `free -m` stable during briefing window for 48h |
-| Gateway restart breaks cron delivery (#4) | Every phase with gateway restart | Send DM immediately post-restart; verify next scheduled cron delivers |
-| MEMORY.md wrong path (#5) | MEMORY.md seeding phase | `ls ~/clawd/agents/main/MEMORY.md` succeeds; QMD query returns hits |
-| Retrieval protocol too vague (#6) | Retrieval protocol enforcement phase | Bob cites MEMORY.md content unprompted in a cold session |
-| QMD CPU saturation (#7) | Memory health monitoring phase | Heartbeat latency unchanged after enabling flush (measure delta) |
+| System becomes overwhelming (#1) | Phase 1: Scope and architecture | Only 1-2 features in first implementation phase. Second batch requires 14-day usage evidence |
+| Streak fragility (#2) | Habit tracker implementation phase | Show "consistency %" in a test session. Simulate missed day. Confirm no "streak broken" message |
+| Cron rate limit exhaustion (#3) | Architecture/design phase | Cron timeline map created. New crons bundled into existing ones. Total count <= 27 |
+| Journal prompt fatigue (#4) | Journal prompt implementation phase | 5 consecutive days of prompts reference different data sources. No two prompts in same category back-to-back |
+| Resource ceiling (#5) | Database schema design phase | `free -m` baseline documented. All data in coordination.db. No new .db files |
+| Voice pipeline broken (#6) | Pre-implementation audit phase | voice-notes-processor cron verified working OR voice explicitly descoped to text-only |
+| Notification fatigue (#7) | Architecture/design phase | Message budget (max 4/day) documented. Bundling strategy for morning briefing defined |
+| Duplicate weekly review (#8) | Design phase | Single weekly-review cron with extended sections. No second cron created |
+
+---
+
+## Phase-Specific Warnings
+
+Summary of which phases carry the highest pitfall density.
+
+| Phase Topic | Likely Pitfalls | Severity | Mitigation |
+|-------------|----------------|----------|------------|
+| Architecture/design | Cron proliferation (#3), notification fatigue (#7), duplicate weekly review (#8) | CRITICAL | This phase IS the mitigation. Bad architecture here cascades to every subsequent phase. Spend time here |
+| Habit tracker implementation | Streak fragility (#2), tracking too many habits (UX), system overwhelm (#1) | HIGH | Constrain to 3 habits maximum. Consistency rate, not streaks. Build silence handling from day 1 |
+| Journal prompt implementation | Prompt fatigue (#4), generic prompts (UX) | HIGH | Context-aware prompts non-negotiable. Must reference Oura/calendar data. Test for 5 days of variety before shipping |
+| Database/schema design | Resource ceiling (#5), new DB file (debt) | MEDIUM | Extend coordination.db. Measure memory baseline |
+| Voice/commute features | Broken pipeline (#6), OpenAI quota exhaustion | MEDIUM | Gate check: is transcription working? If no, text-only. Don't build on broken foundation |
+| Mission Control integration | Performance traps (polling overhead) | LOW | Use existing pages and polling patterns. No new database connections |
 
 ---
 
 ## Sources
 
-- MEMORY.md (project internal) — Current system state: QMD v1.1.0, Bun v1.3.10, searchMode=search, updateInterval=15m, 19 files in memory-dir-main, contextTokens=100000, softThresholdTokens=1500
-- PROJECT.md (project internal) — v2.9 milestone goals, infrastructure constraints (t3.small, 2GB RAM + 2GB swap, Docker sandbox), 24 cron jobs, 7 agents, gateway restart session-loss behavior
-- v2.7 PITFALLS.md (project internal) — Prior gateway restart / OOM patterns, YOLO Dev memory implications
-- v2.6-era note in v2.7 PITFALLS.md — Prior memory pitfalls: MEMORY.md curation, flush thresholds, bootstrap truncation
-- Known Issues from MEMORY.md: "Gateway restart clears DM sessions", "SKILL.md YAML frontmatter" (unquoted colons), "Resend Receiving API stale"
-- OpenClaw compaction documentation pattern derived from `compaction.memoryFlush`, `softThresholdTokens`, `reserveTokensFloor` field names observed in PROJECT.md key decisions
-- QMD behavior: "searchMode: search (BM25+vectors, avoids slow LLM reranker on t3.small CPU)" — MEMORY.md confirms QMD home, model locations, collection structure
+- [Why Do 90% of People Quit Habit Trackers Within 30 Days?](https://mooremomentum.com/blog/why-do-90-of-people-quit-habit-trackers-within-30-days/) — 92% failure rate within 60 days, 52% drop off within 30 days
+- [The Psychology of Streaks: Why They Work (And When They Backfire)](https://www.cohorty.app/blog/the-psychology-of-streaks-why-they-work-and-when-they-backfire) — Loss aversion, what-the-hell effect, 47% binge-after-break stat
+- [Why Most Habit Streaks Fail](https://mooremomentum.com/blog/why-most-habit-streaks-fail-and-how-to-build-ones-that-dont/) — 3.2x binary thinking abandonment rate, non-streak tracker superiority at 6 months
+- [Notification Fatigue Is Real and Getting Worse](https://courier-com.medium.com/notification-fatigue-is-real-and-getting-worse-e4fc248dc29f) — 97% increase in notification volume since 2020, 46-63 notifications/day average
+- [How to Reduce Notification Fatigue](https://www.courier.com/blog/how-to-reduce-notification-fatigue-7-proven-product-strategies-for-saas) — 37% cognitive load increase, 28% task completion reduction, user control as mitigation
+- [3 Ways to Avoid Betterment Burnout](https://www.psychologytoday.com/us/blog/social-instincts/202503/3-ways-to-avoid-betterment-burnout) — Self-improvement burnout as a recognized psychological pattern
+- [I'm Officially Un-tracking My Life](https://www.androidpolice.com/stop-excessive-self-tracking/) — Tracking-induced anxiety, metrics replacing genuine feeling
+- [Simple Habit Tracker Apps (No Feature Overwhelm)](https://www.cohorty.app/blog/simple-habit-tracker-apps-no-features-overwhelm-2025) — Feature creep in habit apps, simplicity winning over features
+- [Is Using AI to Generate Daily Journal Prompts Encouraging Reflection or Just Creating Busywork](https://www.alibaba.com/product-insights/is-using-ai-to-generate-daily-journal-prompts-encouraging-reflection-or-just-creating-busywork.html) — 92 "grateful/proud" entries vs 0 "angry/confused" entries over 12 weeks
+- [AI Agent Rate Limiting Strategies](https://fast.io/resources/ai-agent-rate-limiting/) — Multi-call workflows and burst patterns, workflow-aware quota reservation
+- [Your AI Agents Need Cron Jobs, Not Just Event Handlers](https://dev.to/askpatrick/your-ai-agents-need-cron-jobs-not-just-event-handlers-feh) — Cron-based agent maintenance patterns
+- PROJECT.md (internal) — 25 crons, 7 agents, 6 databases, t3.small constraints, OpenAI quota exhausted, voice notes backlog
+- MEMORY.md (internal) — QMD resource profile, existing cron schedule, swap configuration, OOM history
+- v2.9 PITFALLS.md (internal) — OOM patterns, gateway restart behavior, QMD CPU saturation, compaction tuning lessons
 
 ---
 
-*Pitfalls research for: OpenClaw memory system repair (v2.9)*
-*Researched: 2026-03-08*
-*Supersedes: v2.7 YOLO Dev PITFALLS.md*
+*Pitfalls research for: Self-improvement companion features (pops-claw v2.10)*
+*Researched: 2026-03-16*
+*Supersedes: v2.9 Memory System Overhaul PITFALLS.md*

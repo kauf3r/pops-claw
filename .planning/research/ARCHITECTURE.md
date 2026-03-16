@@ -1,600 +1,787 @@
-# Architecture: Memory System Overhaul (v2.9)
+# Architecture: Self-Improvement Companion (v2.10)
 
-**Domain:** OpenClaw QMD memory backend — compaction, indexing, retrieval, and daily log system
-**Researched:** 2026-03-08
-**Confidence:** HIGH (live system introspection via SSH), MEDIUM (OpenClaw internals)
+**Domain:** Habit tracking, journal prompts, weekly reviews, goal tracking, and morning commute voice note prompts integrated into existing OpenClaw agent/skill/cron/database architecture
+**Researched:** 2026-03-16
+**Confidence:** HIGH (existing system patterns well-documented from v2.0-v2.9), MEDIUM (voice note round-trip flow timing), LOW (ClawhHub habit-flow-skill internals -- not installed, evaluated from docs only)
 
 ---
 
-## Current System State (Verified via SSH)
+## Executive Summary
 
-Before designing fixes, the actual system state was measured. Every finding below is from direct EC2 observation.
+The self-improvement features integrate into the existing pops-claw architecture as a **single new database** (`selfimprove.db`), **4-6 new cron jobs**, **2-3 new workspace protocol docs**, and **one new Mission Control page** (`/growth`). No new agents, no new skills from ClawhHub, no new infrastructure.
+
+The key architectural insight is that every self-improvement feature maps onto patterns already established and battle-tested across 9 milestones: cron-triggered prompts follow the reference doc pattern (MEETING_PREP.md, YOLO_BUILD.md), data storage follows the SQLite + bind-mount + WAL-mode-read pattern (6 existing databases), voice note integration reuses the existing Google Drive -> Whisper -> coordination.db pipeline (process-voice-notes.py), and dashboard pages follow the SWR + API route + better-sqlite3 pattern (7 existing pages).
+
+The critical design decision is: **one new database (`selfimprove.db`) rather than scattering tables across coordination.db**. Reason: coordination.db already serves 4+ purposes (tasks, voice notes, agent coordination, user calendar). Adding habits, goals, journal entries, and streaks would make it a dumping ground. A dedicated database maintains the pattern of domain-specific SQLite files (health.db for Oura, content.db for articles, email.db for conversations, yolo.db for builds).
+
+---
+
+## System Architecture: Current State + New Components
 
 ```
-EC2 (100.72.143.9) — t3.small, 2GB RAM + 2GB swap
+EC2 (100.72.143.9) -- t3.small, 2GB RAM + 2GB swap
 |
-+-- OpenClaw v2026.3.2 (gateway on loopback :18789)
++-- OpenClaw v2026.3.11 (gateway on loopback :18789)
 |   +-- Config: ~/.openclaw/openclaw.json
-|   +-- memory.backend: "qmd"
-|   +-- memorySearch.provider: "gemini" (Gemini embeddings as fallback)
-|   +-- compaction.mode: "safeguard"
-|   +-- compaction.reserveTokensFloor: 24000
-|   +-- compaction.memoryFlush.softThresholdTokens: 1500   <-- BROKEN
-|   +-- agents.defaults.contextTokens: 100000
+|   +-- 7 agents (main, landos, rangeos, ops, quill, sage, ezra)
+|   +-- 25 cron jobs (staggered heartbeats, briefings, content pipeline, etc.)
+|   +-- 18 skills at ~/.openclaw/skills/
 |
-+-- QMD v1.1.0 (at ~/.bun/bin/qmd)
-|   +-- Index: ~/.openclaw/agents/main/qmd/xdg-cache/qmd/index.sqlite (3.2MB)
-|   +-- Models: embeddinggemma-300M + qmd-query-expansion-1.7B
-|   +-- Config: ~/.openclaw/agents/main/qmd/xdg-config/index.yml
-|   +-- searchMode: "search" (BM25, avoids slow LLM reranker)
-|   +-- Update interval: 15m
++-- EXISTING DATABASES (6)
+|   +-- health.db       -- Oura Ring data (sleep, readiness, HRV)
+|   +-- coordination.db -- tasks, voice_notes, agent coordination
+|   +-- content.db      -- content pipeline (topics, drafts, articles)
+|   +-- email.db        -- AgentMail conversations
+|   +-- observability.db -- agent output + event logs
+|   +-- yolo.db         -- YOLO Dev build history
 |
-+-- QMD Collections (3 auto-created per agent)
-|   +-- memory-root-main: path ~/clawd/agents/main, pattern MEMORY.md  [0 files]
-|   +-- memory-alt-main:  path ~/clawd/agents/main, pattern memory.md  [0 files]
-|   +-- memory-dir-main:  path ~/clawd/agents/main/memory, **/*.md     [21 files]
-|   NOTE: memory-root-main and memory-alt-main match NOTHING (no files fit patterns)
-|   NOTE: memory-dir-main IS indexed but points to WRONG location (see below)
++-- NEW: selfimprove.db  <-- single new database for all self-improvement data
+|   +-- habits           -- habit definitions + daily completions
+|   +-- habit_logs       -- individual completion events
+|   +-- goals            -- OKR-style goals with key results
+|   +-- goal_checkins    -- weekly progress check-ins
+|   +-- journal_entries  -- daily journal responses (mood, energy, reflection)
+|   +-- commute_prompts  -- morning prompt delivery + response tracking
 |
-+-- Workspace Mounts
-|   +-- agents.defaults.workspace: /home/ubuntu/clawd
-|   +-- Docker maps workspace root to /workspace/ inside container
-|   +-- So /workspace/memory/ inside container = ~/clawd/memory/ on host
++-- NEW CRON JOBS (4-6)
+|   +-- morning-commute-prompt  -- 7:15 AM PT, before commute, Slack DM
+|   +-- journal-prompt          -- 8:00 PM PT, evening reflection, Slack DM
+|   +-- habit-nudge             -- 9:00 PM PT, accountability check, Slack DM
+|   +-- weekly-growth-review    -- 8:00 AM PT Sundays, structured retrospective
+|   +-- (optional) midday-checkin -- 12:00 PM PT, energy/focus pulse
+|   +-- (optional) goal-weekly-checkin -- Fridays 4:00 PM PT
 |
-+-- CRITICAL DISCREPANCY: Two memory directories exist
-|   +-- ~/clawd/memory/             (3 files, Jan 25-29 — old format, PRE-YOLO)
-|   +-- ~/clawd/agents/main/memory/ (21 files, Feb 2 - Mar 7 — CURRENT, all recent)
-|   QMD indexes ~/clawd/agents/main/memory/ (matches what agents actually write to)
-|   But the Docker workspace maps to ~/clawd/memory/ (which agents DON'T write to)
++-- NEW WORKSPACE DOCS
+|   +-- ~/clawd/agents/main/GROWTH_COMPANION.md  -- standing instructions
+|   +-- ~/clawd/agents/main/JOURNAL_PROMPT.md     -- evening cron reference doc
+|   +-- ~/clawd/agents/main/WEEKLY_REVIEW_GROWTH.md -- Sunday review reference doc
+|   +-- ~/clawd/agents/main/COMMUTE_PROMPT.md     -- morning prompt reference doc
 |
-+-- Daily Memory Flush (cron: daily-memory-flush, 7 AM UTC, isolated session)
-|   +-- Writes to: memory/YYYY-MM-DD.md (relative to /workspace/)
-|   +-- Resolved host path: ~/clawd/agents/main/memory/ (confirmed by file evidence)
-|   +-- Status: WORKING — writes thin files (3-65 lines) since compaction rarely fires
-|   +-- Files are thin because: built-in compaction flush almost never triggers
-|   +-- The cron flush IS reliable: 20 of 21 memory files are from cron
++-- MODIFIED COMPONENTS
+|   +-- morning-briefing cron -- add Section 12: Growth Dashboard (streaks, goals)
+|   +-- weekly-review cron -- add self-improvement section (habit trends, goal progress)
+|   +-- openclaw.json -- add selfimprove.db bind-mount to sandbox
+|   +-- Mission Control -- add /growth page
 |
-+-- MEMORY.md (long-term seed file)
-|   +-- ~/clawd/MEMORY.md (3057 bytes, Feb 23) — exists but NOT indexed
-|   +-- QMD memory-root-main looks for MEMORY.md in ~/clawd/agents/main/ — wrong path
-|   +-- MEMORY.md needs to exist in ~/clawd/agents/main/ to be found
-|
-+-- compaction.memoryFlush (built-in session flush — BROKEN)
-|   +-- mode: "safeguard" with reserveTokensFloor: 24000
-|   +-- softThresholdTokens: 1500 = fires when < 1500 tokens remain after pruning
-|   +-- Math: 24000 (reserve floor) - 1500 (threshold) = 22500 tokens used before flush
-|   +-- In practice: most sessions never reach 22500 tokens of reserved context
-|   +-- Result: built-in flush almost never fires; memory-flush prompt is effectively dead
-```
-
----
-
-## System Architecture: Memory Data Flow (Current State)
-
-```
-                    WRITE PATH (how memories enter the system)
-
-User interacts -> Bob (main agent) -> session context accumulates
-                                           |
-                            compaction fires at contextTokens=100000
-                                           |
-                            safeguard mode: prune to reserveTokensFloor=24000
-                                           |
-                            IF remaining < softThresholdTokens (1500):
-                              fire memoryFlush prompt -> write memory/*.md
-                              [THIS ALMOST NEVER HAPPENS: threshold is too low]
-                                           |
-                                           v
-                            daily-memory-flush cron (7 AM UTC, isolated)
-                              reads DAILY_FLUSH.md from /workspace/
-                              queries coordination.db, email.db, content.db
-                              writes memory/YYYY-MM-DD.md to /workspace/memory/
-                              [THIS IS THE ACTUAL WORKING PATH]
-
-                    INDEX PATH (how memories get into QMD)
-
-~/clawd/agents/main/memory/*.md
-          |
-          | QMD update every 15m (onBoot: true)
-          v
-memory-dir-main collection (21 files indexed, 3.2MB index)
-          |
-          | BM25 search (qmd search mode)
-          v
-    search results (scored, ranked)
-
-                    READ PATH (how Bob retrieves memories)
-
-Agent session starts
-          |
-          | OpenClaw injects QMD search results into context
-          | (memorySearch.provider: gemini triggers fallback search path)
-          | QMD is primary backend, Gemini embeddings as secondary
-          v
-Bob's context includes memory snippets at session start
++-- EXISTING VOICE NOTES PIPELINE (reused, not modified)
+    +-- Google Drive "Voice Notes" folder
+    +-- ~/scripts/process-voice-notes.py (polls Drive, Whisper transcription)
+    +-- coordination.db voice_notes table (stores transcripts)
+    +-- voice-notes-processor cron (every 2h)
 ```
 
 ---
 
 ## Recommended Architecture
 
-### System Overview
+### Component Boundaries
 
+| Component | Responsibility | Communicates With | New/Modified |
+|-----------|----------------|-------------------|--------------|
+| `selfimprove.db` | Store all self-improvement data (habits, goals, journal, streaks) | Bob via Python sqlite3 in sandbox, Mission Control via better-sqlite3 | NEW |
+| `GROWTH_COMPANION.md` | Standing instructions for Bob: how to log habits, respond to journal prompts, track goals, handle commute voice notes | Bob reads at session start | NEW |
+| `morning-commute-prompt` cron | Deliver reflection/discussion topic before commute | Slack DM via main agent, reads selfimprove.db for context | NEW |
+| `journal-prompt` cron | Deliver evening reflection prompt | Slack DM via main agent, reads health.db (Oura) for energy context | NEW |
+| `habit-nudge` cron | Evening accountability check on incomplete habits | Slack DM, reads selfimprove.db habit_logs for today | NEW |
+| `weekly-growth-review` cron | Sunday structured retrospective | Slack DM, reads selfimprove.db + health.db for weekly patterns | NEW |
+| `morning-briefing` cron | Section 12: Growth Dashboard snapshot | Reads selfimprove.db for streaks, goals, yesterday's journal | MODIFIED |
+| `weekly-review` cron | Add self-improvement section | Reads selfimprove.db for weekly habit completion rates | MODIFIED |
+| Mission Control `/growth` | Dashboard page for self-improvement data | Reads selfimprove.db via API route | NEW |
+| `process-voice-notes.py` | Existing voice note pipeline (unchanged) | coordination.db voice_notes table | UNCHANGED |
+| Bob (main agent) | Processes DM responses to prompts, logs to selfimprove.db | selfimprove.db via Python sqlite3, Slack DM | ENHANCED |
+
+### Database Schema: selfimprove.db
+
+```sql
+-- Habit definitions
+CREATE TABLE habits (
+    id TEXT PRIMARY KEY,           -- UUID
+    name TEXT NOT NULL,            -- "Meditation", "Exercise", "Read 30min"
+    frequency TEXT NOT NULL DEFAULT 'daily',  -- daily, weekday, weekly
+    target_count INTEGER DEFAULT 1, -- times per period
+    category TEXT,                  -- health, mind, productivity, social
+    created_at TEXT NOT NULL,       -- ISO 8601
+    archived_at TEXT,               -- NULL = active
+    streak_current INTEGER DEFAULT 0,
+    streak_best INTEGER DEFAULT 0,
+    streak_last_date TEXT           -- last completion date for streak calc
+);
+
+-- Individual habit completion events
+CREATE TABLE habit_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    habit_id TEXT NOT NULL REFERENCES habits(id),
+    completed_at TEXT NOT NULL,     -- ISO 8601
+    notes TEXT,                     -- optional context from Bob
+    source TEXT DEFAULT 'slack_dm', -- slack_dm, voice_note, briefing
+    UNIQUE(habit_id, completed_at)  -- prevent double-logging same day
+);
+
+-- OKR-style goals
+CREATE TABLE goals (
+    id TEXT PRIMARY KEY,            -- UUID
+    title TEXT NOT NULL,            -- "Ship v2.10 by March 30"
+    description TEXT,
+    category TEXT,                  -- personal, professional, health, learning
+    target_date TEXT,               -- ISO 8601
+    status TEXT DEFAULT 'active',   -- active, completed, paused, abandoned
+    created_at TEXT NOT NULL,
+    completed_at TEXT
+);
+
+-- Key results for each goal
+CREATE TABLE key_results (
+    id TEXT PRIMARY KEY,
+    goal_id TEXT NOT NULL REFERENCES goals(id),
+    description TEXT NOT NULL,      -- "Complete 3 phases per week"
+    target_value REAL,              -- 3.0
+    current_value REAL DEFAULT 0,   -- 2.0
+    unit TEXT,                      -- "phases", "sessions", "%"
+    updated_at TEXT
+);
+
+-- Weekly goal check-ins
+CREATE TABLE goal_checkins (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    goal_id TEXT NOT NULL REFERENCES goals(id),
+    week_start TEXT NOT NULL,       -- Monday date ISO 8601
+    progress_notes TEXT,            -- Bob's summary
+    blockers TEXT,
+    confidence INTEGER,             -- 1-5 scale
+    created_at TEXT NOT NULL
+);
+
+-- Journal entries (daily reflections)
+CREATE TABLE journal_entries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,              -- YYYY-MM-DD
+    prompt TEXT,                     -- the prompt Bob delivered
+    response TEXT,                   -- Andy's response
+    mood INTEGER,                   -- 1-5 scale (extracted by Bob from response)
+    energy INTEGER,                 -- 1-5 scale (extracted by Bob, or from Oura)
+    themes TEXT,                    -- JSON array of extracted themes
+    gratitude TEXT,                 -- extracted gratitude items
+    created_at TEXT NOT NULL,
+    source TEXT DEFAULT 'slack_dm', -- slack_dm, voice_note
+    UNIQUE(date)                   -- one journal entry per day
+);
+
+-- Morning commute prompts (delivery + response tracking)
+CREATE TABLE commute_prompts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,              -- YYYY-MM-DD
+    prompt_text TEXT NOT NULL,       -- what Bob sent
+    prompt_category TEXT,            -- reflection, planning, gratitude, creative, growth
+    delivered_at TEXT,               -- ISO 8601
+    response_text TEXT,              -- Andy's response (if any)
+    response_source TEXT,            -- slack_dm, voice_note
+    responded_at TEXT,
+    voice_note_id TEXT,             -- FK to coordination.db voice_notes if from voice
+    UNIQUE(date)
+);
 ```
-+------------------------------------------------------------------------+
-|                        MEMORY SYSTEM (Target State)                    |
-+------------------------------------------------------------------------+
-|                                                                        |
-|  WRITE LAYER                  INDEX LAYER         READ LAYER          |
-|                                                                        |
-|  +------------------+         +----------+      +------------------+  |
-|  | Built-in Flush   |         |          |      |                  |  |
-|  | (fixed threshold)|-------> |   QMD    |----> | Agent context    |  |
-|  +------------------+         | v1.1.0   |      | at session start |  |
-|                               |          |      |                  |  |
-|  +------------------+         | Index:   |      | Bob reads mem    |  |
-|  | daily-memory-    |-------> | memory/  |      | via tool call    |  |
-|  | flush cron       |         | *.md     |      | (protocol doc)   |  |
-|  +------------------+         |          |      +------------------+  |
-|                               | MEMORY.md|                            |
-|  +------------------+         | (seeded) |      +------------------+  |
-|  | MEMORY.md        |-------> |          |      | Memory health    |  |
-|  | (long-term seed) |         +----------+      | monitoring cron  |  |
-|  +------------------+              |            | (daily report)   |  |
-|                                    |            +------------------+  |
-|  Per-agent:                        | Update                           |
-|  ~/clawd/agents/main/memory/  <----+ every 15m                        |
-|  ~/clawd/agents/main/MEMORY.md                                        |
-+------------------------------------------------------------------------+
-```
 
-### Component Responsibilities
-
-| Component | Responsibility | Status |
-|-----------|----------------|--------|
-| `compaction.memoryFlush` | In-session flush when context fills — write session summary to memory/ | BROKEN (threshold too low) |
-| `daily-memory-flush` cron | Daily isolated cron — writes structured YYYY-MM-DD.md from DB queries | WORKING (thin files only) |
-| QMD memory-dir-main | Indexes memory/*.md every 15m, provides BM25 search | WORKING |
-| QMD memory-root-main | Should index MEMORY.md — currently indexes 0 files (wrong path) | BROKEN |
-| MEMORY.md seed | Long-term curated knowledge base about Andy and the system | EXISTS but not indexed |
-| Retrieval protocol | AGENTS.md instruction to search memory before acting | MISSING |
-| Memory health monitoring | Verify memory files are being written with adequate content | MISSING |
+**Why this schema:**
+- **Separate habits from habit_logs:** Habits are definitions (what to track), logs are events (when completed). Enables streak calculation, completion rate stats, and historical analysis without scanning a flat table.
+- **Goals with key_results:** OKR pattern gives measurable progress. Bob can update `current_value` during check-ins. Dashboard shows progress bars.
+- **Journal entries with extracted fields:** Bob extracts mood/energy/themes from Andy's freeform response. Enables trend charts over time without requiring Andy to fill forms.
+- **Commute prompts link to voice_notes:** The `voice_note_id` field connects morning commute responses (captured via voice) back to the existing voice notes pipeline. No pipeline modification needed.
 
 ---
 
-## Integration Points: QMD + Gemini + memorySearch
+## Data Flow: Feature by Feature
 
-This is the most complex part of the system — two memory backends with overlapping roles.
-
-### How QMD and Gemini Interact
+### Flow 1: Habit Tracking (Slack DM Logging)
 
 ```
-openclaw.json:
-  memory.backend: "qmd"           <- PRIMARY backend: QMD handles storage + indexing
-  agents.defaults.memorySearch:
-    provider: "gemini"            <- SEARCH overlay: Gemini embeddings for retrieval
-    model: "gemini-embedding-001"
-
-config.yaml (user-level override):
-  memorySearch:
-    experimental:
-      sessionMemory:
-        enabled: true
-        sources: [memory, sessions]
+Andy DMs Bob: "Done with meditation and exercise today"
+         |
+         v
+Bob (main agent) reads GROWTH_COMPANION.md standing instructions
+         |
+         v  [pattern match: habit completion keywords]
+Bob queries selfimprove.db for matching active habits:
+  SELECT id, name FROM habits WHERE archived_at IS NULL
+         |
+         v
+Bob inserts into habit_logs:
+  INSERT INTO habit_logs (habit_id, completed_at, source) VALUES (?, date('now'), 'slack_dm')
+         |
+         v
+Bob updates streak in habits table:
+  UPDATE habits SET streak_current = streak_current + 1,
+    streak_last_date = date('now'),
+    streak_best = MAX(streak_best, streak_current + 1)
+  WHERE id = ? AND streak_last_date = date('now', '-1 day')
+         |
+         v (streak broken if streak_last_date != yesterday)
+  UPDATE habits SET streak_current = 1, streak_last_date = date('now')
+  WHERE id = ? AND streak_last_date != date('now', '-1 day')
+         |
+         v
+Bob responds: "Logged meditation (12-day streak!) and exercise (3-day streak)"
 ```
 
-**What this means:**
-- QMD is the indexing and storage system (21 files indexed, BM25 working)
-- Gemini embeddings are configured as the retrieval provider — this may mean Gemini generates the embeddings used DURING search, even though QMD indexes the files
-- The `experimental.sessionMemory.enabled: true` in config.yaml activates session-history search alongside file-based memory search
-- These two layers are complementary, not conflicting. QMD indexes the files; Gemini (optionally) enhances retrieval quality
+**Key pattern:** Bob handles habit logging conversationally via DM. No skill trigger needed -- GROWTH_COMPANION.md gives standing instructions to recognize habit completion language and log it. This matches the VOICE_NOTES_PROTOCOL.md pattern (workspace protocol doc, not skill).
 
-**Confidence: MEDIUM** — OpenClaw's internal routing between QMD and Gemini memorySearch is not publicly documented. The observed behavior (QMD search returns results) suggests QMD is functioning as primary.
+### Flow 2: Morning Commute Prompt -> Voice Note -> Processing -> Tracking
 
-### Correct Config Structure for Both
+```
+CRON: morning-commute-prompt fires at 7:15 AM PT
+         |
+         v
+Bob reads COMMUTE_PROMPT.md reference doc
+         |
+         v
+Bob queries selfimprove.db for context:
+  - Recent journal themes (last 7 days)
+  - Active goals needing attention
+  - Yesterday's Oura readiness score (from health.db)
+  - Current habit streaks at risk (streak_last_date = 2 days ago)
+         |
+         v
+Bob selects and personalizes a prompt from category rotation:
+  Categories: reflection, planning, gratitude, creative, growth
+  Example: "Your readiness was 85 yesterday and you have 3 active goals.
+           On your commute today, think about: What's the one thing that
+           would make this week feel successful? Record a voice note."
+         |
+         v
+Bob delivers prompt via Slack DM + logs to selfimprove.db:
+  INSERT INTO commute_prompts (date, prompt_text, prompt_category, delivered_at)
+         |
+         v  [Andy records voice note via Monologue app on phone]
+         |
+Phone -> Google Drive "Voice Notes" folder
+         |
+         v  [existing pipeline, no changes]
+~/scripts/process-voice-notes.py (cron: every 2h)
+  - Downloads from Google Drive
+  - Whisper transcription (tiny model)
+  - Stores in coordination.db voice_notes table
+  - Moves to "Processed" folder
+         |
+         v  [NEW: Bob processes voice note with growth context]
+Bob's next session (heartbeat or DM) reads GROWTH_COMPANION.md:
+  "Check coordination.db for new voice notes since last check.
+   If a voice note was recorded within 2 hours of a commute prompt,
+   link it as the commute prompt response."
+         |
+         v
+Bob updates commute_prompts:
+  UPDATE commute_prompts SET
+    response_text = ?, response_source = 'voice_note',
+    responded_at = ?, voice_note_id = ?
+  WHERE date = date('now')
+         |
+         v
+Bob extracts themes/insights and logs to journal or goal check-in as appropriate
+```
 
+**Critical timing note:** The voice note pipeline runs every 2 hours. A voice note recorded at 7:30 AM during commute won't be transcribed until the 8:00 or 10:00 AM pipeline run. Bob's association of voice note to commute prompt happens at the NEXT session after transcription completes. This delay is acceptable -- the response doesn't need real-time processing. The key is the association logic in GROWTH_COMPANION.md: "within 2 hours of commute prompt delivery time."
+
+### Flow 3: Evening Journal Prompt
+
+```
+CRON: journal-prompt fires at 8:00 PM PT
+         |
+         v
+Bob reads JOURNAL_PROMPT.md reference doc
+         |
+         v
+Bob queries for context:
+  - Today's Oura readiness + sleep (health.db)
+  - Today's habit completions (selfimprove.db)
+  - Today's commute prompt + response if any (selfimprove.db)
+  - Recent journal themes for variety (selfimprove.db, last 7 days)
+         |
+         v
+Bob constructs personalized prompt:
+  "You completed 4/5 habits today (missed reading). Your energy was 78.
+   Reflect on: What energized you most today? What would you do differently?"
+         |
+         v
+Bob delivers via Slack DM
+         |
+         v  [Andy responds in DM or via voice note]
+Bob receives response (DM session) or picks up voice note (next pipeline run)
+         |
+         v
+Bob extracts structured fields from freeform response:
+  - mood (1-5, inferred from language)
+  - energy (1-5, from Oura or self-report)
+  - themes (array: ["focus", "exercise", "meetings"])
+  - gratitude items (if present)
+         |
+         v
+Bob inserts into selfimprove.db:
+  INSERT INTO journal_entries (date, prompt, response, mood, energy, themes, gratitude, source, created_at)
+```
+
+### Flow 4: Weekly Growth Review (Sunday)
+
+```
+CRON: weekly-growth-review fires at 8:00 AM PT Sunday
+         |
+         v
+Bob reads WEEKLY_REVIEW_GROWTH.md reference doc
+         |
+         v
+Bob queries selfimprove.db + health.db for the week:
+  - Habit completion rates per habit (7-day window)
+  - Streaks gained/lost
+  - Journal mood/energy trend (7 data points)
+  - Goal progress (key_results current_value changes)
+  - Commute prompt response rate
+  - Oura weekly averages (sleep, readiness, HRV)
+         |
+         v
+Bob constructs structured weekly review:
+  ## This Week's Growth
+
+  ### Habits (5/7 days average)
+  - Meditation: 7/7 (14-day streak!)
+  - Exercise: 5/7 (streak: 5)
+  - Reading: 3/7 (needs attention)
+
+  ### Energy & Mood Trend
+  [text description of Mon-Sun pattern]
+  Oura avg readiness: 82, sleep: 7.4h
+
+  ### Goals Progress
+  - Ship v2.10: 60% -> 75% (on track)
+  - Read 12 books in 2026: 3/12 (behind pace)
+
+  ### Patterns Noticed
+  [Bob's AI analysis of correlations:
+   "Exercise days correlate with higher mood scores.
+    Reading habit drops on meeting-heavy days."]
+
+  ### Next Week Focus
+  [Based on patterns, suggest 1-2 adjustments]
+         |
+         v
+Bob delivers via Slack DM
+Bob logs goal_checkins for each active goal
+```
+
+### Flow 5: Morning Briefing Integration (Section 12)
+
+```
+EXISTING CRON: morning-briefing fires at 7:00 AM PT
+         |
+         v  [existing 11 sections unchanged]
+         |
+         v  [NEW Section 12: Growth Dashboard]
+Bob queries selfimprove.db:
+  - Active habit streaks (top 3 by streak length)
+  - Yesterday's habit completion (X/Y)
+  - Current mood trend (last 3 days)
+  - Goals with upcoming target dates
+  - Commute prompt for today (already delivered at 7:15? or preview)
+         |
+         v
+Section 12: Growth Dashboard
+  Habits: 4/5 yesterday | Meditation 14-day streak
+  Mood trend: 4, 3, 4 (stable)
+  Goals: v2.10 75% (due Mar 30) | Reading 25% (behind)
+```
+
+---
+
+## Integration Points: What's New vs Modified vs Unchanged
+
+### New Components
+
+| Component | Type | Location | Depends On |
+|-----------|------|----------|------------|
+| `selfimprove.db` | SQLite database | `~/clawd/selfimprove.db` | Schema creation script |
+| `GROWTH_COMPANION.md` | Workspace protocol doc | `~/clawd/agents/main/GROWTH_COMPANION.md` | selfimprove.db schema |
+| `JOURNAL_PROMPT.md` | Cron reference doc | `~/clawd/agents/main/JOURNAL_PROMPT.md` | GROWTH_COMPANION.md |
+| `WEEKLY_REVIEW_GROWTH.md` | Cron reference doc | `~/clawd/agents/main/WEEKLY_REVIEW_GROWTH.md` | selfimprove.db populated |
+| `COMMUTE_PROMPT.md` | Cron reference doc | `~/clawd/agents/main/COMMUTE_PROMPT.md` | GROWTH_COMPANION.md |
+| `morning-commute-prompt` | OpenClaw cron | openclaw.json crons array | COMMUTE_PROMPT.md |
+| `journal-prompt` | OpenClaw cron | openclaw.json crons array | JOURNAL_PROMPT.md |
+| `habit-nudge` | OpenClaw cron | openclaw.json crons array | selfimprove.db |
+| `weekly-growth-review` | OpenClaw cron | openclaw.json crons array | WEEKLY_REVIEW_GROWTH.md |
+| `/growth` page | Mission Control page | `~/clawd/mission-control/src/app/growth/` | selfimprove.db |
+| `/api/growth/*` | API routes | `~/clawd/mission-control/src/app/api/growth/` | selfimprove.db |
+
+### Modified Components
+
+| Component | Change | Risk |
+|-----------|--------|------|
+| `openclaw.json` | Add selfimprove.db to sandbox bind-mounts + add 4-6 new cron entries | LOW -- established pattern, requires gateway restart |
+| `morning-briefing` cron payload or reference doc | Add Section 12: Growth Dashboard | LOW -- additive section, no existing sections affected |
+| `weekly-review` cron reference doc | Add self-improvement section | LOW -- additive section |
+| Mission Control `db-paths.ts` | Add selfimprove.db path | LOW -- one line |
+| Mission Control `NavBar` | Add /growth link | LOW -- one component |
+
+### Unchanged Components
+
+| Component | Why Unchanged |
+|-----------|---------------|
+| `process-voice-notes.py` | Existing pipeline already transcribes voice notes to coordination.db. Commute prompt responses go through the same pipeline. Bob associates them after transcription. |
+| `health.db` | Read-only for Oura data. Journal prompts READ energy/sleep data but don't write to health.db. |
+| `coordination.db` | Voice notes still stored here. No new tables added. Bob reads voice_notes to find commute responses. |
+| All 7 agents | No new agents. Main agent (Bob) handles all self-improvement features. |
+| All 18 skills | No new ClawhHub skills installed. Protocol docs handle everything. |
+| QMD memory system | Unchanged. selfimprove.db data is queried directly, not via memory search. |
+| Docker sandbox config | Only change is bind-mount addition for selfimprove.db. |
+
+---
+
+## Patterns to Follow
+
+### Pattern 1: Reference Doc Pattern for Cron Instructions (Established v2.0+)
+
+**What:** Cron payload message is concise ("Follow JOURNAL_PROMPT.md"). Detailed instructions live in the workspace protocol doc.
+
+**When:** Every new cron job for self-improvement features.
+
+**Why:** Cron payloads have character limits and are stored in openclaw.json (hard to edit). Reference docs are markdown files on disk (easy to iterate, version-controlled, readable by Bob at session start).
+
+**Example:**
 ```json
-// memory block: configures QMD storage backend
-"memory": {
-  "backend": "qmd",
-  "citations": "auto",
-  "qmd": {
-    "command": "/home/ubuntu/.bun/bin/qmd",
-    "searchMode": "search",          // BM25 only (avoids slow LLM reranker on t3.small)
-    "includeDefaultMemory": true,
-    "update": {
-      "interval": "15m",
-      "debounceMs": 15000,
-      "onBoot": true
-    },
-    "limits": {
-      "maxResults": 6,
-      "timeoutMs": 8000
-    }
-  }
-}
-
-// memorySearch block: configures HOW retrieval queries are formed/ranked
-// Gemini generates embedding vectors for similarity matching
-// Keep this — removing it risks degrading retrieval quality
-"agents": {
-  "defaults": {
-    "memorySearch": {
-      "provider": "gemini",
-      "model": "gemini-embedding-001"
-    }
-  }
+{
+  "id": "journal-prompt-001",
+  "name": "journal-prompt",
+  "agentId": "main",
+  "schedule": { "expr": "0 20 * * *", "tz": "America/Los_Angeles", "kind": "cron" },
+  "sessionTarget": "main",
+  "isolated": true,
+  "payload": {
+    "kind": "systemEvent",
+    "text": "Follow JOURNAL_PROMPT.md to deliver tonight's reflection prompt."
+  },
+  "delivery": { "channel": "slack:dm", "bestEffort": true }
 }
 ```
 
-**Rule:** Do NOT remove the Gemini memorySearch config. It is a retrieval enhancement on top of QMD storage. If Gemini API is unavailable, QMD BM25 still works (degraded but functional).
+### Pattern 2: SQLite + Bind-Mount + WAL-Mode Read (Established v2.5+)
 
----
+**What:** New database file on EC2 host, bind-mounted into Docker sandbox for agent writes, read by Mission Control via better-sqlite3 in WAL mode.
 
-## Critical Path Analysis: What's Broken and Why
+**When:** selfimprove.db creation and access.
 
-### Issue 1: Built-in compaction flush never fires (HIGH IMPACT)
-
-**Root cause:** `softThresholdTokens: 1500` is the number of tokens remaining in the reserved floor before flush triggers. With `reserveTokensFloor: 24000`, the flush fires only when 22,500+ tokens of the reserved window are consumed. In normal sessions (heartbeats, briefings), this threshold is never reached.
-
-**Math:**
-```
-contextTokens = 100,000
-reserveTokensFloor = 24,000
-softThresholdTokens = 1,500
-
-Compaction triggers at: 100,000 - 24,000 = 76,000 tokens used
-Flush triggers at: reserveFloor (24,000) - softThreshold (1,500) = 22,500 tokens used in resumed context
-
-=> Flush fires only in extremely long sessions (rare heartbeats or user conversations)
-```
-
-**Fix:** Raise `softThresholdTokens` to 6,000-10,000. This makes the flush trigger when 14,000-18,000 tokens remain in the reserved window — much more frequent. Previous config used 6,000 (visible in .bak files).
-
+**Example:**
 ```json
-"compaction": {
-  "mode": "safeguard",
-  "reserveTokensFloor": 24000,
-  "memoryFlush": {
-    "enabled": true,
-    "softThresholdTokens": 8000,   // was 1500; fires at ~16000 tokens consumed in resume
-    ...
-  }
-}
+// openclaw.json: agents.defaults.sandbox.docker.binds
+"/home/ubuntu/clawd/selfimprove.db:/workspace/selfimprove.db:rw"
 ```
 
-### Issue 2: MEMORY.md not indexed by QMD (MEDIUM IMPACT)
-
-**Root cause:** QMD `memory-root-main` collection looks for `MEMORY.md` in `~/clawd/agents/main/`. The file exists at `~/clawd/MEMORY.md` (the workspace root). No MEMORY.md exists at the path QMD searches.
-
-**Fix (two options):**
-- Option A: Copy/move MEMORY.md to `~/clawd/agents/main/MEMORY.md` — QMD picks it up automatically
-- Option B: Update QMD collection path in `~/.openclaw/agents/main/qmd/xdg-config/index.yml` to point to `~/clawd/` instead of `~/clawd/agents/main/`
-
-**Recommendation: Option A.** The agent workspace is `~/clawd/agents/main/` (where all reference docs live — AGENTS.md, SOUL.md, HEARTBEAT.md). MEMORY.md should live there too. The file at `~/clawd/MEMORY.md` is a legacy location from before per-agent workspaces were established.
-
-### Issue 3: Daily flush writes thin files (LOW-MEDIUM IMPACT)
-
-**Root cause:** The `daily-memory-flush` cron fires at 7 AM UTC (before morning session activity). It only captures what happened "yesterday" — but most substantive interactions happen DURING the day, not before 7 AM.
-
-**Observed evidence:** March 3, 4, 5, 6 files are 3-5 lines ("Quiet day — routine cron operations only."). March 7 is 23 lines (had real activity). The flush IS working, but captures minimal content on low-activity days.
-
-**Fix:** The flush works correctly. The content quality problem is the compaction flush not firing during sessions. Once the built-in flush fires more frequently, the daily cron captures substantive session summaries written during the day.
-
-### Issue 4: No retrieval protocol in AGENTS.md (MEDIUM IMPACT)
-
-**Root cause:** Bob has no explicit instruction to search memory before answering questions or taking actions. QMD search is available and working, but without a protocol, Bob uses memory opportunistically rather than systematically.
-
-**Fix:** Add a "Memory Retrieval Protocol" section to `~/clawd/AGENTS.md` with explicit instructions to run a memory search at session start and before major actions.
-
----
-
-## File Path Architecture
-
-### Host Paths (on EC2)
-
-```
-/home/ubuntu/
-+-- .openclaw/
-|   +-- openclaw.json          <- Main config (compaction, QMD backend)
-|   +-- config.yaml            <- User-level config (sessionMemory experimental)
-|   +-- agents/
-|       +-- main/
-|           +-- qmd/
-|               +-- xdg-config/
-|               |   +-- index.yml    <- QMD collection definitions
-|               |   +-- qmd/
-|               +-- xdg-cache/
-|                   +-- qmd/
-|                       +-- index.sqlite  <- 3.2MB, 21 files indexed
-+-- clawd/                     <- agents.defaults.workspace
-|   +-- MEMORY.md              <- EXISTS but not indexed (wrong location)
-|   +-- agents/
-|   |   +-- main/
-|   |       +-- MEMORY.md      <- NEEDS TO EXIST (QMD indexes this)
-|   |       +-- AGENTS.md      <- Needs memory protocol section
-|   |       +-- memory/        <- QMD-indexed daily log files (21 files, working)
-|   |       |   +-- 2026-02-02.md
-|   |       |   +-- ...
-|   |       |   +-- 2026-03-07.md
-|   |       +-- DAILY_FLUSH.md <- Reference doc for daily-memory-flush cron
-|   +-- memory/                <- OLD location (3 files, Jan 2026) — stale
+```typescript
+// Mission Control: src/lib/db-paths.ts
+export const SELFIMPROVE_DB = "/home/ubuntu/clawd/selfimprove.db";
 ```
 
-### Container Paths (inside Docker sandbox)
-
-```
-/workspace/                    <- maps to /home/ubuntu/clawd/
-                                  (agents.defaults.workspace = /home/ubuntu/clawd)
-+-- [all ~/clawd/ contents available]
-+-- memory/                    <- maps to ~/clawd/memory/ (OLD dir, stale)
-                                  CAUTION: daily-memory-flush writes to memory/YYYY-MM-DD.md
-                                  which resolves to /workspace/memory/ = ~/clawd/memory/ ???
+```typescript
+// API route opens in WAL read-only mode
+const db = new Database(SELFIMPROVE_DB, { readonly: true });
+db.pragma("journal_mode = WAL");
 ```
 
-**CRITICAL DISCREPANCY INVESTIGATION:**
-The cron runs as an isolated session for agent `main`. Despite `agents.defaults.workspace: /home/ubuntu/clawd`, the cron log confirms files land in `~/clawd/agents/main/memory/` not `~/clawd/memory/`. This means OpenClaw resolves the workspace per-agent, and `main` agent's effective workspace is `~/clawd/agents/main/`.
+### Pattern 3: Python sqlite3 for Sandbox DB Access (Established v2.6+)
 
-**Confirmed architecture (from file evidence):**
+**What:** Bob uses Python sqlite3 module inside Docker sandbox to read/write databases. Not the sqlite3 CLI, not Node.js better-sqlite3.
+
+**When:** Bob logs habits, creates goals, writes journal entries.
+
+**Example from GROWTH_COMPANION.md instructions:**
 ```
-Agent "main" effective workspace = ~/clawd/agents/main/
-Docker /workspace/ = ~/clawd/agents/main/
-memory/ inside container = ~/clawd/agents/main/memory/   [QMD indexes this — CORRECT]
-DAILY_FLUSH.md in container = ~/clawd/agents/main/DAILY_FLUSH.md  [confirmed: file exists there]
-MEMORY.md needs to be at = ~/clawd/agents/main/MEMORY.md  [currently missing]
-```
+When logging a habit completion, use this exact pattern:
 
-### QMD Collection Path Mapping
-
-```
-index.yml:
-  memory-root-main:
-    path: /home/ubuntu/clawd/agents/main    <- workspace root
-    pattern: MEMORY.md                       <- matches MEMORY.md in root
-    files: 0                                 <- MISSING: need ~/clawd/agents/main/MEMORY.md
-
-  memory-alt-main:
-    path: /home/ubuntu/clawd/agents/main    <- workspace root
-    pattern: memory.md                       <- matches lowercase memory.md
-    files: 0                                 <- lowercase variant unused
-
-  memory-dir-main:
-    path: /home/ubuntu/clawd/agents/main/memory  <- memory/ subdirectory
-    pattern: **/*.md                         <- all .md files recursively
-    files: 21                                <- WORKING — daily logs indexed
+python3 -c "
+import sqlite3, json
+from datetime import date
+conn = sqlite3.connect('/workspace/selfimprove.db')
+today = date.today().isoformat()
+conn.execute('INSERT OR IGNORE INTO habit_logs (habit_id, completed_at, source) VALUES (?, ?, ?)',
+    ('habit-uuid', today, 'slack_dm'))
+conn.commit()
+conn.close()
+"
 ```
 
-### Docker Bind-Mounts (Current)
+### Pattern 4: Standing Instructions via Protocol Doc (Established v2.6+)
 
-The memory directory is NOT explicitly bind-mounted (confirmed: no memory-related binds in openclaw.json). It is accessible because the entire agent workspace is the Docker container's /workspace/ mount. This means:
-- No bind-mount needed for memory/ reads or writes
-- memory/ files are persistent (host filesystem, not container ephemeral layer)
-- Permissions: `rw-rw-r--` (664) — ubuntu user can write, world-readable
+**What:** GROWTH_COMPANION.md as a workspace protocol doc read by Bob at session start. Contains recognition patterns, DB access templates, response formats.
 
----
+**When:** Every self-improvement interaction (habit logging, journal responses, goal updates).
 
-## What Is New vs Modified
+**Why:** More reliable than skill triggers for pattern matching in DM conversations. Established pattern: VOICE_NOTES_PROTOCOL.md, CONTENT_TRIGGERS.md, YOLO_BUILD.md all use this approach successfully.
 
-| Component | Action | Why |
-|-----------|--------|-----|
-| `compaction.softThresholdTokens` in openclaw.json | **MODIFY**: 1500 → 8000 | Fix built-in flush so it fires in real sessions |
-| `compaction.memoryFlush.prompt` in openclaw.json | **MODIFY**: improve prompt | Current prompt good but can be sharper |
-| `~/clawd/agents/main/MEMORY.md` | **CREATE**: seed with curated knowledge | Enables memory-root-main collection to index it |
-| `~/clawd/MEMORY.md` | **DECOMMISSION**: move content to agent workspace | Consolidate to indexed location |
-| `~/clawd/agents/main/AGENTS.md` | **MODIFY**: add retrieval protocol | Tell Bob to search memory before acting |
-| `~/.openclaw/cron/jobs.json` | **MODIFY**: daily-memory-flush timing | Move from 7 AM UTC to end-of-day (e.g. 23:00 UTC) |
-| `~/clawd/agents/main/DAILY_FLUSH.md` | **MODIFY**: update to capture richer content | Include voice notes, user interactions, not just DB queries |
-| Memory health monitoring cron | **CREATE**: new cron job | Verify memory files are being written with content |
-| `~/clawd/agents/main/BOOTSTRAP.md` | **MODIFY**: add memory verification steps | Ensure QMD index is healthy at boot |
+### Pattern 5: Additive Briefing Sections (Established v2.0+)
 
-**No gateway restart needed for most changes.** Compaction config in openclaw.json requires a gateway restart. Everything else (MEMORY.md content, AGENTS.md additions, DAILY_FLUSH.md edits) takes effect in the next session.
+**What:** New briefing sections are added to the morning-briefing and weekly-review cron reference docs. Each section is independent -- failure in one section doesn't block others.
 
----
+**When:** Adding Growth Dashboard to morning briefing.
 
-## Data Flow: Memory Write → Index → Search
-
-```
-SESSION FLUSH PATH (in-session compaction):
-
-Bob's context accumulates during conversation
-          |
-          v [when contextTokens - usedTokens < reserveTokensFloor]
-OpenClaw compaction fires (mode: safeguard)
-          |
-          v [when remaining_in_reserve < softThresholdTokens]
-memoryFlush.prompt injected as system message:
-  "Session nearing compaction. Store durable memories now."
-          |
-          v
-Bob executes memoryFlush.prompt:
-  "Write a structured session summary to memory/$(date +%Y-%m-%d).md"
-          |
-          v [Bob writes file via bash/tool calls]
-~/clawd/agents/main/memory/YYYY-MM-DD.md (appended if exists)
-
-DAILY CRON FLUSH PATH:
-
-Cron fires: daily-memory-flush (7 AM UTC, isolated session)
-          |
-          v
-Bob reads /workspace/DAILY_FLUSH.md for instructions
-          |
-          v [Bob queries coordination.db, email.db, content.db]
-Bob writes /workspace/memory/YYYY-MM-DD.md
-   = ~/clawd/agents/main/memory/YYYY-MM-DD.md
-
-QMD INDEX UPDATE PATH:
-
-~/clawd/agents/main/memory/YYYY-MM-DD.md (new or updated)
-          |
-          | QMD update every 15m (debounce 15s after file change)
-          v
-memory-dir-main collection re-indexed
-index.sqlite updated (BM25 + embeddings)
-          |
-~/clawd/agents/main/MEMORY.md
-          |
-          | QMD update picks up (after file created)
-          v
-memory-root-main collection: 1 file indexed
-
-RETRIEVAL PATH:
-
-Agent session starts (heartbeat or user DM)
-          |
-          v [OpenClaw injects memory context]
-QMD search fires (BM25 via qmd search)
-Gemini embeddings enhance query vectors
-          |
-          v
-Top-6 memory snippets injected into Bob's context
-          |
-Bob follows retrieval protocol (from AGENTS.md):
-  "Search memory before answering questions about preferences,
-   history, or past decisions"
-          |
-          v
-Relevant memory surfaced in response
-```
-
----
-
-## Build Order: Dependencies Between Fixes
-
-```
-STEP 1: Fix compaction threshold (gateway restart required)
-  - Edit openclaw.json: softThresholdTokens 1500 → 8000
-  - Optionally improve memoryFlush.prompt
-  - Restart gateway: systemctl --user restart openclaw-gateway.service
-  DEPENDS ON: Nothing
-  RISK: Gateway restart clears DM sessions (known pitfall)
-  MITIGATION: Do this at low-activity time; DM Bob after restart
-
-STEP 2: Create MEMORY.md in agent workspace (no restart needed)
-  - Write ~/clawd/agents/main/MEMORY.md with curated long-term knowledge
-  - Source content from ~/clawd/MEMORY.md (move, don't duplicate)
-  - QMD auto-indexes within 15m (onBoot not needed)
-  DEPENDS ON: Nothing (can run parallel with Step 1)
-  RISK: None
-
-STEP 3: Update AGENTS.md with retrieval protocol (no restart needed)
-  - Add "Memory Retrieval Protocol" section
-  - Fires in next Bob session automatically
-  DEPENDS ON: Step 2 (MEMORY.md should exist before protocol references it)
-  RISK: Low — AGENTS.md changes take effect immediately
-
-STEP 4: Reschedule daily-memory-flush to end-of-day (no restart needed)
-  - Change cron schedule from "0 7 * * *" to "0 23 * * *" (3 PM PT / 11 PM UTC)
-  - This captures the day's activity rather than the previous day's sparse data
-  DEPENDS ON: Nothing
-  RISK: One day of overlap/gap during transition
-
-STEP 5: Add memory health monitoring cron (no restart needed)
-  - Create a weekly cron that verifies: file count, file sizes, QMD index freshness
-  - Reports to #popsclaw: "Memory health: 7 files this week, avg 15 lines, QMD fresh"
-  DEPENDS ON: Steps 1-4 (monitoring is only useful after fixes are in place)
-  RISK: None — read-only diagnostic cron
-```
-
-**Why this order:** Step 1 (compaction fix) is the most impactful and requires the only gateway restart — do it first to batch the disruption. Steps 2-3 build the indexed knowledge base Bob can retrieve. Step 4 improves the quality of what gets indexed. Step 5 validates the entire system.
-
----
-
-## Architectural Patterns to Follow
-
-### Pattern 1: QMD Collection Targeting (Established v2.9 research)
-
-QMD auto-creates three collections per agent on first boot. The collection paths and patterns are controlled by `~/.openclaw/agents/{id}/qmd/xdg-config/index.yml`. Do NOT manually edit index.yml — it is managed by OpenClaw. Instead, ensure files exist at the paths QMD expects:
-
-```
-memory-root-main: ~/clawd/agents/{id}/MEMORY.md      <- create this file
-memory-dir-main:  ~/clawd/agents/{id}/memory/*.md    <- daily-memory-flush writes here
-```
-
-### Pattern 2: Compaction Flush Prompt as Tool Call Instructions
-
-The `memoryFlush.prompt` is executed as an agent instruction when compaction fires. Bob treats it as a task: he must write a file to disk. The prompt must be specific about the path (`memory/$(date +%Y-%m-%d).md`) and format. The existing prompt is well-structured; increase `softThresholdTokens` to make it fire.
-
-### Pattern 3: Reference Doc Pattern for Cron Instructions
-
-`DAILY_FLUSH.md` follows the established reference doc pattern (same as MEETING_PREP.md, HEARTBEAT.md, PUBLISH_SESSION.md). The cron payload message is concise ("Follow DAILY_FLUSH.md"); the detailed instructions live in the workspace doc. Do not put long SQL queries in the cron payload.
+**Why:** The morning briefing already has 11 sections. Section 12 follows the same pattern: query a database, format results, include in the briefing markdown.
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Adding MEMORY.md to ~/clawd/ Root (Wrong Layer)
+### Anti-Pattern 1: Installing ClawhHub habit-tracker or self-improvement Skills
 
-**What happens:** MEMORY.md at `~/clawd/MEMORY.md` is in the workspace root that ALL agents share. QMD creates per-agent collections that look in `~/clawd/agents/{id}/`. A file in the root is not indexed.
+**What happens:** The ClawhHub has `habit-flow-skill` (tralves) and `self-improvement` (navendugoyal19) skills. Installing them adds YAML frontmatter skills that compete with the protocol doc approach.
 
-**Do this instead:** `~/clawd/agents/main/MEMORY.md` is the correct location. Per-agent MEMORY.md files allow different agents to have different long-term context.
+**Why bad:** Skills are trigger-based (specific phrases or patterns). The self-improvement features need conversational recognition ("I did my meditation" should log a habit, but "meditation was discussed in the meeting" should not). Protocol docs give Bob context and judgment. Skills give rigid pattern matching. Additionally, ClawhHub skills use their own storage patterns that won't integrate with selfimprove.db or Mission Control.
 
-### Anti-Pattern 2: Setting softThresholdTokens Too High
+**Instead:** Write GROWTH_COMPANION.md with specific recognition instructions. Bob's LLM judgment (via Sonnet/Opus) is more reliable than skill trigger patterns for this use case.
 
-**What happens:** If `softThresholdTokens` is set too close to `reserveTokensFloor` (e.g., 20,000 of 24,000), the flush fires at nearly every context turn — excessive, wastes tokens writing session summaries every few messages.
+### Anti-Pattern 2: Adding Tables to coordination.db
 
-**Sweet spot:** 6,000-10,000. Fires when a session is substantive (1,500-18,000 tokens consumed in the resumed context window).
+**What happens:** Habits, goals, journal entries are added as new tables in coordination.db because "it's the main agent database."
 
-### Anti-Pattern 3: Bind-Mounting memory/ Explicitly
+**Why bad:** coordination.db already has tasks, voice_notes, and agent coordination data. Adding 6+ more tables turns it into a monolithic database. Mission Control queries become complex. Schema migrations become risky (one bad migration breaks tasks AND habits). The established pattern is domain-specific databases: health.db for health, content.db for content, email.db for email.
 
-**What happens:** Adding `~/clawd/agents/main/memory:/workspace/memory:rw` to docker binds creates a conflict — the workspace mount already covers this path. Nested bind-mounts in isolated cron sessions are unreliable (documented pitfall from YOLO Dev work).
+**Instead:** Create selfimprove.db as a new domain-specific database. Same bind-mount pattern, same WAL-mode reads, clean separation.
 
-**Do this instead:** Leave memory/ without an explicit bind-mount. It inherits read-write access from the agent workspace mount.
+### Anti-Pattern 3: Creating a New Agent for Self-Improvement
 
-### Anti-Pattern 4: Removing Gemini memorySearch Config
+**What happens:** A new "growth" or "sage" agent is created to handle self-improvement features.
 
-**What happens:** The `memorySearch.provider: gemini` and `experimental.sessionMemory.enabled: true` are retrieval enhancements. Removing them does not "simplify" the system — it may degrade retrieval quality or break session-history search.
+**Why bad:** Self-improvement features are deeply personal -- they reference Andy's habits, goals, mood, and Oura data. This is Bob's (main agent) domain. A separate agent would need access to health.db, coordination.db (voice notes), and selfimprove.db, plus would need its own heartbeat, increasing rate limit pressure. The feature set doesn't justify a separate agent -- it's 4-6 cron jobs and conversational DM handling.
 
-**Do this instead:** Keep both QMD (storage/indexing) and Gemini (retrieval enhancement) configured. They are complementary. If Gemini is unavailable, QMD BM25 still works.
+**Instead:** Bob (main agent) handles everything. GROWTH_COMPANION.md gives standing instructions. Cron jobs target the main agent.
 
-### Anti-Pattern 5: Relying Solely on the Built-in Flush for Memory
+### Anti-Pattern 4: Real-Time Voice Note Processing for Commute Responses
 
-**What happens:** The built-in compaction flush is designed for in-session memory — it only fires during active long conversations. Heartbeat crons (haiku model, short turns) rarely accumulate enough context to trigger it.
+**What happens:** A new pipeline is built to process commute voice notes immediately (within minutes) so Bob can respond in real-time.
 
-**Do this instead:** Keep BOTH the daily cron flush AND the in-session compaction flush. The cron flush is the reliable daily baseline; the compaction flush captures rich session summaries during intensive work sessions.
+**Why bad:** The existing pipeline processes every 2 hours. Building real-time processing would require: Google Drive webhook, instant Whisper transcription, new cron or event trigger. This is significant infrastructure for a feature where latency doesn't matter -- Andy records during commute, the response can be processed by the next heartbeat or briefing.
+
+**Instead:** Use the existing 2-hour pipeline. Bob associates voice notes with commute prompts during his next session. The 2-hour delay is acceptable because the value is in the recording and reflection, not the immediate processing.
+
+### Anti-Pattern 5: Complex Streak Calculation Logic in Bob's Sessions
+
+**What happens:** Bob calculates streaks by scanning the entire habit_logs table, counting consecutive days, handling weekday-only habits, etc. during every DM interaction.
+
+**Why bad:** Expensive queries during conversational sessions. Risk of incorrect streak counts from LLM-generated SQL. Streaks are a derived metric that should be maintained incrementally.
+
+**Instead:** Store `streak_current`, `streak_best`, and `streak_last_date` directly on the habits table. Update incrementally when logging completions. One simple comparison: if `streak_last_date == yesterday`, increment; otherwise reset to 1. This is fast and reliable.
+
+---
+
+## Build Order: Dependencies Between Components
+
+```
+PHASE 1: Database Foundation
+  - Create selfimprove.db with schema on EC2
+  - Add bind-mount to openclaw.json
+  - Gateway restart (batch with any other config changes)
+  - Write GROWTH_COMPANION.md standing instructions
+  DEPENDS ON: Nothing
+  RISK: Gateway restart clears DM sessions (known pitfall)
+  OUTPUT: Bob can log habits, goals, journal entries via DM
+
+PHASE 2: Habit Tracking + Accountability
+  - Seed initial habits via Bob DM or direct SQL
+  - Create habit-nudge cron (9 PM PT)
+  - Add habit section to morning briefing (Section 12a)
+  - Test: DM Bob "done with meditation", verify DB write + streak
+  DEPENDS ON: Phase 1 (selfimprove.db + GROWTH_COMPANION.md)
+  RISK: Low -- cron pattern established
+  OUTPUT: Daily habit tracking loop operational
+
+PHASE 3: Morning Commute Prompts + Voice Note Integration
+  - Write COMMUTE_PROMPT.md reference doc
+  - Create morning-commute-prompt cron (7:15 AM PT)
+  - Add voice note association logic to GROWTH_COMPANION.md
+  - Test: verify prompt delivery, record voice note, verify association
+  DEPENDS ON: Phase 1 (selfimprove.db) + existing voice notes pipeline
+  RISK: MEDIUM -- voice note timing depends on 2h pipeline lag
+  OUTPUT: Morning commute reflection loop operational
+
+PHASE 4: Journal Prompts + Goal Tracking
+  - Write JOURNAL_PROMPT.md reference doc
+  - Create journal-prompt cron (8 PM PT)
+  - Add goal management instructions to GROWTH_COMPANION.md
+  - Seed initial goals via Bob DM
+  - Test: verify evening prompt delivery, journal entry creation
+  DEPENDS ON: Phase 1 (selfimprove.db)
+  RISK: Low -- follows established cron pattern
+  OUTPUT: Daily journal + goal tracking operational
+
+PHASE 5: Weekly Review + Briefing Integration
+  - Write WEEKLY_REVIEW_GROWTH.md reference doc
+  - Create weekly-growth-review cron (Sunday 8 AM PT)
+  - Add full Growth Dashboard section to morning briefing
+  - Update weekly-review cron to include self-improvement metrics
+  DEPENDS ON: Phases 2-4 (needs data to review)
+  RISK: Low -- all patterns established
+  OUTPUT: Weekly feedback loop operational
+
+PHASE 6: Mission Control Dashboard
+  - Add selfimprove.db to db-paths.ts
+  - Create /api/growth/* API routes (habits, goals, journal, overview)
+  - Create /growth page with habit streaks, mood chart, goal progress
+  - Add /growth link to NavBar
+  - npm run build + restart mission-control service
+  DEPENDS ON: Phase 1 (selfimprove.db), ideally after Phases 2-4 have data
+  RISK: Low -- established MC pattern (SWR + API route + better-sqlite3)
+  OUTPUT: Visual dashboard for self-improvement data
+```
+
+**Why this order:**
+1. **Database first** because every other component depends on selfimprove.db existing and being bind-mounted.
+2. **Habit tracking second** because it's the simplest interaction loop (DM -> log -> streak) and produces immediate daily value.
+3. **Commute prompts third** because they have the most complex flow (cron -> Slack -> voice note -> pipeline -> association) and need the most testing.
+4. **Journal + goals fourth** because they build on the habit tracking patterns but add extracted fields and OKR structure.
+5. **Weekly review fifth** because it needs accumulated data from phases 2-4 to be meaningful.
+6. **Dashboard last** because it needs all data sources populated and is the least functionally critical (Bob delivers all data via Slack already).
 
 ---
 
 ## Scalability Considerations
 
-This is a personal single-agent memory system. "Scaling" means: what happens at 1 year of daily logs?
+This is a single-user personal system. "Scaling" means: what happens at 1 year of daily data?
 
-| Concern | Now (21 files) | At 6 months (180 files) | At 1 year (365 files) |
-|---------|----------------|------------------------|----------------------|
-| QMD index size | 3.2 MB | ~25 MB | ~50 MB |
-| Index query time | <1s | <2s | <3s |
-| Memory file discovery | Instant | Instant | Fast |
-| maxResults relevance | High | High | May need increase to 8 |
-| t3.small RAM | No issue | No issue | Monitor if QMD reranker enabled |
+| Concern | At 1 month | At 6 months | At 1 year |
+|---------|------------|-------------|-----------|
+| selfimprove.db size | ~50KB | ~500KB | ~1MB |
+| habit_logs rows | ~150 (5 habits * 30 days) | ~900 | ~1800 |
+| journal_entries rows | ~30 | ~180 | ~365 |
+| goal_checkins rows | ~12 | ~72 | ~144 |
+| Query performance | Instant | Instant | Instant |
+| Mission Control API latency | <50ms | <50ms | <100ms |
+| Impact on t3.small RAM | Negligible | Negligible | Negligible |
+| Voice note pipeline impact | None (unchanged) | None | None |
 
-**First bottleneck:** If QMD's LLM reranker is ever enabled (`searchMode: "query"` instead of `"search"`), the Qwen3-Reranker-0.6B model adds ~500MB RAM and 3-5s latency per search. Keep `searchMode: "search"` on t3.small indefinitely.
+**First bottleneck:** None foreseeable. selfimprove.db will stay small. The voice note pipeline is the potential bottleneck, but it's already running and unchanged.
 
-**When to worry:** If `qmd status` shows Pending > 0 for more than 30 minutes, the background indexer is slow. This hasn't been observed yet.
+**When to worry:** If journal entries include full voice note transcripts (potentially 1000+ words each), the journal_entries table could grow faster. But this is still trivially small for SQLite.
+
+---
+
+## Mission Control /growth Page Design
+
+### Page Layout
+
+```
+/growth
++------------------------------------------------------+
+| Growth Dashboard                          [date range]|
++------------------------------------------------------+
+|                                                       |
+| HABIT STREAKS                    TODAY'S HABITS       |
+| +------------------+    +-------------------------+   |
+| | Meditation: 14   |    | [x] Meditation          |  |
+| | Exercise:   5    |    | [x] Exercise            |  |
+| | Reading:    0    |    | [ ] Reading              |  |
+| | Journal:    7    |    | [x] Journal             |  |
+| +------------------+    | [x] Water intake        |  |
+|                         +-------------------------+   |
+|                                                       |
+| MOOD & ENERGY TREND (Recharts LineChart, 30 days)    |
+| +--------------------------------------------------+ |
+| |  5 |    *  *       *   *  *                      | |
+| |  4 | *    *  * *  *  *    *  *                    | |
+| |  3 |                        *  *                  | |
+| |  1 |                                              | |
+| +--------------------------------------------------+ |
+|                                                       |
+| GOALS                                                |
+| +--------------------------------------------------+ |
+| | Ship v2.10         [====75%====      ] Mar 30    | |
+| | Read 12 books      [==25%=           ] Dec 31    | |
+| | Daily meditation   [==========100%===] Ongoing   | |
+| +--------------------------------------------------+ |
+|                                                       |
+| WEEKLY HABIT COMPLETION (Recharts BarChart, 7 days)  |
+| +--------------------------------------------------+ |
+| | Mon: 5/5 | Tue: 4/5 | Wed: 5/5 | ...            | |
+| +--------------------------------------------------+ |
+|                                                       |
+| RECENT JOURNAL ENTRIES (last 7)                       |
+| +--------------------------------------------------+ |
+| | Mar 15: Mood 4, Energy 4 - "Productive day..."   | |
+| | Mar 14: Mood 3, Energy 3 - "Meeting heavy..."    | |
+| +--------------------------------------------------+ |
++------------------------------------------------------+
+```
+
+### API Routes
+
+| Route | Method | Returns |
+|-------|--------|---------|
+| `/api/growth/overview` | GET | Today's habits, active streaks, mood trend (30d), active goals |
+| `/api/growth/habits` | GET | All habits with streaks, completion rates (7d, 30d) |
+| `/api/growth/journal` | GET | Last 30 journal entries with mood/energy |
+| `/api/growth/goals` | GET | Active goals with key results and progress |
+
+### Technology (Zero New Packages)
+
+- **better-sqlite3**: Already installed, reads selfimprove.db in WAL mode
+- **SWR**: Existing 30s polling pattern
+- **Recharts**: Already installed for LineChart (mood/energy) and BarChart (weekly completion)
+- **shadcn/ui Card, Badge, Progress**: Already installed for layout components
+
+---
+
+## Cron Schedule Integration
+
+Existing cron jobs that interact with self-improvement features:
+
+| Time (PT) | Existing Cron | Self-Improvement Addition |
+|-----------|---------------|--------------------------|
+| 7:00 AM | morning-briefing | Add Section 12: Growth Dashboard |
+| 7:15 AM | (none) | **NEW: morning-commute-prompt** |
+| 8:00 AM Sunday | weekly-review | Add self-improvement section |
+| 8:00 AM Sunday | (none, or after weekly-review) | **NEW: weekly-growth-review** |
+| 8:00 PM | (none) | **NEW: journal-prompt** |
+| 9:00 PM | (none) | **NEW: habit-nudge** |
+
+**Cron count impact:** Current 25 crons -> 29 crons (4 new). Well within OpenClaw's capacity. All new crons use `isolated: true` with `bestEffort: true` delivery to avoid blocking if Slack session is stale.
+
+**Rate limit impact:** All new crons target main agent (Bob). They run at off-peak times (7:15 AM, 8 PM, 9 PM, Sunday 8 AM). No overlap with existing heartbeat windows (:00/:02/:04/:06). Minimal rate limit pressure.
+
+---
+
+## Gateway Restart Strategy
+
+Only **one gateway restart** needed for the entire milestone:
+- Add selfimprove.db bind-mount to openclaw.json
+- Add 4-6 new cron job entries to openclaw.json
+
+Everything else is hot-deployable:
+- Workspace protocol docs (SCP to EC2)
+- selfimprove.db creation (direct SQL on host)
+- Mission Control page (build + restart MC service, not gateway)
+- Briefing reference doc updates (SCP to EC2)
+
+**Batch the restart into Phase 1.** All subsequent phases avoid gateway disruption.
 
 ---
 
 ## Sources
 
-### HIGH confidence (direct EC2 observation, 2026-03-08)
-- SSH session output: openclaw.json full config, QMD status, collection listing, index.yml
-- `qmd status`: 21 files indexed, 3 collections, update timestamps
-- `qmd search "morning briefing"`: verified BM25 search returns results
-- `ls ~/clawd/agents/main/memory/`: 21 files, Mar 7 most recent (yesterday)
-- `cron/runs/d7041540-*.jsonl`: daily-memory-flush cron confirms writes to memory/
-- File timestamps confirm effective agent workspace is `~/clawd/agents/main/`
+### HIGH confidence (established system patterns)
+- PROJECT.md -- full system architecture, 6 databases, 25 crons, 18 skills, 7 agents
+- MEMORY.md -- voice notes pipeline, cron configuration, sandbox architecture
+- Cron audit (Phase 25) -- all 20+ crons verified, schedule expressions confirmed
+- v2.9 ARCHITECTURE.md -- memory system data flow, QMD collection paths, bind-mount patterns
+- RETROSPECTIVE.md -- established patterns: reference docs > skills, explicit bind-mounts, pattern reuse accelerates delivery
+- findings.md -- cron job schema, webhook config, gateway config patterns
+- process-voice-notes.py -- existing voice note pipeline (Google Drive -> Whisper -> coordination.db)
 
-### MEDIUM confidence (inferred from OpenClaw behavior)
-- Relationship between `memory.backend: qmd` and `memorySearch.provider: gemini`
-- Exact trigger conditions for compaction.memoryFlush in safeguard mode
-- How `experimental.sessionMemory.enabled: true` interacts with QMD retrieval
+### MEDIUM confidence (design decisions requiring validation)
+- Voice note to commute prompt association timing (2-hour pipeline lag acceptable but unverified in practice)
+- Streak calculation approach (incremental update vs. query-time calculation -- incremental recommended but edge cases like timezone rollover need testing)
+- Journal entry mood/energy extraction quality (depends on Bob's LLM prompt quality in JOURNAL_PROMPT.md)
+- [ClawhHub habit-flow-skill](https://github.com/openclaw/skills/blob/main/skills/tralves/habit-flow-skill/SKILL.md) -- evaluated from docs, not installed
+- [AI Journaling patterns](https://www.rosebud.app/) -- informed prompt category design
+- [Morning Commute AI](https://completeaitraining.com/ai-tools/morning-commute/) -- informed commute prompt flow
 
-### LOW confidence (needs verification)
-- Whether softThresholdTokens refers to tokens remaining in reserveFloor or absolute context
-- Whether Gemini embeddings are used alongside QMD BM25 or as alternative
-- Per-agent workspace isolation mechanism (inferred from file evidence, not docs)
+### LOW confidence (needs validation during execution)
+- Whether isolated cron sessions can reliably read selfimprove.db through bind-mount (should work based on content.db pattern, but verify)
+- Whether Bob can reliably extract mood/energy as integers from freeform journal responses (may need prompt iteration)
+- Optimal commute prompt delivery time (7:15 AM assumes Andy leaves ~7:30; may need adjustment)
 
 ---
 
-*Architecture research for: pops-claw v2.9 Memory System Overhaul*
-*Researched: 2026-03-08*
-*Replaces: previous ARCHITECTURE.md covering v2.7 YOLO Dev*
+*Architecture research for: pops-claw v2.10 Self-Improvement Companion*
+*Researched: 2026-03-16*
+*Replaces: v2.9 Memory System Overhaul ARCHITECTURE.md*
