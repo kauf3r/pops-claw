@@ -166,7 +166,11 @@ Full details: [milestones/v2.9-ROADMAP.md](milestones/v2.9-ROADMAP.md)
   3. Evening recap nudges the user about any habits not yet logged for the day
   4. Bob correctly maintains streak counts with 1-day forgiveness (missing one day does not break the streak)
   5. growth.db exists on EC2 with all tables (habits, habit_logs, goals, goal_checkins, journal_entries, commute_prompts, weekly_reviews) and is bind-mounted into the Docker sandbox
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 55-01-PLAN.md -- Platform foundation: OpenClaw upgrade to v2026.3.13, growth.db schema creation, bind-mount and OPENCLAW_TZ config
+- [ ] 55-02-PLAN.md -- Habit system: habit-manager.py CRUD script and GROWTH_COMPANION.md workspace protocol doc
+- [ ] 55-03-PLAN.md -- Briefing integration: wire habits into morning-briefing and evening-recap crons, end-to-end verification
 
 ### Phase 56: Goals & Journal
 **Goal**: User can set OKR-style goals with measurable key results and receive daily journal prompts that track mood and energy over time
@@ -216,7 +220,7 @@ Full details: [milestones/v2.9-ROADMAP.md](milestones/v2.9-ROADMAP.md)
 | 43-48 | v2.8 | 14/14 | Complete | 2026-03-03 |
 | 49 | - | 2/2 | Complete | 2026-03-04 |
 | 51-54 | v2.9 | 8/8 | Complete | 2026-03-08 |
-| 55 | v2.10 | 0/TBD | Not started | - |
+| 55 | v2.10 | 0/3 | Planning complete | - |
 | 56 | v2.10 | 0/TBD | Not started | - |
 | 57 | v2.10 | 0/TBD | Not started | - |
 | 58 | v2.10 | 0/TBD | Not started | - |
@@ -224,4 +228,4 @@ Full details: [milestones/v2.9-ROADMAP.md](milestones/v2.9-ROADMAP.md)
 **Total: 54 phases shipped, 104 plans completed, 10 milestones shipped + 4 phases planned (v2.10)**
 
 ---
-*Updated: 2026-03-16 -- v2.10 roadmap created*
+*Updated: 2026-03-16 -- Phase 55 planned (3 plans in 3 waves)*
