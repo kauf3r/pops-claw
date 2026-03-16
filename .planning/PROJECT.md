@@ -86,7 +86,17 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ### Active
 
-(No active requirements — next milestone not yet defined)
+## Current Milestone: v2.10 Self-Improvement Companion
+
+**Goal:** Research OpenClaw's latest capabilities, then build Bob into a self-improvement companion with habit tracking, weekly reviews, journal prompts, goal tracking, and morning commute voice note prompts.
+
+**Target features:**
+- OpenClaw platform audit — latest capabilities, community setups, ClawhHub skills, improvement patterns
+- Habit tracker — log habits via Slack DM, streak tracking, daily/weekly accountability nudges
+- Weekly review — structured retrospective with Oura energy patterns, what went well / improve
+- Journal prompts — daily reflection prompts, mood/energy logging, pattern surfacing over time
+- Goal tracker — OKR-style goals, weekly check-ins, progress in morning briefing
+- Morning commute prompts — reflection/discussion topics delivered before commute, responded to via voice notes
 
 ### Out of Scope
 
@@ -99,9 +109,9 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ## Context
 
-**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) + **v2.4** (4 days) + **v2.5** (2 days) + **v2.6** (2 days) + **v2.7** (3 days) + **v2.8** (5 days) + **v2.9** (1 day) = full proactive companion + content pipeline + email + security + Mission Control Dashboard + content pipeline hardening + YOLO Dev + bug fixes + dashboard polish + memory system overhaul.
+**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) + **v2.4** (4 days) + **v2.5** (2 days) + **v2.6** (2 days) + **v2.7** (3 days) + **v2.8** (5 days) + **v2.9** (1 day) = full proactive companion + content pipeline + email + security + Mission Control Dashboard + content pipeline hardening + YOLO Dev + bug fixes + dashboard polish + memory system overhaul. **v2.10** in progress — self-improvement companion.
 
-**Tech stack:** OpenClaw v2026.3.2, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db + observability.db + yolo.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean), QMD v1.1.0 (memory search backend, Bun runtime). Mission Control: Next.js 14 + Tailwind + better-sqlite3 at ~/clawd/mission-control/.
+**Tech stack:** OpenClaw v2026.3.11, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db + observability.db + yolo.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean), QMD v1.1.0 (memory search backend, Bun runtime). Mission Control: Next.js 14 + Tailwind + better-sqlite3 at ~/clawd/mission-control/.
 
 **Infrastructure:**
 - AWS EC2 Ubuntu, Tailscale IP: 100.72.143.9
@@ -203,4 +213,4 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Gateway restart batched in Phase 51 only | Minimize disruption, other phases hot-loadable | ✓ Good — single restart for all config |
 
 ---
-*Last updated: 2026-03-08 after v2.9 milestone complete*
+*Last updated: 2026-03-16 after v2.10 milestone started*
