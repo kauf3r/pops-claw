@@ -1,7 +1,7 @@
 # Requirements: Pops-Claw v2.10 Self-Improvement Companion
 
 **Defined:** 2026-03-16
-**Core Value:** Bob becomes a self-improvement companion — tracking habits, prompting reflection, monitoring goals, and correlating health data — while keeping proactive interactions under the fatigue threshold.
+**Core Value:** Bob becomes a self-improvement companion -- tracking habits, prompting reflection, monitoring goals, and correlating health data -- while keeping proactive interactions under the fatigue threshold.
 
 ## v2.10 Requirements
 
@@ -14,7 +14,7 @@
 ### Habit Tracking
 
 - [ ] **HABIT-01**: User can create, list, pause, and archive habits via Slack DM to Bob
-- [ ] **HABIT-02**: User can log habit completion via Slack DM (e.g., "done meditation", "skipped gym — sick")
+- [ ] **HABIT-02**: User can log habit completion via Slack DM (e.g., "done meditation", "skipped gym -- sick")
 - [ ] **HABIT-03**: Bob tracks streaks with 1-day forgiveness and displays consistency rate (%) alongside streak count
 - [ ] **HABIT-04**: Bob sends accountability nudge in evening recap if habits not logged today
 - [ ] **HABIT-05**: Morning briefing includes habit summary section (active habits, streaks, consistency, what's due today)
@@ -67,47 +67,47 @@
 |---------|--------|
 | ClawhHub habit/self-improvement skills | Conflict with established workspace protocol doc pattern |
 | Gamification (badges, points, levels) | 67% abandonment by week 4 per research |
-| New agent for self-improvement | Bob (main agent) handles it — no coordination overhead |
-| Real-time habit reminders | Notification fatigue risk — bundle into existing briefing/recap only |
-| Voice input as primary logging | Voice pipeline has 28-note backlog + OpenAI quota issues — text-first, voice supplemental |
+| New agent for self-improvement | Bob (main agent) handles it -- no coordination overhead |
+| Real-time habit reminders | Notification fatigue risk -- bundle into existing briefing/recap only |
+| Voice input as primary logging | Voice pipeline has 28-note backlog + OpenAI quota issues -- text-first, voice supplemental |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PLAT-01 | TBD | Pending |
-| PLAT-02 | TBD | Pending |
-| PLAT-03 | TBD | Pending |
-| HABIT-01 | TBD | Pending |
-| HABIT-02 | TBD | Pending |
-| HABIT-03 | TBD | Pending |
-| HABIT-04 | TBD | Pending |
-| HABIT-05 | TBD | Pending |
-| GOAL-01 | TBD | Pending |
-| GOAL-02 | TBD | Pending |
-| GOAL-03 | TBD | Pending |
-| GOAL-04 | TBD | Pending |
-| JRNL-01 | TBD | Pending |
-| JRNL-02 | TBD | Pending |
-| JRNL-03 | TBD | Pending |
-| JRNL-04 | TBD | Pending |
-| CMTE-01 | TBD | Pending |
-| CMTE-02 | TBD | Pending |
-| CMTE-03 | TBD | Pending |
-| CMTE-04 | TBD | Pending |
-| WKLY-01 | TBD | Pending |
-| WKLY-02 | TBD | Pending |
-| WKLY-03 | TBD | Pending |
-| WKLY-04 | TBD | Pending |
-| INSG-01 | TBD | Pending |
-| INSG-02 | TBD | Pending |
-| INSG-03 | TBD | Pending |
+| PLAT-01 | Phase 55 | Pending |
+| PLAT-02 | Phase 55 | Pending |
+| PLAT-03 | Phase 55 | Pending |
+| HABIT-01 | Phase 55 | Pending |
+| HABIT-02 | Phase 55 | Pending |
+| HABIT-03 | Phase 55 | Pending |
+| HABIT-04 | Phase 55 | Pending |
+| HABIT-05 | Phase 55 | Pending |
+| GOAL-01 | Phase 56 | Pending |
+| GOAL-02 | Phase 56 | Pending |
+| GOAL-03 | Phase 56 | Pending |
+| GOAL-04 | Phase 56 | Pending |
+| JRNL-01 | Phase 56 | Pending |
+| JRNL-02 | Phase 56 | Pending |
+| JRNL-03 | Phase 56 | Pending |
+| JRNL-04 | Phase 56 | Pending |
+| CMTE-01 | Phase 57 | Pending |
+| CMTE-02 | Phase 57 | Pending |
+| CMTE-03 | Phase 57 | Pending |
+| CMTE-04 | Phase 57 | Pending |
+| WKLY-01 | Phase 57 | Pending |
+| WKLY-02 | Phase 57 | Pending |
+| WKLY-03 | Phase 57 | Pending |
+| WKLY-04 | Phase 57 | Pending |
+| INSG-01 | Phase 58 | Pending |
+| INSG-02 | Phase 58 | Pending |
+| INSG-03 | Phase 58 | Pending |
 
 **Coverage:**
 - v2.10 requirements: 27 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 27
+- Mapped to phases: 27
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-16*
-*Last updated: 2026-03-16 after initial definition*
+*Last updated: 2026-03-16 -- traceability updated with phase mappings*
