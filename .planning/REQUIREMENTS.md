@@ -23,8 +23,8 @@
 
 - [x] **GOAL-01**: User can create OKR-style goals via Slack DM (objective + 1-3 key results with measurable targets)
 - [x] **GOAL-02**: User can check in on goal progress via Slack DM, Bob updates key result progress
-- [ ] **GOAL-03**: Bob prompts weekly goal check-in (bundled with weekly growth review)
-- [ ] **GOAL-04**: Morning briefing includes active goals with progress bars
+- [x] **GOAL-03**: Bob prompts weekly goal check-in (bundled with weekly growth review)
+- [x] **GOAL-04**: Morning briefing includes active goals with progress bars
 
 ### Journal
 
@@ -85,8 +85,8 @@
 | HABIT-05 | Phase 55 | Pending |
 | GOAL-01 | Phase 56 | Complete |
 | GOAL-02 | Phase 56 | Complete |
-| GOAL-03 | Phase 56 | Pending |
-| GOAL-04 | Phase 56 | Pending |
+| GOAL-03 | Phase 56 | Complete |
+| GOAL-04 | Phase 56 | Complete |
 | JRNL-01 | Phase 56 | Complete |
 | JRNL-02 | Phase 56 | Complete |
 | JRNL-03 | Phase 56 | Complete |
