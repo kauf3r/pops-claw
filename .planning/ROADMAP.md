@@ -149,7 +149,7 @@ Full details: [milestones/v2.9-ROADMAP.md](milestones/v2.9-ROADMAP.md)
 
 **Rollout note:** Research recommends 14-day usage gates between phases to combat the 92% self-improvement tool abandonment rate. Each phase should be used daily for ~2 weeks before layering on the next. This is a user-paced decision, not a hard blocker.
 
-- [ ] **Phase 55: Platform Prep & Habit Tracking** - OpenClaw upgrade, growth.db, protocol doc, full habit CRUD with streaks and briefing integration
+- [x] **Phase 55: Platform Prep & Habit Tracking** - OpenClaw upgrade, growth.db, protocol doc, full habit CRUD with streaks and briefing integration -- completed 2026-03-16
 - [ ] **Phase 56: Goals & Journal** - OKR-style goal tracking and daily journal prompts with mood/energy logging
 - [ ] **Phase 57: Morning Commute & Weekly Review** - Context-aware commute prompts with voice note pipeline, structured weekly growth reviews with Oura correlation
 - [ ] **Phase 58: Insights & Dashboard** - Cross-domain pattern detection (Oura x habits x mood) and Mission Control /growth page
@@ -168,21 +168,25 @@ Full details: [milestones/v2.9-ROADMAP.md](milestones/v2.9-ROADMAP.md)
   5. growth.db exists on EC2 with all tables (habits, habit_logs, goals, goal_checkins, journal_entries, commute_prompts, weekly_reviews) and is bind-mounted into the Docker sandbox
 **Plans:** 3 plans
 Plans:
-- [ ] 55-01-PLAN.md -- Platform foundation: OpenClaw upgrade to v2026.3.13, growth.db schema creation, bind-mount and OPENCLAW_TZ config
-- [ ] 55-02-PLAN.md -- Habit system: habit-manager.py CRUD script and GROWTH_COMPANION.md workspace protocol doc
-- [ ] 55-03-PLAN.md -- Briefing integration: wire habits into morning-briefing and evening-recap crons, end-to-end verification
+- [x] 55-01-PLAN.md -- Platform foundation: OpenClaw upgrade to v2026.3.13, growth.db schema creation, bind-mount and OPENCLAW_TZ config
+- [x] 55-02-PLAN.md -- Habit system: habit-manager.py CRUD script and GROWTH_COMPANION.md workspace protocol doc
+- [x] 55-03-PLAN.md -- Briefing integration: wire habits into morning-briefing and evening-recap crons, end-to-end verification
 
 ### Phase 56: Goals & Journal
 **Goal**: User can set OKR-style goals with measurable key results and receive daily journal prompts that track mood and energy over time
 **Depends on**: Phase 55 (growth.db and protocol doc pattern proven)
 **Requirements**: GOAL-01, GOAL-02, GOAL-03, GOAL-04, JRNL-01, JRNL-02, JRNL-03, JRNL-04
 **Success Criteria** (what must be TRUE):
-  1. User can DM Bob to create a goal with an objective and 1-3 measurable key results, and can check in on progress via DM
-  2. Morning briefing includes active goals with visual progress indicators for each key result
-  3. Bob sends a daily journal prompt via Slack DM using day-of-week topic rotation from a bank of 20+ diverse prompts
-  4. User can respond to the journal prompt and Bob extracts and stores mood (1-5) and energy (1-5) ratings in growth.db
-  5. Bob prompts a weekly goal check-in bundled with the weekly growth review
-**Plans**: TBD
+  1. User can create a goal with an objective and 1-3 measurable key results in the andyOS Dashboard at /goals, and can check in on progress via the dashboard UI
+  2. Morning briefing includes active goals with visual progress indicators for each key result, fetched from the andyOS /api/growth/summary endpoint
+  3. Bob sends a daily journal prompt via Slack DM using day-of-week topic rotation from a bank of 20+ diverse prompts, linking to the dashboard for response entry
+  4. User enters mood (1-5) and energy (1-5) alongside journal responses in the andyOS Dashboard at /journal, stored in andyOS PostgreSQL (Neon)
+  5. Bob sends a weekly goal check-in DM on Sunday mornings with goal progress summary and a link to the dashboard for review
+**Plans:** 1/3 plans executed
+Plans:
+- [x] 56-01-PLAN.md -- andyOS schema + API: Drizzle tables (goal, goalCheckin, journalEntry), 7 API routes, growth summary endpoint for Bob
+- [ ] 56-02-PLAN.md -- andyOS UI: /goals page with progress bars + CRUD, /journal page with prompt + mood/energy, hub cards, sidebar nav
+- [ ] 56-03-PLAN.md -- Bob nudge layer: GROWTH_DASHBOARD.md protocol, journal-nudge cron (8pm PT), weekly goal check-in cron (Sunday 9am PT), morning briefing goals via API
 
 ### Phase 57: Morning Commute & Weekly Review
 **Goal**: User receives a personalized morning reflection prompt before commute and a structured weekly growth review that correlates health data with behavioral patterns
@@ -220,12 +224,12 @@ Plans:
 | 43-48 | v2.8 | 14/14 | Complete | 2026-03-03 |
 | 49 | - | 2/2 | Complete | 2026-03-04 |
 | 51-54 | v2.9 | 8/8 | Complete | 2026-03-08 |
-| 55 | v2.10 | 0/3 | Planning complete | - |
-| 56 | v2.10 | 0/TBD | Not started | - |
+| 55 | v2.10 | 3/3 | Complete | 2026-03-16 |
+| 56 | v2.10 | 1/3 | In Progress|  |
 | 57 | v2.10 | 0/TBD | Not started | - |
 | 58 | v2.10 | 0/TBD | Not started | - |
 
-**Total: 54 phases shipped, 104 plans completed, 10 milestones shipped + 4 phases planned (v2.10)**
+**Total: 55 phases shipped, 107 plans completed, 10 milestones shipped + 3 phases remaining (v2.10)**
 
 ---
-*Updated: 2026-03-16 -- Phase 55 planned (3 plans in 3 waves)*
+*Updated: 2026-04-06 -- Phase 56 plan revision (dashboard-centric success criteria)*

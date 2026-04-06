@@ -21,17 +21,17 @@
 
 ### Goals
 
-- [ ] **GOAL-01**: User can create OKR-style goals via Slack DM (objective + 1-3 key results with measurable targets)
-- [ ] **GOAL-02**: User can check in on goal progress via Slack DM, Bob updates key result progress
+- [x] **GOAL-01**: User can create OKR-style goals via Slack DM (objective + 1-3 key results with measurable targets)
+- [x] **GOAL-02**: User can check in on goal progress via Slack DM, Bob updates key result progress
 - [ ] **GOAL-03**: Bob prompts weekly goal check-in (bundled with weekly growth review)
 - [ ] **GOAL-04**: Morning briefing includes active goals with progress bars
 
 ### Journal
 
-- [ ] **JRNL-01**: Bob sends daily journal prompt via Slack DM with day-of-week topic rotation
-- [ ] **JRNL-02**: User can respond to journal prompt via DM, Bob extracts and stores mood/energy ratings (1-5)
-- [ ] **JRNL-03**: Journal prompt bank of 20+ diverse prompts covering reflection, gratitude, challenges, aspirations
-- [ ] **JRNL-04**: Bob stores journal entries in growth.db with date, prompt, response, mood, energy fields
+- [x] **JRNL-01**: Bob sends daily journal prompt via Slack DM with day-of-week topic rotation
+- [x] **JRNL-02**: User can respond to journal prompt via DM, Bob extracts and stores mood/energy ratings (1-5)
+- [x] **JRNL-03**: Journal prompt bank of 20+ diverse prompts covering reflection, gratitude, challenges, aspirations
+- [x] **JRNL-04**: Bob stores journal entries in growth.db with date, prompt, response, mood, energy fields
 
 ### Morning Commute Prompts
 
@@ -83,14 +83,14 @@
 | HABIT-03 | Phase 55 | Pending |
 | HABIT-04 | Phase 55 | Pending |
 | HABIT-05 | Phase 55 | Pending |
-| GOAL-01 | Phase 56 | Pending |
-| GOAL-02 | Phase 56 | Pending |
+| GOAL-01 | Phase 56 | Complete |
+| GOAL-02 | Phase 56 | Complete |
 | GOAL-03 | Phase 56 | Pending |
 | GOAL-04 | Phase 56 | Pending |
-| JRNL-01 | Phase 56 | Pending |
-| JRNL-02 | Phase 56 | Pending |
-| JRNL-03 | Phase 56 | Pending |
-| JRNL-04 | Phase 56 | Pending |
+| JRNL-01 | Phase 56 | Complete |
+| JRNL-02 | Phase 56 | Complete |
+| JRNL-03 | Phase 56 | Complete |
+| JRNL-04 | Phase 56 | Complete |
 | CMTE-01 | Phase 57 | Pending |
 | CMTE-02 | Phase 57 | Pending |
 | CMTE-03 | Phase 57 | Pending |
