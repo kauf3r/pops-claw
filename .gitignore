@@ -1,1 +1,10 @@
 LLM-context
+
+# Tool artifacts
+.beads/
+.playwright-mcp/
+.cursor/
+.factory/
+.gemini/
+AGENTS.md
+.gitattributes
