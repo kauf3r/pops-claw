@@ -225,7 +225,7 @@ Plans:
 | 49 | - | 2/2 | Complete | 2026-03-04 |
 | 51-54 | v2.9 | 8/8 | Complete | 2026-03-08 |
 | 55 | v2.10 | 3/3 | Complete | 2026-03-16 |
-| 56 | v2.10 | 3/3 | Complete   | 2026-04-06 |
+| 56 | v2.10 | 3/3 | Complete    | 2026-04-07 |
 | 57 | v2.10 | 0/TBD | Not started | - |
 | 58 | v2.10 | 0/TBD | Not started | - |
 
