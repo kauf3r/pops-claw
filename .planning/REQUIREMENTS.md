@@ -42,10 +42,10 @@
 
 ### Weekly Growth Review
 
-- [ ] **WKLY-01**: Bob generates structured weekly growth review (wins, challenges, energy patterns, habit/goal progress)
-- [ ] **WKLY-02**: Weekly review includes Oura-correlated energy patterns (sleep quality vs. habit completion, readiness trends)
-- [ ] **WKLY-03**: Weekly review delivered via Slack DM on Sunday morning
-- [ ] **WKLY-04**: Review stored in growth.db for longitudinal tracking
+- [x] **WKLY-01**: Bob generates structured weekly growth review (wins, challenges, energy patterns, habit/goal progress)
+- [x] **WKLY-02**: Weekly review includes Oura-correlated energy patterns (sleep quality vs. habit completion, readiness trends)
+- [x] **WKLY-03**: Weekly review delivered via Slack DM on Sunday morning
+- [x] **WKLY-04**: Review stored in growth.db for longitudinal tracking
 
 ### Insights & Dashboard
 
@@ -95,10 +95,10 @@
 | CMTE-02 | Phase 57 | Complete |
 | CMTE-03 | Phase 57 | Complete |
 | CMTE-04 | Phase 57 | Complete |
-| WKLY-01 | Phase 57 | Pending |
-| WKLY-02 | Phase 57 | Pending |
-| WKLY-03 | Phase 57 | Pending |
-| WKLY-04 | Phase 57 | Pending |
+| WKLY-01 | Phase 57 | Complete |
+| WKLY-02 | Phase 57 | Complete |
+| WKLY-03 | Phase 57 | Complete |
+| WKLY-04 | Phase 57 | Complete |
 | INSG-01 | Phase 58 | Pending |
 | INSG-02 | Phase 58 | Pending |
 | INSG-03 | Phase 58 | Pending |

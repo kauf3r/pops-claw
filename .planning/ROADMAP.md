@@ -226,7 +226,7 @@ Plans:
 | 51-54 | v2.9 | 8/8 | Complete | 2026-03-08 |
 | 55 | v2.10 | 3/3 | Complete | 2026-03-16 |
 | 56 | v2.10 | 3/3 | Complete    | 2026-04-07 |
-| 57 | v2.10 | 1/3 | In Progress|  |
+| 57 | v2.10 | 2/3 | In Progress|  |
 | 58 | v2.10 | 0/TBD | Not started | - |
 
 **Total: 55 phases shipped, 107 plans completed, 10 milestones shipped + 3 phases remaining (v2.10)**
