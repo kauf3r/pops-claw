@@ -35,10 +35,10 @@
 
 ### Morning Commute Prompts
 
-- [ ] **CMTE-01**: Bob delivers personalized morning commute prompt before departure (configurable time)
-- [ ] **CMTE-02**: Commute prompt incorporates context from calendar, sleep data, active goals, recent journal themes
-- [ ] **CMTE-03**: User responds via voice notes (existing Google Drive pipeline), Bob associates response with prompt
-- [ ] **CMTE-04**: Bob extracts key insights from voice note responses and stores in growth.db
+- [x] **CMTE-01**: Bob delivers personalized morning commute prompt before departure (configurable time)
+- [x] **CMTE-02**: Commute prompt incorporates context from calendar, sleep data, active goals, recent journal themes
+- [x] **CMTE-03**: User responds via voice notes (existing Google Drive pipeline), Bob associates response with prompt
+- [x] **CMTE-04**: Bob extracts key insights from voice note responses and stores in growth.db
 
 ### Weekly Growth Review
 
@@ -91,10 +91,10 @@
 | JRNL-02 | Phase 56 | Complete |
 | JRNL-03 | Phase 56 | Complete |
 | JRNL-04 | Phase 56 | Complete |
-| CMTE-01 | Phase 57 | Pending |
-| CMTE-02 | Phase 57 | Pending |
-| CMTE-03 | Phase 57 | Pending |
-| CMTE-04 | Phase 57 | Pending |
+| CMTE-01 | Phase 57 | Complete |
+| CMTE-02 | Phase 57 | Complete |
+| CMTE-03 | Phase 57 | Complete |
+| CMTE-04 | Phase 57 | Complete |
 | WKLY-01 | Phase 57 | Pending |
 | WKLY-02 | Phase 57 | Pending |
 | WKLY-03 | Phase 57 | Pending |
