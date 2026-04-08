@@ -70,3 +70,16 @@ When assisting with this project:
 - EC2 operations require SSH via Tailscale to 100.72.143.9
 - Use full path `/home/ubuntu/.npm-global/bin/openclaw` for non-interactive SSH commands
 - Legacy paths (`~/.clawdbot/`) are symlinked to `~/.openclaw/`
+
+## Knowledge Base Access
+
+Access Andy's AI-maintained knowledge base (Karpathy second brain) from the claude-life-os project.
+
+**wiki_path:** `/Users/andykaufman/Desktop/Projects/claude-life-os/LLM-context/`
+
+**Access protocol:**
+1. Read `{wiki_path}/hot.md` for quick orientation (~500 chars: domains, source count, nav pattern)
+2. Read `{wiki_path}/_index.md` for full wiki structure and page listings
+3. Search `{wiki_path}/sources/`, `{wiki_path}/entities/`, `{wiki_path}/topics/` with Grep for specific terms
+
+**Rules:** Read-only access. Never modify files under the wiki_path. Use citation format: `[[source:{page-name} §{Section Name}]]`
