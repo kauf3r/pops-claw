@@ -1,7 +1,7 @@
 ---
 phase: 58
 slug: insights-dashboard
-status: draft
+status: approved
 shadcn_initialized: true
 preset: new-york
 created: 2026-04-12
@@ -50,13 +50,12 @@ Exceptions: Sparkline chart height at 40px (`h-10`), matching existing OuraSpark
 | Role | Size | Weight | Line Height | Tailwind Class |
 |------|------|--------|-------------|----------------|
 | Body | 14px | 400 (normal) | 1.43 | `text-sm` |
-| Label | 12px | 400 (normal) | 1.33 | `text-xs text-muted-foreground` |
-| Card Title | 14px | 500 (medium) | 1.43 | `text-sm font-medium` |
-| Metric Value | 24px | 700 (bold) | 1.33 | `text-2xl font-bold tabular-nums` |
-| Secondary Metric | 18px | 600 (semibold) | 1.33 | `text-lg font-semibold tabular-nums` |
-| Page Heading | 24px | 700 (bold) | 1.2 | `text-2xl font-bold tracking-tight` |
-| Stat Mini-Card | 18px | 700 (bold) | 1.33 | `text-lg font-bold tabular-nums` |
-| Section Label | 10px | 600 (semibold) | 1.6 | `text-[10px] font-semibold uppercase tracking-widest` |
+| Label / Section Label | 12px | 400 (normal) | 1.33 | `text-xs text-muted-foreground` (section labels add `font-bold uppercase tracking-widest text-muted-foreground/60`) |
+| Card Title | 14px | 400 (normal) | 1.43 | `text-sm font-normal` (differentiated by position in CardHeader, not weight) |
+| Metric Value / Page Heading | 24px | 700 (bold) | 1.33 | `text-2xl font-bold tabular-nums` (page heading adds `tracking-tight`) |
+| Secondary Metric / Stat Mini-Card | 18px | 700 (bold) | 1.33 | `text-lg font-bold tabular-nums` |
+
+**Typography budget: 4 sizes (12, 14, 18, 24) x 2 weights (400 normal, 700 bold)**
 
 All numeric displays MUST use `tabular-nums` for alignment.
 
@@ -173,7 +172,7 @@ Inner:
   CardHeader: Heart icon + "Oura"
   CardContent:
     - Row: text-2xl font-bold tabular-nums + getOuraScoreColor: {avgReadiness} ready
-           text-lg font-semibold tabular-nums + getOuraScoreColor: {avgSleep} sleep
+           text-lg font-bold tabular-nums + getOuraScoreColor: {avgSleep} sleep
     - Sparkline: 7-day sleep score trend (h-10, OuraSparkline pattern)
 ```
 
@@ -183,7 +182,7 @@ Inner:
 Card structure (no Link wrapper — self-contained):
   <Card className="col-span-full">
     <CardHeader className="pb-2">
-      <CardTitle className="text-sm font-medium flex items-center gap-2 text-muted-foreground">
+      <CardTitle className="text-sm font-normal flex items-center gap-2 text-muted-foreground">
         <Lightbulb className="h-4 w-4" />
         Weekly Insights
       </CardTitle>
@@ -194,7 +193,7 @@ Card structure (no Link wrapper — self-contained):
     <CardContent className="space-y-4">
       {/* Correlations section */}
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
           Correlations
         </p>
         <ul className="space-y-1">
@@ -203,7 +202,7 @@ Card structure (no Link wrapper — self-contained):
       </div>
       {/* Themes section */}
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
           Journal Themes
         </p>
         <div className="flex flex-wrap gap-2">
@@ -340,11 +339,11 @@ No third-party registries. All components are from shadcn official or custom pro
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS (4 sizes, 2 weights after revision)
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-04-12
