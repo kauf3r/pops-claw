@@ -152,7 +152,7 @@ Full details: [milestones/v2.9-ROADMAP.md](milestones/v2.9-ROADMAP.md)
 - [x] **Phase 55: Platform Prep & Habit Tracking** - OpenClaw upgrade, growth.db, protocol doc, full habit CRUD with streaks and briefing integration -- completed 2026-03-16
 - [x] **Phase 56: Goals & Journal** - OKR-style goal tracking and daily journal prompts with mood/energy logging (completed 2026-04-06)
 - [ ] **Phase 57: Morning Commute & Weekly Review** - Context-aware commute prompts with voice note pipeline, structured weekly growth reviews with Oura correlation
-- [ ] **Phase 58: Insights & Dashboard** - Cross-domain pattern detection (Oura x habits x mood) and Mission Control /growth page
+- [x] **Phase 58: Insights & Dashboard** - Cross-domain pattern detection (Oura x habits x mood) and Mission Control /growth page (completed 2026-04-13)
 
 ## Phase Details
 
@@ -212,7 +212,7 @@ Plans:
 Plans:
 - [x] 58-01-PLAN.md -- Sync schema & API: 5 Drizzle tables, 5 sync POST endpoints, 3 growth data functions
 - [x] 58-02-PLAN.md -- EC2 sync cron: hourly SQLite-to-andyOS sync, weekly review Oura correlation + journal themes
-- [ ] 58-03-PLAN.md -- /growth page UI with hub cards and charts
+- [x] 58-03-PLAN.md -- /growth page UI with hub cards and charts
 
 ## Progress
 
@@ -231,9 +231,9 @@ Plans:
 | 55 | v2.10 | 3/3 | Complete | 2026-03-16 |
 | 56 | v2.10 | 3/3 | Complete    | 2026-04-07 |
 | 57 | v2.10 | 0/TBD | Not started | - |
-| 58 | v2.10 | 2/3 | In Progress | - |
+| 58 | v2.10 | 3/3 | Complete   | 2026-04-13 |
 
-**Total: 55 phases shipped, 109 plans completed, 10 milestones shipped + 3 phases remaining (v2.10)**
+**Total: 55 phases shipped, 112 plans completed, 10 milestones shipped + 1 phase remaining (v2.10: Phase 57)**
 
 ---
-*Updated: 2026-04-13 -- Phase 58 Plan 02 complete (sync cron + correlation engine)*
+*Updated: 2026-04-13 -- Phase 58 complete (3/3 plans: sync schema, EC2 cron, /growth UI)*
