@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Self-Improvement Companion
 status: verifying
-stopped_at: Completed 56-03-PLAN.md (Bob Integration) - awaiting human verification
-last_updated: "2026-04-07T16:37:59.003Z"
+stopped_at: Completed 58-01-PLAN.md (Sync Schema & API)
+last_updated: "2026-04-13T18:36:56.712Z"
 last_activity: 2026-04-07
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 6
-  completed_plans: 6
+  completed_plans: 7
   percent: 25
 ---
 
@@ -54,6 +54,7 @@ Progress: [██░░░░░░░░] 25% (v2.10)
 | Phase 56 P01 | 4min | 3 tasks | 10 files |
 | Phase 56 P02 | 7min | 3 tasks | 22 files |
 | Phase 56 P03 | 4min | 1 tasks | 4 files |
+| Phase 58 P01 | 4min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - [Phase 56]: Goals as Section 14 in morning briefing (Section 13 already Research Highlights)
 - [Phase 56]: Isolated sessions with --no-deliver for nudge crons (Bob sends DMs directly)
 - [Phase 56]: GROWTH_API_KEY as 32-char hex for Bob-to-andyOS API auth
+- [Phase 58]: Used drizzle-kit push instead of migrate for migration journal mismatch
+- [Phase 58]: sourceId integer column for SQLite-to-PostgreSQL habit dedup
+- [Phase 58]: Inlined resolveUserId per route (no shared util) matching existing convention
 
 ### Open Items
 
@@ -91,8 +95,8 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-06T19:01:56.654Z
-Stopped at: Completed 56-03-PLAN.md (Bob Integration) - awaiting human verification
+Last session: 2026-04-13T18:36:56.709Z
+Stopped at: Completed 58-01-PLAN.md (Sync Schema & API)
 Resume: `/gsd:plan-phase 56`
 
 ---
