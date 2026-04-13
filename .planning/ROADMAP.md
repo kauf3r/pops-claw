@@ -211,7 +211,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 58-01-PLAN.md -- Sync schema & API: 5 Drizzle tables, 5 sync POST endpoints, 3 growth data functions
-- [ ] 58-02-PLAN.md -- EC2 sync cron and correlation engine
+- [x] 58-02-PLAN.md -- EC2 sync cron: hourly SQLite-to-andyOS sync, weekly review Oura correlation + journal themes
 - [ ] 58-03-PLAN.md -- /growth page UI with hub cards and charts
 
 ## Progress
@@ -231,9 +231,9 @@ Plans:
 | 55 | v2.10 | 3/3 | Complete | 2026-03-16 |
 | 56 | v2.10 | 3/3 | Complete    | 2026-04-07 |
 | 57 | v2.10 | 0/TBD | Not started | - |
-| 58 | v2.10 | 1/3 | In Progress | - |
+| 58 | v2.10 | 2/3 | In Progress | - |
 
-**Total: 55 phases shipped, 107 plans completed, 10 milestones shipped + 3 phases remaining (v2.10)**
+**Total: 55 phases shipped, 109 plans completed, 10 milestones shipped + 3 phases remaining (v2.10)**
 
 ---
-*Updated: 2026-04-06 -- Phase 56 plan revision (dashboard-centric success criteria)*
+*Updated: 2026-04-13 -- Phase 58 Plan 02 complete (sync cron + correlation engine)*
