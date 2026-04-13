@@ -49,8 +49,8 @@
 
 ### Insights & Dashboard
 
-- [ ] **INSG-01**: Bob correlates Oura health data with habit completion and mood patterns (requires 4+ weeks data)
-- [ ] **INSG-02**: Bob surfaces recurring journal themes across entries (requires 4+ weeks data)
+- [x] **INSG-01**: Bob correlates Oura health data with habit completion and mood patterns (requires 4+ weeks data)
+- [x] **INSG-02**: Bob surfaces recurring journal themes across entries (requires 4+ weeks data)
 - [ ] **INSG-03**: Mission Control /growth page displays habit charts, journal entries, goal progress, and Oura correlations
 
 ## v2 Requirements (Deferred)
@@ -99,8 +99,8 @@
 | WKLY-02 | Phase 57 | Pending |
 | WKLY-03 | Phase 57 | Pending |
 | WKLY-04 | Phase 57 | Pending |
-| INSG-01 | Phase 58 | Pending |
-| INSG-02 | Phase 58 | Pending |
+| INSG-01 | Phase 58 | Complete |
+| INSG-02 | Phase 58 | Complete |
 | INSG-03 | Phase 58 | Pending |
 
 **Coverage:**
