@@ -35,23 +35,23 @@
 
 ### Morning Commute Prompts
 
-- [x] **CMTE-01**: Bob delivers personalized morning commute prompt before departure (configurable time)
-- [x] **CMTE-02**: Commute prompt incorporates context from calendar, sleep data, active goals, recent journal themes
-- [x] **CMTE-03**: User responds via voice notes (existing Google Drive pipeline), Bob associates response with prompt
-- [x] **CMTE-04**: Bob extracts key insights from voice note responses and stores in growth.db
+- [ ] **CMTE-01**: Bob delivers personalized morning commute prompt before departure (configurable time)
+- [ ] **CMTE-02**: Commute prompt incorporates context from calendar, sleep data, active goals, recent journal themes
+- [ ] **CMTE-03**: User responds via voice notes (existing Google Drive pipeline), Bob associates response with prompt
+- [ ] **CMTE-04**: Bob extracts key insights from voice note responses and stores in growth.db
 
 ### Weekly Growth Review
 
-- [x] **WKLY-01**: Bob generates structured weekly growth review (wins, challenges, energy patterns, habit/goal progress)
-- [x] **WKLY-02**: Weekly review includes Oura-correlated energy patterns (sleep quality vs. habit completion, readiness trends)
-- [x] **WKLY-03**: Weekly review delivered via Slack DM on Sunday morning
-- [x] **WKLY-04**: Review stored in growth.db for longitudinal tracking
+- [ ] **WKLY-01**: Bob generates structured weekly growth review (wins, challenges, energy patterns, habit/goal progress)
+- [ ] **WKLY-02**: Weekly review includes Oura-correlated energy patterns (sleep quality vs. habit completion, readiness trends)
+- [ ] **WKLY-03**: Weekly review delivered via Slack DM on Sunday morning
+- [ ] **WKLY-04**: Review stored in growth.db for longitudinal tracking
 
 ### Insights & Dashboard
 
-- [ ] **INSG-01**: Bob correlates Oura health data with habit completion and mood patterns (requires 4+ weeks data)
+- [x] **INSG-01**: Bob correlates Oura health data with habit completion and mood patterns (requires 4+ weeks data)
 - [ ] **INSG-02**: Bob surfaces recurring journal themes across entries (requires 4+ weeks data)
-- [ ] **INSG-03**: Mission Control /growth page displays habit charts, journal entries, goal progress, and Oura correlations
+- [x] **INSG-03**: Mission Control /growth page displays habit charts, journal entries, goal progress, and Oura correlations
 
 ## v2 Requirements (Deferred)
 
@@ -91,17 +91,17 @@
 | JRNL-02 | Phase 56 | Complete |
 | JRNL-03 | Phase 56 | Complete |
 | JRNL-04 | Phase 56 | Complete |
-| CMTE-01 | Phase 57 | Complete |
-| CMTE-02 | Phase 57 | Complete |
-| CMTE-03 | Phase 57 | Complete |
-| CMTE-04 | Phase 57 | Complete |
-| WKLY-01 | Phase 57 | Complete |
-| WKLY-02 | Phase 57 | Complete |
-| WKLY-03 | Phase 57 | Complete |
-| WKLY-04 | Phase 57 | Complete |
-| INSG-01 | Phase 58 | Pending |
+| CMTE-01 | Phase 57 | Pending |
+| CMTE-02 | Phase 57 | Pending |
+| CMTE-03 | Phase 57 | Pending |
+| CMTE-04 | Phase 57 | Pending |
+| WKLY-01 | Phase 57 | Pending |
+| WKLY-02 | Phase 57 | Pending |
+| WKLY-03 | Phase 57 | Pending |
+| WKLY-04 | Phase 57 | Pending |
+| INSG-01 | Phase 58 | Complete |
 | INSG-02 | Phase 58 | Pending |
-| INSG-03 | Phase 58 | Pending |
+| INSG-03 | Phase 58 | Complete |
 
 **Coverage:**
 - v2.10 requirements: 27 total
