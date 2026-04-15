@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.10
-milestone_name: Self-Improvement Companion
-status: completed
-stopped_at: Completed 58-03-PLAN.md
-last_updated: "2026-04-15T05:03:59.681Z"
+milestone: v2.11
+milestone_name: Knowledge Brain
+status: in_progress
+stopped_at: Defining requirements
+last_updated: "2026-04-15T06:00:00.000Z"
 last_activity: 2026-04-15
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State: Proactive Daily Companion
@@ -20,17 +20,17 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-03-16)
 
-**Core value:** Bob becomes a self-improvement companion -- tracking habits, prompting reflection, monitoring goals, and correlating health data.
-**Current focus:** Phase 58 — insights-dashboard (COMPLETE)
+**Core value:** Bob becomes a knowledge-compounding companion — world knowledge persists, entities auto-enrich, brain-first lookup for all queries.
+**Current focus:** Defining v2.11 requirements
 
 ## Current Position
 
-Phase: 58
-Plan: Not started
-Status: Phase 58 complete, v2.10 Phases 55-58 all shipped (Phase 57 still needs execution)
-Last activity: 2026-04-15
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for v2.11 Knowledge Brain
+Last activity: 2026-04-15 — Milestone v2.11 started
 
-Progress: [██████████] 100% (v2.10 plans: 12/12)
+Progress: [░░░░░░░░░░] 0% (v2.11: 0 phases defined)
 
 ## Performance Metrics
 

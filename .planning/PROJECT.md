@@ -94,6 +94,18 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ### Active
 
+## Current Milestone: v2.11 Knowledge Brain
+
+**Goal:** Give Bob a persistent world knowledge layer via gbrain — indexing the claude-life-os wiki for vector search, auto-capturing entities from conversations, and compounding knowledge over time.
+
+**Target features:**
+- Install gbrain CLI on EC2 with PGLite (embedded Postgres, no external DB)
+- Clone claude-life-os on EC2 and import LLM-context wiki (200+ pages) into gbrain
+- Bind-mount gbrain binary into Docker sandbox for Bob to invoke
+- BRAIN_OPS.md workspace protocol doc: brain-first lookup, signal detection, citation format
+- Nightly embed cron + weekly brain health check
+- Incremental sync from claude-life-os git repo to keep brain current
+
 ## Current State
 
 **Latest milestone:** v2.10 Self-Improvement Companion (shipped 2026-04-15)
@@ -223,4 +235,4 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Gateway restart batched in Phase 51 only | Minimize disruption, other phases hot-loadable | ✓ Good — single restart for all config |
 
 ---
-*Last updated: 2026-04-15 after v2.10 milestone shipped*
+*Last updated: 2026-04-15 after v2.11 milestone started*
