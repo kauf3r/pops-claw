@@ -16,10 +16,11 @@
 - **Symlink:** ~/.bun/bin/gbrain -> ../install/global/node_modules/gbrain/src/cli.ts
 - **Dependencies:** 233 packages installed (PGLite 0.4.4, OpenAI SDK 4.104.0, etc.)
 
-### Compiled Binary (Path A) - SUCCEEDED
+### Compiled Binary (Path A) - FAILED (PGLite WASM issue confirmed)
 - **Binary:** ~/gbrain/bin/gbrain-linux-x64 (99MB standalone)
 - **Build:** `bun build --compile --target=bun-linux-x64` completed in ~774ms
-- **Version test:** `gbrain-linux-x64 --version` returned "gbrain 0.10.1" without errors
-- **Status:** Path A compiled and version check passed. PGLite WASM runtime test deferred to Task 2 (init + doctor will confirm full functionality).
+- **Version test:** `gbrain-linux-x64 --version` returned "gbrain 0.10.1" (works)
+- **PGLite test:** `gbrain-linux-x64 search "..."` failed with `ENOENT: no such file or directory, open '/$bunfs/root/pglite.data'`
+- **Status:** PATH A FAILED. Compiled binary cannot access PGLite WASM data files. Known bug confirmed (electric-sql/pglite#414, oven-sh/bun#15032).
 
-**Plan 02 note:** Compiled binary (Path A) builds and reports version successfully. Full PGLite compatibility confirmed in Task 2 if init/doctor work with the compiled binary. If they don't, Path B (Bun runtime bind-mount) is the fallback.
+**CRITICAL for Plan 02:** Path A (compiled binary) does NOT work for PGLite operations. Plan 02 MUST use Path B (Bun runtime bind-mount): bind-mount Bun binary + gbrain repo + wrapper script into Docker sandbox.
