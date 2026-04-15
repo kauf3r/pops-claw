@@ -12,7 +12,8 @@
 - ✅ **v2.7 YOLO Dev** — Phases 38-42 (shipped 2026-02-26)
 - ✅ **v2.8 Bug Fixes & Dashboard Polish** — Phases 43-48 (shipped 2026-03-03)
 - ✅ **v2.9 Memory System Overhaul** — Phases 51-54 (shipped 2026-03-08)
-- **v2.10 Self-Improvement Companion** — Phases 55-58 (in progress)
+- ✅ **v2.10 Self-Improvement Companion** — Phases 55-57 (shipped 2026-04-15)
+- **v2.11 Knowledge Brain** — Phases 58-60 (in progress)
 
 ## Phases
 
@@ -143,65 +144,64 @@ Full details: [milestones/v2.9-ROADMAP.md](milestones/v2.9-ROADMAP.md)
 
 </details>
 
-### v2.10 Self-Improvement Companion (Phases 55-58)
+<details>
+<summary>v2.10 Self-Improvement Companion (Phases 55-57) -- SHIPPED 2026-04-15</summary>
 
-**Milestone Goal:** Bob becomes a self-improvement companion -- tracking habits, prompting reflection, monitoring goals, and correlating health data with behavioral patterns.
+- [x] **Phase 55: Platform Prep & Habit Tracking** (3/3 plans) -- completed 2026-03-16
+- [x] **Phase 56: Goals & Journal** (3/3 plans) -- completed 2026-04-06
+- [x] **Phase 57: Insights & Dashboard** (3/3 plans) -- completed 2026-04-13
 
-**Rollout note:** Research recommends 14-day usage gates between phases to combat the 92% self-improvement tool abandonment rate. Each phase should be used daily for ~2 weeks before layering on the next. This is a user-paced decision, not a hard blocker.
+Full details: [milestones/v2.10-ROADMAP.md](milestones/v2.10-ROADMAP.md)
 
-- [x] **Phase 55: Platform Prep & Habit Tracking** - OpenClaw upgrade, growth.db, protocol doc, full habit CRUD with streaks and briefing integration -- completed 2026-03-16
-- [x] **Phase 56: Goals & Journal** - OKR-style goal tracking and daily journal prompts with mood/energy logging (completed 2026-04-06)
-- [x] **Phase 57: Insights & Dashboard** - Cross-domain pattern detection (Oura x habits x mood) and Mission Control /growth page (completed 2026-04-13)
+</details>
+
+### v2.11 Knowledge Brain (Phases 58-60)
+
+**Milestone Goal:** Bob gets a persistent world knowledge layer via gbrain -- people, companies, concepts, and relationships compound over time, survive session compaction, and are searchable via hybrid RAG.
+
+- [ ] **Phase 58: gbrain Infrastructure** - Install gbrain on EC2, build binary, init PGLite, bind-mount into sandbox, configure env vars
+- [ ] **Phase 59: Knowledge Import & Sync** - Clone claude-life-os, import wiki + MEMORY.md, embed all pages, set up incremental sync cron
+- [ ] **Phase 60: Brain Operations Protocol** - BRAIN_OPS.md protocol doc, brain-first lookup behavior, signal detection, health cron
 
 ## Phase Details
 
-### Phase 55: Platform Prep & Habit Tracking
-**Goal**: User can track daily habits through Bob with streak accountability and morning briefing visibility
-**Depends on**: Nothing (first phase of v2.10)
-**Requirements**: PLAT-01, PLAT-02, PLAT-03, HABIT-01, HABIT-02, HABIT-03, HABIT-04, HABIT-05
+### Phase 58: gbrain Infrastructure
+**Goal**: Bob can invoke gbrain from inside the Docker sandbox with a working PGLite database and embedding capability
+**Depends on**: Nothing (first phase of v2.11)
+**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, HEALTH-02
 **Success Criteria** (what must be TRUE):
-  1. User can DM Bob to create a habit, log it as done/skipped, pause it, and archive it -- and Bob responds with confirmation
-  2. Morning briefing includes a habit summary section showing active habits, current streaks, consistency percentages, and what is due today
-  3. Evening recap nudges the user about any habits not yet logged for the day
-  4. Bob correctly maintains streak counts with 1-day forgiveness (missing one day does not break the streak)
-  5. growth.db exists on EC2 with all tables (habits, habit_logs, goals, goal_checkins, journal_entries, commute_prompts, weekly_reviews) and is bind-mounted into the Docker sandbox
-**Plans:** 3 plans
-Plans:
-- [x] 55-01-PLAN.md -- Platform foundation: OpenClaw upgrade to v2026.3.13, growth.db schema creation, bind-mount and OPENCLAW_TZ config
-- [x] 55-02-PLAN.md -- Habit system: habit-manager.py CRUD script and GROWTH_COMPANION.md workspace protocol doc
-- [x] 55-03-PLAN.md -- Briefing integration: wire habits into morning-briefing and evening-recap crons, end-to-end verification
+  1. `gbrain --version` returns a valid version when run from inside Bob's Docker sandbox
+  2. `gbrain doctor` passes all checks (PGLite initialized, embeddings configured, database accessible)
+  3. `gbrain add` successfully creates a test page and `gbrain search` retrieves it from inside the sandbox
+  4. OpenAI API key is available in the sandbox environment and gbrain can generate embeddings
+**Plans**: TBD
 
-### Phase 56: Goals & Journal
-**Goal**: User can set OKR-style goals with measurable key results and receive daily journal prompts that track mood and energy over time
-**Depends on**: Phase 55 (growth.db and protocol doc pattern proven)
-**Requirements**: GOAL-01, GOAL-02, GOAL-03, GOAL-04, JRNL-01, JRNL-02, JRNL-03, JRNL-04
+### Phase 59: Knowledge Import & Sync
+**Goal**: Bob's brain contains the full claude-life-os wiki and MEMORY.md, all embedded and searchable, with automated sync to stay current
+**Depends on**: Phase 58 (gbrain must be installed and working)
+**Requirements**: KNOW-01, KNOW-02, KNOW-03, KNOW-04, BRAIN-04
 **Success Criteria** (what must be TRUE):
-  1. User can create a goal with an objective and 1-3 measurable key results in the andyOS Dashboard at /goals, and can check in on progress via the dashboard UI
-  2. Morning briefing includes active goals with visual progress indicators for each key result, fetched from the andyOS /api/growth/summary endpoint
-  3. Bob sends a daily journal prompt via Slack DM using day-of-week topic rotation from a bank of 20+ diverse prompts, linking to the dashboard for response entry
-  4. User enters mood (1-5) and energy (1-5) alongside journal responses in the andyOS Dashboard at /journal, stored in andyOS PostgreSQL (Neon)
-  5. Bob sends a weekly goal check-in DM on Sunday mornings with goal progress summary and a link to the dashboard for review
-**Plans:** 3/3 plans complete
-Plans:
-- [x] 56-01-PLAN.md -- andyOS schema + API: Drizzle tables (goal, goalCheckin, journalEntry), 7 API routes, growth summary endpoint for Bob
-- [x] 56-02-PLAN.md -- andyOS UI: /goals page with progress bars + CRUD, /journal page with prompt + mood/energy, hub cards, sidebar nav
-- [x] 56-03-PLAN.md -- Bob nudge layer: GROWTH_DASHBOARD.md protocol, journal-nudge cron (8pm PT), weekly goal check-in cron (Sunday 9am PT), morning briefing goals via API
+  1. `gbrain search "Andy Kaufman"` returns relevant wiki pages with source citations from the imported claude-life-os content
+  2. `gbrain search` returns results from MEMORY.md seed content (operational knowledge about Bob's infrastructure)
+  3. All imported pages have embeddings (no un-embedded pages in `gbrain stats`)
+  4. A nightly cron job runs `gbrain embed` to index any new or modified pages
+  5. An incremental sync cron pulls new commits from claude-life-os and imports changed files into gbrain
+**Plans**: TBD
 
-### Phase 57: Insights & Dashboard
-**Goal**: Bob surfaces cross-domain patterns from accumulated data and Mission Control provides a visual growth dashboard
-**Depends on**: Phase 57 (4+ weeks of accumulated habit, journal, and health data)
-**Requirements**: INSG-01, INSG-02, INSG-03
+### Phase 60: Brain Operations Protocol
+**Goal**: Bob proactively uses gbrain as his first knowledge source and auto-captures new entities from conversations
+**Depends on**: Phase 59 (brain must have content to search)
+**Requirements**: BRAIN-01, BRAIN-02, BRAIN-03, BRAIN-05, HEALTH-01
 **Success Criteria** (what must be TRUE):
-  1. Bob can identify and report correlations between Oura health metrics (sleep, readiness, HRV) and habit completion rates and mood patterns
-  2. Bob surfaces recurring themes across journal entries (e.g., recurring stressors, gratitude patterns, aspiration shifts)
-  3. Mission Control /growth page displays habit streak/consistency charts, journal entry timeline with mood/energy trends, goal progress bars, and Oura correlation visualizations
-**Plans**: 3 plans
-Plans:
-- [x] 57-01-PLAN.md -- Sync schema & API: 5 Drizzle tables, 5 sync POST endpoints, 3 growth data functions
-- [x] 57-02-PLAN.md -- EC2 sync cron: hourly SQLite-to-andyOS sync, weekly review Oura correlation + journal themes
-- [x] 57-03-PLAN.md -- /growth page UI with hub cards and charts
+  1. When asked about a person, company, or concept that exists in gbrain, Bob checks gbrain before searching the web or using external APIs
+  2. Bob detects entity mentions in conversations (people, companies, projects) and creates or updates gbrain pages for them
+  3. BRAIN_OPS.md workspace protocol doc is deployed in Bob's workspace with lookup patterns, capture triggers, and citation format
+  4. A weekly brain health check cron reports page count, embedding coverage, and any issues to Slack DM
+**Plans**: TBD
 
 ## Progress
+
+**Execution Order:** 58 > 59 > 60
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -215,11 +215,12 @@ Plans:
 | 43-48 | v2.8 | 14/14 | Complete | 2026-03-03 |
 | 49 | - | 2/2 | Complete | 2026-03-04 |
 | 51-54 | v2.9 | 8/8 | Complete | 2026-03-08 |
-| 55 | v2.10 | 3/3 | Complete | 2026-03-16 |
-| 56 | v2.10 | 3/3 | Complete    | 2026-04-07 |
-| 58 | v2.10 | 3/3 | Complete    | 2026-04-13 |
+| 55-57 | v2.10 | 9/9 | Complete | 2026-04-15 |
+| 58. gbrain Infrastructure | v2.11 | 0/? | Not started | - |
+| 59. Knowledge Import & Sync | v2.11 | 0/? | Not started | - |
+| 60. Brain Operations Protocol | v2.11 | 0/? | Not started | - |
 
-**Total: 55 phases shipped, 112 plans completed, 10 milestones shipped + 1 phase remaining (v2.10: Phase 57)**
+**Total: 57 phases shipped, 111 plans completed, 11 milestones shipped**
 
 ---
-*Updated: 2026-04-13 -- Phase 57 complete (3/3 plans: sync schema, EC2 cron, /growth UI)*
+*Updated: 2026-04-15 -- v2.11 Knowledge Brain roadmap created*

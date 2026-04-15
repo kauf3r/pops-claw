@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v2.11
 milestone_name: Knowledge Brain
 status: in_progress
-stopped_at: Defining requirements
-last_updated: "2026-04-15T06:00:00.000Z"
+stopped_at: Roadmap created
+last_updated: "2026-04-15T12:00:00.000Z"
 last_activity: 2026-04-15
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -18,25 +18,25 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-16)
+See: .planning/PROJECT.md (updated 2026-04-15)
 
-**Core value:** Bob becomes a knowledge-compounding companion — world knowledge persists, entities auto-enrich, brain-first lookup for all queries.
-**Current focus:** Defining v2.11 requirements
+**Core value:** Bob gets a persistent world knowledge layer via gbrain -- people, companies, concepts compound over time, survive session compaction, searchable via hybrid RAG.
+**Current focus:** Phase 58 -- gbrain Infrastructure
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements for v2.11 Knowledge Brain
-Last activity: 2026-04-15 — Milestone v2.11 started
+Phase: 58 (gbrain Infrastructure) -- 1 of 3 in v2.11
+Plan: --
+Status: Ready to plan
+Last activity: 2026-04-15 -- v2.11 roadmap created
 
-Progress: [░░░░░░░░░░] 0% (v2.11: 0 phases defined)
+Progress: [░░░░░░░░░░] 0% (v2.11: 0/3 phases)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 104 (across v2.0-v2.9)
+- Total plans completed: 111 (across v2.0-v2.10)
 
 **By Milestone:**
 
@@ -51,13 +51,7 @@ Progress: [░░░░░░░░░░] 0% (v2.11: 0 phases defined)
 | v2.7 | 5 | 12 | 3 days |
 | v2.8 | 6 | 14 | 5 days |
 | v2.9 | 4 | 8 | 1 day |
-| Phase 56 P01 | 4min | 3 tasks | 10 files |
-| Phase 56 P02 | 7min | 3 tasks | 22 files |
-| Phase 56 P03 | 4min | 1 tasks | 4 files |
-| Phase 57 P01 | 8min | 5 tasks | 3 files |
-| Phase 57 P02 | 19min | 4 tasks | 2 files |
-| Phase 57 P03 | 5min | 10 tasks | 0 files |
-| Phase 58 P03 | 12min | 3 tasks | 8 files |
+| v2.10 | 3 | 9 | 30 days |
 
 ## Accumulated Context
 
@@ -66,35 +60,16 @@ Progress: [░░░░░░░░░░] 0% (v2.11: 0 phases defined)
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- v2.10: No ClawhHub skills -- custom workspace protocol docs + SQLite + crons
-- v2.10: growth.db (not selfimprove.db) as database name
-- v2.10: 14-day usage gates between phases (behavioral mitigation, user-paced)
-- v2.10: Max 4 proactive DMs/day to avoid notification fatigue
-- v2.10: Consistency rates alongside streaks (not pure streaks alone)
-- [Phase 56]: JSONB keyResults with auto-computed progress on check-in
-- [Phase 56]: Dual auth on growth/summary: session cookie OR Bearer token with GROWTH_API_KEY
-- [Phase 56]: Journal entries use noon UTC dates to avoid timezone date-shift
-- [Phase 56]: Sheet (not Dialog) for goal create/checkin forms -- mobile-friendly slide-in pattern
-- [Phase 56]: MoodEnergySelector uses pill buttons for quick single-tap, not dropdowns
-- [Phase 56]: Hub cards follow exact async RSC + Suspense pattern from health-card.tsx
-- [Phase 56]: Goals as Section 14 in morning briefing (Section 13 already Research Highlights)
-- [Phase 56]: Isolated sessions with --no-deliver for nudge crons (Bob sends DMs directly)
-- [Phase 56]: GROWTH_API_KEY as 32-char hex for Bob-to-andyOS API auth
-- [Phase 57]: Commute prompt linking via enhanced voice-notes-processor (not separate cron)
-- [Phase 57]: Insight extraction inline during voice note processing, not a separate job
-- [Phase 57]: Used --system-event flag (not --message) to match existing payload kind for weekly-review cron
-- [Phase 57]: Weekly growth review sections handle missing data per-section with graceful degradation
-- [Phase 57]: Payload verification via cron list --json when triggers fail on billing exhaustion
-- [Phase 58]: HabitsCard no Link wrapper or hover (D-21: no /habits detail page)
-- [Phase 58]: GrowthSparkline as reusable parameterized client component (not copy-paste)
+- v2.11: PGLite over external Postgres (t3.small RAM constraint, no extra infra)
+- v2.11: gbrain CLI mode only, no MCP daemon (2GB RAM budget)
+- v2.11: BRAIN_OPS.md workspace protocol doc pattern (same as CONTENT_TRIGGERS.md, GROWTH_COMPANION.md)
+- v2.11: gbrain complements QMD (world knowledge vs operational memory -- different domains)
 
 ### Open Items
 
-- Docker OPENCLAW_TZ behavior needs verification after v2026.3.13 upgrade (Phase 55)
-- health.db schema needs inspection for Oura query compatibility (Phase 57)
-- Workspace token budget -- 5 new protocol docs may need pruning of existing docs
+- OpenAI API key needed for gbrain embeddings -- confirm if existing key available or need new one
+- gbrain PGLite database size impact on t3.small (2GB RAM, gateway uses 1.1GB)
 - GCP OAuth tokens expire in 7 days (testing mode) -- may need re-auth during milestone
-- Dead code: global-search.tsx returns null (Convex removal stub from Phase 29)
 
 ### Blockers
 
@@ -102,9 +77,9 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-13T19:12:33.911Z
-Stopped at: Completed 58-03-PLAN.md
-Resume: `/gsd:plan-phase 56`
+Last session: 2026-04-15
+Stopped at: v2.11 roadmap created, ready to plan Phase 58
+Resume: `/gsd:plan-phase 58`
 
 ---
-*Last updated: 2026-04-13 -- Phase 58 Plan 03 complete*
+*Last updated: 2026-04-15 -- v2.11 roadmap created*

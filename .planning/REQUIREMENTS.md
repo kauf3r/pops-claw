@@ -1,7 +1,7 @@
 # Requirements: Pops-Claw v2.11 Knowledge Brain
 
 **Defined:** 2026-04-15
-**Core Value:** Bob gets a persistent world knowledge layer via gbrain — people, companies, concepts, and relationships compound over time, survive session compaction, and are searchable via hybrid RAG.
+**Core Value:** Bob gets a persistent world knowledge layer via gbrain -- people, companies, concepts, and relationships compound over time, survive session compaction, and are searchable via hybrid RAG.
 
 ## v2.11 Requirements
 
@@ -24,6 +24,7 @@
 - [ ] **BRAIN-01**: Bob checks gbrain before external APIs when asked about people, companies, or concepts
 - [ ] **BRAIN-02**: Bob captures entity mentions from conversations into gbrain pages (signal detection)
 - [ ] **BRAIN-03**: BRAIN_OPS.md workspace protocol doc deployed with lookup, capture, and citation patterns
+- [ ] **BRAIN-05**: Relevant gbrain skills installed in Bob's workspace (signal-detector, brain-ops, query, enrich, ingest, maintain) with routing doc
 - [ ] **BRAIN-04**: Nightly embed cron indexes new/modified brain pages
 
 ### Health & Monitoring
@@ -42,7 +43,7 @@
 
 | Feature | Reason |
 |---------|--------|
-| gbrain MCP daemon mode | RAM constraint — t3.small has 2GB, gateway uses 1.1GB. CLI mode is sufficient. |
+| gbrain MCP daemon mode | RAM constraint -- t3.small has 2GB, gateway uses 1.1GB. CLI mode is sufficient. |
 | gbrain skill system (25 skills) | Bob uses workspace protocol docs, not gbrain triggers. BRAIN_OPS.md wraps CLI. |
 | Replace QMD memory | QMD handles operational memory (compaction, flush). gbrain handles world knowledge. Different domains. |
 | gbrain publish (HTML pages) | Not a current use case for Bob |
@@ -52,25 +53,26 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | TBD | Pending |
-| INFRA-02 | TBD | Pending |
-| INFRA-03 | TBD | Pending |
-| INFRA-04 | TBD | Pending |
-| KNOW-01 | TBD | Pending |
-| KNOW-02 | TBD | Pending |
-| KNOW-03 | TBD | Pending |
-| KNOW-04 | TBD | Pending |
-| BRAIN-01 | TBD | Pending |
-| BRAIN-02 | TBD | Pending |
-| BRAIN-03 | TBD | Pending |
-| BRAIN-04 | TBD | Pending |
-| HEALTH-01 | TBD | Pending |
-| HEALTH-02 | TBD | Pending |
+| INFRA-01 | Phase 58 | Pending |
+| INFRA-02 | Phase 58 | Pending |
+| INFRA-03 | Phase 58 | Pending |
+| INFRA-04 | Phase 58 | Pending |
+| KNOW-01 | Phase 59 | Pending |
+| KNOW-02 | Phase 59 | Pending |
+| KNOW-03 | Phase 59 | Pending |
+| KNOW-04 | Phase 59 | Pending |
+| BRAIN-01 | Phase 60 | Pending |
+| BRAIN-02 | Phase 60 | Pending |
+| BRAIN-03 | Phase 60 | Pending |
+| BRAIN-04 | Phase 59 | Pending |
+| BRAIN-05 | Phase 60 | Pending |
+| HEALTH-01 | Phase 60 | Pending |
+| HEALTH-02 | Phase 58 | Pending |
 
 **Coverage:**
-- v2.11 requirements: 14 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 14
+- v2.11 requirements: 15 total
+- Mapped to phases: 15/15
+- Unmapped: 0
 
 ---
-*Requirements defined: 2026-04-15*
+*Requirements defined: 2026-04-15 | Traceability updated: 2026-04-15*
