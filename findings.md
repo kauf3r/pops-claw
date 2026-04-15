@@ -618,5 +618,32 @@ openclaw agent --agent main --message 'Read verified-bundle.json and produce the
 - User provided architecture diagram showing gateway, Docker, and external connections
 - Network mode toggle (none vs bridge) controls browser internet access
 
+## Oura Health Sync — Stale Data Fix (2026-04-15)
+
+### Root Cause
+
+`oura-sync.py` cron wrote to the wrong database path:
+- **Script wrote to:** `~/clawd/agents/main/health.db` (agent workspace — not bind-mounted to sandbox)
+- **Canonical DB:** `~/clawd/db/health.db` (bind-mounted to `/workspace/db/` in sandbox)
+- Result: cron ran daily without error, but Bob never saw new data. 8 days stale by the time detected.
+
+### Schema Mismatch
+
+Two different schemas existed:
+- **Canonical** (old): `hrv, total_sleep_mins, deep_sleep_mins, rem_sleep_mins, temperature_deviation`
+- **Agent** (sync script): `hrv_balance, activity_score, steps, active_calories, raw_json`
+
+### Fix Applied
+
+1. Backed up canonical DB (`health.db.bak-20260415`)
+2. Added missing columns to canonical DB: `activity_score, steps, active_calories, sleep_efficiency, sleep_duration_hours, body_temp_deviation, raw_json, hrv_balance`
+3. Backfilled Apr 8–15 data from agent DB via `ATTACH DATABASE`
+4. Changed `oura-sync.py` DB path: `~/clawd/agents/main/health.db` → `~/clawd/db/health.db`
+5. Verified manual sync writes to correct DB (tested 2026-04-15 20:41 UTC)
+
+### Prevention
+
+The agent DB at `~/clawd/agents/main/health.db` can be removed or symlinked. All future Oura syncs write to canonical `~/clawd/db/health.db`.
+
 ---
 *Update this file after every 2 view/browser/search operations*
