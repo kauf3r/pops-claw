@@ -7,7 +7,7 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: gbrain CLI installed on EC2 with PGLite engine and compiled binary
+- [x] **INFRA-01**: gbrain CLI installed on EC2 with PGLite engine and compiled binary
 - [ ] **INFRA-02**: gbrain binary bind-mounted into Docker sandbox at `/usr/local/bin/gbrain`
 - [ ] **INFRA-03**: `~/.gbrain/` directory bind-mounted into sandbox for PGLite database access
 - [ ] **INFRA-04**: OpenAI API key available in sandbox environment for embeddings
@@ -53,7 +53,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 58 | Pending |
+| INFRA-01 | Phase 58 | Complete |
 | INFRA-02 | Phase 58 | Pending |
 | INFRA-03 | Phase 58 | Pending |
 | INFRA-04 | Phase 58 | Pending |

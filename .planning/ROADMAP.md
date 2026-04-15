@@ -174,9 +174,9 @@ Full details: [milestones/v2.10-ROADMAP.md](milestones/v2.10-ROADMAP.md)
   2. `gbrain doctor` passes all checks (PGLite initialized, embeddings configured, database accessible)
   3. `gbrain put` successfully creates a test page and `gbrain search` retrieves it from inside the sandbox
   4. OpenAI API key is available in the sandbox environment and gbrain can generate embeddings
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 58-01-PLAN.md -- Install Bun + gbrain on EC2, init PGLite database
+- [x] 58-01-PLAN.md -- Install Bun + gbrain on EC2, init PGLite database
 - [ ] 58-02-PLAN.md -- Configure sandbox bind-mounts, env vars, end-to-end verification
 
 ### Phase 59: Knowledge Import & Sync
@@ -219,7 +219,7 @@ Plans:
 | 49 | - | 2/2 | Complete | 2026-03-04 |
 | 51-54 | v2.9 | 8/8 | Complete | 2026-03-08 |
 | 55-57 | v2.10 | 9/9 | Complete | 2026-04-15 |
-| 58. gbrain Infrastructure | v2.11 | 0/2 | Planned | - |
+| 58. gbrain Infrastructure | v2.11 | 1/2 | In Progress|  |
 | 59. Knowledge Import & Sync | v2.11 | 0/? | Not started | - |
 | 60. Brain Operations Protocol | v2.11 | 0/? | Not started | - |
 
