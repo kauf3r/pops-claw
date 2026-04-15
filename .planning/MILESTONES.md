@@ -1,5 +1,20 @@
 # Milestones
 
+## v2.10 Self-Improvement Companion (Shipped: 2026-04-15)
+
+**Phases completed:** 3 phases, 9 plans, 14 tasks
+
+**Key accomplishments:**
+
+- 3 Drizzle tables (goal, goalCheckin, journalEntry) with 7 API routes covering OKR-style goals CRUD, journal upsert with prompt rotation, stats with streaks, and Bob's growth summary endpoint
+- OKR-style goals page with progress bars and check-in flow, journal page with daily prompts and mood/energy pill selectors, hub cards with Suspense streaming, and sidebar nav integration
+- GROWTH_DASHBOARD.md protocol doc deployed, 2 new crons (journal-nudge 8pm PT, weekly-goal-checkin Sunday 9am PT), morning briefing goals section via andyOS API, GROWTH_API_KEY configured on EC2
+- 5 PostgreSQL tables for EC2 synced data with 5 upsert API endpoints and 3 typed data-fetching functions for /growth page
+- Hourly SQLite-to-andyOS sync cron (5 tables) with Oura-habit correlation SQL and LLM journal theme extraction in weekly review
+- /growth page with 5 hub cards (Habits, Goals, Journal, Oura, Weekly Insights), responsive grid layout, loading skeletons, error boundary, and sidebar nav entry
+
+---
+
 ## v2.9 Memory System Overhaul (Shipped: 2026-03-08)
 
 **Phases:** 51-54 (4 phases, 8 plans, 12 requirements)
@@ -12,6 +27,7 @@
 **Delivered:** Fixed Bob's broken memory system end-to-end — tuned compaction thresholds, bootstrapped QMD vector search, seeded curated knowledge in MEMORY.md, added retrieval discipline to agents, rescheduled daily flush for full-day capture, and deployed automated health monitoring with Slack DM alerts.
 
 **Key accomplishments:**
+
 1. Tuned compaction config (softThreshold 8K, reserve 40K) and bootstrapped QMD collections — 21 files indexed, search returning 62-79% relevance
 2. Created MEMORY.md (80 lines curated knowledge) at correct path, indexed by QMD memory-root-main collection
 3. Redesigned flush prompt with structured sections (Session Summary, DB State Snapshot, Decisions, Open Items) and embedded sqlite3 queries for all 6 databases
@@ -34,6 +50,7 @@
 **Delivered:** Fixed content pipeline bugs, polished Mission Control dashboard with YOLO detail views, build trends, agent board improvements, artifact previews, and automated build cleanup — all verified with live EC2 evidence.
 
 **Key accomplishments:**
+
 1. Fixed content pipeline — deleted ghost content.db, fixed Ezra bind-mount, patched SQL query for NULL/empty-string wp_post_id
 2. Built YOLO detail page with 12 features beyond MVP — syntax highlighting, prev/next nav, ScoreRing, status timeline, iframe preview, copy-to-clipboard
 3. Added build trend charts — success rate BarChart + avg score LineChart on /yolo page with SWR auto-refresh
@@ -55,6 +72,7 @@
 **Delivered:** Transformed Bob from reactive assistant into proactive daily companion with health awareness, smart home control, multi-agent orchestration, coding assistance, and document processing.
 
 **Key accomplishments:**
+
 1. Updated OpenClaw to v2026.2.6-3 with security hardening, memory backend, and token rotation
 2. Integrated Oura Ring health data + Govee smart home (11 lights) into daily workflow with SQLite storage
 3. Built 7-section morning briefing, evening recap, and weekly review automation with model routing
@@ -75,6 +93,7 @@
 **Delivered:** Autonomous content marketing pipeline for AirSpace Integration — 7 agents research UAS topics, write SEO articles, review quality, publish WordPress drafts, generate social copy, and monitor pipeline health. Human approves before publish.
 
 **Key accomplishments:**
+
 1. Content pipeline infrastructure — content.db (SQLite), 3 new agents (Quill, Sage, Ezra), shared #content-pipeline channel
 2. Autonomous topic research — Vector's content-strategy skill + 2x/week cron generates UAS/drone topics
 3. SEO writing pipeline — Quill's seo-writer skill + daily cron claims topics and writes articles
@@ -86,7 +105,6 @@
 **Archive:** [milestones/v2.1-ROADMAP.md](milestones/v2.1-ROADMAP.md)
 
 ---
-
 
 ## v2.2 Resend Email Integration (Shipped: 2026-02-17)
 
@@ -100,6 +118,7 @@
 **Delivered:** Gave Bob a dedicated email channel via Resend API — send, receive, and reply to email autonomously with a verified subdomain (bob@mail.andykaufman.net), inbound webhook pipeline through VPS relay, and production hardening with warmup schedule.
 
 **Key accomplishments:**
+
 1. Outbound email via Resend API — verified domain (SPF/DKIM/DMARC), HTML template, dual-delivery briefings (Slack then email)
 2. Inbound email infrastructure — gateway tailnet bind, VPS Caddy routing with IP restriction, n8n Svix-verified webhook relay, MX record
 3. Inbound email processing — email.db (SQLite), sender allowlist, 8-check auto-reply filter (RFC 3834), rate limiting (1/sender/hr + 10/5min)
@@ -134,6 +153,7 @@
 **Delivered:** Security hardening (OpenClaw v2026.2.17, SecureClaw, injection protections), agent observability (LLM hooks, observability.db, briefing section), email domain hardening (DMARC p=quarantine, warmup checklist), and platform cleanup (OAuth re-auth, doctor warnings resolved).
 
 **Key accomplishments:**
+
 1. OpenClaw updated to v2026.2.17 (CVE-2026-25253 patched), SecureClaw v2.1.0 installed with 51-check audit and 15 behavioral rules
 2. Post-update audit verified all 20 crons, 13 skills, 7 agents intact; 8 prompt injection payloads blocked
 3. Agent observability via observability-hooks plugin — LLM hooks, observability.db, per-agent token usage, briefing Section 10
@@ -156,6 +176,7 @@
 **Delivered:** Built Mission Control Dashboard as the single pane of glass for the entire pops-claw system — live data feeds from all 5 SQLite databases, agent health monitoring, content pipeline and email metrics, memory browsing, office visualization, and Recharts analytics — accessible directly via Tailscale without SSH tunneling.
 
 **Key accomplishments:**
+
 1. WAL-mode database layer connecting all 5 SQLite databases read-only, Convex fully removed, shadcn/ui initialized, systemd service with direct Tailscale access at :3001
 2. Dashboard landing page with status cards for agents (7/7), crons, content pipeline, and email quota — plus activity feed from coordination.db and 30s SWR auto-refresh
 3. Agent board with 7-agent cards showing heartbeat status (color-coded), 24h token usage, model distribution (Haiku/Sonnet/Opus), and error counts from observability.db
@@ -169,7 +190,6 @@
 
 ---
 
-
 ## v2.6 Content Pipeline Hardening (Shipped: 2026-02-23)
 
 **Phases:** 33 (1 phase, 4 plans, 8 tasks)
@@ -181,6 +201,7 @@
 **Delivered:** Hardened the content pipeline for reliable end-to-end operation — verified infrastructure, established channel:ID format across all cron payloads and session files, enabled on-demand content creation via Bob DM, and fixed Mission Control analytics charts.
 
 **Key accomplishments:**
+
 1. Verified content.db bind-mount and cleaned 0-byte stubs from 3 agent workspaces
 2. Fixed all Slack channel references to channel:ID format across 10 session files and 5 cron payloads — established two-level channel:ID pattern for reliable delivery
 3. Created CONTENT_TRIGGERS.md workspace protocol enabling Bob to handle on-demand content creation, topic research, and social post retrieval via DM
@@ -202,6 +223,7 @@
 **Delivered:** Gave Bob the ability to autonomously build working prototypes overnight, with a YOLO dashboard and CLI tools dashboard in Mission Control, morning briefing integration, and Slack DM notifications for build events.
 
 **Key accomplishments:**
+
 1. Autonomous YOLO build pipeline — nightly cron triggers idea generation, prototype building (Python/HTML), yolo.db logging, and self-evaluation with hard guardrails (15-turn cap, 30-min timeout)
 2. Mission Control /yolo page — build history cards with status-colored badges, self-scores, tech stack tags, status filtering, SWR auto-refresh
 3. CLI tools observability — /tools page tracking health of 5 CLI tools, 2 plugins, 3 scripts, and 24 cron jobs with real-time refresh and clipboard quick-actions
@@ -209,6 +231,7 @@
 5. Sandbox reliability — fixed nested Docker bind-mount conflicts for isolated cron sessions, established explicit bind-mount pattern in openclaw.json
 
 **Known Gaps (tech debt):**
+
 - Phase 41 missing formal VERIFICATION.md (summaries exist, work complete)
 - DASH-04 E2E Slack DM from isolated cron session untested at ship time
 

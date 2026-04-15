@@ -84,19 +84,29 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 - ✓ Daily memory flush rescheduled to 23:00 UTC (end-of-day PT) for full activity capture — v2.9
 - ✓ Automated memory health check with dual alerting (system crontab 08:00 UTC + openclaw DM 08:05 UTC) — v2.9
 
+- ✓ OpenClaw upgraded to v2026.4.1 with growth.db, bind-mounts, GROWTH_COMPANION.md protocol — v2.10
+- ✓ Habit CRUD via Slack DM with streak tracking, consistency rates, 1-day forgiveness — v2.10
+- ✓ Morning briefing habits section, evening recap nudge — v2.10
+- ✓ OKR-style goals with progress bars, key results, weekly check-ins on andyOS Dashboard — v2.10
+- ✓ Daily journal prompts with mood/energy (1-5), 20+ topic bank, day-of-week rotation — v2.10
+- ✓ Oura-habit correlation engine and journal theme extraction in weekly reviews — v2.10
+- ✓ /growth hub page on andyOS with 5 cards, sync pipeline, loading/error states — v2.10
+
 ### Active
 
-## Current Milestone: v2.10 Self-Improvement Companion
+## Current State
 
-**Goal:** Research OpenClaw's latest capabilities, then build Bob into a self-improvement companion with habit tracking, weekly reviews, journal prompts, goal tracking, and morning commute voice note prompts.
+**Latest milestone:** v2.10 Self-Improvement Companion (shipped 2026-04-15)
 
-**Target features:**
-- OpenClaw platform audit — latest capabilities, community setups, ClawhHub skills, improvement patterns
-- Habit tracker — log habits via Slack DM, streak tracking, daily/weekly accountability nudges
-- Weekly review — structured retrospective with Oura energy patterns, what went well / improve
-- Journal prompts — daily reflection prompts, mood/energy logging, pattern surfacing over time
-- Goal tracker — OKR-style goals, weekly check-ins, progress in morning briefing
-- Morning commute prompts — reflection/discussion topics delivered before commute, responded to via voice notes
+**Delivered:**
+- Habit tracking with streaks, consistency, briefing integration (growth.db + Slack DM CRUD)
+- OKR-style goal tracking with progress bars, check-ins, weekly accountability (andyOS /goals)
+- Daily journal prompts with mood/energy tracking, topic rotation (andyOS /journal)
+- Oura-habit correlation engine in weekly reviews (SQL cross-DB analysis + LLM theme extraction)
+- /growth hub page on andyOS with 5 cards (Habits, Goals, Journal, Oura, Weekly Insights)
+- Hourly EC2→andyOS data sync pipeline (5 SQLite tables to PostgreSQL)
+
+**Deferred to voice-memory-v2:** Morning commute prompts (CMTE-01–04), full weekly growth review (WKLY-01–04)
 
 ### Out of Scope
 
@@ -109,9 +119,9 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ## Context
 
-**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) + **v2.4** (4 days) + **v2.5** (2 days) + **v2.6** (2 days) + **v2.7** (3 days) + **v2.8** (5 days) + **v2.9** (1 day) = full proactive companion + content pipeline + email + security + Mission Control Dashboard + content pipeline hardening + YOLO Dev + bug fixes + dashboard polish + memory system overhaul. **v2.10** in progress — self-improvement companion.
+**Shipped v2.0** (10 days) + **v2.1** (1 day) + **v2.2** (2 days) + **v2.4** (4 days) + **v2.5** (2 days) + **v2.6** (2 days) + **v2.7** (3 days) + **v2.8** (5 days) + **v2.9** (1 day) + **v2.10** (30 days) = full proactive companion + content pipeline + email + security + Mission Control Dashboard + content pipeline hardening + YOLO Dev + bug fixes + dashboard polish + memory system overhaul + self-improvement companion.
 
-**Tech stack:** OpenClaw v2026.3.11, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db + observability.db + yolo.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean), QMD v1.1.0 (memory search backend, Bun runtime). Mission Control: Next.js 14 + Tailwind + better-sqlite3 at ~/clawd/mission-control/.
+**Tech stack:** OpenClaw v2026.4.1, AWS EC2 Ubuntu, Tailscale, Docker sandbox, SQLite (health.db + coordination.db + content.db + email.db + observability.db + yolo.db), Slack Socket Mode, Gmail/Calendar via gog CLI, Chromium browser automation, WordPress REST API, Resend API, n8n on VPS (DigitalOcean), QMD v1.1.0 (memory search backend, Bun runtime). Mission Control: Next.js 14 + Tailwind + better-sqlite3 at ~/clawd/mission-control/.
 
 **Infrastructure:**
 - AWS EC2 Ubuntu, Tailscale IP: 100.72.143.9
@@ -213,4 +223,4 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 | Gateway restart batched in Phase 51 only | Minimize disruption, other phases hot-loadable | ✓ Good — single restart for all config |
 
 ---
-*Last updated: 2026-03-16 after v2.10 milestone started*
+*Last updated: 2026-04-15 after v2.10 milestone shipped*
