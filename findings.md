@@ -645,5 +645,46 @@ Two different schemas existed:
 
 The agent DB at `~/clawd/agents/main/health.db` can be removed or symlinked. All future Oura syncs write to canonical `~/clawd/db/health.db`.
 
+## Token Optimization Pass (2026-04-15)
+
+### Problem
+
+No cost visibility (observability plugin writing to wrong DB path, same bug as health.db). Estimated $100–180/month in LLM costs from 38 enabled cron jobs + 3 heartbeats.
+
+### Cron Frequency Reductions
+
+| Cron | Before | After | Est. savings |
+|------|--------|-------|-------------|
+| andyos-sync | every 30m (48 runs/day) | every 4h (6 runs/day) | $35–70/mo |
+| email-handler | 6x/day | 3x/day (8am, 12pm, 6pm) | $5–10/mo |
+| airspace-email-monitor | hourly 8-18 M-F | every 2h 8-18 M-F | $5–8/mo |
+| boss-report-digest | 3x/day | 2x/day (7am, 9pm UTC) | $2–4/mo |
+| anomaly-check | 2x/day | 1x/day (10pm UTC) | $1–2/mo |
+| review-check (sage) | 2x/day | 1x/day (3pm UTC) | $1–2/mo |
+
+### Model Downgrades (Sonnet → Haiku)
+
+| Cron | Rationale |
+|------|-----------|
+| heartbeat-main (15 runs/day) | Routine checks, no reasoning needed |
+| writing-check (quill) | "Is there work?" check |
+| review-check (sage) | "Is there work?" check |
+| publish-check (ezra) | "Is there work?" check |
+| content-creator (quill) | Draft generation fine on Haiku |
+
+### Observability Fix
+
+Same wrong-path bug as health.db — plugin wrote to `~/clawd/agents/main/observability.db`, canonical at `~/clawd/db/observability.db`.
+
+Fixed:
+1. Plugin `DB_PATH` → `~/clawd/db/observability.db`
+2. Copied 15,556 rows of historical data to canonical
+3. Updated sandbox bind mount to canonical path
+4. Fixed pricing function: added cache token rates (cacheRead/cacheWrite), corrected Opus pricing ($15/$75, was $5/$25)
+
+### Projected Savings
+
+$60–120/month reduction. Biggest wins: andyos-sync frequency (70% of savings) and heartbeat-main model downgrade.
+
 ---
 *Update this file after every 2 view/browser/search operations*
