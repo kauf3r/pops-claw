@@ -155,13 +155,21 @@ Full details: [milestones/v2.10-ROADMAP.md](milestones/v2.10-ROADMAP.md)
 
 </details>
 
-### v2.11 Knowledge Brain (Phases 58-60)
+### v2.12 Research Pipeline Modernization (Phases 59-61)
+
+**Milestone Goal:** Migrate research analysis from EC2-only crons to a hybrid Claude Code Routines architecture. EC2 keeps ingestion (x_search, Readwise, RSS), Routines handle analysis/generation on Anthropic cloud. GitHub as canonical brief store, Slack visibility.
+
+- [ ] **Phase 59: Research Foundation** - Fix research.db schema (brief_generated flag), auto-brief skill on EC2, GitHub repo as canonical store
+- [ ] **Phase 60: Research Routine** - Claude Code Routine with API trigger + Slack connector for research analysis + brief generation
+- [ ] **Phase 61: Bridge + Cutover** - EC2->Routine API bridge, Mac sync migration to git-based, retire old crons, architecture doc
+
+### v2.11 Knowledge Brain (Phases 58, 62-63)
 
 **Milestone Goal:** Bob gets a persistent world knowledge layer via gbrain -- people, companies, concepts, and relationships compound over time, survive session compaction, and are searchable via hybrid RAG.
 
 - [ ] **Phase 58: gbrain Infrastructure** - Install gbrain on EC2, build binary, init PGLite, bind-mount into sandbox, configure env vars
-- [ ] **Phase 59: Knowledge Import & Sync** - Clone claude-life-os, import wiki + MEMORY.md, embed all pages, set up incremental sync cron
-- [ ] **Phase 60: Brain Operations Protocol** - BRAIN_OPS.md protocol doc, brain-first lookup behavior, signal detection, health cron
+- [ ] **Phase 62: Knowledge Import & Sync** - Clone claude-life-os, import wiki + MEMORY.md, embed all pages, set up incremental sync cron
+- [ ] **Phase 63: Brain Operations Protocol** - BRAIN_OPS.md protocol doc, brain-first lookup behavior, signal detection, health cron
 
 ## Phase Details
 
@@ -179,7 +187,48 @@ Plans:
 - [x] 58-01-PLAN.md -- Install Bun + gbrain on EC2, init PGLite database
 - [ ] 58-02-PLAN.md -- Configure sandbox bind-mounts, env vars, end-to-end verification
 
-### Phase 59: Knowledge Import & Sync
+### Phase 59: Research Foundation
+**Goal**: Fix the stalled research brief pipeline on EC2 and establish GitHub as canonical store. New findings auto-generate briefs and push to repo.
+**Depends on**: Nothing (first phase of v2.12)
+**Requirements**: R59-01, R59-02, R59-03, R59-04, R59-05, R59-06, R59-07
+**Success Criteria** (what must be TRUE):
+  1. `sqlite3 research.db "SELECT brief_generated FROM research_findings WHERE id=1"` returns 1 (schema migrated, backfilled)
+  2. Auto-brief skill exists on EC2 and generates standard-format briefs for un-briefed findings
+  3. Cron job runs auto-brief after research-scan (Tue/Fri)
+  4. All briefs exist in pops-claw GitHub repo under research-briefs/ with git history
+  5. INDEX.md auto-generated with track/date metadata for all briefs
+**Plans:** 2 plans
+Plans:
+- [ ] 59-01-PLAN.md -- Schema migration + backfill + git remote on EC2
+- [ ] 59-02-PLAN.md -- Auto-brief skill + cron + INDEX.md generation
+
+### Phase 60: Research Routine
+**Goal**: Claude Code Routine performs deep research analysis and generates briefs on Anthropic cloud, with Slack notifications.
+**Depends on**: Phase 59 (GitHub repo as brief store)
+**Requirements**: R60-01, R60-02, R60-03, R60-04, R60-05, R60-06, R60-07, R60-08
+**Success Criteria** (what must be TRUE):
+  1. Routine "Research Analyst" exists at claude.ai/code/routines with API trigger configured
+  2. POST to the routine's /fire endpoint with a topic payload starts a research session
+  3. Routine generates a brief in standard format (TL;DR, Key Insights, Action Plan, The One Thing) and commits to pops-claw repo
+  4. Slack notification with TL;DR posted on brief completion
+  5. Routine runs within Pro plan daily limits (5/day)
+**Plans**: TBD
+
+### Phase 61: Bridge + Cutover
+**Goal**: Wire EC2 to fire the Routine for new findings, migrate Mac sync to git, retire old crons, document architecture.
+**Depends on**: Phase 60 (Routine must be created and tested)
+**Requirements**: R61-01, R61-02, R61-03, R61-04, R61-05, R61-06, R61-07, R61-08, R61-09
+**Success Criteria** (what must be TRUE):
+  1. EC2 bridge script detects un-briefed findings and POSTs to Routine API trigger
+  2. EC2 cron runs bridge script on schedule (Tue/Fri or daily)
+  3. Mac sync script uses `git pull` instead of rsync from EC2
+  4. LLM-context bridge (YAML frontmatter transform) still works with git-based source
+  5. Old research-dive cron on EC2 is disabled (commented, not deleted)
+  6. ARCHITECTURE.md documents the full hybrid pipeline
+  7. Full E2E test passes: new finding -> EC2 bridge -> Routine -> brief -> GitHub -> Mac -> LLM-context
+**Plans**: TBD
+
+### Phase 62: Knowledge Import & Sync
 **Goal**: Bob's brain contains the full claude-life-os wiki and MEMORY.md, all embedded and searchable, with automated sync to stay current
 **Depends on**: Phase 58 (gbrain must be installed and working)
 **Requirements**: KNOW-01, KNOW-02, KNOW-03, KNOW-04, BRAIN-04
@@ -191,9 +240,9 @@ Plans:
   5. An incremental sync cron pulls new commits from claude-life-os and imports changed files into gbrain
 **Plans**: TBD
 
-### Phase 60: Brain Operations Protocol
+### Phase 63: Brain Operations Protocol
 **Goal**: Bob proactively uses gbrain as his first knowledge source and auto-captures new entities from conversations
-**Depends on**: Phase 59 (brain must have content to search)
+**Depends on**: Phase 62 (brain must have content to search)
 **Requirements**: BRAIN-01, BRAIN-02, BRAIN-03, BRAIN-05, HEALTH-01
 **Success Criteria** (what must be TRUE):
   1. When asked about a person, company, or concept that exists in gbrain, Bob checks gbrain before searching the web or using external APIs
@@ -204,7 +253,7 @@ Plans:
 
 ## Progress
 
-**Execution Order:** 58 > 59 > 60
+**Execution Order:** 59 > 60 > 61 (v2.12) > 58 remaining > 62 > 63 (v2.11)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -219,11 +268,14 @@ Plans:
 | 49 | - | 2/2 | Complete | 2026-03-04 |
 | 51-54 | v2.9 | 8/8 | Complete | 2026-03-08 |
 | 55-57 | v2.10 | 9/9 | Complete | 2026-04-15 |
-| 58. gbrain Infrastructure | v2.11 | 1/2 | In Progress|  |
-| 59. Knowledge Import & Sync | v2.11 | 0/? | Not started | - |
-| 60. Brain Operations Protocol | v2.11 | 0/? | Not started | - |
+| 58. gbrain Infrastructure | v2.11 | 1/2 | In Progress | |
+| 59. Research Foundation | v2.12 | 0/2 | Not started | - |
+| 60. Research Routine | v2.12 | 0/? | Not started | - |
+| 61. Bridge + Cutover | v2.12 | 0/? | Not started | - |
+| 62. Knowledge Import & Sync | v2.11 | 0/? | Not started | - |
+| 63. Brain Operations Protocol | v2.11 | 0/? | Not started | - |
 
 **Total: 57 phases shipped, 111 plans completed, 11 milestones shipped**
 
 ---
-*Updated: 2026-04-15 -- Phase 58 plans created*
+*Updated: 2026-04-17 -- Phase 59 planned (2 plans), v2.12 Research Pipeline Modernization added (Phases 59-61), v2.11 remaining phases renumbered to 62-63*
