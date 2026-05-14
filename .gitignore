@@ -6,5 +6,15 @@ LLM-context
 .cursor/
 .factory/
 .gemini/
+.claude/
 AGENTS.md
 .gitattributes
+
+# macOS
+.DS_Store
+
+# Runtime logs
+scripts/*.log
+
+# Scratch / experiments
+yolo-dev/
