@@ -94,9 +94,31 @@ Bob delivers a genuinely useful morning briefing, knows your health data, manage
 
 ### Active
 
-## Current Milestone: v2.11 Knowledge Brain
+## Current Milestone: v2.12 Research Pipeline Modernization
 
-**Goal:** Give Bob a persistent world knowledge layer via gbrain — indexing the claude-life-os wiki for vector search, auto-capturing entities from conversations, and compounding knowledge over time.
+**Goal:** Migrate research analysis from EC2-only crons to a hybrid Claude Code Routines architecture — fixing the stalled brief pipeline, using GitHub as source of truth for research briefs, and adding Slack visibility. EC2 stays for ingestion (x_search, Readwise, RSS), Routines handle the expensive analysis/generation work.
+
+**Target features:**
+- Fix stalled EC2 brief generation: add `brief_generated` flag to research.db, auto-brief skill
+- GitHub repo as canonical brief store (versioned, accessible to Routines and local sync)
+- Claude Code Routine with API trigger for research analysis + brief generation
+- EC2 bridge cron: detect new findings → fire Routine API trigger with topic payload
+- Slack connector: post TL;DR when new briefs land
+- Replace Mac launchd file sync with git-based flow
+- Document hybrid architecture (EC2 ingest → Routine analysis → GitHub store → LLM-context KB)
+
+**Phases:**
+- Phase 59: Research Foundation — EC2 schema fix + auto-brief + GitHub repo setup
+- Phase 60: Claude Code Routine — Research analyst routine with API trigger + Slack
+- Phase 61: Bridge + Cutover — EC2→Routine bridge, sync migration, old cron retirement
+
+**Prerequisites:** Claude Code Routines access (research preview, shipped 2026-04-14, available on Pro+)
+
+**Daily run budget:** Pro = 5 runs/day, Max = 15. Current research crons fire ~6x/week — fits within Pro limits.
+
+## Queued Milestone: v2.11 Knowledge Brain
+
+**Goal:** Give Bob a persistent world knowledge layer via gbrain �� indexing the claude-life-os wiki for vector search, auto-capturing entities from conversations, and compounding knowledge over time.
 
 **Target features:**
 - Install gbrain CLI on EC2 with PGLite (embedded Postgres, no external DB)
