@@ -455,5 +455,25 @@ Key findings:
 - 0 emails in last 7 days (Resend pipeline may need attention)
 - 3 "scheduled" agents (ezra, quill, sage) — no heartbeat crons, expected
 
+## Session: 2026-05-25
+
+### Disabled Gmail push notifications
+
+Boot warning surfaced after EC2 reboot: `gmail-watcher` repeatedly failed to start with `Google API error (400 invalidArgument): Invalid topicName does not match projects/pops-claw-oauth/topics/*`.
+
+**Root cause:** `hooks.gmail.topic` in `~/.openclaw/openclaw.json` pointed to `projects/rock-range-485422-h3/topics/pops-claw-gmail-watch` — a stale GCP project, separate from the current OAuth project `pops-claw-oauth` (migrated 2026-04-21) and the retired ASI project `vertical-ratio-485421-t4`. Gmail API rejects watch() when the topic project doesn't match the OAuth project.
+
+**Decision:** Disable push entirely rather than provision a new pubsub topic. Polling crons (airspace-email every 2h M-F, email-handler 1x/day 8am) already handle email; real-time wake-on-email was not load-bearing.
+
+**Changes to `~/.openclaw/openclaw.json` on EC2:**
+- Removed `hooks.gmail` block
+- Removed `gmail-hook` mapping from `hooks.mappings`
+- Emptied `hooks.presets` (was `["gmail"]`)
+- Backup: `~/.openclaw/openclaw.json.bak-20260525-191710`
+
+**Verification:** Gateway restarted, ready at 19:20:13 UTC. No `[gmail-watcher]` log lines, no `topicName` error. Slack/browser/heartbeat all active.
+
+**Re-enable path** (if push is ever needed again): create topic `pops-claw-gmail-watch` in GCP project `pops-claw-oauth`, grant Publisher to `gmail-api-push@system.gserviceaccount.com`, create push subscription → `https://ip-172-31-7-127.tail26c537.ts.net/hooks/gmail` with the bearer token from `hooks.token`, then restore the removed config blocks from the backup with the topic path updated.
+
 ---
 *Update after completing each phase or encountering errors*
