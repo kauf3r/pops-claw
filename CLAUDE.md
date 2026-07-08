@@ -1,6 +1,10 @@
 # pops-claw — Operating Manual
 
-Ops and planning repo for **Bob**, a proactive AI companion running on OpenClaw (v2026.4.1 as of the last documented upgrade — confirm current version in `progress.md`) on an AWS EC2 Ubuntu host, Tailscale-only (`100.72.143.9`), gateway on port 18789, agents in a Docker sandbox. Bob runs a 7-agent system (Andy/Scout/Vector/Sentinel + Quill/Sage/Ezra), ~25 cron jobs, 6 SQLite databases, an autonomous content pipeline, Resend email, and a Next.js Mission Control dashboard at `~/clawd/mission-control/` on EC2. **The deployment lives on EC2 — this repo holds the planning state (`.planning/`, GSD-managed), runbooks, solution docs, research briefs, and Mac-side sync scripts.** Milestone v2.11 "Knowledge Brain" (gbrain + PGLite) is executing; v2.12 "Research Pipeline Modernization" is planned. Read this file fully before your first change; when it conflicts with your defaults, this file wins.
+Ops and planning repo for **Bob** — an AWS EC2 Ubuntu host (Tailscale-only, `100.72.143.9`).
+
+> **⚠️ Runtime superseded — verified live 2026-07-08.** Bob no longer runs OpenClaw. The OpenClaw gateway (port 18789, the 7-agent sandbox) was **retired and archived 2026-06-11**; the live workload is now the **Hermes** agent (Docker container `hermes`, image `nousresearch/hermes-agent`). Hermes' config, safe-deploy sequence, and gates live in the **`hermes-andy`** repo (`~/dev/hermes-andy/CLAUDE.md`) — anything touching the live agent, gateway, crons, or host config goes through **there, not here**. The Next.js **Mission Control** dashboard (`~/clawd/mission-control/`, port 3001) is deliberately still running.
+
+This repo is now **planning state + ops history + Mac-side sync**, not a live control surface: `.planning/` (GSD-managed), runbooks, `docs/solutions/`, research briefs, and the `scripts/` sync tooling. The OpenClaw-era architecture, mistakes, and commands below are retained as **historical reference** — verify against `hermes-andy` and the live box before assuming any of it still runs. Read this file fully before your first change; when it conflicts with your defaults, this file wins.
 
 ## The Gates (non-negotiable)
 
@@ -30,7 +34,7 @@ Ops and planning repo for **Bob**, a proactive AI companion running on OpenClaw 
 | `.claude/commands/ops.md` | `/ops` — full 10-check EC2 health report over one SSH connection |
 | `LLM-context` (symlink) | Read-only knowledge base — see KB Access below |
 
-**The deployment (EC2 + VPS):**
+**The deployment (EC2 + VPS)** — *historical: OpenClaw runtime retired 2026-06-11. The gateway/config/agent rows below no longer run on Bob; the host, Mission Control, DB paths, and sync targets may still apply. Live agent = Hermes (`hermes-andy`).*
 
 | Where | What |
 |---|---|
@@ -123,12 +127,8 @@ ssh -i ~/.ssh/clawdbot-key.pem ubuntu@100.72.143.9
 # Health report (10 checks, one connection)
 /ops   # command lives at .claude/commands/ops.md
 
-# Gateway
-systemctl --user status openclaw-gateway
-systemctl --user restart openclaw-gateway
-journalctl --user -u openclaw-gateway -n 50
-
-# Ask Bob to do something (runs in his sandbox)
-openclaw agent --agent main --message '...'
-# full path for non-interactive SSH: /home/ubuntu/.npm-global/bin/openclaw
+# Live agent = Hermes — control/config lives in the hermes-andy repo, NOT here
+docker ps --filter name=hermes     # Up = healthy
+docker logs --tail 40 hermes
+# OpenClaw gateway/agent commands (openclaw-gateway, `openclaw agent`) retired 2026-06-11 — no longer exist on Bob
 ```
