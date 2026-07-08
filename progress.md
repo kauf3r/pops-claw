@@ -1,5 +1,16 @@
 # Progress Log
 
+## Session: 2026-07-08 — Repo wind-down
+
+- **Status:** ✅ repo cleanup complete. Andy is retiring active pops-claw work to focus on hermes-andy; the EC2 deployment (Bob) is unaffected — this was Mac-side git hygiene only.
+- Actions taken:
+  - Confirmed the repo fully migrated iCloud (`~/Desktop/Projects/pops-claw`) → local (`~/dev/pops-claw`); old location gone, single worktree.
+  - Merged PR #3 (`chore: document Gmail push disable`) via squash → `6db5a67` on `main`.
+  - Pruned all 11 stale local branches (8 merged, 1 squash-merged `docs/claude-md-operating-manual`, 2 unmerged `worktree-thursday-upgrades` + `worktree-work-0225` deleted per Andy's call — recoverable via reflog ~90d).
+  - Deleted 3 stale remote branches on origin (`worktree-content-pipeline`, `worktree-ec2-memory-fixes`, `worktree-thursday-upgrades`). **Origin now hosts only `main`.**
+  - Repaired object-DB corruption inherited from the iCloud move: broken link `98bb7ac → 7b1b4da` (missing commit) blocked `git gc`. Fixed with `git fetch --refetch origin`; `git gc --prune=now` and `git fsck --connectivity-only` now clean.
+- End state: local `main` only, clean tree, synced with origin; origin `main` only; object DB healthy.
+
 ## Session: 2026-01-30
 
 ### Phase 1: Security Audit & Hardening
