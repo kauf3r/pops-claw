@@ -13,6 +13,11 @@ AGENTS.md
 # macOS
 .DS_Store
 
+# iCloud Drive conflict-copy artifacts (e.g. "PLAN 2.md", "INDEX 2.md")
+# Generated automatically when iCloud can't cleanly reconcile a file.
+* [0-9].*
+* [0-9]
+
 # Runtime logs
 scripts/*.log
 

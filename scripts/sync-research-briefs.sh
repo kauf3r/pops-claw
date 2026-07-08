@@ -3,11 +3,11 @@
 # Run manually or via launchd: ~/Library/LaunchAgents/com.andykaufman.research-sync.plist
 set -euo pipefail
 
-LOCAL_DIR="$HOME/Desktop/Projects/pops-claw/research-briefs"
+LOCAL_DIR="$HOME/dev/pops-claw/research-briefs"
 REMOTE_DIR="ubuntu@100.72.143.9:/home/ubuntu/clawd/research-briefs/"
 SSH_KEY="$HOME/.ssh/clawdbot-key.pem"
 KB_DIR="$HOME/Desktop/Projects/claude-life-os/LLM-context/sources"
-LOG="$HOME/Desktop/Projects/pops-claw/scripts/sync-research-briefs.log"
+LOG="$HOME/dev/pops-claw/scripts/sync-research-briefs.log"
 
 mkdir -p "$LOCAL_DIR"
 
