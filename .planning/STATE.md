@@ -2,10 +2,12 @@
 gsd_state_version: 1.0
 milestone: v2.11
 milestone_name: Knowledge Brain
-status: executing
+status: archived
 stopped_at: Completed 58-01-PLAN.md
 last_updated: "2026-04-15T21:00:33.472Z"
 last_activity: 2026-04-15
+archived: 2026-08-19
+archived_reason: OpenClaw runtime retired 2026-06-11; v2.11 (gbrain) targeted its Docker sandbox and is cancelled, not paused
 progress:
   total_phases: 3
   completed_phases: 0
@@ -15,6 +17,10 @@ progress:
 ---
 
 # Project State: Proactive Daily Companion
+
+## Closure note (2026-08-19)
+
+v2.11 Phase 58 (gbrain-infrastructure) was cancelled with OpenClaw's retirement (2026-06-11) — it targeted the OpenClaw Docker sandbox, which no longer exists. The successor for knowledge-layer work is claude-life-os's KB (`LLM-context/`) plus the `claude-life-os-kb` MCP server. Do not plan new phases in this repo.
 
 ## Project Reference
 
