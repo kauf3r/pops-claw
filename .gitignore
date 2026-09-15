@@ -23,3 +23,5 @@ scripts/*.log
 
 # Scratch / experiments
 yolo-dev/
+# planning and handoff notes stay local (public repo)
+.planning/
