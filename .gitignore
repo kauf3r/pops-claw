@@ -7,7 +7,6 @@ LLM-context
 .factory/
 .gemini/
 .claude/
-AGENTS.md
 .gitattributes
 
 # macOS
